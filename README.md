@@ -1,10 +1,10 @@
 # ✈️ 드림컬랙션 — 팀 프론트엔드 프로젝트
 cmd 창 순서
-git remote remove origin
-git remote add origin https://github.com/dklim4465/DreamCollection.git
-git push -u origin main --force
-git checkout -b develop
-git push -u origin develop
+1. git remote remove origin
+2. git remote add origin https://github.com/dklim4465/DreamCollection.git
+3. git push -u origin main --force
+4. git checkout -b develop
+5. git push -u origin develop
 ---
 
 ## 🎨 디자인 시스템
