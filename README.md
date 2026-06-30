@@ -52,44 +52,74 @@ npm run dev
 ## 📁 폴더 구조 & 담당
 
 ```
-src/
-├── api/                  # axios API 함수 (담당 D)
-│   ├── client.ts         # axios 기본 설정 + JWT 인터셉터
-│   ├── auth.ts           # 로그인/회원가입
-│   ├── destinations.ts   # 추천 여행지
-│   └── community.ts      # 커뮤니티 피드
+DreamCollection/
+├── public/
+│   └── logo.png                      # Dream Collection 팀 로고 (배경 투명)
 │
-├── components/
-│   ├── layout/           # 수정 금지 (팀장 A만)
-│   │   ├── Navbar.tsx
-│   │   ├── Sidebar.tsx
-│   │   ├── Footer.tsx
-│   │   └── AppLayout.tsx
-│   ├── common/           # 공통 컴포넌트 (팀장 A만)
-│   │   ├── LoadingSpinner.tsx
-│   │   ├── EmptyState.tsx
-│   │   └── PrivateRoute.tsx
-│   ├── home/             # 담당: A
-│   │   ├── HeroCarousel.tsx
-│   │   └── QuickActions.tsx
-│   ├── community/        # 담당: B
-│   │   └── FeedGrid.tsx
-│   └── travel/           # 담당: C (추가 예정)
+├── src/
+│   ├── api/
+│   │   ├── client.ts                 # axios 인스턴스 (JWT 인터셉터)
+│   │   ├── auth.ts                   # ⚠ 현재 axios(백엔드 호출) 버전 — 더미 버전으로 되돌려야 함
+│   │   ├── community.ts              # 백엔드 연동용 (현재 화면에서 미사용)
+│   │   └── destinations.ts           # 백엔드 연동용 (현재 화면에서 미사용)
+│   │
+│   ├── components/
+│   │   ├── common/
+│   │   │   ├── EmptyState.tsx
+│   │   │   ├── LoadingSpinner.tsx
+│   │   │   └── PrivateRoute.tsx
+│   │   │
+│   │   ├── community/
+│   │   │   └── FeedGrid.tsx          # 홈에서는 더 이상 사용 안 함(체크리스트/환율로 교체)
+│   │   │
+│   │   ├── home/
+│   │   │   ├── DestinationPickerModal.tsx   # "어디로 떠나고 싶나요?" 팝업
+│   │   │   ├── VisualBanner.tsx             # 자동 전환 배너 (사진+문구, 5초 슬라이드)
+│   │   │   ├── MainMenuGrid.tsx             # 4대 메뉴 (일정/나의기록/게시판/메이트찾기)
+│   │   │   ├── MiniCalendar.tsx             # 미니 캘린더
+│   │   │   ├── ProfileSummary.tsx           # 로그인 시 내 프로필+여행스타일 카드
+│   │   │   ├── TravelChecklist.tsx          # 여행 준비 체크리스트
+│   │   │   ├── ExchangeRateWidget.tsx       # 오늘의 환율
+│   │   │   ├── HeroCarousel.tsx             # 추천 여행지 캐러셀
+│   │   │   └── QuickActions.tsx             # (초기 버전, 현재 미사용)
+│   │   │
+│   │   └── layout/
+│   │       ├── AppLayout.tsx         # 헤더+본문+푸터 레이아웃 (사이드바 제거됨)
+│   │       ├── Navbar.tsx            # 로고+검색+로그인/마이페이지 (텍스트 메뉴 제거됨)
+│   │       ├── Logo.tsx              # /logo.png 이미지 로고
+│   │       ├── SearchBar.tsx         # 자주 검색한 여행지 드롭다운
+│   │       ├── Footer.tsx            # Dream Collection 로고/2026년 표기
+│   │       └── Sidebar.tsx           # (현재 AppLayout에서 미사용)
+│   │
+│   ├── pages/
+│   │   ├── HomePage.tsx              # 팝업→배너→4대메뉴→캘린더/프로필→추천지→체크리스트/환율
+│   │   ├── LoginPage.tsx             # 카카오 로그인 + 이메일 로그인
+│   │   ├── RegisterPage.tsx          # 닉네임/이름/비번/이메일/전화인증/카드등록/카카오가입
+│   │   ├── ProfilePage.tsx           # 마이페이지
+│   │   ├── RecordsPage.tsx           # 나의기록
+│   │   ├── CommunityPage.tsx         # 게시판
+│   │   ├── MatchingPage.tsx          # 메이트찾기
+│   │   └── TravelPlanPage.tsx        # 일정
+│   │
+│   ├── store/
+│   │   └── authStore.ts              # zustand + persist (로그인 상태 자동 기억)
+│   │
+│   ├── styles/
+│   │   └── index.css
+│   │
+│   ├── types/
+│   │   └── index.ts                  # User, TravelStyle 등 공통 타입
+│   │
+│   ├── App.tsx                       # 라우팅 정의 (/, /login, /register, /profile, /records, ...)
+│   ├── main.tsx
+│   └── vite-env.d.ts                 # import.meta.env 타입 참조
 │
-├── pages/                # 페이지 단위 컴포넌트
-│   ├── HomePage.tsx      # 담당: A ✅
-│   ├── CommunityPage.tsx # 담당: B (TODO)
-│   ├── MatchingPage.tsx  # 담당: B (TODO)
-│   ├── TravelPlanPage.tsx# 담당: C (TODO)
-│   └── LoginPage.tsx     # 담당: A ✅
-│
-├── hooks/                # 커스텀 훅 (3명 각자 1개 이상)
-├── store/                # Zustand 전역 상태
-│   └── authStore.ts
-├── types/                # TypeScript 타입 정의
-│   └── index.ts
-└── styles/
-    └── index.css         # 수정 금지 (팀장 A만)
+├── index.html
+├── package.json
+├── tailwind.config.js
+├── tsconfig.json
+├── vite.config.ts                    # /api → localhost:8080 프록시 설정 (백엔드 연결용)
+└── .env.example
 ```
 
 ---
