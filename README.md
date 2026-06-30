@@ -1,11 +1,4 @@
 # ✈️ 드림컬랙션 — 팀 프론트엔드 프로젝트
-cmd 창 순서(소스트리 미사용) 강제 깃허브에 올리는 방법
-1. git remote remove origin
-2. git remote add origin https://github.com/dklim4465/DreamCollection.git
-3. git push -u origin main --force
-4. git checkout -b develop
-5. git push -u origin develop
----
 
 ## 🎨 디자인 시스템
 
