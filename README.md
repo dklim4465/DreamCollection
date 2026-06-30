@@ -1,10 +1,13 @@
 # ✈️ 드림컬랙션 — 팀 프론트엔드 프로젝트
+
 cmd 창 순서(소스트리 미사용) 강제 깃허브에 올리는 방법
+
 1. git remote remove origin
 2. git remote add origin https://github.com/dklim4465/DreamCollection.git
 3. git push -u origin main --force
 4. git checkout -b develop
 5. git push -u origin develop
+
 ---
 
 ## 🎨 디자인 시스템
@@ -26,11 +29,11 @@ cmd 창 순서(소스트리 미사용) 강제 깃허브에 올리는 방법
 
 ### 1. 필수 설치
 
-| 도구 | 다운로드 | 확인 |
-|------|---------|------|
-| Node.js LTS | https://nodejs.org | `node -v` |
-| Git | https://git-scm.com | `git --version` |
-| VS Code | https://code.visualstudio.com | — |
+| 도구        | 다운로드                      | 확인            |
+| ----------- | ----------------------------- | --------------- |
+| Node.js LTS | https://nodejs.org            | `node -v`       |
+| Git         | https://git-scm.com           | `git --version` |
+| VS Code     | https://code.visualstudio.com | —               |
 
 ### 2. 설치 및 실행
 
@@ -120,13 +123,13 @@ git push origin feature/community-card
 # → GitHub에서 develop 대상 PR 생성
 ```
 
-| 타입 | 의미 |
-|------|------|
-| `feat` | 새 기능 |
-| `fix` | 버그 수정 |
-| `style` | CSS 스타일링 |
-| `refactor` | 리팩토링 |
-| `docs` | 문서 수정 |
+| 타입       | 의미         |
+| ---------- | ------------ |
+| `feat`     | 새 기능      |
+| `fix`      | 버그 수정    |
+| `style`    | CSS 스타일링 |
+| `refactor` | 리팩토링     |
+| `docs`     | 문서 수정    |
 
 ---
 
@@ -168,8 +171,8 @@ export default function MyComponent({ items = SAMPLE_DATA }: Props) {
 ## 🔌 VS Code 추천 확장
 
 `.vscode/extensions.json` 파일 확인 후 설치:
+
 - **ES7+ React Snippets** — 컴포넌트 스니펫
 - **Tailwind CSS IntelliSense** — 클래스 자동완성
 - **Prettier** — 코드 포맷터
 - **GitLens** — Git 히스토리
-
