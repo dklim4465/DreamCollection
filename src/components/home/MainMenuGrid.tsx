@@ -42,7 +42,6 @@ const MAIN_MENUS: MenuCard[] = [
 /**
  * 시작페이지 4대 메뉴
  * 일정 / 나의기록 / 게시판 / 메이트찾기
- * 카드 높이를 줄여(가로형) 바로 아래 캘린더/프로필이 스크롤 없이 보이도록 함
  */
 export default function MainMenuGrid() {
   return (
@@ -53,17 +52,17 @@ export default function MainMenuGrid() {
           <Link
             key={menu.to}
             to={menu.to}
-            className="card-interactive flex flex-col items-center justify-center gap-1.5 p-stack-md text-center"
+            className="card-interactive flex flex-col items-center justify-center gap-stack-sm p-stack-lg aspect-square text-center"
           >
             <div
-              className={`w-11 h-11 rounded-xl ${menu.colorClass} flex items-center justify-center text-white`}
+              className={`w-16 h-16 rounded-2xl ${menu.colorClass} flex items-center justify-center text-white`}
             >
-              <span className="material-symbols-outlined text-xl">
+              <span className="material-symbols-outlined text-3xl">
                 {menu.icon}
               </span>
             </div>
             <h3 className="text-headline-sm font-bold">{menu.title}</h3>
-            <p className="text-label-sm text-on-surface-variant hidden md:block leading-tight">
+            <p className="text-label-md text-on-surface-variant hidden sm:block">
               {menu.description}
             </p>
           </Link>
