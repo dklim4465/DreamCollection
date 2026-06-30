@@ -1,14 +1,5 @@
 # ✈️ 드림컬랙션 — 팀 프론트엔드 프로젝트
-
-cmd 창 순서(소스트리 미사용) 강제 깃허브에 올리는 방법
-
-1. git remote remove origin
-2. git remote add origin https://github.com/dklim4465/DreamCollection.git
-3. git push -u origin main --force
-4. git checkout -b develop
-5. git push -u origin develop
-
----
+지금 프론트는 백엔드 없이도 동작하도록 localStorage 더미 버전(src/api/auth.ts). 백엔드가 실제로 준비되면, 이 파일을 다시 axios로 실제 서버를 호출하는 버전으로 되돌려야 진짜 연동이 됨
 
 ## 🎨 디자인 시스템
 
