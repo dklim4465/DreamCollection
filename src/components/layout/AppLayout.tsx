@@ -1,16 +1,14 @@
-import { Outlet } from 'react-router-dom';
-import Navbar from './Navbar';
-import Sidebar from './Sidebar';
-import Footer from './Footer';
+import { Outlet } from "react-router-dom";
+import Navbar from "./Navbar";
+import Footer from "./Footer";
 
 export default function AppLayout() {
   return (
     <div className="min-h-screen flex flex-col bg-background text-on-background">
       <Navbar />
 
-      <div className="max-w-container-max mx-auto px-margin-desktop flex gap-stack-lg py-stack-lg relative w-full flex-1">
-        <Sidebar />
-        <main className="flex-1 flex flex-col gap-stack-xl min-w-0">
+      <div className="max-w-container-max mx-auto px-margin-desktop py-stack-lg w-full flex-1">
+        <main className="flex flex-col gap-stack-xl min-w-0">
           <Outlet />
         </main>
       </div>

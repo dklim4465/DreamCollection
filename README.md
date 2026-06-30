@@ -1,5 +1,9 @@
 # ✈️ 드림컬랙션 — 팀 프론트엔드 프로젝트
 지금 프론트는 백엔드 없이도 동작하도록 localStorage 더미 버전(src/api/auth.ts). 백엔드가 실제로 준비되면, 이 파일을 다시 axios로 실제 서버를 호출하는 버전으로 되돌려야 진짜 연동이 됨
+<<<<<<< HEAD
+=======
+
+>>>>>>> d3b1b69311bcfd84a1dbd0e2055c650526fcb630
 
 ## 🎨 디자인 시스템
 
@@ -56,6 +60,7 @@ DreamCollection/
 ├── public/
 │   └── logo.png                      # Dream Collection 팀 로고 (배경 투명)
 │
+<<<<<<< HEAD
 ├── src/
 │   ├── api/
 │   │   ├── client.ts                 # axios 인스턴스 (JWT 인터셉터)
@@ -120,6 +125,39 @@ DreamCollection/
 ├── tsconfig.json
 ├── vite.config.ts                    # /api → localhost:8080 프록시 설정 (백엔드 연결용)
 └── .env.example
+=======
+├── components/
+│   ├── layout/           
+│   │   ├── Navbar.tsx
+│   │   ├── Sidebar.tsx
+│   │   ├── Footer.tsx
+│   │   └── AppLayout.tsx
+│   ├── common/         
+│   │   ├── LoadingSpinner.tsx
+│   │   ├── EmptyState.tsx
+│   │   └── PrivateRoute.tsx
+│   ├── home/             # 담당: A
+│   │   ├── HeroCarousel.tsx
+│   │   └── QuickActions.tsx
+│   ├── community/        # 담당: B
+│   │   └── FeedGrid.tsx
+│   └── travel/           # 담당: C (추가 예정)
+│
+├── pages/                # 페이지 단위 컴포넌트
+│   ├── HomePage.tsx      # 담당: A ✅
+│   ├── CommunityPage.tsx # 담당: B (TODO)
+│   ├── MatchingPage.tsx  # 담당: B (TODO)
+│   ├── TravelPlanPage.tsx# 담당: C (TODO)
+│   └── LoginPage.tsx     # 담당: A ✅
+│
+├── hooks/                # 커스텀 훅 (3명 각자 1개 이상)
+├── store/                # Zustand 전역 상태
+│   └── authStore.ts
+├── types/                # TypeScript 타입 정의
+│   └── index.ts
+└── styles/
+    └── index.css    
+>>>>>>> d3b1b69311bcfd84a1dbd0e2055c650526fcb630
 ```
 
 ---
@@ -175,7 +213,7 @@ export default function MyComponent({ items = SAMPLE_DATA }: Props) {
 
 ---
 
-## ⚠️ 수정 금지 파일 (팀장 A만)
+## ⚠️ 수정 금지 파일 
 
 - `src/App.tsx`
 - `src/main.tsx`
@@ -184,8 +222,6 @@ export default function MyComponent({ items = SAMPLE_DATA }: Props) {
 - `src/styles/index.css`
 - `tailwind.config.js`
 - `vite.config.ts`
-
-필요 시 **팀장에게 요청**하세요.
 
 ---
 
