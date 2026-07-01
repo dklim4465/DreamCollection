@@ -1,235 +1,118 @@
-# ✈️ 드림컬랙션 — 팀 프론트엔드 프로젝트
-지금 프론트는 백엔드 없이도 동작하도록 localStorage 더미 버전(src/api/auth.ts). 백엔드가 실제로 준비되면, 이 파일을 다시 axios로 실제 서버를 호출하는 버전으로 되돌려야 진짜 연동이 됨
-<<<<<<< HEAD
-=======
+# Dream Collection — Backend
 
->>>>>>> d3b1b69311bcfd84a1dbd0e2055c650526fcb630
+Spring Boot 3.3 + JPA + MySQL 기반 백엔드입니다.
 
-## 🎨 디자인 시스템
+## 기술 스택
 
-`DESIGN.md` 파일에 색상·폰트·간격 토큰이 전부 정의되어 있어요.
-모든 색상/크기는 `tailwind.config.js`에 반영되어 있으니 **하드코딩 금지**.
+- Java 17
+- Spring Boot 3.3 (Web, Data JPA, Validation, Security)
+- MySQL 8 / MariaDB 10.11
+- JWT (jjwt)
+- Gradle (Groovy)
+- Lombok
 
-```tsx
-// ✅ 올바른 방법
-<div className="bg-primary text-on-primary rounded-lg p-stack-md">
-
-// ❌ 하드코딩 금지
-<div style={{ background: '#24657e', padding: '16px' }}>
-```
-
----
-
-## 🚀 시작하기 (처음 세팅)
-
-### 1. 필수 설치
-
-| 도구        | 다운로드                      | 확인            |
-| ----------- | ----------------------------- | --------------- |
-| Node.js LTS | https://nodejs.org            | `node -v`       |
-| Git         | https://git-scm.com           | `git --version` |
-| VS Code     | https://code.visualstudio.com | —               |
-
-### 2. 설치 및 실행
-
-```bash
-# 1) 레포 클론
-git clone https://github.com/[팀GitHub]/travelers-hub.git
-cd travelers-hub
-
-# 2) 의존성 설치
-npm install
-
-# 3) 환경변수 복사
-cp .env.example .env
-
-# 4) 개발 서버 실행
-npm run dev
-# → http://localhost:3000
-```
-
-> **백엔드(Spring Boot) 실행 후** `npm run dev` 해야 API 연동 됩니다.
-> 백엔드 없이 UI만 확인하려면 `.env`에서 API URL 주석 처리.
-
----
-
-## 📁 폴더 구조 & 담당
+## 폴더 구조
 
 ```
-DreamCollection/
-├── public/
-│   └── logo.png                      # Dream Collection 팀 로고 (배경 투명)
-│
-<<<<<<< HEAD
-├── src/
-│   ├── api/
-│   │   ├── client.ts                 # axios 인스턴스 (JWT 인터셉터)
-│   │   ├── auth.ts                   # ⚠ 현재 axios(백엔드 호출) 버전 — 더미 버전으로 되돌려야 함
-│   │   ├── community.ts              # 백엔드 연동용 (현재 화면에서 미사용)
-│   │   └── destinations.ts           # 백엔드 연동용 (현재 화면에서 미사용)
-│   │
-│   ├── components/
-│   │   ├── common/
-│   │   │   ├── EmptyState.tsx
-│   │   │   ├── LoadingSpinner.tsx
-│   │   │   └── PrivateRoute.tsx
+backend-clean/
+├── build.gradle                  # 의존성 관리
+├── settings.gradle
+├── src/main/
+│   ├── java/com/dreamcollection/
+│   │   ├── DreamCollectionApplication.java   # 메인 실행 클래스
 │   │   │
-│   │   ├── community/
-│   │   │   └── FeedGrid.tsx          # 홈에서는 더 이상 사용 안 함(체크리스트/환율로 교체)
+│   │   ├── domain/                # 도메인별 패키지 (아래 표 참고)
+│   │   │   ├── user/               # 회원, 소셜계정, 카드, 토큰, 로그인이력
+│   │   │   ├── verification/       # 이메일/휴대폰 인증, 비밀번호 재설정
+│   │   │   ├── auth/               # 회원가입/로그인 API (Controller)
+│   │   │   ├── trip/               # 여행 요청~AI추천~항공/숙소~결제
+│   │   │   ├── travelog/           # 여행일지, 사진, 영수증
+│   │   │   ├── board/              # 게시판, 이미지, 좋아요, 댓글, 신고
+│   │   │   ├── mate/                # 메이트 모집/매칭/후기
+│   │   │   ├── chat/                # 채팅방, 참여자, 메시지
+│   │   │   ├── social/              # 차단, 알림
+│   │   │   ├── city/                # 도시 마스터 (자동완성/날씨)
+│   │   │   ├── main/                # 배너, 공지, 이달의 여행지, 체크리스트, 배경
+│   │   │   └── badge/               # 뱃지, 사용자-뱃지
 │   │   │
-│   │   ├── home/
-│   │   │   ├── DestinationPickerModal.tsx   # "어디로 떠나고 싶나요?" 팝업
-│   │   │   ├── VisualBanner.tsx             # 자동 전환 배너 (사진+문구, 5초 슬라이드)
-│   │   │   ├── MainMenuGrid.tsx             # 4대 메뉴 (일정/나의기록/게시판/메이트찾기)
-│   │   │   ├── MiniCalendar.tsx             # 미니 캘린더
-│   │   │   ├── ProfileSummary.tsx           # 로그인 시 내 프로필+여행스타일 카드
-│   │   │   ├── TravelChecklist.tsx          # 여행 준비 체크리스트
-│   │   │   ├── ExchangeRateWidget.tsx       # 오늘의 환율
-│   │   │   ├── HeroCarousel.tsx             # 추천 여행지 캐러셀
-│   │   │   └── QuickActions.tsx             # (초기 버전, 현재 미사용)
-│   │   │
-│   │   └── layout/
-│   │       ├── AppLayout.tsx         # 헤더+본문+푸터 레이아웃 (사이드바 제거됨)
-│   │       ├── Navbar.tsx            # 로고+검색+로그인/마이페이지 (텍스트 메뉴 제거됨)
-│   │       ├── Logo.tsx              # /logo.png 이미지 로고
-│   │       ├── SearchBar.tsx         # 자주 검색한 여행지 드롭다운
-│   │       ├── Footer.tsx            # Dream Collection 로고/2026년 표기
-│   │       └── Sidebar.tsx           # (현재 AppLayout에서 미사용)
+│   │   └── global/                # 도메인에 속하지 않는 공통 코드
+│   │       ├── security/           # JWT, PasswordEncoder 설정
+│   │       ├── exception/          # 공통 예외 + 전역 예외 처리기
+│   │       └── response/           # 공통 API 응답 포맷 (ApiResponse<T>)
 │   │
-│   ├── pages/
-│   │   ├── HomePage.tsx              # 팝업→배너→4대메뉴→캘린더/프로필→추천지→체크리스트/환율
-│   │   ├── LoginPage.tsx             # 카카오 로그인 + 이메일 로그인
-│   │   ├── RegisterPage.tsx          # 닉네임/이름/비번/이메일/전화인증/카드등록/카카오가입
-│   │   ├── ProfilePage.tsx           # 마이페이지
-│   │   ├── RecordsPage.tsx           # 나의기록
-│   │   ├── CommunityPage.tsx         # 게시판
-│   │   ├── MatchingPage.tsx          # 메이트찾기
-│   │   └── TravelPlanPage.tsx        # 일정
-│   │
-│   ├── store/
-│   │   └── authStore.ts              # zustand + persist (로그인 상태 자동 기억)
-│   │
-│   ├── styles/
-│   │   └── index.css
-│   │
-│   ├── types/
-│   │   └── index.ts                  # User, TravelStyle 등 공통 타입
-│   │
-│   ├── App.tsx                       # 라우팅 정의 (/, /login, /register, /profile, /records, ...)
-│   ├── main.tsx
-│   └── vite-env.d.ts                 # import.meta.env 타입 참조
+│   └── resources/
+│       └── application.yml         # DB 접속정보, JWT 시크릿 등
 │
-├── index.html
-├── package.json
-├── tailwind.config.js
-├── tsconfig.json
-├── vite.config.ts                    # /api → localhost:8080 프록시 설정 (백엔드 연결용)
-└── .env.example
-=======
-├── components/
-│   ├── layout/           
-│   │   ├── Navbar.tsx
-│   │   ├── Sidebar.tsx
-│   │   ├── Footer.tsx
-│   │   └── AppLayout.tsx
-│   ├── common/         
-│   │   ├── LoadingSpinner.tsx
-│   │   ├── EmptyState.tsx
-│   │   └── PrivateRoute.tsx
-│   ├── home/             # 담당: A
-│   │   ├── HeroCarousel.tsx
-│   │   └── QuickActions.tsx
-│   ├── community/        # 담당: B
-│   │   └── FeedGrid.tsx
-│   └── travel/           # 담당: C (추가 예정)
-│
-├── pages/                # 페이지 단위 컴포넌트
-│   ├── HomePage.tsx      # 담당: A ✅
-│   ├── CommunityPage.tsx # 담당: B (TODO)
-│   ├── MatchingPage.tsx  # 담당: B (TODO)
-│   ├── TravelPlanPage.tsx# 담당: C (TODO)
-│   └── LoginPage.tsx     # 담당: A ✅
-│
-├── hooks/                # 커스텀 훅 (3명 각자 1개 이상)
-├── store/                # Zustand 전역 상태
-│   └── authStore.ts
-├── types/                # TypeScript 타입 정의
-│   └── index.ts
-└── styles/
-    └── index.css    
->>>>>>> d3b1b69311bcfd84a1dbd0e2055c650526fcb630
+└── db/                             # DB 스키마(SQL) — 별도 문서 참고
 ```
 
----
+### 도메인 패키지 안 구조 (예시: `domain/user`)
 
-## 🌿 Git 브랜치 규칙
+각 도메인 패키지는 보통 이렇게 구성됩니다:
 
-```bash
-main      → 배포용 (직접 push 금지)
-develop   → 통합 브랜치
-feature/* → 개인 기능 개발
+```
+domain/user/
+├── User.java              # Entity (테이블 매핑)
+├── UserRepository.java    # JPA Repository
+├── UserService.java       # 비즈니스 로직 (아직 없는 도메인도 있음)
+├── Role.java, TravelStyle.java, UserStatus.java   # Enum
+└── dto/
+    ├── SignupRequest.java
+    └── UserResponse.java
 ```
 
-```bash
-# 작업 시작
-git checkout develop && git pull origin develop
-git checkout -b feature/community-card
+`Controller`는 API가 실제로 필요한 도메인부터 만들어졌고(`user`, `verification`, `auth`), 나머지 도메인은 아직 Entity/Repository까지만 있습니다. **각 담당자가 Service/Controller/DTO를 이어서 채우면 됩니다.**
 
-# 작업 후
-git add .
-git commit -m "feat: 커뮤니티 카드 컴포넌트 구현"
-git push origin feature/community-card
-# → GitHub에서 develop 대상 PR 생성
+## 도메인별 담당 테이블
+
+| 패키지 | 담당 DB 테이블 | 현재 상태 |
+|---|---|---|
+| `domain/user` | users, user_oauth_accounts, user_payment_cards, refresh_tokens, login_history | ✅ 회원가입/로그인 API 완성 |
+| `domain/verification` | phone_verifications, email_verifications, password_reset_tokens | ✅ 휴대폰 인증 API 완성 |
+| `domain/trip` | trip_requests, recommendations, days, days_item, flights, flights_options, accommodations, accommodations_options, trip_payments, trip_payment_items | ⬜ Entity만 |
+| `domain/travelog` | travel_log, log_photo, receipt | ⬜ Entity만 |
+| `domain/board` | board_post, board_image, board_like, board_comment, report | ⬜ Entity만 |
+| `domain/mate` | mate_post, mate_request, mate_review, mate_schedule_link | ⬜ Entity만 |
+| `domain/chat` | chat_room, chat_room_member, chat_message | ⬜ Entity만 |
+| `domain/social` | block, notification | ⬜ Entity만 |
+| `domain/city` | city | ⬜ Entity만 |
+| `domain/main` | banner, notice, monthly_destination, checklist_item, main_background | ⬜ Entity만 |
+| `domain/badge` | badge, user_badge | ⬜ Entity만 |
+
+## 로컬 실행 방법
+
+### 1. 사전 준비
+- Java 17 설치 (`temurin-17` 권장)
+- MySQL/MariaDB 실행 중이어야 함
+- `db/` 폴더의 SQL 파일들을 순서대로 실행해서 `dream_collection` 스키마 생성 (자세한 건 `db/README.md` 참고)
+
+### 2. DB 접속 정보 설정
+
+`src/main/resources/application.yml`에서 아래 값을 본인 환경에 맞게 수정:
+```yaml
+spring:
+  datasource:
+    username: ${DB_USERNAME:root}
+    password: ${DB_PASSWORD:}
 ```
+환경변수로 설정하거나, 로컬 테스트용으로 직접 값을 넣어도 됩니다. (단, 비밀번호를 직접 넣은 채로 커밋하지 마세요)
 
-| 타입       | 의미         |
-| ---------- | ------------ |
-| `feat`     | 새 기능      |
-| `fix`      | 버그 수정    |
-| `style`    | CSS 스타일링 |
-| `refactor` | 리팩토링     |
-| `docs`     | 문서 수정    |
+### 3. IntelliJ에서 실행
+1. `File → Open` → 이 프로젝트 폴더 선택
+2. Gradle sync 끝날 때까지 대기
+3. `File → Project Structure`에서 SDK가 17로 잡혀있는지 확인
+4. `Settings → Build Tools → Gradle`에서 Gradle JVM도 17로 확인
+5. `DreamCollectionApplication.java` 실행 → `Tomcat started on port 8080` 뜨면 성공
 
----
+## 설계 원칙
 
-## 🎯 컴포넌트 작성 규칙
+- **FK는 `@ManyToOne` 연관관계 대신 `Long` 필드로 처리**했습니다 (예: `TripRequest.userId`). JPA 연관관계는 N+1, 순환참조 등 함정이 많아서 팀 프로젝트 초기엔 단순하게 갑니다. 필요하면 담당자가 나중에 연관관계로 바꿔도 됩니다.
+- 모든 Entity는 `@NoArgsConstructor(PROTECTED)` + `@Builder` 조합입니다. `new Entity()`로 무분별하게 만들지 말고, 반드시 `Entity.builder()...build()`로 생성하세요.
+- `created_at` 같은 시간 컬럼은 `@CreationTimestamp`(또는 `@PrePersist`)로 자동 채워지므로 직접 값을 넣지 않아도 됩니다.
+- API 응답은 전부 `ApiResponse<T>` 형태(`{ success, data, message }`)로 통일합니다. 프론트의 `types/index.ts`의 `ApiResponse<T>`와 구조가 같습니다.
 
-```tsx
-// 1. Props 인터페이스 먼저 정의
-interface Props {
-  items?: DestinationCard[];   // 선택형은 ? 붙이기
-  onSelect?: (id: number) => void;
-}
+## 브랜치 / 커밋 규칙
 
-// 2. 샘플 데이터는 컴포넌트 밖에 상수로
-const SAMPLE_DATA = [...];
-
-// 3. 컴포넌트 export default
-export default function MyComponent({ items = SAMPLE_DATA }: Props) {
-  // API 연동은 이 안에서 useQuery로
-  return (...);
-}
-```
-
----
-
-## ⚠️ 수정 금지 파일 
-
-- `src/App.tsx`
-- `src/main.tsx`
-- `src/components/layout/*`
-- `src/components/common/*`
-- `src/styles/index.css`
-- `tailwind.config.js`
-- `vite.config.ts`
-
----
-
-## 🔌 VS Code 추천 확장
-
-`.vscode/extensions.json` 파일 확인 후 설치:
-
-- **ES7+ React Snippets** — 컴포넌트 스니펫
-- **Tailwind CSS IntelliSense** — 클래스 자동완성
-- **Prettier** — 코드 포맷터
-- **GitLens** — Git 히스토리
+- 이 프로젝트는 `backend` 브랜치에서 작업합니다. 프론트엔드 파일(`*.tsx`, `package.json`, `vite.config.ts` 등)은 **절대 이 브랜치에 커밋하지 마세요.**
+- 작업 전 `git pull origin backend`로 최신 상태 받고 시작하는 걸 권장합니다.
+- 담당 도메인 작업 후 커밋 메시지 예시: `feat(trip): AI 추천 요청 생성 API 추가`
