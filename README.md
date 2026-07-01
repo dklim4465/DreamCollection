@@ -1,0 +1,235 @@
+# ✈️ 드림컬랙션 — 팀 프론트엔드 프로젝트
+지금 프론트는 백엔드 없이도 동작하도록 localStorage 더미 버전(src/api/auth.ts). 백엔드가 실제로 준비되면, 이 파일을 다시 axios로 실제 서버를 호출하는 버전으로 되돌려야 진짜 연동이 됨
+<<<<<<< HEAD
+=======
+
+>>>>>>> d3b1b69311bcfd84a1dbd0e2055c650526fcb630
+
+## 🎨 디자인 시스템
+
+`DESIGN.md` 파일에 색상·폰트·간격 토큰이 전부 정의되어 있어요.
+모든 색상/크기는 `tailwind.config.js`에 반영되어 있으니 **하드코딩 금지**.
+
+```tsx
+// ✅ 올바른 방법
+<div className="bg-primary text-on-primary rounded-lg p-stack-md">
+
+// ❌ 하드코딩 금지
+<div style={{ background: '#24657e', padding: '16px' }}>
+```
+
+---
+
+## 🚀 시작하기 (처음 세팅)
+
+### 1. 필수 설치
+
+| 도구        | 다운로드                      | 확인            |
+| ----------- | ----------------------------- | --------------- |
+| Node.js LTS | https://nodejs.org            | `node -v`       |
+| Git         | https://git-scm.com           | `git --version` |
+| VS Code     | https://code.visualstudio.com | —               |
+
+### 2. 설치 및 실행
+
+```bash
+# 1) 레포 클론
+git clone https://github.com/[팀GitHub]/travelers-hub.git
+cd travelers-hub
+
+# 2) 의존성 설치
+npm install
+
+# 3) 환경변수 복사
+cp .env.example .env
+
+# 4) 개발 서버 실행
+npm run dev
+# → http://localhost:3000
+```
+
+> **백엔드(Spring Boot) 실행 후** `npm run dev` 해야 API 연동 됩니다.
+> 백엔드 없이 UI만 확인하려면 `.env`에서 API URL 주석 처리.
+
+---
+
+## 📁 폴더 구조 & 담당
+
+```
+DreamCollection/
+├── public/
+│   └── logo.png                      # Dream Collection 팀 로고 (배경 투명)
+│
+<<<<<<< HEAD
+├── src/
+│   ├── api/
+│   │   ├── client.ts                 # axios 인스턴스 (JWT 인터셉터)
+│   │   ├── auth.ts                   # ⚠ 현재 axios(백엔드 호출) 버전 — 더미 버전으로 되돌려야 함
+│   │   ├── community.ts              # 백엔드 연동용 (현재 화면에서 미사용)
+│   │   └── destinations.ts           # 백엔드 연동용 (현재 화면에서 미사용)
+│   │
+│   ├── components/
+│   │   ├── common/
+│   │   │   ├── EmptyState.tsx
+│   │   │   ├── LoadingSpinner.tsx
+│   │   │   └── PrivateRoute.tsx
+│   │   │
+│   │   ├── community/
+│   │   │   └── FeedGrid.tsx          # 홈에서는 더 이상 사용 안 함(체크리스트/환율로 교체)
+│   │   │
+│   │   ├── home/
+│   │   │   ├── DestinationPickerModal.tsx   # "어디로 떠나고 싶나요?" 팝업
+│   │   │   ├── VisualBanner.tsx             # 자동 전환 배너 (사진+문구, 5초 슬라이드)
+│   │   │   ├── MainMenuGrid.tsx             # 4대 메뉴 (일정/나의기록/게시판/메이트찾기)
+│   │   │   ├── MiniCalendar.tsx             # 미니 캘린더
+│   │   │   ├── ProfileSummary.tsx           # 로그인 시 내 프로필+여행스타일 카드
+│   │   │   ├── TravelChecklist.tsx          # 여행 준비 체크리스트
+│   │   │   ├── ExchangeRateWidget.tsx       # 오늘의 환율
+│   │   │   ├── HeroCarousel.tsx             # 추천 여행지 캐러셀
+│   │   │   └── QuickActions.tsx             # (초기 버전, 현재 미사용)
+│   │   │
+│   │   └── layout/
+│   │       ├── AppLayout.tsx         # 헤더+본문+푸터 레이아웃 (사이드바 제거됨)
+│   │       ├── Navbar.tsx            # 로고+검색+로그인/마이페이지 (텍스트 메뉴 제거됨)
+│   │       ├── Logo.tsx              # /logo.png 이미지 로고
+│   │       ├── SearchBar.tsx         # 자주 검색한 여행지 드롭다운
+│   │       ├── Footer.tsx            # Dream Collection 로고/2026년 표기
+│   │       └── Sidebar.tsx           # (현재 AppLayout에서 미사용)
+│   │
+│   ├── pages/
+│   │   ├── HomePage.tsx              # 팝업→배너→4대메뉴→캘린더/프로필→추천지→체크리스트/환율
+│   │   ├── LoginPage.tsx             # 카카오 로그인 + 이메일 로그인
+│   │   ├── RegisterPage.tsx          # 닉네임/이름/비번/이메일/전화인증/카드등록/카카오가입
+│   │   ├── ProfilePage.tsx           # 마이페이지
+│   │   ├── RecordsPage.tsx           # 나의기록
+│   │   ├── CommunityPage.tsx         # 게시판
+│   │   ├── MatchingPage.tsx          # 메이트찾기
+│   │   └── TravelPlanPage.tsx        # 일정
+│   │
+│   ├── store/
+│   │   └── authStore.ts              # zustand + persist (로그인 상태 자동 기억)
+│   │
+│   ├── styles/
+│   │   └── index.css
+│   │
+│   ├── types/
+│   │   └── index.ts                  # User, TravelStyle 등 공통 타입
+│   │
+│   ├── App.tsx                       # 라우팅 정의 (/, /login, /register, /profile, /records, ...)
+│   ├── main.tsx
+│   └── vite-env.d.ts                 # import.meta.env 타입 참조
+│
+├── index.html
+├── package.json
+├── tailwind.config.js
+├── tsconfig.json
+├── vite.config.ts                    # /api → localhost:8080 프록시 설정 (백엔드 연결용)
+└── .env.example
+=======
+├── components/
+│   ├── layout/           
+│   │   ├── Navbar.tsx
+│   │   ├── Sidebar.tsx
+│   │   ├── Footer.tsx
+│   │   └── AppLayout.tsx
+│   ├── common/         
+│   │   ├── LoadingSpinner.tsx
+│   │   ├── EmptyState.tsx
+│   │   └── PrivateRoute.tsx
+│   ├── home/             # 담당: A
+│   │   ├── HeroCarousel.tsx
+│   │   └── QuickActions.tsx
+│   ├── community/        # 담당: B
+│   │   └── FeedGrid.tsx
+│   └── travel/           # 담당: C (추가 예정)
+│
+├── pages/                # 페이지 단위 컴포넌트
+│   ├── HomePage.tsx      # 담당: A ✅
+│   ├── CommunityPage.tsx # 담당: B (TODO)
+│   ├── MatchingPage.tsx  # 담당: B (TODO)
+│   ├── TravelPlanPage.tsx# 담당: C (TODO)
+│   └── LoginPage.tsx     # 담당: A ✅
+│
+├── hooks/                # 커스텀 훅 (3명 각자 1개 이상)
+├── store/                # Zustand 전역 상태
+│   └── authStore.ts
+├── types/                # TypeScript 타입 정의
+│   └── index.ts
+└── styles/
+    └── index.css    
+>>>>>>> d3b1b69311bcfd84a1dbd0e2055c650526fcb630
+```
+
+---
+
+## 🌿 Git 브랜치 규칙
+
+```bash
+main      → 배포용 (직접 push 금지)
+develop   → 통합 브랜치
+feature/* → 개인 기능 개발
+```
+
+```bash
+# 작업 시작
+git checkout develop && git pull origin develop
+git checkout -b feature/community-card
+
+# 작업 후
+git add .
+git commit -m "feat: 커뮤니티 카드 컴포넌트 구현"
+git push origin feature/community-card
+# → GitHub에서 develop 대상 PR 생성
+```
+
+| 타입       | 의미         |
+| ---------- | ------------ |
+| `feat`     | 새 기능      |
+| `fix`      | 버그 수정    |
+| `style`    | CSS 스타일링 |
+| `refactor` | 리팩토링     |
+| `docs`     | 문서 수정    |
+
+---
+
+## 🎯 컴포넌트 작성 규칙
+
+```tsx
+// 1. Props 인터페이스 먼저 정의
+interface Props {
+  items?: DestinationCard[];   // 선택형은 ? 붙이기
+  onSelect?: (id: number) => void;
+}
+
+// 2. 샘플 데이터는 컴포넌트 밖에 상수로
+const SAMPLE_DATA = [...];
+
+// 3. 컴포넌트 export default
+export default function MyComponent({ items = SAMPLE_DATA }: Props) {
+  // API 연동은 이 안에서 useQuery로
+  return (...);
+}
+```
+
+---
+
+## ⚠️ 수정 금지 파일 
+
+- `src/App.tsx`
+- `src/main.tsx`
+- `src/components/layout/*`
+- `src/components/common/*`
+- `src/styles/index.css`
+- `tailwind.config.js`
+- `vite.config.ts`
+
+---
+
+## 🔌 VS Code 추천 확장
+
+`.vscode/extensions.json` 파일 확인 후 설치:
+
+- **ES7+ React Snippets** — 컴포넌트 스니펫
+- **Tailwind CSS IntelliSense** — 클래스 자동완성
+- **Prettier** — 코드 포맷터
+- **GitLens** — Git 히스토리

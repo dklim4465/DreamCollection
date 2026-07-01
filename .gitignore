@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 HELP.md
 .gradle
 build/
@@ -35,3 +36,11 @@ out/
 
 ### VS Code ###
 .vscode/
+=======
+node_modules/
+dist/
+.env
+.env.local
+*.log
+.DS_Store
+>>>>>>> 66b728f2973fab65a6cc30f967e0a4adcaa410d3
