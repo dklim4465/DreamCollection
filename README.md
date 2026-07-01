@@ -32,8 +32,7 @@ backend-clean/
 │   │   │   ├── chat/                # 채팅방, 참여자, 메시지
 │   │   │   ├── social/              # 차단, 알림
 │   │   │   ├── city/                # 도시 마스터 (자동완성/날씨)
-│   │   │   ├── main/                # 배너, 공지, 이달의 여행지, 체크리스트, 배경
-│   │   │   └── badge/               # 뱃지, 사용자-뱃지
+│   │   │   └── main/                # 배너, 공지, 이달의 여행지, 체크리스트, 배경
 │   │   │
 │   │   └── global/                # 도메인에 속하지 않는 공통 코드
 │   │       ├── security/           # JWT, PasswordEncoder 설정
@@ -77,7 +76,6 @@ domain/user/
 | `domain/social` | block, notification | ⬜ Entity만 |
 | `domain/city` | city | ⬜ Entity만 |
 | `domain/main` | banner, notice, monthly_destination, checklist_item, main_background | ⬜ Entity만 |
-| `domain/badge` | badge, user_badge | ⬜ Entity만 |
 
 ## 로컬 실행 방법
 

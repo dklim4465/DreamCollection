@@ -4,12 +4,15 @@ import com.dreamcollection.domain.user.dto.AuthResponse;
 import com.dreamcollection.domain.user.dto.LoginRequest;
 import com.dreamcollection.domain.user.dto.SignupRequest;
 import com.dreamcollection.domain.user.dto.UserResponse;
+import com.dreamcollection.domain.verification.EmailVerification;
+import com.dreamcollection.domain.verification.EmailVerificationRepository;
 import com.dreamcollection.domain.verification.PhoneVerification;
 import com.dreamcollection.domain.verification.PhoneVerificationRepository;
 import com.dreamcollection.global.exception.AccountNotActiveException;
 import com.dreamcollection.global.exception.DuplicateEmailException;
 import com.dreamcollection.global.exception.DuplicateNicknameException;
 import com.dreamcollection.global.exception.InvalidCredentialsException;
+import com.dreamcollection.global.exception.InvalidVerificationCodeException;
 import com.dreamcollection.global.exception.PhoneNotVerifiedException;
 import com.dreamcollection.global.security.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
@@ -23,6 +26,7 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final PhoneVerificationRepository phoneVerificationRepository;
+    private final EmailVerificationRepository emailVerificationRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenProvider jwtTokenProvider;
 
@@ -30,7 +34,18 @@ public class UserService {
     public AuthResponse signup(SignupRequest request) {
         validateDuplicateEmail(request.email());
         validateDuplicateNickname(request.nickname());
-        validatePhoneVerified(request.phone(), request.phoneVerificationCode());
+
+        // 이메일/휴대폰 중 선택한 방식만 검증 (둘 다 요구하지 않음)
+        boolean emailVerified = false;
+        boolean phoneVerified = false;
+
+        if (request.verificationMethod() == SignupRequest.VerificationMethod.EMAIL) {
+            validateEmailVerified(request.email(), request.emailVerificationCode());
+            emailVerified = true;
+        } else {
+            validatePhoneVerified(request.phone(), request.phoneVerificationCode());
+            phoneVerified = true;
+        }
 
         User user = User.builder()
                 .email(request.email())
@@ -38,9 +53,13 @@ public class UserService {
                 .name(request.name())
                 .nickname(request.nickname())
                 .phone(request.phone())
-                .phoneVerified(true)
+                .phoneVerified(phoneVerified)
                 .travelStyle(request.travelStyle())
                 .build();
+
+        if (emailVerified) {
+            user.markEmailVerified();
+        }
 
         User saved = userRepository.save(user);
 
@@ -90,6 +109,10 @@ public class UserService {
     }
 
     private void validatePhoneVerified(String phone, String verificationCode) {
+        if (phone == null || phone.isBlank()) {
+            throw new PhoneNotVerifiedException();
+        }
+
         // verifyCode() 단계에서 이미 인증 완료 처리(markVerified)가 끝났는지만 확인.
         // 인증 유효시간(5분)은 "인증번호 입력" 시점 기준이라, 그 이후 나머지 폼을
         // 작성하는 동안 시간이 지나도 재만료 처리되지 않도록 별도로 만료를 재검사하지 않는다.
@@ -101,6 +124,18 @@ public class UserService {
 
         if (!isValid) {
             throw new PhoneNotVerifiedException();
+        }
+    }
+
+    private void validateEmailVerified(String email, String verificationCode) {
+        EmailVerification verification = emailVerificationRepository
+                .findTopByEmailOrderByCreatedAtDesc(email)
+                .orElseThrow(InvalidVerificationCodeException::new);
+
+        boolean isValid = verification.getCode().equals(verificationCode) && verification.isVerified();
+
+        if (!isValid) {
+            throw new InvalidVerificationCodeException();
         }
     }
 }

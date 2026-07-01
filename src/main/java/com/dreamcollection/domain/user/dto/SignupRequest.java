@@ -3,11 +3,15 @@ package com.dreamcollection.domain.user.dto;
 import com.dreamcollection.domain.user.TravelStyle;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
 /**
  * 회원가입 요청
  * 프론트 RegisterPage.tsx의 RegisterReq와 필드 1:1 매칭
+ *
+ * 인증은 이메일/휴대폰 중 하나만 완료하면 되는 구조 (verificationMethod로 선택).
+ * phone은 PHONE 방식을 선택했을 때만 필수.
  *
  * 주의: cardNumber/cardExpiry/cardCvc는 프론트에서 함께 보내지만
  *      PCI-DSS 규정상 카드 원본 정보는 절대 저장하지 않는다.
@@ -15,7 +19,7 @@ import jakarta.validation.constraints.Size;
  */
 public record SignupRequest(
 
-        @NotBlank(message = "이메일을 입력해주세요")
+        @NotBlank(message = "아이디(이메일)를 입력해주세요")
         @Email(message = "이메일 형식이 올바르지 않습니다")
         String email,
 
@@ -30,10 +34,15 @@ public record SignupRequest(
         @Size(max = 30, message = "닉네임은 30자 이내여야 합니다")
         String nickname,
 
-        @NotBlank(message = "전화번호를 입력해주세요")
-        String phone,
+        // 어떤 방식으로 인증을 완료했는지 (EMAIL 또는 PHONE 중 하나만 필수)
+        @NotNull(message = "인증 방식을 선택해주세요")
+        VerificationMethod verificationMethod,
 
-        // 휴대폰 인증 완료 여부 확인용 (PhoneVerification 조회 키)
+        // verificationMethod = EMAIL 일 때 검증에 사용 (email 필드와 함께 확인)
+        String emailVerificationCode,
+
+        // verificationMethod = PHONE 일 때만 필수
+        String phone,
         String phoneVerificationCode,
 
         TravelStyle travelStyle,
@@ -43,4 +52,5 @@ public record SignupRequest(
         String cardExpiry,
         String cardCvc
 ) {
+    public enum VerificationMethod { EMAIL, PHONE }
 }

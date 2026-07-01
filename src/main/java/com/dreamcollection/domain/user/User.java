@@ -72,9 +72,7 @@ public class User {
     @Column(nullable = false, length = 20)
     private UserStatus status;
 
-    // 레벨/뱃지 시스템 (schema_part6)
-    @Column(nullable = false)
-    private int level;
+    // 레벨/뱃지 시스템은 팀 스코프에 없어 제거됨 (2026-07-01)
 
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
@@ -101,11 +99,15 @@ public class User {
         this.travelStyle = travelStyle != null ? travelStyle : TravelStyle.RELAXED;
         this.role = Role.USER;
         this.status = UserStatus.ACTIVE;
-        this.level = 1;
     }
 
     /** 소셜 로그인 등으로 프로필 이미지가 갱신될 때 사용 */
     public void updateProfileImage(String profileImageUrl) {
         this.profileImageUrl = profileImageUrl;
+    }
+
+    /** 회원가입 시 이메일 인증 방식을 선택해 완료한 경우 호출 */
+    public void markEmailVerified() {
+        this.emailVerified = true;
     }
 }
