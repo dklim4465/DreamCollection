@@ -65,23 +65,24 @@ domain/user/
 
 ## 도메인별 담당 테이블
 
-| 패키지 | 담당 DB 테이블 | 현재 상태 |
-|---|---|---|
-| `domain/user` | users, user_oauth_accounts, user_payment_cards, refresh_tokens, login_history | ✅ 회원가입/로그인 API 완성 |
-| `domain/verification` | phone_verifications, email_verifications, password_reset_tokens | ✅ 휴대폰 인증 API 완성 |
-| `domain/trip` | trip_requests, recommendations, days, days_item, flights, flights_options, accommodations, accommodations_options, trip_payments, trip_payment_items | ⬜ Entity만 |
-| `domain/travelog` | travel_log, log_photo, receipt | ⬜ Entity만 |
-| `domain/board` | board_post, board_image, board_like, board_comment, report | ⬜ Entity만 |
-| `domain/mate` | mate_post, mate_request, mate_review, mate_schedule_link | ⬜ Entity만 |
-| `domain/chat` | chat_room, chat_room_member, chat_message | ⬜ Entity만 |
-| `domain/social` | block, notification | ⬜ Entity만 |
-| `domain/city` | city | ⬜ Entity만 |
-| `domain/main` | banner, notice, monthly_destination, checklist_item, main_background | ⬜ Entity만 |
-| `domain/badge` | badge, user_badge | ⬜ Entity만 |
+| 패키지                | 담당 DB 테이블                                                                                                                                       | 현재 상태                   |
+| --------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------- |
+| `domain/user`         | users, user_oauth_accounts, user_payment_cards, refresh_tokens, login_history                                                                        | ✅ 회원가입/로그인 API 완성 |
+| `domain/verification` | phone_verifications, email_verifications, password_reset_tokens                                                                                      | ✅ 휴대폰 인증 API 완성     |
+| `domain/trip`         | trip_requests, recommendations, days, days_item, flights, flights_options, accommodations, accommodations_options, trip_payments, trip_payment_items | ⬜ Entity만                 |
+| `domain/travelog`     | travel_log, log_photo, receipt                                                                                                                       | ⬜ Entity만                 |
+| `domain/board`        | board_post, board_image, board_like, board_comment, report                                                                                           | ⬜ Entity만                 |
+| `domain/mate`         | mate_post, mate_request, mate_review, mate_schedule_link                                                                                             | ⬜ Entity만                 |
+| `domain/chat`         | chat_room, chat_room_member, chat_message                                                                                                            | ⬜ Entity만                 |
+| `domain/social`       | block, notification                                                                                                                                  | ⬜ Entity만                 |
+| `domain/city`         | city                                                                                                                                                 | ⬜ Entity만                 |
+| `domain/main`         | banner, notice, monthly_destination, checklist_item, main_background                                                                                 | ⬜ Entity만                 |
+| `domain/badge`        | badge, user_badge                                                                                                                                    | ⬜ Entity만                 |
 
 ## 로컬 실행 방법
 
 ### 1. 사전 준비
+
 - Java 17 설치 (`temurin-17` 권장)
 - MySQL/MariaDB 실행 중이어야 함
 - `db/` 폴더의 SQL 파일들을 순서대로 실행해서 `dream_collection` 스키마 생성 (자세한 건 `db/README.md` 참고)
@@ -89,15 +90,18 @@ domain/user/
 ### 2. DB 접속 정보 설정
 
 `src/main/resources/application.yml`에서 아래 값을 본인 환경에 맞게 수정:
+
 ```yaml
 spring:
   datasource:
     username: ${DB_USERNAME:root}
     password: ${DB_PASSWORD:}
 ```
+
 환경변수로 설정하거나, 로컬 테스트용으로 직접 값을 넣어도 됩니다. (단, 비밀번호를 직접 넣은 채로 커밋하지 마세요)
 
 ### 3. IntelliJ에서 실행
+
 1. `File → Open` → 이 프로젝트 폴더 선택
 2. Gradle sync 끝날 때까지 대기
 3. `File → Project Structure`에서 SDK가 17로 잡혀있는지 확인
