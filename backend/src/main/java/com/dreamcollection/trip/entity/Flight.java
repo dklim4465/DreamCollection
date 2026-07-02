@@ -1,4 +1,4 @@
-package com.dreamcollection.domain.trip;
+package com.dreamcollection.trip.entity;
 
 import jakarta.persistence.*;
 import lombok.AccessLevel;
