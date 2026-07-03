@@ -1,0 +1,22 @@
+package com.dreamcollection.domain.main.dto;
+
+import com.dreamcollection.domain.main.entity.Notice;
+
+import java.time.LocalDateTime;
+
+public record NoticeResponse(
+        Long id,
+        String title,
+        String content,
+        boolean pinned,
+        boolean active,
+        Integer viewCount,
+        LocalDateTime createdAt
+) {
+    public static NoticeResponse from(Notice notice) {
+        return new NoticeResponse(
+                notice.getId(), notice.getTitle(), notice.getContent(),
+                notice.isPinned(), notice.isActive(), notice.getViewCount(), notice.getCreatedAt()
+        );
+    }
+}
