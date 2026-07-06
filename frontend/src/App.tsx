@@ -4,13 +4,15 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import AppLayout from "@/components/layout/AppLayout";
 import PrivateRoute from "@/components/common/PrivateRoute";
 import LoadingSpinner from "@/components/common/LoadingSpinner";
-import TripResultPage from "@/pages/TripResultPage";
+import TripResultPage from "@/pages/Trip/TripResultPage";
+import TripHubPage from "@/pages/Trip/TripHubPage";
+import TripSavedListPage from "@/pages/Trip/TripSavedListPage";
 
 // ── 코드 스플리팅 (lazy import) ──────────────────────────────
 const HomePage = lazy(() => import("@/pages/HomePage"));
 const CommunityPage = lazy(() => import("@/pages/CommunityPage"));
 const MatchingPage = lazy(() => import("@/pages/MatchingPage"));
-const TravelPlanPage = lazy(() => import("@/pages/TravelPlanPage"));
+const TravelPlanPage = lazy(() => import("@/pages/Trip/TravelPlanPage"));
 const RecordsPage = lazy(() => import("@/pages/RecordsPage"));
 const LoginPage = lazy(() => import("@/pages/LoginPage"));
 const RegisterPage = lazy(() => import("@/pages/RegisterPage"));
@@ -44,8 +46,10 @@ export default function App() {
 
               {/* 로그인 필요 */}
               <Route element={<PrivateRoute />}>
-                <Route path="/trip" element={<TravelPlanPage />} />
+                <Route path="/trip" element={<TripHubPage />} />
+                <Route path="/trip/new" element={<TravelPlanPage />} />
                 <Route path="/trip/result" element={<TripResultPage />} />
+                <Route path="/trip/saved" element={<TripSavedListPage />} />
                 <Route path="/records" element={<RecordsPage />} />
                 <Route path="/profile" element={<ProfilePage />} />
                 {/* TODO: /plan/new, /plan/:id, /community/new 등 추가 */}
