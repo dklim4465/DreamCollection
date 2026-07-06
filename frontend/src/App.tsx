@@ -43,7 +43,7 @@ export default function App() {
 
               {/* 로그인 필요 */}
               <Route element={<PrivateRoute />}>
-                <Route path="/plan" element={<TravelPlanPage />} />
+                <Route path="/trip" element={<TravelPlanPage />} />
                 <Route path="/records" element={<RecordsPage />} />
                 <Route path="/profile" element={<ProfilePage />} />
                 {/* TODO: /plan/new, /plan/:id, /community/new 등 추가 */}
