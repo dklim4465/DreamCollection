@@ -10,7 +10,11 @@
         <module name="DreamCollection.backend.main" />
       </profile>
     </annotationProcessing>
+<<<<<<< HEAD
     <bytecodeTargetLevel target="17" />
+=======
+    <bytecodeTargetLevel target="21" />
+>>>>>>> yj
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">

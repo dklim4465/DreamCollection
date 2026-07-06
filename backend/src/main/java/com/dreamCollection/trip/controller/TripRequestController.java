@@ -6,12 +6,17 @@ import com.dreamCollection.trip.dto.SaveTripRequestDTO;
 import com.dreamCollection.trip.dto.SaveTripResponseDTO;
 import com.dreamCollection.trip.service.TripService;
 import lombok.RequiredArgsConstructor;
+<<<<<<< HEAD
 import lombok.extern.log4j.Log4j2;
+=======
+import lombok.extern.slf4j.Slf4j;
+>>>>>>> yj
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
+<<<<<<< HEAD
 @Log4j2
 @RequiredArgsConstructor
 @CrossOrigin(origins = {
@@ -19,6 +24,11 @@ import java.util.List;
         "http://localhost:3000"
 })
 @RequestMapping("/api/trip")
+=======
+@Slf4j
+@RequiredArgsConstructor
+@RequestMapping("/trip")
+>>>>>>> yj
 public class TripRequestController {
 
     private final TripService tripService;

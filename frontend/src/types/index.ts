@@ -36,10 +36,29 @@ export interface User {
   phone?: string;
   profileImage?: string;
   travelStyle: TravelStyle;
+<<<<<<< HEAD
   createdAt: string;
 }
 
 // 추천 여행지 (히어로 캐러셀)
+=======
+  role: "USER" | "ADMIN";
+  createdAt: string;
+}
+
+// 도시 마스터 (자동완성 선택 결과 / 날씨·배경 이미지 연동용)
+export interface City {
+  id: number;
+  nameKo: string;
+  nameEn: string;
+  countryName: string;
+  imageUrl?: string;
+  latitude?: number;
+  longitude?: number;
+}
+
+// 추천 여행지 (히어로 캐러셀 / 이달의 여행지)
+>>>>>>> yj
 export interface DestinationCard {
   id: number;
   country: string;
@@ -53,7 +72,11 @@ export interface DestinationCard {
 // 빠른 액션
 export interface QuickAction {
   id: string;
+<<<<<<< HEAD
   icon: string; // Material Symbol 이름
+=======
+  icon: string;
+>>>>>>> yj
   title: string;
   description: string;
   href: string;
@@ -65,31 +88,100 @@ export type FeedItemType = "tip" | "guide" | "companion" | "spot";
 export interface FeedItem {
   id: number;
   type: FeedItemType;
+<<<<<<< HEAD
   badge?: string; // "Tip", "Foodie Guide" 등
+=======
+  badge?: string;
+>>>>>>> yj
   title: string;
   excerpt?: string;
   imageUrl?: string;
   author?: Pick<User, "id" | "nickname" | "profileImage">;
   likeCount?: number;
   commentCount?: number;
+<<<<<<< HEAD
   isLive?: boolean; // 실시간 현황
   createdAt: string;
 }
 
 // 여행 계획
+=======
+  isLive?: boolean;
+  createdAt: string;
+}
+
+// ── 여행 계획 (SCHEDULE) ──────────────────────────────────
+export type ScheduleStatus = "DRAFT" | "PAID" | "CANCELLED";
+
+>>>>>>> yj
 export interface TravelPlan {
   id: number;
   title: string;
   destination: string;
+<<<<<<< HEAD
   startDate: string;
   endDate: string;
   phase: TravelPhase;
+=======
+  city?: City;
+  startDate: string;
+  endDate: string;
+  peopleCount: number;
+  phase: TravelPhase;
+  status: ScheduleStatus;
+  shareLink?: string;
+>>>>>>> yj
   budget?: number;
   memo?: string;
   authorId: number;
   createdAt: string;
 }
 
+<<<<<<< HEAD
+=======
+// ── 장바구니 (CART / CART_ITEM) ───────────────────────────
+export interface CartItem {
+  id: number;
+  scheduleId: number;
+  scheduleTitle: string;
+  destination: string;
+  price: number;
+  addedAt: string;
+}
+
+// ── 결제 (PAYMENT) ────────────────────────────────────────
+export type PaymentStatus = "PAID" | "CANCELLED" | "REFUNDED";
+export type PaymentMethod = "CARD" | "EASY_PAY";
+
+export interface Payment {
+  id: number;
+  scheduleId: number;
+  scheduleTitle: string;
+  amount: number;
+  method: PaymentMethod;
+  status: PaymentStatus;
+  paidAt: string;
+}
+
+// ── 여행일지 / 사진 (TRAVEL_LOG / LOG_PHOTO) ─────────────
+export interface LogPhoto {
+  id: number;
+  imageUrl: string;
+  takenAt?: string;
+  latitude?: number;
+  longitude?: number;
+}
+
+export interface TravelLog {
+  id: number;
+  title: string;
+  scheduleId?: number;
+  memo: string;
+  photos: LogPhoto[];
+  createdAt: string;
+}
+
+>>>>>>> yj
 // 동행 모집
 export interface CompanionPost {
   id: number;

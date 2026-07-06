@@ -9,13 +9,21 @@ import com.dreamCollection.trip.repository.SavedTripRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
+<<<<<<< HEAD
 import lombok.extern.log4j.Log4j2;
+=======
+import lombok.extern.slf4j.Slf4j;
+>>>>>>> yj
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Map;
 
+<<<<<<< HEAD
 @Log4j2
+=======
+@Slf4j
+>>>>>>> yj
 @Service
 @RequiredArgsConstructor
 public class TripServiceImpl implements TripService {

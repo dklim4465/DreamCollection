@@ -10,7 +10,11 @@ interface MenuCard {
 
 const MAIN_MENUS: MenuCard[] = [
   {
+<<<<<<< HEAD
     to: "/trip",
+=======
+    to: "/plan",
+>>>>>>> yj
     icon: "calendar_month",
     title: "일정",
     description: "여행 일정을 등록하고 관리하세요",

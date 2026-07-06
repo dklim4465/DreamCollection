@@ -2,7 +2,15 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
+<<<<<<< HEAD
       <module fileurl="file://$PROJECT_DIR$/.idea/DreamCollection.iml" filepath="$PROJECT_DIR$/.idea/DreamCollection.iml" />
+=======
+<<<<<<< HEAD
+      <module fileurl="file://$PROJECT_DIR$/.idea/DreamCollection-main.iml" filepath="$PROJECT_DIR$/.idea/DreamCollection-main.iml" />
+=======
+      <module fileurl="file://$PROJECT_DIR$/.idea/DreamCollection.iml" filepath="$PROJECT_DIR$/.idea/DreamCollection.iml" />
+>>>>>>> ab5408a9a3f42d0a447821c98a34f329a35ff4f6
+>>>>>>> yj
     </modules>
   </component>
 </project>
