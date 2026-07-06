@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+>>>>>>> ab5408a9a3f42d0a447821c98a34f329a35ff4f6
 # Dream Collection — Backend
 
 Spring Boot 3.3 + JPA + MySQL 기반 백엔드입니다.
@@ -120,3 +124,9 @@ spring:
 - 이 프로젝트는 `backend` 브랜치에서 작업합니다. 프론트엔드 파일(`*.tsx`, `package.json`, `vite.config.ts` 등)은 **절대 이 브랜치에 커밋하지 마세요.**
 - 작업 전 `git pull origin backend`로 최신 상태 받고 시작하는 걸 권장합니다.
 - 담당 도메인 작업 후 커밋 메시지 예시: `feat(trip): AI 추천 요청 생성 API 추가`
+<<<<<<< HEAD
+=======
+=======
+# DreamCollection
+>>>>>>> d223b33396f3ccea105528d9fc987590b4188986
+>>>>>>> ab5408a9a3f42d0a447821c98a34f329a35ff4f6

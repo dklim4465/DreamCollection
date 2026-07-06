@@ -36,6 +36,7 @@ export interface User {
   phone?: string;
   profileImage?: string;
   travelStyle: TravelStyle;
+<<<<<<< HEAD
   role: "USER" | "ADMIN";
   createdAt: string;
 }
@@ -52,6 +53,12 @@ export interface City {
 }
 
 // 추천 여행지 (히어로 캐러셀 / 이달의 여행지)
+=======
+  createdAt: string;
+}
+
+// 추천 여행지 (히어로 캐러셀)
+>>>>>>> ab5408a9a3f42d0a447821c98a34f329a35ff4f6
 export interface DestinationCard {
   id: number;
   country: string;
@@ -65,7 +72,11 @@ export interface DestinationCard {
 // 빠른 액션
 export interface QuickAction {
   id: string;
+<<<<<<< HEAD
   icon: string;
+=======
+  icon: string; // Material Symbol 이름
+>>>>>>> ab5408a9a3f42d0a447821c98a34f329a35ff4f6
   title: string;
   description: string;
   href: string;
@@ -77,13 +88,18 @@ export type FeedItemType = "tip" | "guide" | "companion" | "spot";
 export interface FeedItem {
   id: number;
   type: FeedItemType;
+<<<<<<< HEAD
   badge?: string;
+=======
+  badge?: string; // "Tip", "Foodie Guide" 등
+>>>>>>> ab5408a9a3f42d0a447821c98a34f329a35ff4f6
   title: string;
   excerpt?: string;
   imageUrl?: string;
   author?: Pick<User, "id" | "nickname" | "profileImage">;
   likeCount?: number;
   commentCount?: number;
+<<<<<<< HEAD
   isLive?: boolean;
   createdAt: string;
 }
@@ -91,10 +107,18 @@ export interface FeedItem {
 // ── 여행 계획 (SCHEDULE) ──────────────────────────────────
 export type ScheduleStatus = "DRAFT" | "PAID" | "CANCELLED";
 
+=======
+  isLive?: boolean; // 실시간 현황
+  createdAt: string;
+}
+
+// 여행 계획
+>>>>>>> ab5408a9a3f42d0a447821c98a34f329a35ff4f6
 export interface TravelPlan {
   id: number;
   title: string;
   destination: string;
+<<<<<<< HEAD
   city?: City;
   startDate: string;
   endDate: string;
@@ -102,12 +126,18 @@ export interface TravelPlan {
   phase: TravelPhase;
   status: ScheduleStatus;
   shareLink?: string;
+=======
+  startDate: string;
+  endDate: string;
+  phase: TravelPhase;
+>>>>>>> ab5408a9a3f42d0a447821c98a34f329a35ff4f6
   budget?: number;
   memo?: string;
   authorId: number;
   createdAt: string;
 }
 
+<<<<<<< HEAD
 // ── 장바구니 (CART / CART_ITEM) ───────────────────────────
 export interface CartItem {
   id: number;
@@ -150,6 +180,8 @@ export interface TravelLog {
   createdAt: string;
 }
 
+=======
+>>>>>>> ab5408a9a3f42d0a447821c98a34f329a35ff4f6
 // 동행 모집
 export interface CompanionPost {
   id: number;

@@ -1,13 +1,15 @@
 plugins {
     id 'java'
-    id 'org.springframework.boot' version '3.3.4'
-    id 'io.spring.dependency-management' version '1.1.6'
 }
 
 group = 'com.dreamcollection'
+group = 'com'
 version = '0.0.1-SNAPSHOT'
 
 java {
+	toolchain {
+		languageVersion = JavaLanguageVersion.of(21)
+	}
     toolchain {
         languageVersion = JavaLanguageVersion.of(17)
     }
@@ -20,7 +22,7 @@ configurations {
 }
 
 repositories {
-    mavenCentral()
+	mavenCentral()
 }
 
 dependencyManagement {
@@ -30,6 +32,17 @@ dependencyManagement {
 }
 
 dependencies {
+	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+	implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+	implementation 'org.springframework.boot:spring-boot-starter-web'
+	compileOnly 'org.projectlombok:lombok'
+	developmentOnly 'org.springframework.boot:spring-boot-devtools'
+	runtimeOnly 'org.mariadb.jdbc:mariadb-java-client'
+	annotationProcessor 'org.projectlombok:lombok'
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	testCompileOnly 'org.projectlombok:lombok'
+	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+	testAnnotationProcessor 'org.projectlombok:lombok'
     // .env 파일을 자동으로 읽어서 Spring 환경변수로 등록 (DB_USERNAME, DB_PASSWORD 등)
     implementation 'me.paulschwarz:springboot3-dotenv'
 
@@ -63,5 +76,5 @@ dependencies {
 }
 
 tasks.named('test') {
-    useJUnitPlatform()
+	useJUnitPlatform()
 }
