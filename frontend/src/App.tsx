@@ -4,6 +4,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import AppLayout from "@/components/layout/AppLayout";
 import PrivateRoute from "@/components/common/PrivateRoute";
 import LoadingSpinner from "@/components/common/LoadingSpinner";
+import TripResultPage from "@/pages/TripResultPage";
 
 // ── 코드 스플리팅 (lazy import) ──────────────────────────────
 const HomePage = lazy(() => import("@/pages/HomePage"));
@@ -44,6 +45,7 @@ export default function App() {
               {/* 로그인 필요 */}
               <Route element={<PrivateRoute />}>
                 <Route path="/trip" element={<TravelPlanPage />} />
+                <Route path="/trip/result" element={<TripResultPage />} />
                 <Route path="/records" element={<RecordsPage />} />
                 <Route path="/profile" element={<ProfilePage />} />
                 {/* TODO: /plan/new, /plan/:id, /community/new 등 추가 */}

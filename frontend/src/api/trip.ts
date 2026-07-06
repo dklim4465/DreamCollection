@@ -2,7 +2,7 @@ import apiClient from "@/api/client";
 
 export type TripOptionType = "who" | "when" | "region" | "theme" | "level";
 
-// DTO 받아온거 타입 미리 세팅해두기
+// DTO 받아온거 ts용 인식 시키기
 export interface PlanRequest {
   who: string;
   when: string;

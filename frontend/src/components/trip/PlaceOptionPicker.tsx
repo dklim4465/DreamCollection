@@ -6,12 +6,7 @@ interface Props {
   onSelect: (index: number) => void;
 }
 
-/**
- * ScheduleItem 하나에 붙는 "장소 후보 선택" UI
- * - options: 백엔드가 내려준 후보 3개
- * - selectedIndex: selectedOptionIndex 와 같은 값
- * - onSelect: 클릭한 후보의 index(0,1,2)를 부모로 전달
- */
+//여기는 결과 이후에 선택지를 고를 수 있게 하기 위한 컴포넌트
 export default function PlaceOptionPicker({
   options,
   selectedIndex,
