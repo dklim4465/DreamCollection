@@ -58,14 +58,17 @@ public class MainHeroService {
             }
         }
 
-        // 2순위: 이달의 여행지
+        // 2순위: 이달의 여행지 — 전부 내려줘서 프론트가 여러 개를 순환 노출 (매번/주기적으로 다른 여행지가 보이도록)
         String currentMonth = LocalDate.now().format(MONTH_FORMAT);
         var monthlyList = monthlyDestinationRepository
                 .findByDisplayMonthAndActiveTrueOrderByDisplayOrderAsc(currentMonth);
         if (!monthlyList.isEmpty()) {
-            var md = monthlyList.get(0);
+            List<HeroMedia> monthlyMedias = monthlyList.stream()
+                    .map(md -> new HeroMedia(md.getImageUrl(), "IMAGE", md.getTitle(), md.getDestinationName()))
+                    .toList();
+            var first = monthlyList.get(0);
             return new MainHeroResponse(
-                    "MONTHLY", md.getImageUrl(), "IMAGE", md.getTitle(), md.getDestinationName(), null, List.of());
+                    "MONTHLY", first.getImageUrl(), "IMAGE", first.getTitle(), first.getDestinationName(), null, monthlyMedias);
         }
 
         // 3순위: 관리자 기본 배경 — 여러 개 등록돼 있으면 전부 내려줘서 프론트가 슬라이드로 순환시킴

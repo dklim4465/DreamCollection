@@ -13,8 +13,12 @@ public record MainHeroResponse(
         String title,
         String subtitle,
         Long tripRequestId,   // mode=SCHEDULE 일 때만 값 있음 (상세 이동용)
-        List<HeroMedia> medias // DEFAULT 모드에서 배경이 여러 개면 전부 내려줌 (프론트 슬라이드 연출용)
+        List<HeroMedia> medias // 배경이 여러 개면 전부 내려줘서 프론트가 슬라이드로 순환 (MONTHLY는 여행지별 제목도 함께)
 ) {
-    public record HeroMedia(String url, String type) {
+    // title/subtitle은 MONTHLY 모드에서 슬라이드별 문구 교체용 (SCHEDULE/DEFAULT는 null로 두고 최상단 title/subtitle 사용)
+    public record HeroMedia(String url, String type, String title, String subtitle) {
+        public HeroMedia(String url, String type) {
+            this(url, type, null, null);
+        }
     }
 }

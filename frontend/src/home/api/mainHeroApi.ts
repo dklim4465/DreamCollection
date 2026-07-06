@@ -4,6 +4,9 @@ import type { ApiResponse } from "@/types";
 export interface HeroMedia {
   url: string;
   type: "IMAGE" | "VIDEO";
+  // MONTHLY 모드에서 슬라이드마다 다른 문구를 보여주기 위한 필드 (없으면 상단 title/subtitle 사용)
+  title?: string | null;
+  subtitle?: string | null;
 }
 
 export interface MainHeroData {
