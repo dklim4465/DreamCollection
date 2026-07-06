@@ -1,5 +1,6 @@
+import { useState } from "react";
 import type { PlanRequest, TripRecommendation } from "@/api/trip";
-import ScheduleItemRow from "./ScheduleItemRow";
+import TripOptionModal from "./TripOptionModal";
 
 interface Props {
   conditions: PlanRequest;
@@ -10,26 +11,34 @@ interface Props {
   isSaving?: boolean;
 }
 
-/**
- * recommend API 결과를 "한 화면"으로 보여주는 컴포넌트
- *
- * [상단] title, summary, 선택했던 조건 칩
- * [본문] card-base 하나 안에
- *        - 1일차 라벨
- *        - 그날 items → ScheduleItemRow
- *        - 2일차 라벨
- *        - ...
- * [하단] 다시 선택 / 저장
- */
+interface EditingTarget {
+  dayIndex: number;
+  itemIndex: number;
+}
+
+const TIME_SLOT_LABEL: Record<string, string> = {
+  Morning: "오전",
+  Lunch: "점심",
+  Afternoon: "오후",
+  Dinner: "저녁",
+};
+
 export default function TripScheduleView({
-  conditions,
   recommendation,
   onChangeRecommendation,
   onBack,
   onSave,
   isSaving = false,
 }: Props) {
-  /** dayIndex, itemIndex, optionIndex 로 selectedOptionIndex 갱신 */
+  const [currentDayIndex, setCurrentDayIndex] = useState(0);
+  const [editingTarget, setEditingTarget] = useState<EditingTarget | null>(
+    null,
+  );
+
+  const currentDay = recommendation.days[currentDayIndex];
+  const hasPrevDay = currentDayIndex > 0;
+  const hasNextDay = currentDayIndex < recommendation.days.length - 1;
+
   const handleSelectOption = (
     dayIndex: number,
     itemIndex: number,
@@ -49,75 +58,110 @@ export default function TripScheduleView({
     });
 
     onChangeRecommendation({ ...recommendation, days: nextDays });
+    setEditingTarget(null);
   };
+
+  const editingDay =
+    editingTarget !== null ? recommendation.days[editingTarget.dayIndex] : null;
+
+  const editingItem =
+    editingDay && editingTarget !== null
+      ? editingDay.items[editingTarget.itemIndex]
+      : null;
 
   return (
     <div className="flex flex-col gap-stack-lg">
-      {/* ── 요약 ── */}
-      <section className="card-base p-stack-lg">
-        <p className="text-label-md text-primary font-semibold mb-1">
-          AI 추천 일정
-        </p>
-        <h2 className="text-headline-md font-bold">{recommendation.title}</h2>
-        <p className="text-body-md text-on-surface-variant mt-2">
-          {recommendation.summary}
-        </p>
-
-        <div className="flex flex-wrap gap-stack-sm mt-stack-md">
-          {Object.values(conditions).map((value) => (
-            <span
-              key={value}
-              className="chip bg-surface-container-low text-on-surface"
+      <section className="card-base overflow-hidden">
+        <div className="p-stack-lg">
+          <div className="flex items-center justify-between gap-stack-md">
+            {/* 이전일차로 돌아가는 버튼 */}
+            <button
+              type="button"
+              onClick={() => setCurrentDayIndex((prev) => prev - 1)}
+              disabled={!hasPrevDay}
+              className="hidden md:flex w-12 h-12 rounded-full border border-outline-variant items-center justify-center disabled:opacity-30 hover:bg-surface-container transition-colors"
+              aria-label="이전 일차"
             >
-              {value}
-            </span>
-          ))}
-        </div>
-      </section>
+              <span className="material-symbols-outlined">chevron_left</span>
+            </button>
 
-      {/* ── 전체 일정 (한 카드, 스크롤 가능) ── */}
-      <section className="card-base p-stack-lg">
-        <div className="flex items-center gap-stack-sm mb-stack-md">
-          <span className="material-symbols-outlined text-primary">
-            event_note
-          </span>
-          <h3 className="text-headline-sm font-bold">전체 일정</h3>
-        </div>
+            {/* 여기서 부터는 일정을 보여주는 한칸 */}
+            <section className="flex-1 max-w-4xl mx-auto border border-outline-variant rounded-2xl p-stack-lg min-h-[420px]">
+              <h3 className="text-headline-sm font-bold text-center mb-stack-md">
+                {currentDay.dayTitle}
+              </h3>
 
-        <div className="flex flex-col gap-stack-lg">
-          {recommendation.days.map((day, dayIndex) => (
-            <div key={day.dayNumber}>
-              {/* 일차 구분 — 큰 카드 아님, 라벨만 */}
-              <div className="flex items-center gap-stack-sm mb-stack-sm">
-                <span className="w-8 h-8 rounded-full bg-tertiary text-on-tertiary flex items-center justify-center text-label-md font-bold shrink-0">
-                  {day.dayNumber}
-                </span>
-                <p className="text-label-md font-semibold text-on-surface-variant">
-                  {day.dayTitle}
-                </p>
+              <div className="flex flex-col gap-stack-sm">
+                {currentDay.items.map((item, itemIndex) => {
+                  const selectedPlace = item.options[item.selectedOptionIndex];
+
+                  return (
+                    <article
+                      key={item.itemKey}
+                      className="border border-outline-variant rounded-xl p-stack-md flex items-center gap-stack-md"
+                    >
+                      <div className="w-24 h-24 rounded-lg bg-primary-container text-on-primary-container flex items-center justify-center shrink-0">
+                        <span className="material-symbols-outlined text-4xl">
+                          {item.itemType === "Meal"
+                            ? "restaurant"
+                            : "location_on"}
+                        </span>
+                      </div>
+
+                      <div className="flex-1 min-w-0">
+                        <p className="text-label-md text-on-surface-variant">
+                          {TIME_SLOT_LABEL[item.timeSlot] ?? item.timeSlot} 일정
+                        </p>
+
+                        <h4 className="text-headline-sm font-bold mt-1 truncate">
+                          {selectedPlace?.placeName ?? item.title}
+                        </h4>
+
+                        <p className="text-body-md text-on-surface-variant mt-2 line-clamp-2">
+                          {selectedPlace?.description ??
+                            "추천 일정 설명이 없습니다."}
+                        </p>
+                      </div>
+
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setEditingTarget({
+                            dayIndex: currentDayIndex,
+                            itemIndex,
+                          })
+                        }
+                        className="btn-ghost shrink-0"
+                      >
+                        일정 변경
+                      </button>
+                    </article>
+                  );
+                })}
               </div>
+            </section>
+            {/* 여기까지가 일정 보여주는 한칸 */}
 
-              <ul className="pl-2">
-                {day.items.map((item, itemIndex) => (
-                  <ScheduleItemRow
-                    key={item.itemKey}
-                    item={item}
-                    onSelectOption={(optionIndex) =>
-                      handleSelectOption(dayIndex, itemIndex, optionIndex)
-                    }
-                  />
-                ))}
-              </ul>
-            </div>
-          ))}
+            {/* 다음일차 보여주는 버튼 */}
+            <button
+              type="button"
+              onClick={() => setCurrentDayIndex((prev) => prev + 1)}
+              disabled={!hasNextDay}
+              className="w-12 h-12 rounded-full border border-outline-variant flex items-center justify-center disabled:opacity-30 hover:bg-surface-container transition-colors"
+              aria-label="다음 일차"
+            >
+              <span className="material-symbols-outlined">chevron_right</span>
+            </button>
+          </div>
         </div>
       </section>
 
-      {/* ── 하단 버튼 ── */}
+      {/* 맨 아래쪽 버튼 두개 */}
       <div className="flex flex-col sm:flex-row gap-stack-sm">
         <button type="button" onClick={onBack} className="btn-ghost flex-1">
           조건 다시 선택
         </button>
+
         <button
           type="button"
           onClick={onSave}
@@ -128,9 +172,24 @@ export default function TripScheduleView({
             ? "저장 중..."
             : onSave
               ? "이 일정 저장하기"
-              : "저장 (다음 단계)"}
+              : "저장 준비 중"}
         </button>
       </div>
+
+      {editingDay && editingItem && editingTarget && (
+        <TripOptionModal
+          day={editingDay}
+          item={editingItem}
+          onClose={() => setEditingTarget(null)}
+          onSelect={(optionIndex) =>
+            handleSelectOption(
+              editingTarget.dayIndex,
+              editingTarget.itemIndex,
+              optionIndex,
+            )
+          }
+        />
+      )}
     </div>
   );
 }

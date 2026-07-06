@@ -1,32 +1,18 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useMutation } from "@tanstack/react-query";
 import {
   tripApi,
   tripOptionTypes,
   tripOptionLabels,
   type PlanRequest,
-  type PlanResponse,
-  type TripRecommendation,
 } from "@/api/trip";
 import TripOptionSelector from "@/components/trip/TripOptionSelector";
-import TripScheduleView from "@/components/trip/TripScheduleView";
 import LoadingSpinner from "@/components/common/LoadingSpinner";
-
-type PageStep = "select" | "result";
-
 export default function TravelPlanPage() {
-  // pageStep: "선택 중" vs "결과 보기"
-  const [pageStep, setPageStep] = useState<PageStep>("select");
-  // optionStep: who(0) → when(1) → ... → level(4)
+  const navigate = useNavigate();
   const [optionStep, setOptionStep] = useState(0);
   const [conditions, setConditions] = useState<Partial<PlanRequest>>({});
-
-  // recommend API 원본 응답 (조건 who/when 등 포함)
-  const [planResult, setPlanResult] = useState<PlanResponse | null>(null);
-  // 사용자가 후보 바꾼 뒤 저장할 추천 일정 (save API에 보낼 객체)
-  const [recommendation, setRecommendation] =
-    useState<TripRecommendation | null>(null);
-
   const currentType = tripOptionTypes[optionStep];
   const currentValue = conditions[currentType];
   const isLastOptionStep = optionStep === tripOptionTypes.length - 1;
@@ -34,56 +20,30 @@ export default function TravelPlanPage() {
   const recommendMutation = useMutation({
     mutationFn: tripApi.recommend,
     onSuccess: (data) => {
-      setPlanResult(data);
-      setRecommendation(data.recommendations[0] ?? null);
-      setPageStep("result");
+      navigate("/trip/result", {
+        state: {
+          conditions,
+          planResult: data,
+          recommendation: data.recommendations[0],
+        },
+      });
     },
   });
-
   const handleSelect = (selected: string) => {
     setConditions((prev) => ({ ...prev, [currentType]: selected }));
   };
-
   const handleNext = () => {
     if (!currentValue) return;
-
     if (isLastOptionStep) {
       recommendMutation.mutate(conditions as PlanRequest);
       return;
     }
     setOptionStep((s) => s + 1);
   };
-
   const handlePrev = () => {
     if (optionStep > 0) setOptionStep((s) => s - 1);
   };
-
-  const handleBackToSelect = () => {
-    setPageStep("select");
-    setOptionStep(0);
-    setPlanResult(null);
-    setRecommendation(null);
-    recommendMutation.reset();
-  };
-
-  // ── 결과: 전체 일정 한 화면 ──
-  if (pageStep === "result" && planResult && recommendation) {
-    return (
-      <div>
-        <h1 className="text-headline-md font-bold mb-stack-lg">추천 일정</h1>
-
-        <TripScheduleView
-          conditions={planResult}
-          recommendation={recommendation}
-          onChangeRecommendation={setRecommendation}
-          onBack={handleBackToSelect}
-          // onSave / isSaving → 5단계 save API 연결할 때 추가
-        />
-      </div>
-    );
-  }
-
-  // ── 선택: 5단계 위저드 ──
+  // 선택할때 필요한 곳
   return (
     <div>
       <h1 className="text-headline-md font-bold mb-2">여행 일정</h1>
@@ -121,6 +81,7 @@ export default function TravelPlanPage() {
 
       <div className="flex gap-stack-sm mt-stack-lg">
         {optionStep > 0 && (
+          // 이전 버튼이 너무 커서 수정해야함
           <button
             type="button"
             onClick={handlePrev}
