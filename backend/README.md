@@ -4,7 +4,7 @@ Spring Boot 3.3 + JPA + MySQL 기반 백엔드입니다.
 
 ## 기술 스택
 
-- Java 17
+- Java 21
 - Spring Boot 3.3 (Web, Data JPA, Validation, Security)
 - MySQL 8 / MariaDB 10.11
 - JWT (jjwt)
@@ -86,7 +86,7 @@ domain/user/
 ## 로컬 실행 방법
 
 ### 1. 사전 준비
-- Java 17 설치 (`temurin-17` 권장)
+- Java 21 설치 (`temurin-21` 권장)
 - MySQL/MariaDB 실행 중이어야 함
 - `db/` 폴더의 SQL 파일들을 순서대로 실행해서 `dream_collection` 스키마 생성 (자세한 건 `db/README.md` 참고)
 
@@ -104,8 +104,8 @@ spring:
 ### 3. IntelliJ에서 실행
 1. `File → Open` → 이 프로젝트 폴더 선택
 2. Gradle sync 끝날 때까지 대기
-3. `File → Project Structure`에서 SDK가 17로 잡혀있는지 확인
-4. `Settings → Build Tools → Gradle`에서 Gradle JVM도 17로 확인
+3. `File → Project Structure`에서 SDK가 21로 잡혀있는지 확인
+4. `Settings → Build Tools → Gradle`에서 Gradle JVM도 21로 확인
 5. `DreamCollectionApplication.java` 실행 → `Tomcat started on port 8080` 뜨면 성공
 
 ## 설계 원칙
