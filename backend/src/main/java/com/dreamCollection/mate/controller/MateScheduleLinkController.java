@@ -4,7 +4,7 @@ package com.dreamCollection.mate.controller;
 
 import com.dreamCollection.global.response.ApiResponse;
 import com.dreamCollection.mate.dto.MateScheduleLinkCreateRequestDTO;
-import com.dreamCollection.mate.repository.MateScheduleLinkResponseDTO;
+import com.dreamCollection.mate.dto.MateScheduleLinkResponseDTO;
 import com.dreamCollection.mate.service.MateScheduleLinkService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

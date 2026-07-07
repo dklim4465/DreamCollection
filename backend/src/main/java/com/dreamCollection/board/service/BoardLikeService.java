@@ -35,7 +35,7 @@ public class BoardLikeService {
                     .userId(userId)
                     .build();
             boardLikeRepository.save(like);
-            post.increaseViewCount();
+            post.increaseLikeCount();
             return new BoardLikeResponseDTO(true,post.getLikeCount());
         }
     }

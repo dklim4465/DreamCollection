@@ -1,4 +1,4 @@
-package com.dreamCollection.mate.repository;
+package com.dreamCollection.mate.dto;
 
 
 import com.dreamCollection.mate.entity.MateScheduleLink;

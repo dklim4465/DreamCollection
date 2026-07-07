@@ -23,7 +23,7 @@ public class BoardCommentController {
 
     @PostMapping
     public ResponseEntity<ApiResponse<BoardCommentResponseDTO>> createComment(
-            @RequestHeader("X-User_Id") Long userId,
+            @RequestHeader("X-User-Id") Long userId,
             @PathVariable Long postId,
             @Valid @RequestBody BoardCommentCreateRequestDTO requestDTO) {
         BoardCommentResponseDTO responseDTO = boardCommentService.createComment(userId, postId, requestDTO);
