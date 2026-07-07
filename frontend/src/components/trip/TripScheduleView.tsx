@@ -9,6 +9,7 @@ interface Props {
   onBack: () => void;
   onSave?: () => void;
   isSaving?: boolean;
+  hideActions?: boolean;
 }
 
 interface EditingTarget {
@@ -29,6 +30,7 @@ export default function TripScheduleView({
   onBack,
   onSave,
   isSaving = false,
+  hideActions = false,
 }: Props) {
   const [currentDayIndex, setCurrentDayIndex] = useState(0);
   const [editingTarget, setEditingTarget] = useState<EditingTarget | null>(
@@ -157,24 +159,22 @@ export default function TripScheduleView({
       </section>
 
       {/* 맨 아래쪽 버튼 두개 */}
-      <div className="flex flex-col sm:flex-row gap-stack-sm">
-        <button type="button" onClick={onBack} className="btn-ghost flex-1">
-          조건 다시 선택
-        </button>
+      {!hideActions && (
+        <div className="flex flex-col sm:flex-row gap-stack-sm">
+          <button type="button" onClick={onBack} className="btn-ghost flex-1">
+            조건 다시 선택
+          </button>
 
-        <button
-          type="button"
-          onClick={onSave}
-          disabled={!onSave || isSaving}
-          className="btn-primary flex-1 disabled:opacity-50"
-        >
-          {isSaving
-            ? "저장 중..."
-            : onSave
-              ? "이 일정 저장하기"
-              : "저장 준비 중"}
-        </button>
-      </div>
+          <button
+            type="button"
+            onClick={onSave}
+            disabled={!onSave || isSaving}
+            className="btn-primary flex-1 disabled:opacity-50"
+          >
+            {isSaving ? "저장 중..." : "이 일정 저장하기"}
+          </button>
+        </div>
+      )}
 
       {editingDay && editingItem && editingTarget && (
         <TripOptionModal

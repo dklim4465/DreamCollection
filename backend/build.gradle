@@ -13,8 +13,20 @@ java {
 	}
 }
 
+configurations {
+	compileOnly {
+		extendsFrom annotationProcessor
+	}
+}
+
 repositories {
 	mavenCentral()
+}
+
+dependencyManagement {
+	imports {
+		mavenBom 'me.paulschwarz:spring-dotenv-bom:5.1.0'
+	}
 }
 
 dependencies {
@@ -25,12 +37,33 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-security'
 	implementation 'org.springframework.boot:spring-boot-starter-mail'
 	implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
-	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.17'
+	implementation 'org.springframework.boot:spring-boot-starter-web'
+	implementation 'org.springframework.boot:spring-boot-starter-validation'
+	implementation 'org.springframework.boot:spring-boot-starter-security'
 
-	// JWT
+	// 이메일 발송
+	implementation 'org.springframework.boot:spring-boot-starter-mail'
+
+	// Swagger (API 문서 자동화) — http://localhost:8080/swagger-ui.html 에서 확인
+	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.6.0'
+
+	// DB 드라이버
+	runtimeOnly 'org.mariadb.jdbc:mariadb-java-client'
+	runtimeOnly 'com.mysql:mysql-connector-j'
+
+	// JWT (jjwt)
 	implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
 	runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.11.5'
 	runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.11.5'
+
+	// trip/travelog 도메인에서 사용하는 라이브러리 (건드리지 않음)
+	implementation 'org.modelmapper:modelmapper:3.1.1'
+	implementation 'net.coobird:thumbnailator:0.4.20'
+	implementation 'com.google.code.gson:gson:2.10.1'
+	implementation 'org.hibernate.orm:hibernate-spatial:6.6.54.Final'
+	implementation 'com.drewnoakes:metadata-extractor:2.19.0'
+	implementation 'org.apache.tika:tika-core:3.2.3'
+	implementation 'org.apache.tika:tika-parsers-standard-package:3.2.3'
 
 	// Lombok
 	compileOnly 'org.projectlombok:lombok'
@@ -49,6 +82,7 @@ dependencies {
 	testCompileOnly 'org.projectlombok:lombok'
 	testAnnotationProcessor 'org.projectlombok:lombok'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
 }
 
 tasks.named('test') {

@@ -1,7 +1,7 @@
-package com.dreamcollection.travelog.service;
+package com.dreamCollection.travelog.service;
 
-import com.dreamcollection.travelog.dto.request.TripLogRequestDTO;
-import com.dreamcollection.travelog.dto.response.TripLogResponseDTO;
+import com.dreamCollection.travelog.dto.request.TripLogRequestDTO;
+import com.dreamCollection.travelog.dto.response.TripLogResponseDTO;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional

@@ -1,8 +1,8 @@
-package com.dreamcollection.travelog.controller;
+package com.dreamCollection.travelog.controller;
 
-import com.dreamcollection.travelog.dto.request.TripLogRequestDTO;
-import com.dreamcollection.travelog.dto.response.TripLogResponseDTO;
-import com.dreamcollection.travelog.service.TripLogService;
+import com.dreamCollection.travelog.dto.request.TripLogRequestDTO;
+import com.dreamCollection.travelog.dto.response.TripLogResponseDTO;
+import com.dreamCollection.travelog.service.TripLogService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.web.bind.annotation.*;

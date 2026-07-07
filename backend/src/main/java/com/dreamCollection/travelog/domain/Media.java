@@ -1,4 +1,4 @@
-package com.dreamcollection.travelog.domain;
+package com.dreamCollection.travelog.domain;
 
 import jakarta.persistence.*;
 import lombok.*;
@@ -23,7 +23,8 @@ public class Media {
     @Column(nullable = false)
     private MediaType mediaType;
 
-    private String uuid;
+    @Column(nullable = false)
+    private String storedFileName;
 
     private Long fileSize;
 
@@ -31,8 +32,10 @@ public class Media {
 
     private Point location;
 
+    @Column(columnDefinition = "TEXT")
     private String mediaText;
 
+    @Column(nullable = false)
     private String mediaPath;
 
     @Column(columnDefinition = "timestamp")

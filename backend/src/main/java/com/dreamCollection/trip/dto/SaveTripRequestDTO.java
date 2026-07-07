@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
+// 저장 요청용
 public class SaveTripRequestDTO {
     //사용자 id값
     private Long userId;

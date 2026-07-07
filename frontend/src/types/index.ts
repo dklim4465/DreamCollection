@@ -36,10 +36,22 @@ export interface User {
   phone?: string;
   profileImage?: string;
   travelStyle: TravelStyle;
+  role: "USER" | "ADMIN";
   createdAt: string;
 }
 
-// 추천 여행지 (히어로 캐러셀)
+// 도시 마스터 (자동완성 선택 결과 / 날씨·배경 이미지 연동용)
+export interface City {
+  id: number;
+  nameKo: string;
+  nameEn: string;
+  countryName: string;
+  imageUrl?: string;
+  latitude?: number;
+  longitude?: number;
+}
+
+// 추천 여행지 (히어로 캐러셀 / 이달의 여행지)
 export interface DestinationCard {
   id: number;
   country: string;
@@ -76,7 +88,7 @@ export interface FeedItem {
   createdAt: string;
 }
 
-// 여행 계획
+// 여행 계획 (trip 도메인 — 건드리지 않음)
 export interface TravelPlan {
   id: number;
   title: string;
@@ -87,6 +99,48 @@ export interface TravelPlan {
   budget?: number;
   memo?: string;
   authorId: number;
+  createdAt: string;
+}
+
+// ── 장바구니 (CART / CART_ITEM) ───────────────────────────
+export interface CartItem {
+  id: number;
+  scheduleId: number;
+  scheduleTitle: string;
+  destination: string;
+  price: number;
+  addedAt: string;
+}
+
+// ── 결제 (PAYMENT) ────────────────────────────────────────
+export type PaymentStatus = "PAID" | "CANCELLED" | "REFUNDED";
+export type PaymentMethod = "CARD" | "EASY_PAY";
+
+export interface Payment {
+  id: number;
+  scheduleId: number;
+  scheduleTitle: string;
+  amount: number;
+  method: PaymentMethod;
+  status: PaymentStatus;
+  paidAt: string;
+}
+
+// ── 여행일지 / 사진 (TRAVEL_LOG / LOG_PHOTO) ─────────────
+export interface LogPhoto {
+  id: number;
+  imageUrl: string;
+  takenAt?: string;
+  latitude?: number;
+  longitude?: number;
+}
+
+export interface TravelLog {
+  id: number;
+  title: string;
+  scheduleId?: number;
+  memo: string;
+  photos: LogPhoto[];
   createdAt: string;
 }
 

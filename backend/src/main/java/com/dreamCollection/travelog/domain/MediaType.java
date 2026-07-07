@@ -1,4 +1,4 @@
-package com.dreamcollection.travelog.domain;
+package com.dreamCollection.travelog.domain;
 
 public enum MediaType {
     TEXT,
