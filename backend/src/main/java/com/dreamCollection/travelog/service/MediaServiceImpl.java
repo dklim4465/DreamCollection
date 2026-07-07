@@ -13,6 +13,7 @@ import com.dreamcollection.travelog.service.extractor.MetadataService;
 import com.drew.imaging.ImageProcessingException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import net.coobird.thumbnailator.Thumbnailator;
 import org.apache.commons.io.FilenameUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
@@ -91,22 +92,20 @@ public class MediaServiceImpl implements MediaService {
 
         Media media = mediaRepository.findById(mno).orElseThrow();
 
-        String path = media.getMediaPath();
+        registerFileDelete(media);
 
         mediaRepository.delete(media);
+    }
 
-        TransactionSynchronizationManager.registerSynchronization(
-                new TransactionSynchronization() {
-                    @Override
-                    public void afterCommit() {
-                        try {
-                            Files.deleteIfExists(Paths.get(path));
-                        } catch (IOException e) {
-                            log.warn("delete fail", e);
-                        }
-                    }
-                }
-        );
+    @Override
+    @Transactional
+    public void deleteAllByTrip(Long tno) {
+
+        List<Media> mediaList = mediaRepository.findByTripLog_Tno(tno);
+
+        mediaList.forEach(this::registerFileDelete);
+
+        mediaRepository.deleteByTripLog_Tno(tno);
     }
 
     @Override
@@ -115,7 +114,7 @@ public class MediaServiceImpl implements MediaService {
 
         Media media = mediaRepository.findById(mno).orElseThrow();
 
-        Path path = Paths.get(media.getMediaPath());
+        Path path = Paths.get(media.getMediaPath(), media.getStoredFileName());
 
         Resource resource = new UrlResource(path.toUri());
 
@@ -130,12 +129,14 @@ public class MediaServiceImpl implements MediaService {
 
         StoredFileDTO localFile = saveFile(file, tripLog.getTno(), mediaType);
 
-        MetadataInfoDTO metadata = metadataService.extract(mediaType, localFile.path());
+        Path localPath = localFile.path().resolve(localFile.filename());
+
+        MetadataInfoDTO metadata = metadataService.extract(mediaType, localPath);
 
         return Media.builder()
                 .tripLog(tripLog)
                 .mediaType(mediaType)
-                .uuid(localFile.uuid())
+                .storedFileName(localFile.filename())
                 .fileSize(file.getSize())
                 .mimeType(file.getContentType())
                 .mediaPath(localFile.path().toString())
@@ -163,7 +164,20 @@ public class MediaServiceImpl implements MediaService {
 
         file.transferTo(target);
 
-        return new StoredFileDTO(uuid, filename, target);
+        if (mediaType == MediaType.IMAGE) {
+            Path thumbDir = Paths.get(
+                    uploadPath, String.valueOf(tno),"media",
+                    mediaType.name().toLowerCase(), "thumbnail"
+            );
+
+            Files.createDirectories(thumbDir);
+
+            Path thumbTarget = thumbDir.resolve(filename);
+
+            Thumbnailator.createThumbnail(target.toFile(), thumbTarget.toFile(), 200, 200);
+        }
+
+        return new StoredFileDTO(uuid, filename, directory);
     }
 
     private MediaType determineMediaType(MultipartFile file) {
@@ -183,5 +197,32 @@ public class MediaServiceImpl implements MediaService {
         } catch (Exception e) {
             return MediaType.ETC;
         }
+    }
+
+    private void registerFileDelete(Media media) {
+
+        boolean isImg = media.getMediaType() == MediaType.IMAGE;
+
+        String path = media.getMediaPath();
+
+        String storedFileName = media.getStoredFileName();
+
+        TransactionSynchronizationManager.registerSynchronization(
+                new TransactionSynchronization() {
+                    @Override
+                    public void afterCommit() {
+                        try {
+                            Files.deleteIfExists(Paths.get(path, storedFileName));
+
+                            if (isImg) {
+                                Files.deleteIfExists(Paths.get(path, "thumbnail", storedFileName));
+                            }
+
+                        } catch (IOException e) {
+                            log.warn("delete fail", e);
+                        }
+                    }
+                }
+        );
     }
 }

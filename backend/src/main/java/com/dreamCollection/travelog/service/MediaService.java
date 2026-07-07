@@ -13,5 +13,7 @@ public interface MediaService {
 
     UploadResultDTO upload(UploadRequestDTO request);
     void deleteMedia(Long mno);
+    void deleteAllByTrip(Long tno);
     ResponseEntity<Resource> view(Long mno) throws MalformedURLException;
+
 }
