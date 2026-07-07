@@ -14,7 +14,11 @@ import java.util.List;
 @RestController
 @Log4j2
 @RequiredArgsConstructor
-@RequestMapping("/trip")
+@CrossOrigin(origins = {
+        "http://localhost:5173",
+        "http://localhost:3000"
+})
+@RequestMapping("/api/trip")
 public class TripRequestController {
 
     private final TripService tripService;
