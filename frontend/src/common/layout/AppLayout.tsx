@@ -9,7 +9,7 @@ export default function AppLayout() {
       <Navbar />
 
       <div className="max-w-container-max mx-auto px-margin-desktop py-stack-lg w-full flex-1">
-        <main className="flex flex-col gap-stack-xl min-w-0">
+        <main id="main-content" className="main-content flex flex-col gap-stack-xl min-w-0">
           <Outlet />
         </main>
       </div>
