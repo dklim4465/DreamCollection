@@ -5,12 +5,16 @@ import com.dreamCollection.travelog.dto.MetadataInfoDTO;
 import com.drew.imaging.ImageMetadataReader;
 import com.drew.imaging.ImageProcessingException;
 import com.drew.lang.GeoLocation;
+import com.drew.metadata.Directory;
 import com.drew.metadata.Metadata;
+import com.drew.metadata.Tag;
 import com.drew.metadata.exif.ExifSubIFDDirectory;
 import com.drew.metadata.exif.GpsDirectory;
+import lombok.extern.log4j.Log4j2;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.Point;
+import org.locationtech.jts.geom.PrecisionModel;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -19,9 +23,10 @@ import java.time.Instant;
 import java.util.Date;
 
 @Service
+@Log4j2
 public class MetadataService {
 
-    private final GeometryFactory geometryFactory = new GeometryFactory();
+    private final GeometryFactory geometryFactory = new GeometryFactory(new PrecisionModel(), 4326);
 
     public MetadataInfoDTO extract(MediaType type, Path path) throws IOException, ImageProcessingException {
 
