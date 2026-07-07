@@ -25,27 +25,6 @@ public class TripServiceImpl implements TripService {
     private final SavedTripRepository savedTripRepository;
     private final ObjectMapper objectMapper;
 
-
-    @Override
-    public List<String> getOptions(String type) {
-        List<String> options = OPTION_MAP.get(type);
-
-        if (options == null) {
-            throw new IllegalArgumentException("잘못된 옵션 타입입니다.");
-        }
-
-        return options;
-    }
-
-    // 이걸로 응답 값 받아와서 그 출력 값 내보내기 까지
-    @Override
-    public PlanResponseDTO recommend(PlanRequestDTO request) {
-        String prompt = buildPrompt(request);
-        String aiResult = tripAiClient.recommend(prompt);
-
-        return buildResponse(request, prompt, aiResult);
-    }
-
     // 프롬프트 넣을 곳
     @Override
     public String buildPrompt(PlanRequestDTO request) {
@@ -70,6 +49,27 @@ public class TripServiceImpl implements TripService {
     }
 
     @Override
+    public List<String> getOptions(String type) {
+        List<String> options = OPTION_MAP.get(type);
+
+        if (options == null) {
+            throw new IllegalArgumentException("잘못된 옵션 타입입니다.");
+        }
+
+        return options;
+    }
+
+    // 이걸로 응답 값 받아와서 그 출력 값 내보내기 까지
+    @Override
+    public PlanResponseDTO recommend(PlanRequestDTO request) {
+        String prompt = buildPrompt(request);
+        String aiResult = tripAiClient.recommend(prompt);
+
+        return buildResponse(request, prompt, aiResult);
+    }
+
+
+    @Override
     public SaveTripResponseDTO save(SaveTripRequestDTO requestDTO){
         validateSaveRequest(requestDTO);
 
@@ -87,10 +87,38 @@ public class TripServiceImpl implements TripService {
                 .build();
     }
 
-//    @Override
-//    public ReplaceScheduleResponseDTO replaceScheduleItem(ReplaceScheduleRequestDTO replaceScheduleRequestDTO){
-//        return tripScheduleItemReplacer.replace(replaceScheduleRequestDTO);
-//    }
+    @Override
+    public SavedTripDTO getSavedTrip(Long savedTripId) {
+        SavedTrip savedTrip = savedTripRepository.findById(savedTripId)
+                .orElseThrow(()->new TripSaveException("저장된 일정이 없습니다."));
+
+        return toSavedTripDTO(savedTrip);
+    }
+
+    @Override
+    public List<SavedTripDTO> getSavedTripsByUser(Long userId) {
+        if (userId==null){
+            throw new TripSaveException("사용자 정보가 없습니다.");
+        }
+        return savedTripRepository.findByUserIdOrderByCreatedDateDesc(userId)
+                .stream().map(this::toSavedTripDTO)
+                .toList();
+    }
+
+
+    @Override
+    public void deleteSavedTrip(Long savedTripId) {
+        if (savedTripId == null){
+            throw new TripSaveException("삭제할 일정이 없습니다");
+        }
+
+        SavedTrip savedTrip = savedTripRepository.findById(savedTripId)
+                .orElseThrow(()->new TripSaveException("삭제할 일정이 없습니다."));
+
+
+        savedTripRepository.delete(savedTrip);
+    }
+
 
     // 이걸로 받아온 값을 싹싹 긁어 모아서 출력하는 메서드
     private PlanResponseDTO buildResponse(
@@ -131,6 +159,24 @@ public class TripServiceImpl implements TripService {
         }
     }
 
+    private <T> T fromJson(String json, Class<T> type){
+        try {
+            return objectMapper.readValue(json, type);
+        }catch (JsonProcessingException e){
+            throw new TripSaveException("저장된 일정 JSON 변환에 실패했습니다", e);
+        }
+    }
+
+    private SavedTripDTO toSavedTripDTO(SavedTrip savedTrip) {
+        return SavedTripDTO.builder()
+                .savedTripId(savedTrip.getId())
+                .userId(savedTrip.getUserId())
+                .conditions(fromJson(savedTrip.getConditionsJson(), PlanRequestDTO.class))
+                .recommendation(fromJson(savedTrip.getRecommendationJson(), TripRecommendDTO.class))
+                .createdDate(savedTrip.getCreatedDate())
+                .build();
+    }
+
 
     // 선택지가 더 필요하면 아래 값 추가하기-------------------------------------------------------------------
     private static final List<String> WHO_OPTIONS =
@@ -156,26 +202,5 @@ public class TripServiceImpl implements TripService {
             "theme", THEME_OPTIONS,
             "level", LEVEL_OPTIONS
     );
-
-    @Override
-    public List<String> getWho() {
-        return WHO_OPTIONS;
-    }
-    @Override
-    public List<String> getWhen() {
-        return WHEN_OPTIONS;
-    }
-    @Override
-    public List<String> getRegion() {
-        return REGION_OPTIONS;
-    }
-    @Override
-    public List<String> getTheme() {
-        return THEME_OPTIONS;
-    }
-    @Override
-    public List<String> getLevel() {
-        return LEVEL_OPTIONS;
-    }
 
 }
