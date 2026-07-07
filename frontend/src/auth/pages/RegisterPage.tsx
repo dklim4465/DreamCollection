@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { Link, useNavigate } from "react-router-dom";
 import { useMutation } from "@tanstack/react-query";
@@ -14,7 +14,53 @@ const TRAVEL_STYLE_OPTIONS: { value: TravelStyle; label: string }[] = [
   { value: "ADVENTURE", label: "모험형" },
 ];
 
-type CodeStatus = "idle" | "sending" | "sent" | "verified";
+// 인증번호 유효 시간 (5분)
+const CODE_TTL_SECONDS = 5 * 60;
+
+type CodeStatus = "idle" | "sending" | "sent" | "verified" | "expired";
+
+// mm:ss 형식으로 변환
+const formatTime = (totalSeconds: number) => {
+  const m = Math.floor(totalSeconds / 60);
+  const s = totalSeconds % 60;
+  return `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
+};
+
+// 인증번호 발송 후 5분 카운트다운을 관리하는 훅
+// - status가 "sent"가 되면 카운트다운 시작
+// - 0이 되면 status를 "expired"로 바꾸고 입력창을 숨김
+function useVerificationCountdown(
+  status: CodeStatus,
+  onExpire: () => void
+) {
+  const [timeLeft, setTimeLeft] = useState(CODE_TTL_SECONDS);
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  useEffect(() => {
+    if (status === "sent") {
+      setTimeLeft(CODE_TTL_SECONDS);
+      intervalRef.current = setInterval(() => {
+        setTimeLeft((prev) => {
+          if (prev <= 1) {
+            if (intervalRef.current) clearInterval(intervalRef.current);
+            onExpire();
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+    } else {
+      if (intervalRef.current) clearInterval(intervalRef.current);
+    }
+
+    return () => {
+      if (intervalRef.current) clearInterval(intervalRef.current);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [status]);
+
+  return timeLeft;
+}
 
 // passwordConfirm은 화면 검증용이라 API로 보내는 RegisterReq에는 없는 필드
 type RegisterFormValues = RegisterReq & { passwordConfirm: string };
@@ -36,6 +82,14 @@ export default function RegisterPage() {
   const [emailCodeStatus, setEmailCodeStatus] = useState<CodeStatus>("idle");
   // 휴대폰 인증 상태
   const [phoneCodeStatus, setPhoneCodeStatus] = useState<CodeStatus>("idle");
+
+  // 5분 카운트다운 (발송 시점부터 시작, 0이 되면 자동으로 expired 처리)
+  const emailTimeLeft = useVerificationCountdown(emailCodeStatus, () =>
+    setEmailCodeStatus("expired")
+  );
+  const phoneTimeLeft = useVerificationCountdown(phoneCodeStatus, () =>
+    setPhoneCodeStatus("expired")
+  );
 
   const email = watch("email");
   const phone = watch("phone");
@@ -219,26 +273,48 @@ export default function RegisterPage() {
                         ? "인증완료"
                         : emailCodeStatus === "sending"
                           ? "발송중..."
-                          : "인증번호 받기"}
+                          : emailCodeStatus === "sent" || emailCodeStatus === "expired"
+                            ? "재발송"
+                            : "인증번호 받기"}
                     </button>
                   </div>
 
-                  {(emailCodeStatus === "sent") && (
-                    <div className="flex gap-2">
-                      <input
-                        type="text"
-                        placeholder="인증번호 6자리"
-                        className="input-base flex-1"
-                        {...register("emailVerificationCode")}
-                      />
-                      <button
-                        type="button"
-                        onClick={() => handleVerifyEmailCode(watch("emailVerificationCode") || "")}
-                        className="btn-ghost text-sm py-2 px-4 whitespace-nowrap"
-                      >
-                        확인
-                      </button>
+                  {(emailCodeStatus === "sent" || emailCodeStatus === "sending") && (
+                    <p className="text-label-sm text-primary flex items-center gap-1">
+                      <span className="material-symbols-outlined text-base">mail</span>
+                      인증 이메일이 발송되었습니다. 메일함을 확인해주세요
+                    </p>
+                  )}
+
+                  {emailCodeStatus === "sent" && (
+                    <div className="flex flex-col gap-1">
+                      <div className="flex gap-2">
+                        <input
+                          type="text"
+                          placeholder="인증번호 6자리"
+                          className="input-base flex-1"
+                          {...register("emailVerificationCode")}
+                        />
+                        <button
+                          type="button"
+                          onClick={() => handleVerifyEmailCode(watch("emailVerificationCode") || "")}
+                          className="btn-ghost text-sm py-2 px-4 whitespace-nowrap"
+                        >
+                          확인
+                        </button>
+                      </div>
+                      <p className="text-label-sm text-on-surface-variant text-right">
+                        남은 시간{" "}
+                        <span className="font-bold text-error">{formatTime(emailTimeLeft)}</span>
+                      </p>
                     </div>
+                  )}
+
+                  {emailCodeStatus === "expired" && (
+                    <p className="text-label-sm text-error flex items-center gap-1">
+                      <span className="material-symbols-outlined text-base">error</span>
+                      인증번호 유효시간이 만료되었습니다. 다시 발송해주세요
+                    </p>
                   )}
 
                   {emailCodeStatus === "verified" && (
@@ -271,26 +347,48 @@ export default function RegisterPage() {
                         ? "인증완료"
                         : phoneCodeStatus === "sending"
                           ? "발송중..."
-                          : "인증번호 받기"}
+                          : phoneCodeStatus === "sent" || phoneCodeStatus === "expired"
+                            ? "재발송"
+                            : "인증번호 받기"}
                     </button>
                   </div>
 
+                  {(phoneCodeStatus === "sent" || phoneCodeStatus === "sending") && (
+                    <p className="text-label-sm text-primary flex items-center gap-1">
+                      <span className="material-symbols-outlined text-base">sms</span>
+                      인증번호가 발송되었습니다. 문자를 확인해주세요
+                    </p>
+                  )}
+
                   {phoneCodeStatus === "sent" && (
-                    <div className="flex gap-2">
-                      <input
-                        type="text"
-                        placeholder="인증번호 6자리"
-                        className="input-base flex-1"
-                        {...register("phoneVerificationCode")}
-                      />
-                      <button
-                        type="button"
-                        onClick={() => handleVerifyPhoneCode(watch("phoneVerificationCode") || "")}
-                        className="btn-ghost text-sm py-2 px-4 whitespace-nowrap"
-                      >
-                        확인
-                      </button>
+                    <div className="flex flex-col gap-1">
+                      <div className="flex gap-2">
+                        <input
+                          type="text"
+                          placeholder="인증번호 6자리"
+                          className="input-base flex-1"
+                          {...register("phoneVerificationCode")}
+                        />
+                        <button
+                          type="button"
+                          onClick={() => handleVerifyPhoneCode(watch("phoneVerificationCode") || "")}
+                          className="btn-ghost text-sm py-2 px-4 whitespace-nowrap"
+                        >
+                          확인
+                        </button>
+                      </div>
+                      <p className="text-label-sm text-on-surface-variant text-right">
+                        남은 시간{" "}
+                        <span className="font-bold text-error">{formatTime(phoneTimeLeft)}</span>
+                      </p>
                     </div>
+                  )}
+
+                  {phoneCodeStatus === "expired" && (
+                    <p className="text-label-sm text-error flex items-center gap-1">
+                      <span className="material-symbols-outlined text-base">error</span>
+                      인증번호 유효시간이 만료되었습니다. 다시 발송해주세요
+                    </p>
                   )}
 
                   {phoneCodeStatus === "verified" && (

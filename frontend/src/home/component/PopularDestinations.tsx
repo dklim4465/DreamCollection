@@ -20,37 +20,50 @@ export default function PopularDestinations() {
 
   return (
     <section>
-      <div className="flex items-center justify-between mb-stack-md">
-        <h2 className="text-headline-md font-bold">지금 인기 있는 여행지</h2>
-        <Link to="/plan/new" className="text-label-sm text-primary font-bold hover:underline">
+      <div className="flex items-end justify-between mb-stack-md">
+        <div>
+          <p className="text-label-sm font-bold text-primary mb-1">
+            DESTINATIONS
+          </p>
+          <h2 className="text-headline-lg font-bold">
+            지금 인기 있는 여행지
+          </h2>
+        </div>
+        <Link
+          to="/plan/new"
+          className="text-label-sm text-primary font-bold hover:underline whitespace-nowrap"
+        >
           전체 목적지 검색
         </Link>
       </div>
 
-      <div className="flex overflow-x-auto hide-scrollbar gap-3 pb-2 -mx-1 px-1">
+      <div className="grid grid-flow-col auto-cols-[65%] sm:auto-cols-[40%] md:auto-cols-[26%] lg:auto-cols-[22%] overflow-x-auto hide-scrollbar gap-4 pb-2 -mx-1 px-1">
         {isLoading
           ? Array.from({ length: 6 }).map((_, i) => (
-              <div key={i} className="w-32 h-40 shrink-0 rounded-2xl bg-surface-container-low animate-pulse" />
+              <div
+                key={i}
+                className="h-72 rounded-3xl bg-surface-container-low animate-pulse"
+              />
             ))
           : cities.map((city) => (
               <Link
                 key={city.id}
                 to={`/plan/new?destination=${encodeURIComponent(city.nameKo)}`}
-                className="group relative w-32 h-40 shrink-0 rounded-2xl overflow-hidden traveler-glow"
+                className="group relative h-72 rounded-3xl overflow-hidden traveler-glow"
               >
                 {city.imageUrl ? (
                   <img
                     src={city.imageUrl}
                     alt={city.nameKo}
-                    className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                    className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                   />
                 ) : (
                   <div className="absolute inset-0 bg-surface-container-low" />
                 )}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
-                <div className="absolute bottom-0 left-0 right-0 p-3 text-white">
-                  <p className="text-label-sm font-bold">{city.nameKo}</p>
-                  <p className="text-[11px] opacity-75">{city.countryName}</p>
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent" />
+                <div className="absolute bottom-0 left-0 right-0 p-4 text-white">
+                  <p className="text-headline-sm font-bold">{city.nameKo}</p>
+                  <p className="text-[12px] opacity-80">{city.countryName}</p>
                 </div>
               </Link>
             ))}

@@ -1,3 +1,6 @@
+server:
+  port: 8080
+
 spring:
   datasource:
     url: jdbc:mysql://localhost:3306/dream_collection?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
@@ -16,15 +19,35 @@ spring:
         dialect: org.hibernate.dialect.MySQL8Dialect
     show-sql: true
 
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: ${MAIL_USERNAME:dudwo1410@nate.com}
+    password: ${MAIL_PASSWORD}
+    default-encoding: UTF-8
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+            required: true
+          ssl:
+            trust: smtp.gmail.com
+          connectiontimeout: 5000
+          timeout: 5000
+          writetimeout: 5000
+
+# 인증번호 발송 방식 (mail.provider: mock | smtp) — SmtpEmailSender/MockEmailSender가 참조하는 실제 키
+mail:
+  provider: smtp
+
 jwt:
   # TODO: 실제 배포 시 반드시 환경변수로 분리하고 최소 32자 이상의 랜덤 문자열 사용
   secret: ${JWT_SECRET:change-this-to-a-long-random-secret-key-at-least-32-chars}
   expiration-ms: 86400000 # 24시간
 
 # ── 인증번호 발송 설정 ─────────────────────────────────────
-mail:
-  provider: mock   # mock | smtp
-
 sms:
   provider: solapi   # mock | aligo | solapi
   solapi:
@@ -33,7 +56,8 @@ sms:
     sender: ${SOLAPI_SENDER:}
 
 cors:
-  allowed-origins: http://localhost:3000,http://localhost:5173
+  cors:
+    allowed-origins: http://localhost:3000,http://localhost:3001,http://localhost:5173
 
 oauth:
   kakao:
@@ -42,7 +66,5 @@ oauth:
     redirect-uri: ${KAKAO_REDIRECT_URI:http://localhost:3000/oauth/callback/kakao}
 
 toss:
-  # https://developers.tosspayments.com 에서 발급받은 테스트/운영 키
   secret-key: ${TOSS_SECRET_KEY:test_sk_dummy_for_local_dev}
-  # 클라이언트 키는 프론트에서 SDK 초기화할 때 사용 (백엔드에선 참고용으로만 보관)
   client-key: ${TOSS_CLIENT_KEY:test_ck_dummy_for_local_dev}
