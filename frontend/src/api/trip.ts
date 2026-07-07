@@ -57,6 +57,13 @@ export interface SaveTripResponse {
   savedTripId: number;
   message: string;
 }
+export interface SavedTrip {
+  savedTripID: number;
+  userId: number;
+  conditions: PlanRequest;
+  recommendation: TripRecommendation;
+  createDate: string;
+}
 
 // 타입이랑 타입별 내용 미리 세팅해두기
 export const tripOptionTypes: TripOptionType[] = [
@@ -102,6 +109,20 @@ export const tripApi = {
     const response = await apiClient.post<SaveTripResponse>(
       "/trip/save",
       request,
+    );
+    return response.data;
+  },
+
+  getSavedTrip: async (savedTripId: number) => {
+    const response = await apiClient.get<SavedTrip>(
+      `/trip/saved/${savedTripId}`,
+    );
+    return response.data;
+  },
+
+  getSavedTripsByUser: async (userId: number) => {
+    const response = await apiClient.get<SavedTrip[]>(
+      `/trip/saved/user/${userId}`,
     );
     return response.data;
   },

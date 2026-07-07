@@ -1,9 +1,8 @@
 package com.dreamCollection.trip.controller;
 
-import com.dreamCollection.trip.dto.PlanRequestDTO;
-import com.dreamCollection.trip.dto.PlanResponseDTO;
-import com.dreamCollection.trip.dto.SaveTripRequestDTO;
-import com.dreamCollection.trip.dto.SaveTripResponseDTO;
+import com.dreamCollection.trip.dto.*;
+import com.dreamCollection.trip.entity.SavedTrip;
+import com.dreamCollection.trip.exception.TripSaveException;
 import com.dreamCollection.trip.service.TripService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -40,6 +39,21 @@ public class TripRequestController {
     @PostMapping("/save")
     public SaveTripResponseDTO saveTrip(@RequestBody SaveTripRequestDTO saveTripRequestDTO){
         return tripService.save(saveTripRequestDTO);
+    }
+
+    @GetMapping("/saved/{savedTripId}")
+    public SavedTripDTO getSavedTrip(@PathVariable Long savedTripId){
+        return tripService.getSavedTrip(savedTripId);
+    }
+
+    @GetMapping("/saved/user/{userId}")
+    public List<SavedTripDTO> getSavedTripsByUser(@PathVariable Long userId){
+        return tripService.getSavedTripsByUser(userId);
+    }
+
+    @DeleteMapping("/remove/{savedTripId}")
+    public void deleteSavedTrip(@PathVariable Long savedTripId) {
+        tripService.deleteSavedTrip(savedTripId);
     }
 
 }

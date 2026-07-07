@@ -14,7 +14,10 @@ export default function TripHubPage() {
         </p>
       </div>
 
-      <Link to="/trip/new" className="btn-primary w-full max-w-sm text-center">
+      <Link
+        to="/trip/choice"
+        className="btn-primary w-full max-w-sm text-center"
+      >
         AI 일정 추천받기
       </Link>
 

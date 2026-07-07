@@ -90,7 +90,7 @@ public class KakaoOauthClient {
 
             // 이메일 동의를 안 했거나 이메일이 없는 카카오 계정일 수 있음 → 없으면 임시 이메일 생성
             String email = kakaoAccount.path("email").isMissingNode()
-                    ? "kakao_" + providerUserId + "@kakao.dreamCollection.local"
+                    ? "kakao_" + providerUserId + "@kakao.dreamcollection.local"
                     : kakaoAccount.path("email").asText();
 
             String nickname = profile.path("nickname").asText("카카오사용자" + providerUserId);

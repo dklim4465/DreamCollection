@@ -5,17 +5,22 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-// 저장 요청용
-public class SaveTripRequestDTO {
-    //사용자 id값
+// 저장한 일정 조회용
+public class SavedTripDTO {
+
+    private Long savedTripId;
+
     private Long userId;
 
-    //선택한 조건을 담기(이후에 사용자의 여행 성향 분석에 쓸수 있음)
     private PlanRequestDTO conditions;
 
     private TripRecommendDTO recommendation;
+
+    private LocalDateTime createdDate;
 }

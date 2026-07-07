@@ -9,6 +9,7 @@ import {
 } from "@/api/trip";
 import TripOptionSelector from "@/components/trip/TripOptionSelector";
 import LoadingSpinner from "@/components/common/LoadingSpinner";
+
 export default function TravelPlanPage() {
   const navigate = useNavigate();
   const [optionStep, setOptionStep] = useState(0);
@@ -32,6 +33,7 @@ export default function TravelPlanPage() {
   const handleSelect = (selected: string) => {
     setConditions((prev) => ({ ...prev, [currentType]: selected }));
   };
+
   const handleNext = () => {
     if (!currentValue) return;
     if (isLastOptionStep) {

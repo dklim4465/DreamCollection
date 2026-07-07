@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Navigate, useLocation, useNavigate } from "react-router-dom";
 import { useMutation } from "@tanstack/react-query";
 import type { PlanRequest, PlanResponse, TripRecommendation } from "@/api/trip";
@@ -10,6 +10,8 @@ interface LocationState {
   conditions: PlanRequest;
   planResult: PlanResponse;
   recommendation: TripRecommendation;
+  isSavedView?: boolean;
+  shouldSave?: boolean;
 }
 
 export default function TripResultPage() {
@@ -27,10 +29,20 @@ export default function TripResultPage() {
 
   const [recommendation, setRecommendation] = useState(state.recommendation);
 
+  // 저장버튼 클릭 -> 로그인(안했다면) -> 리스트 페이지로 바로 이동(저장됨)
   const saveMutation = useMutation({
     mutationFn: tripApi.save,
     onSuccess: () => {
-      navigate("/records");
+      navigate("/trip/saved");
+      useEffect(() => {
+        if (!state.shouldSave || !user?.id) return;
+
+        saveMutation.mutate({
+          userId: user.id,
+          conditions,
+          recommendation,
+        });
+      }, []);
     },
   });
 
@@ -39,12 +51,24 @@ export default function TripResultPage() {
   };
 
   const handleSave = () => {
-    if (!user?.id) return;
+    if (!user?.id) {
+      navigate("/login", {
+        state: {
+          redirectState: {
+            conditions,
+            planResult: state.planResult,
+            recommendation,
+            shouldSave: true,
+          },
+        },
+      });
+      return;
+    }
 
     saveMutation.mutate({
       userId: user.id,
       conditions,
-      recommendation, // 후보 바꾼 최종 값
+      recommendation,
     });
   };
 
@@ -59,9 +83,10 @@ export default function TripResultPage() {
         onBack={handleBack}
         onSave={handleSave}
         isSaving={saveMutation.isPending}
+        hideActions={state.isSavedView}
       />
 
-      {saveMutation.isError && (
+      {!state.isSavedView && saveMutation.isError && (
         <p className="text-error text-label-md text-center mt-stack-md">
           저장에 실패했습니다.
         </p>

@@ -7,52 +7,14 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import java.util.List;
+
 @SpringBootTest
 @Log4j2
 public class TripRecommnedTests {
 
     @Autowired
     private TripService tripService;
-
-//    @Test
-//    void daysCountRecommend() {
-//
-//        log.info("-------------------------------------------------");
-//
-//        PlanRequestDTO request = PlanRequestDTO.builder()
-//                .who("혼자")
-//                .when("2박 3일")
-//                .region("일본")
-//                .theme("휴양")
-//                .level("힐링여행")
-//                .build();
-//
-//        PlanResponseDTO response = tripService.recommend(request);
-//
-//        assertNotNull(response);
-//        assertNotNull(response.getRecommendations());
-//
-//        for (TripRecommendDTO tripRecommendDTO : response.getRecommendations()) {
-//            log.info(tripRecommendDTO.getRecommendation());
-//            log.info(tripRecommendDTO.getTitle());
-//            log.info(tripRecommendDTO.getSummary());
-//
-//            tripRecommendDTO.getDays().forEach(day->{
-//                log.info("",day.getDayNumber(),
-//                        day.getDayTitle()
-//                );
-//
-//                day.getItems().forEach(item -> {
-//                    log.info(item.getItemKey(),
-//                            item.getItemType(),
-//                            item.getTimeSlot(),
-//                            item.getTitle(),
-//                            item.getSelectOption(),
-//                            item.getAlterOption());
-//                });
-//            });
-//        }
-//    }
 
     @Test
     void changeToIndex() {
@@ -118,6 +80,41 @@ public class TripRecommnedTests {
 
     }
 
+
+    @Test
+    void savedTripCheck() {
+        PlanRequestDTO planRequestDTO = PlanRequestDTO.builder()
+                .who("연인과")
+                .when("2박 3일")
+                .region("미국")
+                .theme("관광")
+                .level("액티비티여행")
+                .build();
+
+        PlanResponseDTO planResponseDTO = tripService.recommend(planRequestDTO);
+        TripRecommendDTO tripRecommendDTO = planResponseDTO.getRecommendations().get(0);
+
+        SaveTripRequestDTO saveTripRequestDTO = SaveTripRequestDTO.builder()
+                .userId(1L)
+                .conditions(planRequestDTO)
+                .recommendation(tripRecommendDTO)
+                .build();
+
+        SaveTripResponseDTO saveTripResponseDTO = tripService.save(saveTripRequestDTO);
+
+        SavedTripDTO savedTripDTO = tripService.getSavedTrip(saveTripResponseDTO.getSavedTripId());
+
+        log.info("저장된 일정 : " + savedTripDTO);
+    }
+
+    @Test
+    void userIdTripCheck() {
+        Long userId = 1L;
+
+        List<SavedTripDTO> savedTripDTO = tripService.getSavedTripsByUser(userId);
+
+        log.info("유저별 저장된 일정" + savedTripDTO);
+    }
 
 
 }
