@@ -16,7 +16,7 @@ public class BoardLikeController {
 
     @PostMapping
     public ApiResponse<BoardLikeResponseDTO> toogleLike(
-            @RequestHeader("X-User_Id") Long userId,
+            @RequestHeader("X-User-Id") Long userId,
             @PathVariable Long postId
     ){
         BoardLikeResponseDTO responseDTO = boardLikeService.toggleLike(userId, postId);
