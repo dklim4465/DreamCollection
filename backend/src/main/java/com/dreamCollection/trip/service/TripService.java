@@ -1,9 +1,6 @@
 package com.dreamCollection.trip.service;
 
-import com.dreamCollection.trip.dto.PlanRequestDTO;
-import com.dreamCollection.trip.dto.PlanResponseDTO;
-import com.dreamCollection.trip.dto.SaveTripRequestDTO;
-import com.dreamCollection.trip.dto.SaveTripResponseDTO;
+import com.dreamCollection.trip.dto.*;
 
 import java.util.List;
 
@@ -17,19 +14,12 @@ public interface TripService {
 
     SaveTripResponseDTO save(SaveTripRequestDTO saveTripRequestDTO);
 
+    //저장된 내용 조회용
+    SavedTripDTO getSavedTrip(Long savedTripId);
+    List<SavedTripDTO> getSavedTripsByUser(Long userId);
 
-    List<String> getWho();
-    List<String> getWhen();
-    List<String> getRegion();
-    List<String> getTheme();
-    List<String> getLevel();
-
-
-
-
-
-
-//    ReplaceScheduleResponseDTO replaceScheduleItem(ReplaceScheduleRequestDTO replaceScheduleRequestDTO);
+    // 일정 삭제
+    void deleteSavedTrip(Long savedTripId);
 
 
 }

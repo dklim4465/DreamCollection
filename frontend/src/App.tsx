@@ -47,7 +47,7 @@ export default function App() {
               {/* 로그인 필요 */}
               <Route element={<PrivateRoute />}>
                 <Route path="/trip" element={<TripHubPage />} />
-                <Route path="/trip/new" element={<TravelPlanPage />} />
+                <Route path="/trip/choice" element={<TravelPlanPage />} />
                 <Route path="/trip/result" element={<TripResultPage />} />
                 <Route path="/trip/saved" element={<TripSavedListPage />} />
                 <Route path="/records" element={<RecordsPage />} />

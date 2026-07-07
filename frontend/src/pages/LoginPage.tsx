@@ -1,5 +1,5 @@
 import { useForm } from "react-hook-form";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useMutation } from "@tanstack/react-query";
 import { authApi, type LoginReq } from "@/api/auth";
 import { useAuthStore } from "@/store/authStore";
@@ -7,6 +7,13 @@ import { useAuthStore } from "@/store/authStore";
 export default function LoginPage() {
   const { setUser } = useAuthStore();
   const navigate = useNavigate();
+  const location = useLocation();
+
+  const loginState = location.state as {
+    redirectTo?: string;
+    redirectState?: unknown;
+  } | null;
+
   const {
     register,
     handleSubmit,
@@ -18,7 +25,11 @@ export default function LoginPage() {
     onSuccess: (res) => {
       const { accessToken, user } = res.data.data;
       setUser(user, accessToken);
-      navigate("/");
+
+      navigate(loginState?.redirectTo ?? "/", {
+        state: loginState?.redirectState,
+        replace: true,
+      });
     },
   });
 
