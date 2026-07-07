@@ -1,18 +1,14 @@
-package com.dreamcollection.travelog.controller;
+package com.dreamCollection.travelog.controller;
 
-import com.dreamcollection.travelog.dto.upload.UploadRequestDTO;
-import com.dreamcollection.travelog.dto.upload.UploadResultDTO;
-import com.dreamcollection.travelog.service.MediaService;
+import com.dreamCollection.travelog.dto.upload.UploadRequestDTO;
+import com.dreamCollection.travelog.dto.upload.UploadResultDTO;
+import com.dreamCollection.travelog.service.MediaService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import org.hibernate.annotations.Parameter;
 import org.springframework.core.io.Resource;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.io.File;
-import java.util.List;
 
 @RestController
 @RequiredArgsConstructor

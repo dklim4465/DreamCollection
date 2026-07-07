@@ -1,4 +1,4 @@
-package com.dreamcollection.travelog.dto.upload;
+package com.dreamCollection.travelog.dto.upload;
 
 import lombok.Builder;
 import lombok.Data;

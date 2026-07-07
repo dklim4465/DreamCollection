@@ -1,4 +1,4 @@
-package com.dreamcollection.travelog.dto.upload;
+package com.dreamCollection.travelog.dto.upload;
 
 import lombok.Data;
 import org.springframework.web.multipart.MultipartFile;

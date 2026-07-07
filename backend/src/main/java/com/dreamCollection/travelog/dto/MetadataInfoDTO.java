@@ -1,4 +1,4 @@
-package com.dreamcollection.travelog.dto;
+package com.dreamCollection.travelog.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

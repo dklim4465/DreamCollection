@@ -1,6 +1,6 @@
-package com.dreamcollection.travelog.repository;
+package com.dreamCollection.travelog.repository;
 
-import com.dreamcollection.travelog.domain.TripLog;
+import com.dreamCollection.travelog.domain.TripLog;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 

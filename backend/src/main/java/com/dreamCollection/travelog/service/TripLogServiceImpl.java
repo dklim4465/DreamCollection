@@ -1,12 +1,9 @@
-package com.dreamcollection.travelog.service;
+package com.dreamCollection.travelog.service;
 
-import com.dreamcollection.travelog.domain.Media;
-import com.dreamcollection.travelog.domain.MediaType;
-import com.dreamcollection.travelog.domain.TripLog;
-import com.dreamcollection.travelog.dto.request.TripLogRequestDTO;
-import com.dreamcollection.travelog.dto.response.TripLogResponseDTO;
-import com.dreamcollection.travelog.repository.MediaRepository;
-import com.dreamcollection.travelog.repository.TripLogRepository;
+import com.dreamCollection.travelog.domain.TripLog;
+import com.dreamCollection.travelog.dto.request.TripLogRequestDTO;
+import com.dreamCollection.travelog.dto.response.TripLogResponseDTO;
+import com.dreamCollection.travelog.repository.TripLogRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.modelmapper.ModelMapper;
