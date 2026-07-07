@@ -1,6 +1,6 @@
 package com.dreamCollection.mate.service;
 
-import com.dreamCollection.global.exception.DuplicateEmailException;
+import com.dreamCollection.mate.excpetion.DuplicateMateRequestException;
 import com.dreamCollection.mate.dto.MateRequestDecisionRequestDTO;
 import com.dreamCollection.mate.dto.MateRequestResponseDTO;
 import com.dreamCollection.mate.entity.MatePost;
@@ -33,7 +33,7 @@ public class MateRequestService {
             throw new MateRecruitmentClosedException();
         }
         if(mateRequestRepository.existsByMatePostIdAndRequesterId(matePostId,requesterId)){
-            throw new DuplicateEmailException();
+            throw new DuplicateMateRequestException();
         }
         MateRequest request = MateRequest.builder()
                 .matePostId(matePostId)
