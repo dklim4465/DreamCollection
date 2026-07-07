@@ -31,6 +31,7 @@ public class Media {
 
     private Point location;
 
+    @Column(columnDefinition = "TEXT")
     private String mediaText;
 
     private String mediaPath;
