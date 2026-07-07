@@ -1,11 +1,16 @@
 package com.dreamCollection.user.service;
 
 import com.dreamCollection.auth.service.KakaoOauthClient;
+import com.dreamCollection.badge.entity.Badge;
+import com.dreamCollection.badge.entity.UserBadge;
+import com.dreamCollection.badge.repository.BadgeRepository;
+import com.dreamCollection.badge.repository.UserBadgeRepository;
 import com.dreamCollection.user.dto.AuthResponse;
 import com.dreamCollection.user.dto.KakaoLoginRequest;
 import com.dreamCollection.user.dto.LoginRequest;
 import com.dreamCollection.user.dto.SignupRequest;
 import com.dreamCollection.user.dto.UserResponse;
+import com.dreamCollection.user.entity.TravelStyle;
 import com.dreamCollection.verification.entity.EmailVerification;
 import com.dreamCollection.verification.repository.EmailVerificationRepository;
 import com.dreamCollection.verification.entity.PhoneVerification;
@@ -39,6 +44,43 @@ public class UserService {
     private final JwtTokenProvider jwtTokenProvider;
     private final RefreshTokenService refreshTokenService;
     private final KakaoOauthClient kakaoOauthClient;
+    private final UserBadgeRepository userBadgeRepository;
+    private final BadgeRepository badgeRepository;
+
+    /**
+     * 프론트: authApi.getMe() → GET /api/auth/me
+     * 새로고침 시 accessToken은 남아있지만 유저 정보(user)는 메모리에서 날아간 상태를
+     * 복구하기 위해, 토큰의 userId로 최신 유저 정보를 다시 조회해서 내려준다.
+     * userId가 없으면(비로그인) null 반환 — 프론트에서 비로그인으로 처리.
+     */
+    public UserResponse getMe(Long userId) {
+        if (userId == null) return null;
+        return userRepository.findById(userId)
+                .map(user -> UserResponse.from(user, findRepresentativeBadge(userId)))
+                .orElse(null);
+    }
+
+    /**
+     * 마이페이지 "프로필 수정"에서 사용. nickname이 바뀌는 경우에만 중복 체크.
+     */
+    @Transactional
+    public UserResponse updateProfile(Long userId, String nickname, String profileImageUrl, TravelStyle travelStyle) {
+        User user = userRepository.findById(userId).orElseThrow(InvalidCredentialsException::new);
+
+        if (nickname != null && !nickname.isBlank() && !nickname.equals(user.getNickname())) {
+            validateDuplicateNickname(nickname);
+        }
+
+        user.updateProfile(nickname, profileImageUrl, travelStyle);
+        return UserResponse.from(user, findRepresentativeBadge(userId));
+    }
+
+    /** user_badge.is_representative = 1인 뱃지를 찾아 Badge 엔티티로 반환 (없으면 null) */
+    private Badge findRepresentativeBadge(Long userId) {
+        return userBadgeRepository.findByUserIdAndRepresentativeTrue(userId)
+                .flatMap(userBadge -> badgeRepository.findById(userBadge.getBadgeId()))
+                .orElse(null);
+    }
 
     @Transactional
     public AuthResponse signup(SignupRequest request, String userAgent, String ipAddress) {

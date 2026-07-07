@@ -106,6 +106,21 @@ public class User {
         this.profileImageUrl = profileImageUrl;
     }
 
+    /**
+     * 마이페이지 "프로필 수정"에서 사용. null인 필드는 그대로 두고, 값이 있는 필드만 갱신한다.
+     */
+    public void updateProfile(String nickname, String profileImageUrl, TravelStyle travelStyle) {
+        if (nickname != null && !nickname.isBlank()) {
+            this.nickname = nickname;
+        }
+        if (profileImageUrl != null) {
+            this.profileImageUrl = profileImageUrl;
+        }
+        if (travelStyle != null) {
+            this.travelStyle = travelStyle;
+        }
+    }
+
     /** 회원가입 시 이메일 인증 방식을 선택해 완료한 경우 호출 */
     public void markEmailVerified() {
         this.emailVerified = true;

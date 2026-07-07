@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
 import { mainHeroApi } from "@/home/api/mainHeroApi";
 import { cityApi } from "@/common/api/cityApi";
+import { proxyImage } from "@/common/utils/proxyImage";
 
 const SLIDE_INTERVAL_MS = 5000;
 
@@ -59,11 +60,11 @@ export default function HeroBackground() {
   const citySlides: Slide[] = cities
     .filter((city) => !!city.imageUrl)
     .map((city, i) => ({
-      url: city.imageUrl as string,
+      url: proxyImage(city.imageUrl) as string,
       type: "IMAGE",
       title: CAPTION_TEMPLATES[i % CAPTION_TEMPLATES.length](city.nameKo),
       subtitle: city.countryName,
-      ctaTo: `/plan/new?destination=${encodeURIComponent(city.nameKo)}`,
+      ctaTo: `/trip/new?destination=${encodeURIComponent(city.nameKo)}`,
     }));
 
   const slides: Slide[] = isSchedule
@@ -104,7 +105,7 @@ export default function HeroBackground() {
 
   if (isLoading || slides.length === 0) {
     return (
-      <section className="relative left-1/2 right-1/2 -mx-[50vw] w-screen h-[420px] md:h-[520px] lg:h-[600px] overflow-hidden bg-surface-container-high animate-pulse" />
+      <section className="relative left-1/2 right-1/2 -mx-[50vw] w-screen h-[520px] md:h-[640px] lg:h-[720px] overflow-hidden bg-surface-container-high animate-pulse" />
     );
   }
 
@@ -122,12 +123,12 @@ export default function HeroBackground() {
 
   const ctaTo = isSchedule
     ? hero?.tripRequestId
-      ? `/plan/${hero.tripRequestId}`
-      : "/plan"
-    : (currentSlide?.ctaTo ?? "/plan/new");
+      ? `/trip`
+      : "/trip"
+    : (currentSlide?.ctaTo ?? "/trip/new");
 
   return (
-    <section className="relative left-1/2 right-1/2 -mx-[50vw] w-screen h-[420px] md:h-[520px] lg:h-[600px] overflow-hidden">
+    <section className="relative left-1/2 right-1/2 -mx-[50vw] w-screen h-[520px] md:h-[640px] lg:h-[720px] overflow-hidden">
       {/* 슬라이드 */}
       {slides.map((slide, i) => {
         const failed = failedUrls.has(slide.url);
@@ -175,32 +176,32 @@ export default function HeroBackground() {
         );
       })}
 
-      {/* 은은한 비네트 + 하단 그라데이션으로 텍스트 가독성 확보 */}
-      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/25 to-black/15" />
-      <div className="absolute inset-0 bg-gradient-to-br from-black/10 via-transparent to-black/30" />
+      {/* 하단 비네트만 살짝 — 사진이 최대한 선명하게 드러나도록 오버레이는 가볍게 */}
+      <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
 
-      {/* 콘텐츠 */}
+      {/* 콘텐츠: 좌하단 정렬 + 굵고 큰 타이포로 실사진 위에서도 존재감 있게 */}
       <div
         key={`content-${index}`}
-        className="relative h-full max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop flex flex-col items-center justify-center text-center"
+        className="relative h-full max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop flex flex-col items-start justify-end pb-16 md:pb-20"
       >
         {cityLabel && (
-          <span className="flex items-center gap-1 text-white/90 text-label-sm mb-2 animate-[heroFadeUp_0.7s_ease-out]">
+          <span className="flex items-center gap-1 text-white/90 text-label-sm mb-3 animate-[heroFadeUp_0.7s_ease-out]">
             <span className="material-symbols-outlined text-sm">location_on</span>
             {cityLabel}
           </span>
         )}
-        <span className="text-white/75 text-label-sm tracking-[0.2em] mb-3 animate-[heroFadeUp_0.7s_ease-out_0.05s_both]">
+        <span className="text-white/70 text-label-sm tracking-[0.3em] uppercase mb-3 animate-[heroFadeUp_0.7s_ease-out_0.05s_both]">
           {eyebrow}
         </span>
-        <h2 className="text-white text-[32px] md:text-[3.25rem] font-bold drop-shadow-lg mb-6 leading-tight max-w-3xl animate-[heroFadeUp_0.7s_ease-out_0.12s_both]">
+        <h2 className="text-white text-[40px] md:text-[4.5rem] font-black uppercase tracking-tight drop-shadow-lg mb-8 leading-[0.98] max-w-4xl animate-[heroFadeUp_0.7s_ease-out_0.12s_both]">
           {title}
         </h2>
         <Link
           to={ctaTo}
-          className="btn-primary text-sm py-3 px-8 shadow-[0_8px_24px_-6px_rgba(0,0,0,0.5)] hover:scale-105 hover:shadow-[0_10px_30px_-4px_rgba(0,0,0,0.6)] transition-all animate-[heroFadeUp_0.7s_ease-out_0.2s_both]"
+          className="inline-flex items-center gap-2 bg-white text-on-surface text-sm font-bold py-4 px-8 rounded-full shadow-[0_8px_24px_-6px_rgba(0,0,0,0.5)] hover:scale-105 hover:shadow-[0_10px_30px_-4px_rgba(0,0,0,0.6)] transition-all animate-[heroFadeUp_0.7s_ease-out_0.2s_both]"
         >
           {ctaLabel}
+          <span className="material-symbols-outlined text-lg">arrow_forward</span>
         </Link>
       </div>
 

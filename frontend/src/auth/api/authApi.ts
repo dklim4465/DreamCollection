@@ -52,9 +52,8 @@ export const authApi = {
   logout: (refreshToken: string) =>
     apiClient.post<ApiResponse<void>>("/auth/logout", { refreshToken }),
 
-  getMe: async (): Promise<{ data: ApiResponse<User | null> }> => {
-    return { data: { success: true, message: "OK", data: null } };
-  },
+  // GET /api/auth/me — 새로고침 후 유저 정보 복구용 (비로그인/토큰만료 시 data: null)
+  getMe: () => apiClient.get<ApiResponse<User | null>>("/auth/me"),
 
   // ── 휴대폰 인증 ──────────────────────────────────────────
   // POST /api/auth/phone/send-code, /api/auth/phone/verify-code
