@@ -1,4 +1,4 @@
-package com.dreamcollection.travelog.domain;
+package com.dreamCollection.travelog.domain;
 
 import jakarta.persistence.*;
 import lombok.*;

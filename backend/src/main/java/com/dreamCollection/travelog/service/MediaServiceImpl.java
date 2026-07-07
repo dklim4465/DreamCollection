@@ -1,15 +1,15 @@
-package com.dreamcollection.travelog.service;
+package com.dreamCollection.travelog.service;
 
-import com.dreamcollection.travelog.domain.Media;
-import com.dreamcollection.travelog.domain.MediaType;
-import com.dreamcollection.travelog.domain.TripLog;
-import com.dreamcollection.travelog.dto.MetadataInfoDTO;
-import com.dreamcollection.travelog.dto.StoredFileDTO;
-import com.dreamcollection.travelog.dto.upload.UploadRequestDTO;
-import com.dreamcollection.travelog.dto.upload.UploadResultDTO;
-import com.dreamcollection.travelog.repository.MediaRepository;
-import com.dreamcollection.travelog.repository.TripLogRepository;
-import com.dreamcollection.travelog.service.extractor.MetadataService;
+import com.dreamCollection.travelog.domain.Media;
+import com.dreamCollection.travelog.domain.MediaType;
+import com.dreamCollection.travelog.domain.TripLog;
+import com.dreamCollection.travelog.dto.MetadataInfoDTO;
+import com.dreamCollection.travelog.dto.StoredFileDTO;
+import com.dreamCollection.travelog.dto.upload.UploadRequestDTO;
+import com.dreamCollection.travelog.dto.upload.UploadResultDTO;
+import com.dreamCollection.travelog.repository.MediaRepository;
+import com.dreamCollection.travelog.repository.TripLogRepository;
+import com.dreamCollection.travelog.service.extractor.MetadataService;
 import com.drew.imaging.ImageProcessingException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -25,7 +25,6 @@ import org.springframework.transaction.support.TransactionSynchronization;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.nio.file.Files;

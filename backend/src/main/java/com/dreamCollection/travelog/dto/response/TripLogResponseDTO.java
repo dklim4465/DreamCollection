@@ -1,4 +1,4 @@
-package com.dreamcollection.travelog.dto.response;
+package com.dreamCollection.travelog.dto.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

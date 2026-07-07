@@ -1,7 +1,7 @@
-package com.dreamcollection.travelog.service.extractor;
+package com.dreamCollection.travelog.service.extractor;
 
-import com.dreamcollection.travelog.domain.MediaType;
-import com.dreamcollection.travelog.dto.MetadataInfoDTO;
+import com.dreamCollection.travelog.domain.MediaType;
+import com.dreamCollection.travelog.dto.MetadataInfoDTO;
 import com.drew.imaging.ImageMetadataReader;
 import com.drew.imaging.ImageProcessingException;
 import com.drew.lang.GeoLocation;
@@ -13,7 +13,6 @@ import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.Point;
 import org.springframework.stereotype.Service;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.time.Instant;
