@@ -1,8 +1,11 @@
 package com.dreamcollection.travelog.service;
 
+import com.dreamcollection.travelog.domain.Media;
+import com.dreamcollection.travelog.domain.MediaType;
 import com.dreamcollection.travelog.domain.TripLog;
 import com.dreamcollection.travelog.dto.request.TripLogRequestDTO;
 import com.dreamcollection.travelog.dto.response.TripLogResponseDTO;
+import com.dreamcollection.travelog.repository.MediaRepository;
 import com.dreamcollection.travelog.repository.TripLogRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -22,6 +25,8 @@ public class TripLogServiceImpl implements TripLogService {
 
     private final TripLogRepository tripLogRepository;
 
+    private final MediaService mediaService;
+
     @Override
     public Long registerTrip(TripLogRequestDTO tripLogRequestDTO) {
 
@@ -29,7 +34,7 @@ public class TripLogServiceImpl implements TripLogService {
 
         List<String> tags = extract(tripLog.getDescription());
 
-        tags.forEach(tag -> tripLog.addTag(tag));
+        tags.forEach(tripLog::addTag);
 
         TripLog result = tripLogRepository.save(tripLog);
 
@@ -61,7 +66,7 @@ public class TripLogServiceImpl implements TripLogService {
 
         List<String> tags = extract(tripLog.getDescription());
 
-        tags.forEach(tag -> tripLog.addTag(tag));
+        tags.forEach(tripLog::addTag);
 
 
         tripLogRepository.save(tripLog);
@@ -69,6 +74,9 @@ public class TripLogServiceImpl implements TripLogService {
 
     @Override
     public void removeTrip(Long tno) {
+
+        mediaService.deleteAllByTrip(tno);
+
         tripLogRepository.deleteById(tno);
     }
 
