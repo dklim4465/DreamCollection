@@ -69,10 +69,6 @@ dependencies {
 	compileOnly 'org.projectlombok:lombok'
 	annotationProcessor 'org.projectlombok:lombok'
 
-	// Lombok
-	compileOnly 'org.projectlombok:lombok'
-	annotationProcessor 'org.projectlombok:lombok'
-
 	// Database
 	runtimeOnly 'com.mysql:mysql-connector-j'
 	runtimeOnly 'org.mariadb.jdbc:mariadb-java-client'
@@ -86,14 +82,6 @@ dependencies {
 	testCompileOnly 'org.projectlombok:lombok'
 	testAnnotationProcessor 'org.projectlombok:lombok'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
-
-	implementation 'org.modelmapper:modelmapper:3.1.1'
-	implementation 'net.coobird:thumbnailator:0.4.20'
-	implementation 'com.google.code.gson:gson:2.10.1'
-	implementation 'org.hibernate.orm:hibernate-spatial:6.6.54.Final'
-	implementation 'com.drewnoakes:metadata-extractor:2.19.0'
-	implementation 'org.apache.tika:tika-core:3.2.3'
-	implementation 'org.apache.tika:tika-parsers-standard-package:3.2.3'
 
 }
 
