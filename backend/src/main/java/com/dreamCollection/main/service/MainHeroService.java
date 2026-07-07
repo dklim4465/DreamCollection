@@ -2,8 +2,6 @@ package com.dreamCollection.main.service;
 
 import com.dreamCollection.main.dto.MainHeroResponse;
 import com.dreamCollection.main.dto.MainHeroResponse.HeroMedia;
-import com.dreamCollection.trip.entity.TripRequest;
-import com.dreamCollection.trip.repository.TripRequestRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,6 +15,10 @@ import com.dreamCollection.main.repository.MonthlyDestinationRepository;
 /**
  * 메인페이지 상단 배경 결정 로직.
  * 우선순위: 로그인+다가오는 일정 있음 > 이달의 여행지 > 기본 배경
+ *
+ * TODO(trip 담당자): "로그인 + 다가오는 일정(SCHEDULE)" 우선순위는 trip 도메인 쪽 구조가
+ * 아직 이 브랜치와 정리되지 않아 이번 병합에서는 제외했습니다. trip 쪽 구조가 정해지면
+ * (예: 사용자별 다가오는 여행 조회 메서드) 여기에 다시 연결해주세요.
  */
 @Service
 @RequiredArgsConstructor
@@ -33,30 +35,12 @@ public class MainHeroService {
             new HeroMedia("https://images.unsplash.com/photo-1499856871958-5b9627545d1a?auto=format&fit=crop&w=1600&q=80", "IMAGE")  // 파리
     );
 
-    private final TripRequestRepository tripRequestRepository;
     private final MonthlyDestinationRepository monthlyDestinationRepository;
     private final MainBackgroundRepository mainBackgroundRepository;
 
     @Transactional(readOnly = true)
     public MainHeroResponse getHero(Long userId) {
-        // 1순위: 로그인 + 다가오는 일정
-        if (userId != null) {
-            List<TripRequest> upcoming = tripRequestRepository
-                    .findByUserIdAndStartDateGreaterThanEqualOrderByStartDateAsc(userId, LocalDate.now());
-            if (!upcoming.isEmpty()) {
-                TripRequest trip = upcoming.get(0);
-                long dDay = LocalDate.now().until(trip.getStartDate()).getDays();
-                return new MainHeroResponse(
-                        "SCHEDULE",
-                        DEFAULT_FALLBACK_MEDIAS.get(0).url(), // TODO: city 이미지 연동 (trip에 city_id 매핑되면 교체)
-                        "IMAGE",
-                        trip.getDestination(),
-                        dDay > 0 ? ("D-" + dDay) : "여행 중",
-                        trip.getId(),
-                        List.of()
-                );
-            }
-        }
+        // 1순위(다가오는 일정)는 trip 도메인 정리 후 연결 예정 — 현재는 2순위부터 시작
 
         // 2순위: 이달의 여행지 — 전부 내려줘서 프론트가 여러 개를 순환 노출 (매번/주기적으로 다른 여행지가 보이도록)
         String currentMonth = LocalDate.now().format(MONTH_FORMAT);
