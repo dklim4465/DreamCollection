@@ -14,7 +14,7 @@ import type {
   Report,
   ReportCreateRequest,
   SpringPage,
-} from "@/types/board/board";
+} from "@/board/types/board";
 
 // ── 게시글 ──────────────────────────────
 export const boardPostApi = {
