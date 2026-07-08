@@ -37,6 +37,10 @@ public class Badge {
     @Column(name = "condition_value")
     private Integer conditionValue;
 
+    // condition_type=COUNTRY_VISIT일 때만 값 있음 (도감의 국가 코드, city.country_code와 매칭)
+    @Column(name = "condition_country_code", length = 2)
+    private String conditionCountryCode;
+
     @Column(name = "is_active", nullable = false)
     private boolean active = true;
 
@@ -45,13 +49,14 @@ public class Badge {
     private LocalDateTime createdAt;
 
     @Builder
-    public Badge(String code, String name, String description, String iconUrl, String conditionType, Integer conditionValue) {
+    public Badge(String code, String name, String description, String iconUrl, String conditionType, Integer conditionValue, String conditionCountryCode) {
         this.code = code;
         this.name = name;
         this.description = description;
         this.iconUrl = iconUrl;
         this.conditionType = conditionType;
         this.conditionValue = conditionValue;
+        this.conditionCountryCode = conditionCountryCode;
         this.active = true;
     }
 }

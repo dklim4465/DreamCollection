@@ -35,8 +35,10 @@ interface Slide {
  * 콘텐츠 연동형 메인 배경 (동적 슬라이드)
  *
  *  1) 로그인 + 다가오는 일정 있음 → 그 일정의 목적지 + D-day (단일 이미지, 백엔드 응답 그대로 사용)
- *  2) 그 외 모든 경우            → "지금 인기 있는 여행지"(city 마스터, 아래 섹션과 동일한 데이터 소스)의
- *                                   사진 + 도시명을 그대로 가져와 5초 간격으로 순환 노출
+ *  2) 이달의 여행지 + 관리자 등록 배경(main_background) → 백엔드가 둘을 합쳐서 내려준 목록(hero.medias)을
+ *                                   그대로 5초 간격으로 순환 노출 (관리자 페이지에서 등록한 배경이 여기 반영됨)
+ *  3) 위 둘 다 없을 때만            → "지금 인기 있는 여행지"(city 마스터, 아래 섹션과 동일한 데이터 소스)의
+ *                                   사진 + 도시명을 폴백으로 노출
  *
  * 이미지는 크로스페이드 + 은은한 Ken Burns(서서히 확대) 효과로 살아있는 느낌을 준다.
  */
@@ -71,10 +73,10 @@ export default function HeroBackground() {
     ? hero
       ? [{ url: hero.imageUrl, type: hero.mediaType as "IMAGE" | "VIDEO" }]
       : []
-    : citySlides.length > 0
-      ? citySlides
-      : hero && hero.medias.length > 0
-        ? hero.medias
+    : hero && hero.medias.length > 0
+      ? hero.medias
+      : citySlides.length > 0
+        ? citySlides
         : hero
           ? [{ url: hero.imageUrl, type: hero.mediaType as "IMAGE" | "VIDEO" }]
           : [];
@@ -117,7 +119,13 @@ export default function HeroBackground() {
 
   const cityLabel = isSchedule ? hero?.subtitle : currentSlide?.subtitle;
 
-  const eyebrow = isSchedule ? (hero?.subtitle ?? "") : "지금 인기 있는 여행지";
+  const usingHeroMedias = !isSchedule && !!hero && hero.medias.length > 0;
+
+  const eyebrow = isSchedule
+    ? (hero?.subtitle ?? "")
+    : usingHeroMedias
+      ? (hero?.mode === "MONTHLY" ? "이달의 추천 여행지" : "")
+      : "지금 인기 있는 여행지";
 
   const ctaLabel = isSchedule ? "일정 상세보기" : "이 여행지로 계획 세우기";
 

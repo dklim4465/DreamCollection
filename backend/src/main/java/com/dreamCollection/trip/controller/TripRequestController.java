@@ -4,9 +4,11 @@ import com.dreamCollection.trip.dto.PlanRequestDTO;
 import com.dreamCollection.trip.dto.PlanResponseDTO;
 import com.dreamCollection.trip.dto.SaveTripRequestDTO;
 import com.dreamCollection.trip.dto.SaveTripResponseDTO;
+import com.dreamCollection.trip.dto.SavedTripSummaryDTO;
 import com.dreamCollection.trip.service.TripService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -40,6 +42,13 @@ public class TripRequestController {
     @PostMapping("/save")
     public SaveTripResponseDTO saveTrip(@RequestBody SaveTripRequestDTO saveTripRequestDTO){
         return tripService.save(saveTripRequestDTO);
+    }
+
+    // 홈페이지 "내가 저장한 여행" 미리보기 / 내 일정 목록 → GET /api/trip/saved (로그인 필요)
+    @GetMapping("/saved")
+    public List<SavedTripSummaryDTO> getMySavedTrips(Authentication authentication) {
+        Long userId = (Long) authentication.getPrincipal();
+        return tripService.getMySavedTrips(userId);
     }
 
 }

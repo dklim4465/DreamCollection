@@ -28,6 +28,10 @@ export interface AuthRes {
   user: User;
 }
 
+export interface AvailabilityRes {
+  available: boolean;
+}
+
 // ────────────────────────────────────────────────────────────
 // 카카오 로그인(인가 코드 방식) 설정
 // developers.kakao.com에서 발급받은 REST API 키 / 콜백 주소를 .env에서 읽어온다.
@@ -54,6 +58,14 @@ export const authApi = {
 
   // GET /api/auth/me — 새로고침 후 유저 정보 복구용 (비로그인/토큰만료 시 data: null)
   getMe: () => apiClient.get<ApiResponse<User | null>>("/auth/me"),
+
+  // ── 회원가입창 중복확인 버튼 ────────────────────────────────
+  // GET /api/auth/check-email?email=...
+  checkEmail: (email: string) =>
+    apiClient.get<ApiResponse<AvailabilityRes>>("/auth/check-email", { params: { email } }),
+  // GET /api/auth/check-phone?phone=...
+  checkPhone: (phone: string) =>
+    apiClient.get<ApiResponse<AvailabilityRes>>("/auth/check-phone", { params: { phone } }),
 
   // ── 휴대폰 인증 ──────────────────────────────────────────
   // POST /api/auth/phone/send-code, /api/auth/phone/verify-code

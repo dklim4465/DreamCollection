@@ -58,6 +58,15 @@ export interface SaveTripResponse {
   message: string;
 }
 
+// 홈페이지 "내가 저장한 여행" 미리보기 / 내 일정 목록
+export interface SavedTripSummary {
+  id: number;
+  title: string | null;
+  region: string | null;
+  theme: string | null;
+  createdDate: string;
+}
+
 // 타입이랑 타입별 내용 미리 세팅해두기
 export const tripOptionTypes: TripOptionType[] = [
   "who",
@@ -103,6 +112,11 @@ export const tripApi = {
       "/trip/save",
       request,
     );
+    return response.data;
+  },
+
+  getSavedTrips: async () => {
+    const response = await apiClient.get<SavedTripSummary[]>("/trip/saved");
     return response.data;
   },
 };

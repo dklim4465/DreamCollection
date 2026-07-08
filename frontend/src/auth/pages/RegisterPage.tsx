@@ -19,6 +19,13 @@ const CODE_TTL_SECONDS = 5 * 60;
 
 type CodeStatus = "idle" | "sending" | "sent" | "verified" | "expired";
 
+// 이메일/휴대폰 "중복확인" 버튼 상태
+// - idle: 아직 확인 안 함 / 확인 후 값이 바뀜(다시 확인 필요)
+// - checking: 서버에 확인 요청 중
+// - available: 사용 가능
+// - duplicate: 이미 가입되어 있음
+type DupCheckStatus = "idle" | "checking" | "available" | "duplicate";
+
 // mm:ss 형식으로 변환
 const formatTime = (totalSeconds: number) => {
   const m = Math.floor(totalSeconds / 60);
@@ -96,6 +103,42 @@ export default function RegisterPage() {
   const password = watch("password");
 
   const isVerified = method === "EMAIL" ? emailCodeStatus === "verified" : phoneCodeStatus === "verified";
+
+  // ── 이메일/휴대폰 중복확인 ──────────────────────────────────
+  const [emailDupStatus, setEmailDupStatus] = useState<DupCheckStatus>("idle");
+  const [checkedEmail, setCheckedEmail] = useState<string | null>(null);
+  const [phoneDupStatus, setPhoneDupStatus] = useState<DupCheckStatus>("idle");
+  const [checkedPhone, setCheckedPhone] = useState<string | null>(null);
+
+  // 확인 완료 후 값이 바뀌면 다시 확인하도록 상태 초기화
+  const emailIsChecked = checkedEmail === email && emailDupStatus !== "idle";
+  const phoneIsChecked = checkedPhone === phone && phoneDupStatus !== "idle";
+
+  const handleCheckEmail = async () => {
+    if (!email) return;
+    setEmailDupStatus("checking");
+    try {
+      const res = await authApi.checkEmail(email);
+      setCheckedEmail(email);
+      setEmailDupStatus(res.data.data?.available ? "available" : "duplicate");
+    } catch {
+      setEmailDupStatus("idle");
+      setCheckedEmail(null);
+    }
+  };
+
+  const handleCheckPhone = async () => {
+    if (!phone) return;
+    setPhoneDupStatus("checking");
+    try {
+      const res = await authApi.checkPhone(phone);
+      setCheckedPhone(phone);
+      setPhoneDupStatus(res.data.data?.available ? "available" : "duplicate");
+    } catch {
+      setPhoneDupStatus("idle");
+      setCheckedPhone(null);
+    }
+  };
 
   // ── 이메일 인증 핸들러 ──────────────────────────────────────
   const handleSendEmailCode = async () => {
@@ -179,14 +222,36 @@ export default function RegisterPage() {
             {/* 아이디(이메일) */}
             <div className="flex flex-col gap-1.5">
               <label className="text-label-md">아이디 (이메일)</label>
-              <input
-                type="email"
-                placeholder="example@email.com"
-                className="input-base"
-                {...register("email", { required: "아이디(이메일)를 입력해주세요" })}
-              />
+              <div className="flex gap-2">
+                <input
+                  type="email"
+                  placeholder="example@email.com"
+                  className="input-base flex-1"
+                  {...register("email", { required: "아이디(이메일)를 입력해주세요" })}
+                />
+                <button
+                  type="button"
+                  onClick={handleCheckEmail}
+                  disabled={!email || emailDupStatus === "checking"}
+                  className="btn-ghost text-sm py-2 px-4 whitespace-nowrap disabled:opacity-50"
+                >
+                  {emailDupStatus === "checking" ? "확인중..." : "중복확인"}
+                </button>
+              </div>
               {errors.email && (
                 <p className="text-label-sm text-error">{errors.email.message}</p>
+              )}
+              {emailIsChecked && emailDupStatus === "available" && (
+                <p className="text-label-sm text-primary flex items-center gap-1">
+                  <span className="material-symbols-outlined text-base">check_circle</span>
+                  사용 가능한 이메일입니다
+                </p>
+              )}
+              {emailIsChecked && emailDupStatus === "duplicate" && (
+                <p className="text-label-sm text-error flex items-center gap-1">
+                  <span className="material-symbols-outlined text-base">error</span>
+                  이미 가입된 이메일입니다
+                </p>
               )}
             </div>
 
@@ -339,8 +404,22 @@ export default function RegisterPage() {
                     />
                     <button
                       type="button"
+                      onClick={handleCheckPhone}
+                      disabled={!phone || phoneDupStatus === "checking" || phoneCodeStatus === "verified"}
+                      className="btn-ghost text-sm py-2 px-4 whitespace-nowrap disabled:opacity-50"
+                    >
+                      {phoneDupStatus === "checking" ? "확인중..." : "중복확인"}
+                    </button>
+                    <button
+                      type="button"
                       onClick={handleSendPhoneCode}
-                      disabled={!phone || phoneCodeStatus === "sending" || phoneCodeStatus === "verified"}
+                      disabled={
+                        !phone ||
+                        !phoneIsChecked ||
+                        phoneDupStatus === "duplicate" ||
+                        phoneCodeStatus === "sending" ||
+                        phoneCodeStatus === "verified"
+                      }
                       className="btn-ghost text-sm py-2 px-4 whitespace-nowrap disabled:opacity-50"
                     >
                       {phoneCodeStatus === "verified"
@@ -352,6 +431,24 @@ export default function RegisterPage() {
                             : "인증번호 받기"}
                     </button>
                   </div>
+
+                  {phoneIsChecked && phoneDupStatus === "available" && (
+                    <p className="text-label-sm text-primary flex items-center gap-1">
+                      <span className="material-symbols-outlined text-base">check_circle</span>
+                      사용 가능한 휴대폰 번호입니다
+                    </p>
+                  )}
+                  {phoneIsChecked && phoneDupStatus === "duplicate" && (
+                    <p className="text-label-sm text-error flex items-center gap-1">
+                      <span className="material-symbols-outlined text-base">error</span>
+                      이미 가입된 휴대폰 번호입니다
+                    </p>
+                  )}
+                  {!phoneIsChecked && (
+                    <p className="text-label-sm text-on-surface-variant">
+                      먼저 중복확인을 해주세요
+                    </p>
+                  )}
 
                   {(phoneCodeStatus === "sent" || phoneCodeStatus === "sending") && (
                     <p className="text-label-sm text-primary flex items-center gap-1">
@@ -465,11 +562,21 @@ export default function RegisterPage() {
                 {method === "EMAIL" ? "이메일" : "휴대폰"} 인증을 완료해야 가입할 수 있어요
               </p>
             )}
+            {isVerified && !emailIsChecked && (
+              <p className="text-label-sm text-on-surface-variant text-center">
+                이메일 중복확인을 먼저 해주세요
+              </p>
+            )}
 
             <button
               type="submit"
               className="btn-primary w-full mt-2"
-              disabled={mutation.isPending || !isVerified}
+              disabled={
+                mutation.isPending ||
+                !isVerified ||
+                !emailIsChecked ||
+                emailDupStatus === "duplicate"
+              }
             >
               {mutation.isPending ? "가입 중..." : "회원가입"}
             </button>

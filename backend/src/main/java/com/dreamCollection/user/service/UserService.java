@@ -1,10 +1,6 @@
 package com.dreamCollection.user.service;
 
 import com.dreamCollection.auth.service.KakaoOauthClient;
-import com.dreamCollection.badge.entity.Badge;
-import com.dreamCollection.badge.entity.UserBadge;
-import com.dreamCollection.badge.repository.BadgeRepository;
-import com.dreamCollection.badge.repository.UserBadgeRepository;
 import com.dreamCollection.user.dto.AuthResponse;
 import com.dreamCollection.user.dto.KakaoLoginRequest;
 import com.dreamCollection.user.dto.LoginRequest;
@@ -18,6 +14,7 @@ import com.dreamCollection.verification.repository.PhoneVerificationRepository;
 import com.dreamCollection.global.exception.AccountNotActiveException;
 import com.dreamCollection.global.exception.DuplicateEmailException;
 import com.dreamCollection.global.exception.DuplicateNicknameException;
+import com.dreamCollection.global.exception.DuplicatePhoneException;
 import com.dreamCollection.global.exception.InvalidCredentialsException;
 import com.dreamCollection.global.exception.InvalidVerificationCodeException;
 import com.dreamCollection.global.exception.PhoneNotVerifiedException;
@@ -44,8 +41,6 @@ public class UserService {
     private final JwtTokenProvider jwtTokenProvider;
     private final RefreshTokenService refreshTokenService;
     private final KakaoOauthClient kakaoOauthClient;
-    private final UserBadgeRepository userBadgeRepository;
-    private final BadgeRepository badgeRepository;
 
     /**
      * 프론트: authApi.getMe() → GET /api/auth/me
@@ -56,7 +51,7 @@ public class UserService {
     public UserResponse getMe(Long userId) {
         if (userId == null) return null;
         return userRepository.findById(userId)
-                .map(user -> UserResponse.from(user, findRepresentativeBadge(userId)))
+                .map(UserResponse::from)
                 .orElse(null);
     }
 
@@ -72,20 +67,30 @@ public class UserService {
         }
 
         user.updateProfile(nickname, profileImageUrl, travelStyle);
-        return UserResponse.from(user, findRepresentativeBadge(userId));
+        return UserResponse.from(user);
     }
 
-    /** user_badge.is_representative = 1인 뱃지를 찾아 Badge 엔티티로 반환 (없으면 null) */
-    private Badge findRepresentativeBadge(Long userId) {
-        return userBadgeRepository.findByUserIdAndRepresentativeTrue(userId)
-                .flatMap(userBadge -> badgeRepository.findById(userBadge.getBadgeId()))
-                .orElse(null);
+    /**
+     * 회원가입창 "이메일 중복확인" 버튼 → GET /api/auth/check-email
+     * true = 사용 가능(중복 아님), false = 이미 가입된 이메일
+     */
+    public boolean isEmailAvailable(String email) {
+        return !userRepository.existsByEmail(email);
+    }
+
+    /**
+     * 회원가입창 "휴대폰 중복확인" 버튼 → GET /api/auth/check-phone
+     * true = 사용 가능(중복 아님), false = 이미 가입된 휴대폰 번호
+     */
+    public boolean isPhoneAvailable(String phone) {
+        return !userRepository.existsByPhone(phone);
     }
 
     @Transactional
     public AuthResponse signup(SignupRequest request, String userAgent, String ipAddress) {
         validateDuplicateEmail(request.email());
         validateDuplicateNickname(request.nickname());
+        validateDuplicatePhone(request.phone());
 
         // 이메일/휴대폰 중 선택한 방식만 검증 (둘 다 요구하지 않음)
         boolean emailVerified = false;
@@ -241,6 +246,13 @@ public class UserService {
     private void validateDuplicateNickname(String nickname) {
         if (userRepository.existsByNickname(nickname)) {
             throw new DuplicateNicknameException();
+        }
+    }
+
+    // phone은 NULL 허용 컬럼(EMAIL 인증 방식일 땐 미입력 가능)이라 값이 있을 때만 중복 검사
+    private void validateDuplicatePhone(String phone) {
+        if (phone != null && !phone.isBlank() && userRepository.existsByPhone(phone)) {
+            throw new DuplicatePhoneException();
         }
     }
 

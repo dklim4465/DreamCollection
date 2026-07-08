@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { adminApi, type MainBackgroundAdminForm, type MainBackgroundItem } from "@/admin/api/adminApi";
+import ImageUrlOrUploadInput from "@/admin/component/ImageUrlOrUploadInput";
 
 const EMPTY_FORM: MainBackgroundAdminForm = { mediaType: "IMAGE", mediaUrl: "" };
 
@@ -89,13 +90,21 @@ export default function AdminMainBackgroundsPage() {
           <option value="IMAGE">이미지</option>
           <option value="VIDEO">영상 (mp4)</option>
         </select>
-        <input
-          className="input-base"
-          placeholder="미디어 URL"
-          value={form.mediaUrl}
-          onChange={(e) => setForm({ ...form, mediaUrl: e.target.value })}
-          required
-        />
+        {form.mediaType === "IMAGE" ? (
+          <ImageUrlOrUploadInput
+            value={form.mediaUrl}
+            onChange={(url) => setForm({ ...form, mediaUrl: url })}
+            placeholder="이미지 URL (또는 파일 선택으로 업로드)"
+          />
+        ) : (
+          <input
+            className="input-base"
+            placeholder="영상(mp4) URL — 파일 업로드는 이미지만 지원해요"
+            value={form.mediaUrl}
+            onChange={(e) => setForm({ ...form, mediaUrl: e.target.value })}
+            required
+          />
+        )}
         <div className="flex gap-2">
           <button type="submit" className="btn-primary" disabled={createMutation.isPending || updateMutation.isPending}>
             {editingId ? "수정 저장" : "등록"}

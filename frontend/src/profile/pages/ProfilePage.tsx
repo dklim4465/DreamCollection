@@ -1,12 +1,10 @@
 import { useState } from "react";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import dayjs from "dayjs";
 import { useAuthStore } from "@/auth/store/authStore";
-import { authApi } from "@/auth/api/authApi";
 import { paymentApi } from "@/payment/api/paymentApi";
-import { badgeApi } from "@/profile/api/badgeApi";
+import { levelApi } from "@/profile/api/levelApi";
 import { profileApi } from "@/profile/api/profileApi";
-import UserBadgeChip from "@/common/component/UserBadgeChip";
 import type { TravelStyle } from "@/types";
 
 const TRAVEL_STYLE_LABEL: Record<TravelStyle, string> = {
@@ -22,12 +20,11 @@ const TRAVEL_STYLE_OPTIONS = Object.keys(TRAVEL_STYLE_LABEL) as TravelStyle[];
 /**
  * 마이페이지
  * - 프로필 정보 (+ 인라인 수정)
- * - 뱃지 목록 (클릭하면 대표 뱃지로 지정 → 닉네임 옆에 표시)
+ * - 레벨 시스템 (여행 횟수 기준)
  * - 결제내역
  */
 export default function ProfilePage() {
   const { user, logout, updateUser } = useAuthStore();
-  const queryClient = useQueryClient();
 
   const [isEditing, setIsEditing] = useState(false);
   const [nickname, setNickname] = useState(user?.nickname ?? "");
@@ -41,9 +38,9 @@ export default function ProfilePage() {
     enabled: !!user,
   });
 
-  const { data: badgesRes, isLoading: badgesLoading } = useQuery({
-    queryKey: ["badges", "me"],
-    queryFn: badgeApi.getMyBadges,
+  const { data: levelRes, isLoading: levelLoading } = useQuery({
+    queryKey: ["level", "me"],
+    queryFn: levelApi.getMyLevel,
     enabled: !!user,
   });
 
@@ -68,21 +65,10 @@ export default function ProfilePage() {
     },
   });
 
-  const setRepresentativeMutation = useMutation({
-    mutationFn: (badgeId: number) => badgeApi.setRepresentative(badgeId),
-    onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: ["badges", "me"] });
-      // 닉네임 옆 대표 뱃지 표시도 즉시 갱신하기 위해 유저 정보도 새로고침
-      const me = await authApi.getMe();
-      const meData = me.data?.data;
-      if (meData) updateUser(meData);
-    },
-  });
-
   if (!user) return null;
 
   const payments = paymentsRes?.data?.data ?? [];
-  const badges = badgesRes?.data?.data ?? [];
+  const levelInfo = levelRes?.data?.data;
 
   const startEditing = () => {
     setNickname(user.nickname);
@@ -115,12 +101,46 @@ export default function ProfilePage() {
           <div>
             <div className="flex items-center gap-2">
               <p className="text-headline-sm font-bold">{user.nickname}</p>
-              <UserBadgeChip badgeName={user.badgeName} badgeIconUrl={user.badgeIconUrl} />
+              {levelLoading ? (
+                <span className="chip-tertiary opacity-50">Lv. -</span>
+              ) : levelInfo ? (
+                <span className="chip-primary">Lv. {levelInfo.level}</span>
+              ) : null}
             </div>
             <p className="text-body-md text-on-surface-variant">{user.email}</p>
             <span className="chip-tertiary mt-2 inline-block">
               내 여행스타일 · {TRAVEL_STYLE_LABEL[user.travelStyle]}
             </span>
+
+            {levelInfo && (
+              <div className="mt-3 max-w-xs">
+                {levelInfo.nextLevelTripCount !== null ? (
+                  <>
+                    <div className="flex justify-between text-label-sm text-on-surface-variant mb-1">
+                      <span>여행 {levelInfo.tripCount}회</span>
+                      <span>
+                        다음 레벨까지 {levelInfo.tripsToNextLevel}회 남음
+                      </span>
+                    </div>
+                    <div className="h-2 rounded-full bg-surface-container-high overflow-hidden">
+                      <div
+                        className="h-full bg-primary rounded-full transition-all"
+                        style={{
+                          width: `${Math.min(
+                            100,
+                            (levelInfo.tripCount / levelInfo.nextLevelTripCount) * 100
+                          )}%`,
+                        }}
+                      />
+                    </div>
+                  </>
+                ) : (
+                  <p className="text-label-sm text-primary font-bold">
+                    최고 레벨 달성! (여행 {levelInfo.tripCount}회)
+                  </p>
+                )}
+              </div>
+            )}
           </div>
         </div>
 
@@ -194,55 +214,6 @@ export default function ProfilePage() {
                 취소
               </button>
             </div>
-          </div>
-        )}
-      </div>
-
-      {/* 뱃지 목록 */}
-      <div className="card-base p-stack-lg flex flex-col gap-stack-sm">
-        <div className="flex items-center justify-between mb-1">
-          <h2 className="text-headline-sm font-bold">뱃지</h2>
-          <span className="text-label-sm text-on-surface-variant">
-            뱃지를 누르면 닉네임 옆 대표 뱃지로 지정돼요
-          </span>
-        </div>
-
-        {badgesLoading ? (
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-            {Array.from({ length: 6 }).map((_, i) => (
-              <div key={i} className="h-24 rounded-xl bg-surface-container-low animate-pulse" />
-            ))}
-          </div>
-        ) : (
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-            {badges.map((badge) => (
-              <button
-                key={badge.id}
-                type="button"
-                disabled={!badge.earned || setRepresentativeMutation.isPending}
-                onClick={() => setRepresentativeMutation.mutate(badge.id)}
-                title={badge.earned ? badge.description : `획득 조건: ${badge.description}`}
-                className={`relative flex flex-col items-center gap-1.5 p-3 rounded-xl border text-center transition-all ${
-                  badge.representative
-                    ? "border-primary bg-primary-container"
-                    : badge.earned
-                      ? "border-outline-variant hover:border-primary cursor-pointer"
-                      : "border-outline-variant opacity-40 grayscale cursor-not-allowed"
-                }`}
-              >
-                {badge.representative && (
-                  <span className="absolute top-1 right-1 material-symbols-outlined text-primary text-[16px]">
-                    check_circle
-                  </span>
-                )}
-                <span className="w-10 h-10 rounded-full bg-white flex items-center justify-center overflow-hidden">
-                  <span className="material-symbols-outlined text-2xl text-on-surface-variant">
-                    military_tech
-                  </span>
-                </span>
-                <p className="text-label-sm font-bold leading-snug">{badge.name}</p>
-              </button>
-            ))}
           </div>
         )}
       </div>

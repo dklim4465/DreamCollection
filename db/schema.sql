@@ -827,9 +827,10 @@ CREATE TABLE IF NOT EXISTS badge (
     description         VARCHAR(255)    NOT NULL,
     icon_url            VARCHAR(500)    NOT NULL,
 
-    condition_type      ENUM('PAYMENT_COUNT','TRIP_COUNT','REVIEW_COUNT','LOG_COUNT','COUNTRY_COUNT','MANUAL')
+    condition_type      ENUM('PAYMENT_COUNT','TRIP_COUNT','REVIEW_COUNT','LOG_COUNT','COUNTRY_COUNT','COUNTRY_VISIT','LEVEL_REACHED','MANUAL')
                             NOT NULL COMMENT '자동 지급 조건 종류 (MANUAL=관리자 수동 지급)',
-    condition_value     INT UNSIGNED    NULL COMMENT '조건 달성 기준치 (예: PAYMENT_COUNT=1 → 결제 1회)',
+    condition_value     INT UNSIGNED    NULL COMMENT '조건 달성 기준치 (예: PAYMENT_COUNT=1 → 결제 1회, LEVEL_REACHED=5 → 레벨 5 달성)',
+    condition_country_code VARCHAR(2)   NULL COMMENT 'condition_type=COUNTRY_VISIT일 때 대상 국가 코드 (city.country_code와 매칭, 도감용)',
 
     is_active           TINYINT(1)      NOT NULL DEFAULT 1,
     created_at          DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -892,7 +893,7 @@ SELECT * FROM (SELECT '파리' AS name_ko,'Paris' AS name_en,'FR' AS country_cod
 WHERE NOT EXISTS (SELECT 1 FROM city WHERE name_ko = '파리');
 
 INSERT INTO city (name_ko, name_en, country_code, country_name, latitude, longitude, timezone, image_url, is_popular)
-SELECT * FROM (SELECT '제주' AS name_ko,'Jeju' AS name_en,'KR' AS country_code,'대한민국' AS country_name,33.4996000 AS latitude,126.5312000 AS longitude,'Asia/Seoul' AS timezone,'https://images.unsplash.com/photo-1544006659-f0b21884ce1d?auto=format&fit=crop&w=400' AS image_url,1 AS is_popular) AS tmp
+SELECT * FROM (SELECT '제주' AS name_ko,'Jeju' AS name_en,'KR' AS country_code,'대한민국' AS country_name,33.4996000 AS latitude,126.5312000 AS longitude,'Asia/Seoul' AS timezone,'https://images.pexels.com/photos/30966636/pexels-photo-30966636.jpeg?auto=compress&cs=tinysrgb&w=400' AS image_url,1 AS is_popular) AS tmp
 WHERE NOT EXISTS (SELECT 1 FROM city WHERE name_ko = '제주');
 
 INSERT INTO city (name_ko, name_en, country_code, country_name, latitude, longitude, timezone, image_url, is_popular)
@@ -918,7 +919,7 @@ SELECT * FROM (SELECT 1 AS admin_id,'2026-07' AS display_month,'방콕' AS desti
 WHERE NOT EXISTS (SELECT 1 FROM monthly_destination WHERE display_month = '2026-07' AND destination_name = '방콕');
 
 INSERT INTO monthly_destination (admin_id, display_month, destination_name, title, description, image_url, link_url, source_type, display_order, is_active)
-SELECT * FROM (SELECT 1 AS admin_id,'2026-07' AS display_month,'제주도' AS destination_name,'가까운 여름 제주, 바다 여행' AS title,'협재해변과 성산일출봉 당일치기 코스' AS description,'https://images.unsplash.com/photo-1544006659-f0b21884ce1d?auto=format&fit=crop&w=800' AS image_url,NULL AS link_url,'MANUAL' AS source_type,4 AS display_order,1 AS is_active) AS tmp
+SELECT * FROM (SELECT 1 AS admin_id,'2026-07' AS display_month,'제주도' AS destination_name,'가까운 여름 제주, 바다 여행' AS title,'협재해변과 성산일출봉 당일치기 코스' AS description,'https://images.pexels.com/photos/30966636/pexels-photo-30966636.jpeg?auto=compress&cs=tinysrgb&w=800' AS image_url,NULL AS link_url,'MANUAL' AS source_type,4 AS display_order,1 AS is_active) AS tmp
 WHERE NOT EXISTS (SELECT 1 FROM monthly_destination WHERE display_month = '2026-07' AND destination_name = '제주도');
 
 INSERT INTO monthly_destination (admin_id, display_month, destination_name, title, description, image_url, link_url, source_type, display_order, is_active)
@@ -1029,3 +1030,90 @@ WHERE NOT EXISTS (SELECT 1 FROM main_background WHERE media_url = '/hero/hero-vi
 -- ⚠ 이 이메일이 users 테이블에 없으면 이 UPDATE는 그냥 0건 영향으로 조용히 끝납니다.
 --   본인이 가입한 이메일로 반드시 바꿔서 실행하세요.
 UPDATE users SET role = 'ADMIN' WHERE email = 'dudwo1410@nate.com';
+
+-- 11-8) 제주 이미지 오류 수정
+-- 기존 이미지(unsplash photo-1544006659-f0b21884ce1d)가 노트북 사진이라 실제 제주 사진으로 교체.
+-- 이미 이 스크립트를 예전에 한 번 실행해서 잘못된 URL로 행이 이미 들어가 있는 경우를 위한
+-- 재실행용 UPDATE (위 11-1/11-3의 INSERT는 WHERE NOT EXISTS라 이미 있는 행은 안 바뀌기 때문).
+SET SQL_SAFE_UPDATES = 0;
+UPDATE city
+SET image_url = 'https://images.pexels.com/photos/30966636/pexels-photo-30966636.jpeg?auto=compress&cs=tinysrgb&w=400'
+WHERE name_ko = '제주'
+  AND image_url = 'https://images.unsplash.com/photo-1544006659-f0b21884ce1d?auto=format&fit=crop&w=400';
+
+UPDATE monthly_destination
+SET image_url = 'https://images.pexels.com/photos/30966636/pexels-photo-30966636.jpeg?auto=compress&cs=tinysrgb&w=800'
+WHERE destination_name = '제주도'
+  AND image_url = 'https://images.unsplash.com/photo-1544006659-f0b21884ce1d?auto=format&fit=crop&w=800';
+SET SQL_SAFE_UPDATES = 1;
+
+
+-- ════════════════════════════════════════════════════════════════
+-- 12. 뱃지 도감 — 국가별 뱃지 + 레벨업 마일스톤 뱃지
+--     (이미 badge 테이블이 있는 기존 DB에도 안전하게 재실행 가능)
+-- ════════════════════════════════════════════════════════════════
+
+-- 12-1) condition_type에 COUNTRY_VISIT(국가별 도감용) / LEVEL_REACHED(레벨업 뱃지용) 추가
+ALTER TABLE badge MODIFY COLUMN condition_type
+    ENUM('PAYMENT_COUNT','TRIP_COUNT','REVIEW_COUNT','LOG_COUNT','COUNTRY_COUNT','COUNTRY_VISIT','LEVEL_REACHED','MANUAL')
+    NOT NULL COMMENT '자동 지급 조건 종류 (MANUAL=관리자 수동 지급)';
+
+-- 12-2) 국가별 뱃지를 위한 국가 코드 컬럼 추가 (없으면 추가)
+ALTER TABLE badge ADD COLUMN IF NOT EXISTS condition_country_code VARCHAR(2) NULL
+    COMMENT 'condition_type=COUNTRY_VISIT일 때 대상 국가 코드 (city.country_code와 매칭, 도감용)';
+
+-- 12-3) 국가별 뱃지 (도감) — city 테이블에 등록된 국가 기준
+INSERT INTO badge (code, name, description, icon_url, condition_type, condition_country_code)
+SELECT * FROM (SELECT 'COUNTRY_JP' AS code,'일본 여행자' AS name,'일본으로 떠나는 여행을 계획했어요' AS description,'/badges/country_jp.png' AS icon_url,'COUNTRY_VISIT' AS condition_type,'JP' AS condition_country_code) AS tmp
+WHERE NOT EXISTS (SELECT 1 FROM badge WHERE code = 'COUNTRY_JP');
+
+INSERT INTO badge (code, name, description, icon_url, condition_type, condition_country_code)
+SELECT * FROM (SELECT 'COUNTRY_TH' AS code,'태국 여행자' AS name,'태국으로 떠나는 여행을 계획했어요' AS description,'/badges/country_th.png' AS icon_url,'COUNTRY_VISIT' AS condition_type,'TH' AS condition_country_code) AS tmp
+WHERE NOT EXISTS (SELECT 1 FROM badge WHERE code = 'COUNTRY_TH');
+
+INSERT INTO badge (code, name, description, icon_url, condition_type, condition_country_code)
+SELECT * FROM (SELECT 'COUNTRY_VN' AS code,'베트남 여행자' AS name,'베트남으로 떠나는 여행을 계획했어요' AS description,'/badges/country_vn.png' AS icon_url,'COUNTRY_VISIT' AS condition_type,'VN' AS condition_country_code) AS tmp
+WHERE NOT EXISTS (SELECT 1 FROM badge WHERE code = 'COUNTRY_VN');
+
+INSERT INTO badge (code, name, description, icon_url, condition_type, condition_country_code)
+SELECT * FROM (SELECT 'COUNTRY_FR' AS code,'프랑스 여행자' AS name,'프랑스로 떠나는 여행을 계획했어요' AS description,'/badges/country_fr.png' AS icon_url,'COUNTRY_VISIT' AS condition_type,'FR' AS condition_country_code) AS tmp
+WHERE NOT EXISTS (SELECT 1 FROM badge WHERE code = 'COUNTRY_FR');
+
+INSERT INTO badge (code, name, description, icon_url, condition_type, condition_country_code)
+SELECT * FROM (SELECT 'COUNTRY_KR' AS code,'국내 여행자' AS name,'국내(대한민국)로 떠나는 여행을 계획했어요' AS description,'/badges/country_kr.png' AS icon_url,'COUNTRY_VISIT' AS condition_type,'KR' AS condition_country_code) AS tmp
+WHERE NOT EXISTS (SELECT 1 FROM badge WHERE code = 'COUNTRY_KR');
+
+INSERT INTO badge (code, name, description, icon_url, condition_type, condition_country_code)
+SELECT * FROM (SELECT 'COUNTRY_US' AS code,'미국 여행자' AS name,'미국으로 떠나는 여행을 계획했어요' AS description,'/badges/country_us.png' AS icon_url,'COUNTRY_VISIT' AS condition_type,'US' AS condition_country_code) AS tmp
+WHERE NOT EXISTS (SELECT 1 FROM badge WHERE code = 'COUNTRY_US');
+
+-- 12-4) 레벨업 마일스톤 뱃지 (LevelPolicy.java의 레벨 구간과 맞춤: 1~10)
+INSERT INTO badge (code, name, description, icon_url, condition_type, condition_value)
+SELECT * FROM (SELECT 'LEVEL_1' AS code,'Lv.1 새싹 여행자' AS name,'레벨 1을 달성했어요' AS description,'/badges/level_1.png' AS icon_url,'LEVEL_REACHED' AS condition_type,1 AS condition_value) AS tmp
+WHERE NOT EXISTS (SELECT 1 FROM badge WHERE code = 'LEVEL_1');
+
+INSERT INTO badge (code, name, description, icon_url, condition_type, condition_value)
+SELECT * FROM (SELECT 'LEVEL_3' AS code,'Lv.3 초보 여행자' AS name,'레벨 3을 달성했어요' AS description,'/badges/level_3.png' AS icon_url,'LEVEL_REACHED' AS condition_type,3 AS condition_value) AS tmp
+WHERE NOT EXISTS (SELECT 1 FROM badge WHERE code = 'LEVEL_3');
+
+INSERT INTO badge (code, name, description, icon_url, condition_type, condition_value)
+SELECT * FROM (SELECT 'LEVEL_5' AS code,'Lv.5 여행 애호가' AS name,'레벨 5를 달성했어요' AS description,'/badges/level_5.png' AS icon_url,'LEVEL_REACHED' AS condition_type,5 AS condition_value) AS tmp
+WHERE NOT EXISTS (SELECT 1 FROM badge WHERE code = 'LEVEL_5');
+
+INSERT INTO badge (code, name, description, icon_url, condition_type, condition_value)
+SELECT * FROM (SELECT 'LEVEL_7' AS code,'Lv.7 베테랑 여행자' AS name,'레벨 7을 달성했어요' AS description,'/badges/level_7.png' AS icon_url,'LEVEL_REACHED' AS condition_type,7 AS condition_value) AS tmp
+WHERE NOT EXISTS (SELECT 1 FROM badge WHERE code = 'LEVEL_7');
+
+INSERT INTO badge (code, name, description, icon_url, condition_type, condition_value)
+SELECT * FROM (SELECT 'LEVEL_10' AS code,'Lv.10 여행 마스터' AS name,'최고 레벨(10)을 달성했어요' AS description,'/badges/level_10.png' AS icon_url,'LEVEL_REACHED' AS condition_type,10 AS condition_value) AS tmp
+WHERE NOT EXISTS (SELECT 1 FROM badge WHERE code = 'LEVEL_10');
+
+
+-- ════════════════════════════════════════════════════════════════
+-- 13. 뱃지 시스템 제거 (레벨 시스템만 유지)
+--     담당자 요청으로 뱃지(국가 도감/레벨업 마일스톤 포함) 전체를 프론트/백엔드/DB에서 제거.
+--     레벨 계산(LevelPolicy/LevelService)은 뱃지 테이블에 의존하지 않으므로 그대로 유지됨.
+--     자식 테이블(user_badge)을 먼저 지우고 부모 테이블(badge)을 지워야 FK 에러가 안 남.
+-- ════════════════════════════════════════════════════════════════
+DROP TABLE IF EXISTS user_badge;
+DROP TABLE IF EXISTS badge;

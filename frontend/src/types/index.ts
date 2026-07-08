@@ -38,10 +38,6 @@ export interface User {
   travelStyle: TravelStyle;
   role: "USER" | "ADMIN";
   createdAt: string;
-  // 대표 뱃지 — 없으면 전부 null (닉네임 옆에 조건부로 표시)
-  badgeCode?: string | null;
-  badgeName?: string | null;
-  badgeIconUrl?: string | null;
 }
 
 // 도시 마스터 (자동완성 선택 결과 / 날씨·배경 이미지 연동용)

@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { adminApi, type BannerAdminForm } from "@/admin/api/adminApi";
 import type { Banner } from "@/home/api/bannerApi";
+import ImageUrlOrUploadInput from "@/admin/component/ImageUrlOrUploadInput";
 
 const EMPTY_FORM: BannerAdminForm = { title: "", imageUrl: "", linkUrl: "", displayOrder: 0 };
 
@@ -92,12 +93,10 @@ export default function AdminBannersPage() {
           onChange={(e) => setForm({ ...form, title: e.target.value })}
           required
         />
-        <input
-          className="input-base"
-          placeholder="이미지 URL"
+        <ImageUrlOrUploadInput
           value={form.imageUrl}
-          onChange={(e) => setForm({ ...form, imageUrl: e.target.value })}
-          required
+          onChange={(url) => setForm({ ...form, imageUrl: url })}
+          placeholder="이미지 URL (또는 파일 선택으로 업로드)"
         />
         <input
           className="input-base"

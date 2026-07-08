@@ -5,7 +5,7 @@
 export default function Logo() {
   return (
     <div className="flex items-center gap-2">
-      <img src="/logo.png" alt="Dream Collection 로고" className="h-14 w-auto object-contain" />
+      <img src="/logo.png" alt="Dream Collection 로고" className="h-16 w-auto object-contain" />
     </div>
   );
 }

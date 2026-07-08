@@ -2,6 +2,7 @@ package com.dreamCollection.auth.controller;
 
 import com.dreamCollection.user.service.UserService;
 import com.dreamCollection.user.dto.AuthResponse;
+import com.dreamCollection.user.dto.AvailabilityResponse;
 import com.dreamCollection.user.dto.KakaoLoginRequest;
 import com.dreamCollection.user.dto.LoginRequest;
 import com.dreamCollection.user.dto.RefreshTokenRequest;
@@ -34,6 +35,26 @@ public class AuthController {
                 : null;
         UserResponse response = userService.getMe(userId);
         return ApiResponse.ok(response, response != null ? "조회되었습니다." : "로그인 정보가 없습니다.");
+    }
+
+    // 회원가입창 "이메일 중복확인" 버튼 → GET /api/auth/check-email?email=...
+    @GetMapping("/check-email")
+    public ApiResponse<AvailabilityResponse> checkEmail(@RequestParam String email) {
+        boolean available = userService.isEmailAvailable(email);
+        return ApiResponse.ok(
+                AvailabilityResponse.of(available),
+                available ? "사용 가능한 이메일입니다." : "이미 가입된 이메일입니다."
+        );
+    }
+
+    // 회원가입창 "휴대폰 중복확인" 버튼 → GET /api/auth/check-phone?phone=...
+    @GetMapping("/check-phone")
+    public ApiResponse<AvailabilityResponse> checkPhone(@RequestParam String phone) {
+        boolean available = userService.isPhoneAvailable(phone);
+        return ApiResponse.ok(
+                AvailabilityResponse.of(available),
+                available ? "사용 가능한 휴대폰 번호입니다." : "이미 가입된 휴대폰 번호입니다."
+        );
     }
 
     // 프론트: authApi.register() → POST /api/auth/signup
