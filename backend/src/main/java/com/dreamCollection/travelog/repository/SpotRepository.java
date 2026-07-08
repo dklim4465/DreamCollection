@@ -7,8 +7,10 @@ import org.springframework.data.jpa.repository.Query;
 
 public interface SpotRepository extends JpaRepository<Spot, Long> {
 
-    @Modifying
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query("delete from Spot s where s.tripLog.tno = :tno " +
             "and s.spotSource = com.dreamCollection.travelog.domain.SpotSource.AUTO")
     void deleteAutoSpot(Long tno);
+
+    void deleteByTripLogTno(Long tno);
 }

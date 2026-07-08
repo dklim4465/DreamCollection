@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -23,6 +24,7 @@ public class TripLogServiceImpl implements TripLogService {
     private final TripLogRepository tripLogRepository;
 
     private final MediaService mediaService;
+    private final SpotService spotService;
 
     @Override
     public Long registerTrip(TripLogRequestDTO tripLogRequestDTO) {
@@ -70,9 +72,12 @@ public class TripLogServiceImpl implements TripLogService {
     }
 
     @Override
+    @Transactional
     public void removeTrip(Long tno) {
 
         mediaService.deleteAllByTrip(tno);
+
+        spotService.deleteAllByTrip(tno);
 
         tripLogRepository.deleteById(tno);
     }

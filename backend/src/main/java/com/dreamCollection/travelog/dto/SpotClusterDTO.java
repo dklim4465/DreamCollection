@@ -62,7 +62,11 @@ public class SpotClusterDTO {
     }
 
     public Instant getVisitAt() {
-        return mediaList.get(0).getTakenAt();
+        return mediaList.getFirst().getTakenAt();
+    }
+
+    public Instant getLeaveAt() {
+        return mediaList.getLast().getTakenAt();
     }
 
     private void recalculateRadius(GeometryUtils geometryUtils) {

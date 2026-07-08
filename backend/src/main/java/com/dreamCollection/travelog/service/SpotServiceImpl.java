@@ -57,6 +57,7 @@ public class SpotServiceImpl implements SpotService{
                     .spotType(SpotType.ETC)
                     .centerLocation(cluster.getCenter(geometryUtils))
                     .visitAt(cluster.getVisitAt())
+                    .leaveAt(cluster.getLeaveAt())
                     .build();
 
             spotRepository.save(spot);
@@ -65,6 +66,12 @@ public class SpotServiceImpl implements SpotService{
                 media.changeSpot(spot);
             }
         }
+    }
+
+    @Override
+    @Transactional
+    public void deleteAllByTrip(Long tno) {
+        spotRepository.deleteByTripLogTno(tno);
     }
 
     private List<SpotClusterDTO> createClusters(List<Media> mediaList) {

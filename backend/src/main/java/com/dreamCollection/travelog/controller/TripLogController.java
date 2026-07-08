@@ -7,12 +7,13 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
 @Log4j2
-@RequestMapping("/api/tripLog")
+@RequestMapping("/api/triplog")
 public class TripLogController {
 
     private final TripLogService tripLogService;
@@ -53,6 +54,22 @@ public class TripLogController {
         tripLogService.removeTrip(tno);
 
         return Map.of("result", "success");
+    }
+
+    @GetMapping("/list")
+    public List<TripLogResponseDTO> listTripLog() {
+
+        return null;
+    }
+
+    @GetMapping("/{tno}/overview")
+    public void tripLogOverview() {
+
+    }
+
+    @GetMapping("/{tno}/map")
+    public void tripLogMap() {
+
     }
 
 }
