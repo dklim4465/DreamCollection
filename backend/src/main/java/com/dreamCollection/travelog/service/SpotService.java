@@ -7,4 +7,5 @@ public interface SpotService {
 
     void createSpot(Long tno);
     void clusteringSpot(Long tno);
+    void deleteAllByTrip(Long tno);
 }

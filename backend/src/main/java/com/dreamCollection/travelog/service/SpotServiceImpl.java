@@ -67,6 +67,12 @@ public class SpotServiceImpl implements SpotService{
         }
     }
 
+    @Override
+    @Transactional
+    public void deleteAllByTrip(Long tno) {
+        spotRepository.deleteByTripLogTno(tno);
+    }
+
     private List<SpotClusterDTO> createClusters(List<Media> mediaList) {
 
         List<SpotClusterDTO> clusters = new ArrayList<>();

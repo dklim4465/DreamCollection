@@ -30,7 +30,7 @@ public class MediaController {
         mediaService.deleteMedia(mno);
     }
 
-    @GetMapping("/{mno}")
+    @GetMapping("/{mno}/file")
     public ResponseEntity<Resource> viewMedia(@PathVariable Long mno) {
         try {
             return mediaService.view(mno);
@@ -38,6 +38,11 @@ public class MediaController {
             e.printStackTrace();
         }
         return null;
+    }
+
+    @GetMapping("/{mno}")
+    public void readMedia(@PathVariable Long mno) {
+
     }
 
 }
