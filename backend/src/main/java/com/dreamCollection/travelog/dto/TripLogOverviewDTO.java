@@ -1,11 +1,10 @@
-package com.dreamCollection.travelog.dto.response;
+package com.dreamCollection.travelog.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.Instant;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -13,7 +12,7 @@ import java.util.List;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class TripLogResponseDTO {
+public class TripLogOverviewDTO {
 
     private Long tno;
 
@@ -23,14 +22,6 @@ public class TripLogResponseDTO {
 
     private LocalDate endDate;
 
-    private String thumbnailPath;
-
-    private String description;
-
-    private Instant createdAt;
-
-    private Instant modifiedAt;
-
-    private List<String> tags;
+    private List<SpotSummaryDTO> spots;
 
 }

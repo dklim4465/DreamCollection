@@ -69,7 +69,7 @@ public class TripLogController {
 
     @GetMapping("/{tno}/map")
     public void tripLogMap() {
-        
+
     }
 
 }

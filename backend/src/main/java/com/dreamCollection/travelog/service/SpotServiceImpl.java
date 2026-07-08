@@ -57,6 +57,7 @@ public class SpotServiceImpl implements SpotService{
                     .spotType(SpotType.ETC)
                     .centerLocation(cluster.getCenter(geometryUtils))
                     .visitAt(cluster.getVisitAt())
+                    .leaveAt(cluster.getLeaveAt())
                     .build();
 
             spotRepository.save(spot);
