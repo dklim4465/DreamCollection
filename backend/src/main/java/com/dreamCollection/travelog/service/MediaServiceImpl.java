@@ -5,7 +5,6 @@ import com.dreamCollection.travelog.domain.MediaType;
 import com.dreamCollection.travelog.domain.TripLog;
 import com.dreamCollection.travelog.dto.MetadataInfoDTO;
 import com.dreamCollection.travelog.dto.StoredFileDTO;
-import com.dreamCollection.travelog.dto.upload.UploadRequestDTO;
 import com.dreamCollection.travelog.dto.upload.UploadResultDTO;
 import com.dreamCollection.travelog.repository.MediaRepository;
 import com.dreamCollection.travelog.repository.TripLogRepository;
@@ -43,23 +42,23 @@ public class MediaServiceImpl implements MediaService {
     private String uploadPath;
 
     private final TripLogRepository tripLogRepository;
-
     private final MediaRepository mediaRepository;
 
     private final MetadataService metadataService;
+    private final SpotService spotService;
 
     @Override
     @Transactional
-    public UploadResultDTO upload(UploadRequestDTO request) {
+    public UploadResultDTO upload(Long tno, List<MultipartFile> files) {
 
-        TripLog tripLog = tripLogRepository.getReferenceById(request.getTripLogTno());
+        TripLog tripLog = tripLogRepository.getReferenceById(tno);
 
         List<Media> mediaList = new ArrayList<>();
         List<String> failedFiles = new ArrayList<>();
 
         int successCount = 0;
 
-        for (MultipartFile file : request.getFiles()) {
+        for (MultipartFile file : files) {
 
             try {
                 Media media = createMedia(file, tripLog);
@@ -77,8 +76,10 @@ public class MediaServiceImpl implements MediaService {
 
         mediaRepository.saveAll(mediaList);
 
+        spotService.clusteringSpot(tno);
+
         return UploadResultDTO.builder()
-                .totalCount(request.getFiles().size())
+                .totalCount(files.size())
                 .successCount(successCount)
                 .failCount(failedFiles.size())
                 .failedFiles(failedFiles)

@@ -37,6 +37,9 @@ public class Spot {
     @Column(nullable = false)
     private SpotType spotType;
 
+    @Enumerated(EnumType.STRING)
+    private SpotSource spotSource;
+
     private String timezone;
 
     @Column(length = 2, columnDefinition = "CHAR(2)")
