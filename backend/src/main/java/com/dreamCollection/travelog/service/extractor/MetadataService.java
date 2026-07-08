@@ -2,14 +2,18 @@ package com.dreamCollection.travelog.service.extractor;
 
 import com.dreamCollection.travelog.domain.MediaType;
 import com.dreamCollection.travelog.dto.MetadataInfoDTO;
+import com.dreamCollection.travelog.util.GeometryUtils;
 import com.drew.imaging.ImageMetadataReader;
 import com.drew.imaging.ImageProcessingException;
 import com.drew.lang.GeoLocation;
+import com.drew.metadata.Directory;
 import com.drew.metadata.Metadata;
+import com.drew.metadata.Tag;
 import com.drew.metadata.exif.ExifSubIFDDirectory;
 import com.drew.metadata.exif.GpsDirectory;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import org.locationtech.jts.geom.Coordinate;
-import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.Point;
 import org.springframework.stereotype.Service;
 
@@ -19,9 +23,11 @@ import java.time.Instant;
 import java.util.Date;
 
 @Service
+@RequiredArgsConstructor
+@Log4j2
 public class MetadataService {
 
-    private final GeometryFactory geometryFactory = new GeometryFactory();
+    private final GeometryUtils geometryUtils;
 
     public MetadataInfoDTO extract(MediaType type, Path path) throws IOException, ImageProcessingException {
 
@@ -59,9 +65,7 @@ public class MetadataService {
             GeoLocation geoLocation = gpsDirectory.getGeoLocation();
 
             if (geoLocation != null && !geoLocation.isZero()) {
-                location = geometryFactory.createPoint(
-                        new Coordinate(geoLocation.getLongitude(), geoLocation.getLatitude())
-                );
+                location = geometryUtils.createPoint(geoLocation.getLatitude(), geoLocation.getLongitude());
             }
         }
 
