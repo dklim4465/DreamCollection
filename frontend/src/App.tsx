@@ -16,7 +16,9 @@ const RegisterPage = lazy(() => import("./auth/pages/RegisterPage"));
 const KakaoCallbackPage = lazy(() => import("./auth/pages/KakaoCallbackPage"));
 
 const HomePage = lazy(() => import("./home/pages/HomePage"));
-const CommunityPage = lazy(() => import("@/pages/CommunityPage"));
+const CommunityPage = lazy(() => import("@/board/pages/CommunityPage"));
+const BoardDetailPage = lazy(() => import("@/board/pages/BoardDetailPage"));
+const BoardWritePage = lazy(() => import("@/board/pages/BoardWritePage"));
 const MatchingPage = lazy(() => import("@/pages/MatchingPage"));
 
 const CartPage = lazy(() => import("./payment/pages/CartPage"));
@@ -35,7 +37,6 @@ const AdminMonthlyDestinationsPage = lazy(
 const AdminUsersPage = lazy(() => import("./admin/pages/AdminUsersPage"));
 
 // TODO: 아래 페이지는 각 팀원이 추가
-// const CommunityDetailPage= lazy(() => import('@/pages/CommunityDetailPage'));
 // const MatchingDetailPage = lazy(() => import('@/pages/MatchingDetailPage'));
 // ─────────────────────────────────────────────────────────────
 
@@ -72,8 +73,16 @@ export default function App() {
                 <Route path="/records" element={<RecordsPage />} />
                 <Route path="/profile" element={<ProfilePage />} />
                 <Route path="/community" element={<CommunityPage />} />
+                <Route path="/community/new" element={<BoardWritePage />} />
+                <Route
+                  path="/community/:postId"
+                  element={<BoardDetailPage />}
+                />
+                <Route
+                  path="/community/:postId/edit"
+                  element={<BoardWritePage />}
+                />
                 <Route path="/matching" element={<MatchingPage />} />
-                {/* TODO: /community/new 등 추가 */}
               </Route>
 
               {/* 관리자 전용 (role=ADMIN) */}
