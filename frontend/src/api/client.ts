@@ -1,11 +1,11 @@
-import axios from 'axios';
+import axios from "axios";
 
-const TOKEN_KEY = import.meta.env.VITE_JWT_KEY || 'travelers_hub_token';
+const TOKEN_KEY = import.meta.env.VITE_JWT_KEY || "travelers_hub_token";
 
 const apiClient = axios.create({
-  baseURL: '/api',
+  baseURL: "/api",
   timeout: 10000,
-  headers: { 'Content-Type': 'application/json' },
+  headers: { "Content-Type": "application/json" },
 });
 
 apiClient.interceptors.request.use((config) => {
@@ -14,15 +14,15 @@ apiClient.interceptors.request.use((config) => {
   return config;
 });
 
-apiClient.interceptors.response.use(
-  (res) => res,
-  (err) => {
-    if (err.response?.status === 401) {
-      localStorage.removeItem(TOKEN_KEY);
-      window.location.href = '/login';
-    }
-    return Promise.reject(err);
-  }
-);
+// apiClient.interceptors.response.use(
+//   (res) => res,
+//   (err) => {
+//     if (err.response?.status === 401) {
+//       localStorage.removeItem(TOKEN_KEY);
+//       window.location.href = '/login';
+//     }
+//     return Promise.reject(err);
+//   }
+// );
 
 export default apiClient;

@@ -4,8 +4,8 @@ import {
   tripOptionIcons,
   tripOptionLabels,
   type TripOptionType,
-} from "@/api/trip";
-import LoadingSpinner from "@/components/common/LoadingSpinner";
+} from "@/trip/api/trip";
+import LoadingSpinner from "@/common/component/LoadingSpinner";
 
 interface Props {
   type: TripOptionType;

@@ -1,10 +1,14 @@
 import { useEffect, useState } from "react";
 import { Navigate, useLocation, useNavigate } from "react-router-dom";
 import { useMutation } from "@tanstack/react-query";
-import type { PlanRequest, PlanResponse, TripRecommendation } from "@/api/trip";
-import { tripApi } from "@/api/trip";
-import { useAuthStore } from "@/store/authStore";
-import TripScheduleView from "@/components/trip/TripScheduleView";
+import type {
+  PlanRequest,
+  PlanResponse,
+  TripRecommendation,
+} from "@/trip/api/trip";
+import { tripApi } from "@/trip/api/trip";
+import { useAuthStore } from "@/auth/store/authStore";
+import TripScheduleView from "@/trip/components/TripScheduleView";
 
 interface LocationState {
   conditions: PlanRequest;

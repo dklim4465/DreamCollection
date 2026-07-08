@@ -1,4 +1,4 @@
-import type { PlaceOption } from "@/api/trip";
+import { PlaceOption } from "@/trip/api/trip";
 
 interface Props {
   options: PlaceOption[];

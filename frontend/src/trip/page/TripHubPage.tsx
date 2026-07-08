@@ -15,7 +15,7 @@ export default function TripHubPage() {
       </div>
 
       <Link
-        to="/trip/choice"
+        to="/trip/new"
         className="btn-primary w-full max-w-sm text-center"
       >
         AI 일정 추천받기

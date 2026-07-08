@@ -10,7 +10,7 @@ interface NavItem {
 }
 
 const NAV_ITEMS: NavItem[] = [
-  { to: "/plan", icon: "calendar_month", label: "일정" },
+  { to: "/trip", icon: "calendar_month", label: "일정" },
   { to: "/records", icon: "photo_library", label: "나의기록" },
   { to: "/community", icon: "forum", label: "게시판" },
   { to: "/matching", icon: "group", label: "메이트찾기" },

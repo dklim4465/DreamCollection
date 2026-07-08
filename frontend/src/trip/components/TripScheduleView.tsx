@@ -1,5 +1,5 @@
 import { useState } from "react";
-import type { PlanRequest, TripRecommendation } from "@/api/trip";
+import type { PlanRequest, TripRecommendation } from "@/trip/api/trip";
 import TripOptionModal from "./TripOptionModal";
 
 interface Props {

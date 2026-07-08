@@ -1,4 +1,4 @@
-import apiClient from "@/api/client";
+import apiClient from "@/common/api/client";
 
 export type TripOptionType = "who" | "when" | "region" | "theme" | "level";
 

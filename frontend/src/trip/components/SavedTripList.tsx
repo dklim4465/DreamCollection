@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import type { PlanResponse, SavedTrip } from "@/api/trip";
+import type { PlanResponse, SavedTrip } from "@/trip/api/trip";
 
 interface Props {
   savedTrips: SavedTrip[];
