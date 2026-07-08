@@ -6,9 +6,9 @@ import {
   tripOptionTypes,
   tripOptionLabels,
   type PlanRequest,
-} from "@/api/trip";
-import TripOptionSelector from "@/components/trip/TripOptionSelector";
-import LoadingSpinner from "@/components/common/LoadingSpinner";
+} from "@/trip/api/trip";
+import TripOptionSelector from "@/trip/components/TripOptionSelector";
+import LoadingSpinner from "@/common/component/LoadingSpinner";
 
 export default function TravelPlanPage() {
   const navigate = useNavigate();

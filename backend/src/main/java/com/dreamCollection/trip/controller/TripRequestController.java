@@ -1,8 +1,6 @@
 package com.dreamCollection.trip.controller;
 
 import com.dreamCollection.trip.dto.*;
-import com.dreamCollection.trip.entity.SavedTrip;
-import com.dreamCollection.trip.exception.TripSaveException;
 import com.dreamCollection.trip.service.TripService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;

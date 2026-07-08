@@ -30,7 +30,7 @@ export default function PopularDestinations() {
           </h2>
         </div>
         <Link
-          to="/plan/new"
+          to="/trip/new"
           className="text-label-sm text-primary font-bold hover:underline whitespace-nowrap"
         >
           전체 목적지 검색
@@ -48,7 +48,7 @@ export default function PopularDestinations() {
           : cities.map((city) => (
               <Link
                 key={city.id}
-                to={`/plan/new?destination=${encodeURIComponent(city.nameKo)}`}
+                to={`/trip/new?destination=${encodeURIComponent(city.nameKo)}`}
                 className="group relative h-72 rounded-3xl overflow-hidden traveler-glow"
               >
                 {city.imageUrl ? (

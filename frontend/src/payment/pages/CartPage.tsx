@@ -53,7 +53,7 @@ export default function CartPage() {
           {paidResult.toLocaleString("ko-KR")}원 결제가 정상 처리되었습니다
         </p>
         <div className="flex gap-3 mt-4">
-          <button onClick={() => navigate("/plan")} className="btn-ghost">
+          <button onClick={() => navigate("/trip")} className="btn-ghost">
             내 일정 보기
           </button>
           <button onClick={() => navigate("/profile")} className="btn-primary">
@@ -71,7 +71,7 @@ export default function CartPage() {
         title="장바구니가 비어있어요"
         description="여행 계획에서 원하는 일정을 장바구니에 담아보세요"
         action={
-          <button onClick={() => navigate("/plan")} className="btn-primary">
+          <button onClick={() => navigate("/trip")} className="btn-primary">
             내 일정 보러가기
           </button>
         }

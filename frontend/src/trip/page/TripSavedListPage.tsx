@@ -1,10 +1,10 @@
 import { Link, Navigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import EmptyState from "@/components/common/EmptyState";
-import LoadingSpinner from "@/components/common/LoadingSpinner";
-import SavedTripList from "@/components/trip/SavedTripList";
-import { tripApi } from "@/api/trip";
-import { useAuthStore } from "@/store/authStore";
+import EmptyState from "@/common/component/EmptyState";
+import LoadingSpinner from "@/common/component/LoadingSpinner";
+import SavedTripList from "@/trip/components/SavedTripList";
+import { tripApi } from "@/trip/api/trip";
+import { useAuthStore } from "@/auth/store/authStore";
 
 export default function TripSavedListPage() {
   const { user } = useAuthStore();

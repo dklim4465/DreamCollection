@@ -1,4 +1,4 @@
-import type { ScheduleItem } from "@/api/trip";
+import type { ScheduleItem } from "@/trip/api/trip";
 
 const TIME_SLOT_LABEL: Record<string, string> = {
   Morning: "오전",

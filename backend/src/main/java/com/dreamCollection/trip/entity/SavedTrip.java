@@ -30,6 +30,12 @@ public class SavedTrip {
     @Column(name = "created_date", nullable = false, updatable = false)
     private LocalDateTime createdDate;
 
+    @Column(name = "flight_selection_json", columnDefinition = "TEXT")
+    private String flightSelectionJson;
+
+    @Column(name = "accommodation_selection_json", columnDefinition = "TEXT")
+    private String accommodationSelectionJson;
+
     @PrePersist
     void prePersist() {
         this.createdDate = LocalDateTime.now();

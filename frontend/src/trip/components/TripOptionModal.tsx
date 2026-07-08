@@ -1,4 +1,4 @@
-import type { DayPlan, ScheduleItem } from "@/api/trip";
+import type { DayPlan, ScheduleItem } from "@/trip/api/trip";
 
 interface Props {
   day: DayPlan;
