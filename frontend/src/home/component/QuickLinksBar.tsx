@@ -7,7 +7,7 @@ interface MenuCard {
 }
 
 const MAIN_MENUS: MenuCard[] = [
-  { to: "/plan", icon: "calendar_month", title: "일정" },
+  { to: "/trip", icon: "calendar_month", title: "일정" },
   { to: "/records", icon: "photo_library", title: "나의기록" },
   { to: "/community", icon: "forum", title: "게시판" },
   { to: "/matching", icon: "group", title: "메이트찾기" },

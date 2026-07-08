@@ -1,5 +1,6 @@
 package com.dreamCollection.trip.dto;
 
+import com.dreamCollection.flight.dto.FlightSelectionDTO;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -18,4 +19,7 @@ public class SaveTripRequestDTO {
     private PlanRequestDTO conditions;
 
     private TripRecommendDTO recommendation;
+
+    private FlightSelectionDTO flightSelectionDTO;
+
 }

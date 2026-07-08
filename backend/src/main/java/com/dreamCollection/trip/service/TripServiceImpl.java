@@ -193,7 +193,7 @@ public class TripServiceImpl implements TripService {
 
     private static final List<String> LEVEL_OPTIONS =
             List.of("힐링여행", "빡센여행");
-    // 여기까지가 선택지 수정내용-----------------------
+    // 여기까지가 선택지 수정내용-----------------------------------------------------------------------------
 
     private static final Map<String, List<String>> OPTION_MAP = Map.of(
             "who", WHO_OPTIONS,

@@ -41,7 +41,7 @@ export default function SearchBar() {
   const goToDestination = (nameKo: string) => {
     setOpen(false);
     setValue("");
-    navigate(`/plan/new?destination=${encodeURIComponent(nameKo)}`);
+    navigate(`/trip/new?destination=${encodeURIComponent(nameKo)}`);
   };
 
   return (

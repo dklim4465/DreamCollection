@@ -63,7 +63,7 @@ export default function HeroBackground() {
       type: "IMAGE",
       title: CAPTION_TEMPLATES[i % CAPTION_TEMPLATES.length](city.nameKo),
       subtitle: city.countryName,
-      ctaTo: `/plan/new?destination=${encodeURIComponent(city.nameKo)}`,
+      ctaTo: `/trip/new?destination=${encodeURIComponent(city.nameKo)}`,
     }));
 
   const slides: Slide[] = isSchedule
@@ -122,9 +122,9 @@ export default function HeroBackground() {
 
   const ctaTo = isSchedule
     ? hero?.tripRequestId
-      ? `/plan/${hero.tripRequestId}`
-      : "/plan"
-    : (currentSlide?.ctaTo ?? "/plan/new");
+      ? "/trip"
+      : "/trip"
+    : (currentSlide?.ctaTo ?? "/trip/new");
 
   return (
     <section className="relative left-1/2 right-1/2 -mx-[50vw] w-screen h-[420px] md:h-[520px] lg:h-[600px] overflow-hidden">

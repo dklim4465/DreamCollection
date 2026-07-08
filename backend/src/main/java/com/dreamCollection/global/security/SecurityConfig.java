@@ -38,6 +38,7 @@ public class SecurityConfig {
     private final AccessDeniedHandlerImpl accessDeniedHandler;
     private final CorsConfigurationSource corsConfigurationSource;
 
+    // 프론트에서 주소를 공용으로 변경하고 여기서도 주소를 추가해야 인식이됨
     private static final String[] PUBLIC_URLS = {
             "/api/auth/**",
             "/api/cities/**",
@@ -46,7 +47,10 @@ public class SecurityConfig {
             "/api/main/**",
             "/swagger-ui/**",
             "/swagger-ui.html",
-            "/v3/api-docs/**"
+            "/v3/api-docs/**",
+            "/api/trip/options/**",
+            "/api/trip/recommend",
+
     };
 
     @Bean
