@@ -1,5 +1,6 @@
 package com.dreamCollection.travelog.util;
 
+import com.dreamCollection.travelog.dto.GeoJsonPointDTO;
 import lombok.RequiredArgsConstructor;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.GeometryFactory;
@@ -38,6 +39,29 @@ public class GeometryUtils {
         double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 
         return R * c;
+    }
+
+    public Point toPoint(GeoJsonPointDTO dto) {
+
+        if (dto == null || dto.getCoordinates() == null) {
+            return null;
+        }
+
+        return createPoint(dto.getCoordinates()[0], dto.getCoordinates()[1]);
+    }
+
+    public GeoJsonPointDTO toGeoJson(Point point) {
+
+        if (point == null) {
+            return null;
+        }
+
+        if (point.getSRID() != 4326) {
+            throw new IllegalArgumentException("Unsupported SRID");
+        }
+
+        return new GeoJsonPointDTO("Point",
+                new double[] {point.getX(), point.getY()});
     }
 
 }

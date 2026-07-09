@@ -21,9 +21,7 @@ public class MediaDetailDTO {
 
     private Instant takenAt;
 
-    private double latitude;
-
-    private double longitude;
+    private GeoJsonPointDTO location;
 
     private String mediaText;
 }

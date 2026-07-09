@@ -1,5 +1,6 @@
 package com.dreamCollection.travelog.controller;
 
+import com.dreamCollection.travelog.dto.MediaDetailDTO;
 import com.dreamCollection.travelog.dto.upload.UploadResultDTO;
 import com.dreamCollection.travelog.service.MediaService;
 import lombok.RequiredArgsConstructor;
@@ -30,19 +31,9 @@ public class MediaController {
         mediaService.deleteMedia(mno);
     }
 
-    @GetMapping("/{mno}/file")
-    public ResponseEntity<Resource> viewMedia(@PathVariable Long mno) {
-        try {
-            return mediaService.view(mno);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
     @GetMapping("/{mno}")
-    public void readMedia(@PathVariable Long mno) {
-
+    public MediaDetailDTO readMedia(@PathVariable Long mno) {
+        return mediaService.getMediaDetail(mno);
     }
 
 }

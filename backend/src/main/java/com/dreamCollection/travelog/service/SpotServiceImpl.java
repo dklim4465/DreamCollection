@@ -1,7 +1,9 @@
 package com.dreamCollection.travelog.service;
 
 import com.dreamCollection.travelog.domain.*;
+import com.dreamCollection.travelog.dto.MediaSummaryDTO;
 import com.dreamCollection.travelog.dto.SpotClusterDTO;
+import com.dreamCollection.travelog.dto.SpotDetailDTO;
 import com.dreamCollection.travelog.repository.MediaRepository;
 import com.dreamCollection.travelog.repository.SpotRepository;
 import com.dreamCollection.travelog.util.GeometryUtils;
@@ -30,6 +32,7 @@ public class SpotServiceImpl implements SpotService{
     private final SpotRepository spotRepository;
 
     @Override
+    @Transactional
     public void createSpot(Long tno) {
 
 
@@ -71,7 +74,7 @@ public class SpotServiceImpl implements SpotService{
     @Override
     @Transactional
     public void deleteAllByTrip(Long tno) {
-        spotRepository.deleteByTripLogTno(tno);
+        spotRepository.deleteByTripLog_Tno(tno);
     }
 
     private List<SpotClusterDTO> createClusters(List<Media> mediaList) {
@@ -118,5 +121,43 @@ public class SpotServiceImpl implements SpotService{
         }
 
         return clusters;
+    }
+
+    @Override
+    @Transactional
+    public List<SpotDetailDTO> getSpotDetailDTOsByTno(Long tno) {
+
+        List<SpotDetailDTO> spotDetailDTOList = new ArrayList<>();
+
+        List<Spot> spots = spotRepository.findWithMediasByTripLog_Tno(tno);
+
+        spots.forEach(spot -> {
+
+            List<MediaSummaryDTO> mediaSummaryList =
+                    spot.getMedias().stream()
+                            .map(media -> MediaSummaryDTO.builder()
+                                    .mno(media.getMno())
+                                    .mediaPath(media.getMediaPath())
+                                    .storedFileName(media.getStoredFileName())
+                                    .location(geometryUtils.toGeoJson(media.getLocation()))
+                                    .takenAt(media.getTakenAt())
+                                    .build())
+                            .toList();
+
+            SpotDetailDTO spotDetail = SpotDetailDTO.builder()
+                    .sno(spot.getSno())
+                    .name(spot.getName())
+                    .description(spot.getDescription())
+                    .centerLocation(geometryUtils.toGeoJson(spot.getCenterLocation()))
+                    .visitAt(spot.getVisitAt())
+                    .leaveAt(spot.getLeaveAt())
+                    .coverImagePath(spot.getCoverImagePath())
+                    .mediaList(mediaSummaryList)
+                    .build();
+
+            spotDetailDTOList.add(spotDetail);
+        });
+
+        return spotDetailDTOList;
     }
 }

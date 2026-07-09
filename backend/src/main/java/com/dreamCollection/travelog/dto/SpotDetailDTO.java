@@ -20,9 +20,7 @@ public class SpotDetailDTO {
 
     private String description;
 
-    private double latitude;
-
-    private double longitude;
+    private GeoJsonPointDTO centerLocation;
 
     private Instant visitAt;
 
