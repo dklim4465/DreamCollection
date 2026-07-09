@@ -1,4 +1,4 @@
-package com.dreamCollection.trip.dto;
+package com.dreamCollection.mypage.dto;
 
 import java.time.LocalDateTime;
 

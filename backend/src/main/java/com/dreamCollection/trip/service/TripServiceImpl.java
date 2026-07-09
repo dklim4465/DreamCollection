@@ -87,40 +87,6 @@ public class TripServiceImpl implements TripService {
                 .build();
     }
 
-    @Override
-    public List<SavedTripSummaryDTO> getMySavedTrips(Long userId) {
-        return savedTripRepository.findByUserIdOrderByCreatedDateDesc(userId).stream()
-                .map(this::toSummary)
-                .toList();
-    }
-
-    private SavedTripSummaryDTO toSummary(SavedTrip savedTrip) {
-        String title = null;
-        String region = null;
-        String theme = null;
-
-        try {
-            TripRecommendDTO recommendation = objectMapper.readValue(
-                    savedTrip.getRecommendationJson(), TripRecommendDTO.class);
-            title = recommendation.getTitle();
-        } catch (Exception e) {
-            log.warn("저장된 여행(id={}) 추천 JSON 파싱 실패, title 없이 내려줌", savedTrip.getId());
-        }
-
-        try {
-            if (savedTrip.getConditionsJson() != null) {
-                PlanRequestDTO conditions = objectMapper.readValue(
-                        savedTrip.getConditionsJson(), PlanRequestDTO.class);
-                region = conditions.getRegion();
-                theme = conditions.getTheme();
-            }
-        } catch (Exception e) {
-            log.warn("저장된 여행(id={}) 조건 JSON 파싱 실패, region/theme 없이 내려줌", savedTrip.getId());
-        }
-
-        return new SavedTripSummaryDTO(savedTrip.getId(), title, region, theme, savedTrip.getCreatedDate());
-    }
-
 //    @Override
 //    public ReplaceScheduleResponseDTO replaceScheduleItem(ReplaceScheduleRequestDTO replaceScheduleRequestDTO){
 //        return tripScheduleItemReplacer.replace(replaceScheduleRequestDTO);
