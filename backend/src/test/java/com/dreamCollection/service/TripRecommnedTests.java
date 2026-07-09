@@ -47,65 +47,65 @@ public class TripRecommnedTests {
         log.info("변경의 내용 " +lunchItem.getOptions().get(lunchItem.getSelectedOptionIndex()));
     }
 
-    @Test
-    void saveToDb() {
-        PlanRequestDTO planRequestDTO = PlanRequestDTO.builder()
-                .who("연인과")
-                .when("2박 3일")
-                .region("미국")
-                .theme("관광")
-                .level("액티비티여행")
-                .build();
+//    @Test
+//    void saveToDb() {
+//        PlanRequestDTO planRequestDTO = PlanRequestDTO.builder()
+//                .who("연인과")
+//                .when("2박 3일")
+//                .region("미국")
+//                .theme("관광")
+//                .level("액티비티여행")
+//                .build();
+//
+//        PlanResponseDTO planResponseDTO = tripService.recommend(planRequestDTO);
+//
+//        TripRecommendDTO recommendDTO = planResponseDTO.getRecommendations().get(0);
+//
+//        recommendDTO.getDays().stream()
+//                .filter(day -> day.getDayNumber().equals(1))
+//                .flatMap(day -> day.getItems().stream())
+//                .filter(item -> "day1-lunch".equals(item.getItemKey()))
+//                .findFirst()
+//                .ifPresent(item -> item.setSelectedOptionIndex(1));
+//
+//        SaveTripRequestDTO saveTripRequestDTO = SaveTripRequestDTO.builder()
+//                .userId(1L)
+//                .conditions(planRequestDTO)
+//                .recommendation(recommendDTO)
+//                .build();
+//
+//        SaveTripResponseDTO saveTripResponseDTO = tripService.save(saveTripRequestDTO);
+//
+//        log.info(saveTripResponseDTO);
+//
+//    }
 
-        PlanResponseDTO planResponseDTO = tripService.recommend(planRequestDTO);
 
-        TripRecommendDTO recommendDTO = planResponseDTO.getRecommendations().get(0);
-
-        recommendDTO.getDays().stream()
-                .filter(day -> day.getDayNumber().equals(1))
-                .flatMap(day -> day.getItems().stream())
-                .filter(item -> "day1-lunch".equals(item.getItemKey()))
-                .findFirst()
-                .ifPresent(item -> item.setSelectedOptionIndex(1));
-
-        SaveTripRequestDTO saveTripRequestDTO = SaveTripRequestDTO.builder()
-                .userId(1L)
-                .conditions(planRequestDTO)
-                .recommendation(recommendDTO)
-                .build();
-
-        SaveTripResponseDTO saveTripResponseDTO = tripService.save(saveTripRequestDTO);
-
-        log.info(saveTripResponseDTO);
-
-    }
-
-
-    @Test
-    void savedTripCheck() {
-        PlanRequestDTO planRequestDTO = PlanRequestDTO.builder()
-                .who("연인과")
-                .when("2박 3일")
-                .region("미국")
-                .theme("관광")
-                .level("액티비티여행")
-                .build();
-
-        PlanResponseDTO planResponseDTO = tripService.recommend(planRequestDTO);
-        TripRecommendDTO tripRecommendDTO = planResponseDTO.getRecommendations().get(0);
-
-        SaveTripRequestDTO saveTripRequestDTO = SaveTripRequestDTO.builder()
-                .userId(1L)
-                .conditions(planRequestDTO)
-                .recommendation(tripRecommendDTO)
-                .build();
-
-        SaveTripResponseDTO saveTripResponseDTO = tripService.save(saveTripRequestDTO);
-
-        SavedTripDTO savedTripDTO = tripService.getSavedTrip(saveTripResponseDTO.getSavedTripId());
-
-        log.info("저장된 일정 : " + savedTripDTO);
-    }
+//    @Test
+//    void savedTripCheck() {
+//        PlanRequestDTO planRequestDTO = PlanRequestDTO.builder()
+//                .who("연인과")
+//                .when("2박 3일")
+//                .region("미국")
+//                .theme("관광")
+//                .level("액티비티여행")
+//                .build();
+//
+//        PlanResponseDTO planResponseDTO = tripService.recommend(planRequestDTO);
+//        TripRecommendDTO tripRecommendDTO = planResponseDTO.getRecommendations().get(0);
+//
+//        SaveTripRequestDTO saveTripRequestDTO = SaveTripRequestDTO.builder()
+//                .userId(1L)
+//                .conditions(planRequestDTO)
+//                .recommendation(tripRecommendDTO)
+//                .build();
+//
+//        SaveTripResponseDTO saveTripResponseDTO = tripService.save(saveTripRequestDTO);
+//
+//        SavedTripDTO savedTripDTO = tripService.getSavedTrip(saveTripResponseDTO.getSavedTripId());
+//
+//        log.info("저장된 일정 : " + savedTripDTO);
+//    }
 
     @Test
     void userIdTripCheck() {

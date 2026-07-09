@@ -13,32 +13,35 @@ import java.time.LocalTime;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class FlightSelectionDTO {
+public class FlightResponseDTO {
 
-    private boolean skipped;
+    private String airlineName;
 
-    private Long airportId;
+    private String flightNumber;
 
     private String departureAirportCode;
+
     private String departureAirportName;
 
     private String arrivalAirportCode;
+
     private String arrivalAirportName;
 
-    private String airlineName;
-    private String flightNumber;
-
     private LocalDate departureDate;
+
     private LocalDate arrivalDate;
 
     private LocalTime departureTime;
+
     private LocalTime arrivalTime;
 
     private Integer durationMinutes;
 
     private BigDecimal price;
+
     private String currency;
 
     private String provider;
+
     private String externalUrl;
 }
