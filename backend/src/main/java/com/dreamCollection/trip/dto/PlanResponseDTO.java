@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Data
@@ -18,6 +19,12 @@ public class PlanResponseDTO {
     private String region;
     private String theme;
     private String level;
+
+    private LocalDate startDate;
+
+    private FlightConditionDTO flightCondition;
+
+    private AccommodationConditionDTO accommodationCondition;
 
     private String prompt;
     private String aiResult;

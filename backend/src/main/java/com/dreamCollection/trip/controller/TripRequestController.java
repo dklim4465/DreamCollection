@@ -4,6 +4,7 @@ import com.dreamCollection.trip.dto.*;
 import com.dreamCollection.trip.service.TripService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -35,23 +36,23 @@ public class TripRequestController {
     // 선택 이후의 사용되는 곳
 
     @PostMapping("/save")
-    public SaveTripResponseDTO saveTrip(@RequestBody SaveTripRequestDTO saveTripRequestDTO){
-        return tripService.save(saveTripRequestDTO);
+    public SaveTripResponseDTO saveTrip(@AuthenticationPrincipal Long userId, @RequestBody SaveTripRequestDTO saveTripRequestDTO){
+        return tripService.save(userId, saveTripRequestDTO);
     }
 
-    @GetMapping("/saved/{savedTripId}")
-    public SavedTripDTO getSavedTrip(@PathVariable Long savedTripId){
-        return tripService.getSavedTrip(savedTripId);
-    }
-
-    @GetMapping("/saved/user/{userId}")
-    public List<SavedTripDTO> getSavedTripsByUser(@PathVariable Long userId){
+    @GetMapping("/saved/me")
+    public List<SavedTripDTO> getMySavedTrips(@AuthenticationPrincipal Long userId) {
         return tripService.getSavedTripsByUser(userId);
     }
 
+    @GetMapping("/saved/{savedTripId}")
+    public SavedTripDTO getSavedTrip(@AuthenticationPrincipal Long userId, @PathVariable Long savedTripId) {
+        return tripService.getSavedTrip(userId, savedTripId);
+    }
+
     @DeleteMapping("/remove/{savedTripId}")
-    public void deleteSavedTrip(@PathVariable Long savedTripId) {
-        tripService.deleteSavedTrip(savedTripId);
+    public void deleteSavedTrip(@AuthenticationPrincipal Long userId, @PathVariable Long savedTripId) {
+        tripService.deleteSavedTrip(userId, savedTripId);
     }
 
 }
