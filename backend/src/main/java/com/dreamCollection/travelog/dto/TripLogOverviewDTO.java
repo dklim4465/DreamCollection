@@ -22,6 +22,6 @@ public class TripLogOverviewDTO {
 
     private LocalDate endDate;
 
-    private List<SpotSummaryDTO> spots;
+    private List<SpotDetailDTO> spots;
 
 }

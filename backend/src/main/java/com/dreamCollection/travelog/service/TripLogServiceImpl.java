@@ -1,6 +1,8 @@
 package com.dreamCollection.travelog.service;
 
 import com.dreamCollection.travelog.domain.TripLog;
+import com.dreamCollection.travelog.dto.SpotDetailDTO;
+import com.dreamCollection.travelog.dto.TripLogOverviewDTO;
 import com.dreamCollection.travelog.dto.request.TripLogRequestDTO;
 import com.dreamCollection.travelog.dto.response.TripLogResponseDTO;
 import com.dreamCollection.travelog.repository.TripLogRepository;
@@ -10,6 +12,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.regex.Pattern;
@@ -27,6 +30,7 @@ public class TripLogServiceImpl implements TripLogService {
     private final SpotService spotService;
 
     @Override
+    @Transactional
     public Long registerTrip(TripLogRequestDTO tripLogRequestDTO) {
 
         TripLog tripLog = modelMapper.map(tripLogRequestDTO, TripLog.class);
@@ -41,6 +45,7 @@ public class TripLogServiceImpl implements TripLogService {
     }
 
     @Override
+    @Transactional
     public TripLogResponseDTO readTrip(Long tno) {
 
         Optional<TripLog> result = tripLogRepository.findById(tno);
@@ -52,6 +57,7 @@ public class TripLogServiceImpl implements TripLogService {
     }
 
     @Override
+    @Transactional
     public void updateTrip(Long tno, TripLogRequestDTO tripLogRequestDTO) {
 
         TripLog tripLog = tripLogRepository.findById(tno).orElseThrow();
@@ -82,9 +88,37 @@ public class TripLogServiceImpl implements TripLogService {
         tripLogRepository.deleteById(tno);
     }
 
+    @Override
+    @Transactional
+    public TripLogOverviewDTO getOverview(Long tno) {
+
+        TripLog tripLog = tripLogRepository.findById(tno).orElseThrow();
+
+        List<SpotDetailDTO> spots = spotService.getSpotDetailDTOsByTno(tno);
+
+        return TripLogOverviewDTO.builder()
+                .tno(tno)
+                .title(tripLog.getTitle())
+                .startDate(tripLog.getStartDate())
+                .endDate(tripLog.getEndDate())
+                .spots(spots)
+                .build();
+    }
+
+    @Override
+    @Transactional
+    public List<TripLogResponseDTO> getList() {
+
+        List<TripLog> tripLogs = tripLogRepository.findAll();
+
+        return tripLogs.stream()
+                .map(tripLog -> modelMapper.map(tripLog, TripLogResponseDTO.class))
+                .toList();
+    }
+
     private static final Pattern PATTERN = Pattern.compile("#[a-zA-Z0-9_가-힣]+");
 
-    public List<String> extract(String text) {
+    private List<String> extract(String text) {
         return PATTERN.matcher(text)
                 .results()
                 .map(m -> m.group().substring(1))

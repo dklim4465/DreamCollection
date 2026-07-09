@@ -1,10 +1,10 @@
 package com.dreamCollection.travelog.dto.request;
 
+import com.dreamCollection.travelog.dto.GeoJsonPointDTO;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.locationtech.jts.geom.Point;
 
 import java.time.Instant;
 
@@ -18,7 +18,7 @@ public class SpotRequestDTO {
 
     private String description;
 
-    private Point centerLocation;
+    private GeoJsonPointDTO centerLocation;
 
     private Instant visitAt;
 

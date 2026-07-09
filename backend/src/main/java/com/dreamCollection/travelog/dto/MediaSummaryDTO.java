@@ -19,5 +19,7 @@ public class MediaSummaryDTO {
 
     private String storedFileName;
 
+    private GeoJsonPointDTO location;
+
     private Instant takenAt;
 }

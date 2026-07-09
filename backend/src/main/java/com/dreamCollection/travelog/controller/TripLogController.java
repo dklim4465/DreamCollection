@@ -1,5 +1,6 @@
 package com.dreamCollection.travelog.controller;
 
+import com.dreamCollection.travelog.dto.TripLogOverviewDTO;
 import com.dreamCollection.travelog.dto.request.TripLogRequestDTO;
 import com.dreamCollection.travelog.dto.response.TripLogResponseDTO;
 import com.dreamCollection.travelog.service.TripLogService;
@@ -59,16 +60,17 @@ public class TripLogController {
     @GetMapping("/list")
     public List<TripLogResponseDTO> listTripLog() {
 
-        return null;
+        log.info("tripLog list");
+
+        return tripLogService.getList();
     }
 
     @GetMapping("/{tno}/overview")
-    public void tripLogOverview() {
+    public TripLogOverviewDTO tripLogOverview(@PathVariable(name = "tno") Long tno) {
 
-    }
+        log.info("tripLog Overview: " + tno);
 
-    @GetMapping("/{tno}/map")
-    public void tripLogMap() {
+        return tripLogService.getOverview(tno);
 
     }
 

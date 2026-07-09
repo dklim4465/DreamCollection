@@ -1,10 +1,12 @@
 package com.dreamCollection.travelog.dto;
 
 import com.dreamCollection.travelog.domain.Media;
+import com.dreamCollection.travelog.domain.MediaType;
 import com.dreamCollection.travelog.util.GeometryUtils;
 import lombok.Getter;
 import org.locationtech.jts.geom.Point;
 
+import java.io.File;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -79,5 +81,19 @@ public class SpotClusterDTO {
         for (Point point : points) {
             radius = Math.max(radius, geometryUtils.distanceMeter(getCenter(geometryUtils), point));
         }
+    }
+
+    public String getCoverImagePath() {
+        Media coverImage = mediaList.stream()
+                .filter(media -> media.getMediaType() == MediaType.IMAGE)
+                .findFirst()
+                .orElse(null);
+
+        if (coverImage == null || coverImage.getMediaPath() == null) {
+            return null;
+        }
+
+        return coverImage.getMediaPath() + File.separator + "thumbnail"
+                + File.separator + coverImage.getStoredFileName();
     }
 }
