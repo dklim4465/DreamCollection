@@ -3,6 +3,121 @@
 @tailwind utilities;
 
 /* ───────────────────────────────────────
+   다크모드(무드있는 다크 테마) 지원용 색상 변수
+   :root = 라이트 모드, .dark = 다크 모드 (상단 네비게이션의 테마 토글이 <html>에 dark 클래스를 붙였다 뗐다 함)
+   tailwind.config.js의 색상 토큰들이 이 변수를 참조하도록 rgb(var(--color-x) / <alpha-value>) 형태로 연결되어 있음
+─────────────────────────────────────── */
+:root {
+  --color-primary: 36 101 126;
+  --color-on-primary: 255 255 255;
+  --color-primary-container: 142 202 230;
+  --color-on-primary-container: 10 86 110;
+  --color-inverse-primary: 147 207 235;
+  --color-primary-fixed: 189 233 255;
+  --color-primary-fixed-dim: 147 207 235;
+  --color-on-primary-fixed: 0 31 42;
+  --color-on-primary-fixed-variant: 0 77 100;
+
+  --color-secondary: 99 93 87;
+  --color-on-secondary: 255 255 255;
+  --color-secondary-container: 234 225 217;
+  --color-on-secondary-container: 105 99 93;
+  --color-secondary-fixed: 234 225 217;
+  --color-secondary-fixed-dim: 205 197 190;
+  --color-on-secondary-fixed: 31 27 22;
+  --color-on-secondary-fixed-variant: 75 70 64;
+
+  --color-tertiary: 147 75 0;
+  --color-on-tertiary: 255 255 255;
+  --color-tertiary-container: 255 176 116;
+  --color-on-tertiary-container: 124 63 0;
+  --color-tertiary-fixed: 255 220 196;
+  --color-tertiary-fixed-dim: 255 183 129;
+  --color-on-tertiary-fixed: 48 20 0;
+  --color-on-tertiary-fixed-variant: 112 56 0;
+
+  --color-error: 186 26 26;
+  --color-on-error: 255 255 255;
+  --color-error-container: 255 218 214;
+  --color-on-error-container: 147 0 10;
+
+  --color-surface: 247 249 255;
+  --color-surface-dim: 215 218 223;
+  --color-surface-bright: 247 249 255;
+  --color-surface-container-lowest: 255 255 255;
+  --color-surface-container-low: 241 244 249;
+  --color-surface-container: 235 238 243;
+  --color-surface-container-high: 229 232 238;
+  --color-surface-container-highest: 224 227 232;
+  --color-surface-variant: 224 227 232;
+  --color-surface-tint: 36 101 126;
+  --color-on-surface: 24 28 32;
+  --color-on-surface-variant: 64 72 76;
+  --color-inverse-surface: 45 49 53;
+  --color-inverse-on-surface: 238 241 246;
+
+  --color-outline: 112 120 125;
+  --color-outline-variant: 192 200 205;
+  --color-background: 247 249 255;
+  --color-on-background: 24 28 32;
+}
+
+.dark {
+  --color-primary: 147 207 235;
+  --color-on-primary: 0 53 71;
+  --color-primary-container: 10 86 110;
+  --color-on-primary-container: 189 233 255;
+  --color-inverse-primary: 36 101 126;
+  --color-primary-fixed: 189 233 255;
+  --color-primary-fixed-dim: 147 207 235;
+  --color-on-primary-fixed: 0 31 42;
+  --color-on-primary-fixed-variant: 0 77 100;
+
+  --color-secondary: 205 197 190;
+  --color-on-secondary: 51 47 43;
+  --color-secondary-container: 75 70 64;
+  --color-on-secondary-container: 234 225 217;
+  --color-secondary-fixed: 234 225 217;
+  --color-secondary-fixed-dim: 205 197 190;
+  --color-on-secondary-fixed: 31 27 22;
+  --color-on-secondary-fixed-variant: 75 70 64;
+
+  --color-tertiary: 255 183 129;
+  --color-on-tertiary: 82 41 0;
+  --color-tertiary-container: 112 56 0;
+  --color-on-tertiary-container: 255 220 196;
+  --color-tertiary-fixed: 255 220 196;
+  --color-tertiary-fixed-dim: 255 183 129;
+  --color-on-tertiary-fixed: 48 20 0;
+  --color-on-tertiary-fixed-variant: 112 56 0;
+
+  --color-error: 255 180 171;
+  --color-on-error: 105 0 5;
+  --color-error-container: 147 0 10;
+  --color-on-error-container: 255 218 214;
+
+  --color-surface: 16 20 22;
+  --color-surface-dim: 16 20 22;
+  --color-surface-bright: 54 58 61;
+  --color-surface-container-lowest: 11 14 16;
+  --color-surface-container-low: 24 28 31;
+  --color-surface-container: 28 32 35;
+  --color-surface-container-high: 38 42 45;
+  --color-surface-container-highest: 49 53 56;
+  --color-surface-variant: 64 72 76;
+  --color-surface-tint: 147 207 235;
+  --color-on-surface: 224 227 232;
+  --color-on-surface-variant: 192 200 205;
+  --color-inverse-surface: 224 227 232;
+  --color-inverse-on-surface: 45 49 53;
+
+  --color-outline: 138 146 151;
+  --color-outline-variant: 64 72 76;
+  --color-background: 16 20 22;
+  --color-on-background: 224 227 232;
+}
+
+/* ───────────────────────────────────────
    Traveler's Hub — 글로벌 스타일
    DESIGN.md 기반
 ─────────────────────────────────────── */
@@ -12,10 +127,11 @@
 
   body {
     font-family: 'Plus Jakarta Sans', sans-serif;
-    background-color: #f7f9ff;
-    color: #181c20;
+    background-color: rgb(var(--color-background));
+    color: rgb(var(--color-on-background));
     scroll-behavior: smooth;
     overflow-x: hidden;
+    transition: background-color 0.3s ease, color 0.3s ease;
   }
 
   .material-symbols-outlined {

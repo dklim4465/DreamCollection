@@ -1,4 +1,4 @@
-import { lazy, Suspense } from "react";
+import { lazy, Suspense, useEffect } from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import LoadingSpinner from "./common/component/LoadingSpinner";
@@ -9,6 +9,8 @@ import TripResultPage from "@/trip/page/TripResultPage";
 import TripHubPage from "@/trip/page/TripHubPage";
 import TripSavedListPage from "@/trip/page/TripSavedListPage";
 import TravelPlanPage from "@/trip/page/TravelPlanPage";
+import { authApi } from "@/auth/api/authApi";
+import { useAuthStore } from "@/auth/store/authStore";
 
 // ── 코드 스플리팅 (lazy import) ──────────────────────────────
 const LoginPage = lazy(() => import("./auth/pages/LoginPage"));
@@ -44,9 +46,28 @@ const queryClient = new QueryClient({
   defaultOptions: { queries: { retry: 1, staleTime: 1000 * 60 * 5 } },
 });
 
+function AuthBootstrap() {
+  useEffect(() => {
+    const { isAuthenticated, user } = useAuthStore.getState();
+    if (!isAuthenticated || user) return;
+
+    authApi
+      .getMe()
+      .then((res) => {
+        const me = res.data?.data;
+        if (me) useAuthStore.getState().hydrateUser(me);
+        else useAuthStore.getState().logout();
+      })
+      .catch(() => useAuthStore.getState().logout());
+  }, []);
+
+  return null;
+}
+
 export default function App() {
   return (
     <QueryClientProvider client={queryClient}>
+      <AuthBootstrap />
       <BrowserRouter>
         <Suspense fallback={<LoadingSpinner message="페이지 로딩 중..." />}>
           <Routes>

@@ -6,6 +6,7 @@ import com.dreamCollection.user.dto.KakaoLoginRequest;
 import com.dreamCollection.user.dto.LoginRequest;
 import com.dreamCollection.user.dto.SignupRequest;
 import com.dreamCollection.user.dto.UserResponse;
+import com.dreamCollection.user.entity.TravelStyle;
 import com.dreamCollection.verification.entity.EmailVerification;
 import com.dreamCollection.verification.repository.EmailVerificationRepository;
 import com.dreamCollection.verification.entity.PhoneVerification;
@@ -13,6 +14,7 @@ import com.dreamCollection.verification.repository.PhoneVerificationRepository;
 import com.dreamCollection.global.exception.AccountNotActiveException;
 import com.dreamCollection.global.exception.DuplicateEmailException;
 import com.dreamCollection.global.exception.DuplicateNicknameException;
+import com.dreamCollection.global.exception.DuplicatePhoneException;
 import com.dreamCollection.global.exception.InvalidCredentialsException;
 import com.dreamCollection.global.exception.InvalidVerificationCodeException;
 import com.dreamCollection.global.exception.PhoneNotVerifiedException;
@@ -40,10 +42,55 @@ public class UserService {
     private final RefreshTokenService refreshTokenService;
     private final KakaoOauthClient kakaoOauthClient;
 
+    /**
+     * 프론트: authApi.getMe() → GET /api/auth/me
+     * 새로고침 시 accessToken은 남아있지만 유저 정보(user)는 메모리에서 날아간 상태를
+     * 복구하기 위해, 토큰의 userId로 최신 유저 정보를 다시 조회해서 내려준다.
+     * userId가 없으면(비로그인) null 반환 — 프론트에서 비로그인으로 처리.
+     */
+    public UserResponse getMe(Long userId) {
+        if (userId == null) return null;
+        return userRepository.findById(userId)
+                .map(UserResponse::from)
+                .orElse(null);
+    }
+
+    /**
+     * 마이페이지 "프로필 수정"에서 사용. nickname이 바뀌는 경우에만 중복 체크.
+     */
+    @Transactional
+    public UserResponse updateProfile(Long userId, String nickname, String profileImageUrl, TravelStyle travelStyle) {
+        User user = userRepository.findById(userId).orElseThrow(InvalidCredentialsException::new);
+
+        if (nickname != null && !nickname.isBlank() && !nickname.equals(user.getNickname())) {
+            validateDuplicateNickname(nickname);
+        }
+
+        user.updateProfile(nickname, profileImageUrl, travelStyle);
+        return UserResponse.from(user);
+    }
+
+    /**
+     * 회원가입창 "이메일 중복확인" 버튼 → GET /api/auth/check-email
+     * true = 사용 가능(중복 아님), false = 이미 가입된 이메일
+     */
+    public boolean isEmailAvailable(String email) {
+        return !userRepository.existsByEmail(email);
+    }
+
+    /**
+     * 회원가입창 "휴대폰 중복확인" 버튼 → GET /api/auth/check-phone
+     * true = 사용 가능(중복 아님), false = 이미 가입된 휴대폰 번호
+     */
+    public boolean isPhoneAvailable(String phone) {
+        return !userRepository.existsByPhone(phone);
+    }
+
     @Transactional
     public AuthResponse signup(SignupRequest request, String userAgent, String ipAddress) {
         validateDuplicateEmail(request.email());
         validateDuplicateNickname(request.nickname());
+        validateDuplicatePhone(request.phone());
 
         // 이메일/휴대폰 중 선택한 방식만 검증 (둘 다 요구하지 않음)
         boolean emailVerified = false;
@@ -199,6 +246,13 @@ public class UserService {
     private void validateDuplicateNickname(String nickname) {
         if (userRepository.existsByNickname(nickname)) {
             throw new DuplicateNicknameException();
+        }
+    }
+
+    // phone은 NULL 허용 컬럼(EMAIL 인증 방식일 땐 미입력 가능)이라 값이 있을 때만 중복 검사
+    private void validateDuplicatePhone(String phone) {
+        if (phone != null && !phone.isBlank() && userRepository.existsByPhone(phone)) {
+            throw new DuplicatePhoneException();
         }
     }
 

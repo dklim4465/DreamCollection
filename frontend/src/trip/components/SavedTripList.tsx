@@ -31,7 +31,7 @@ export default function SavedTripList({ savedTrips }: Props) {
     <div className="grid gap-stack-md">
       {savedTrips.map((savedTrip) => (
         <button
-          key={savedTrip.savedTripID}
+          key={savedTrip.savedTripId}
           type="button"
           onClick={() => handleOpen(savedTrip)}
           className="card-interactive p-stack-lg text-left"
