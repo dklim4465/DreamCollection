@@ -13,6 +13,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -24,7 +25,7 @@ public class MatePostController {
 
     @PostMapping
     public ResponseEntity<ApiResponse<MatePostDetailResponseDTO>> createPost(
-            @RequestHeader("X-User-Id") Long userId,
+            @AuthenticationPrincipal Long userId,
             @Valid @RequestBody MatePostCreateRequestDTO requestDTO
     ){
         MatePostDetailResponseDTO responseDTO = matePostService.createPost(userId, requestDTO);
@@ -48,7 +49,7 @@ public class MatePostController {
 
     @PutMapping("/{matePostId}")
     public ApiResponse<MatePostDetailResponseDTO> updatePost(
-            @RequestHeader("X-User-Id") Long userId,
+            @AuthenticationPrincipal Long userId,
             @PathVariable Long matePostId,
             @Valid @RequestBody MatePostUpdateRequestDTO requestDTO
     ){
@@ -58,7 +59,7 @@ public class MatePostController {
 
     @DeleteMapping("/{matePostId}")
     public ApiResponse<Void> deletePost(
-            @RequestHeader("X-User-Id") Long userId,
+            @AuthenticationPrincipal Long userId,
             @PathVariable Long matePostId
     ){
         matePostService.deletePost(userId, matePostId);

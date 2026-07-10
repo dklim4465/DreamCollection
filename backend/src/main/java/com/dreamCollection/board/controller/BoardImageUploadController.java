@@ -2,12 +2,12 @@ package com.dreamCollection.board.controller;
 
 import com.dreamCollection.board.dto.ImageUploadResponseDTO;
 import com.dreamCollection.board.exception.FileUploadFailedException;
-import com.dreamCollection.board.exception.FileUploadFailedException;
 import com.dreamCollection.global.response.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -34,7 +34,7 @@ public class BoardImageUploadController {
 
     @PostMapping
     public ResponseEntity<ApiResponse<ImageUploadResponseDTO>> uploadImage(
-            @RequestHeader("X-User-Id") Long userId,
+            @AuthenticationPrincipal Long userId,
             @RequestParam("file") MultipartFile file
     ) {
         validateFile(file);
@@ -52,7 +52,7 @@ public class BoardImageUploadController {
             throw new FileUploadFailedException();
         }
 
-        String imageUrl = "/uploads/board/" + savedFileName;
+        String imageUrl = "/upload/board/" + savedFileName;
 
         return ResponseEntity
                 .status(HttpStatus.CREATED)
