@@ -35,6 +35,7 @@ export interface AdminUser {
 
 export interface BannerAdminForm {
   title: string;
+  mediaType: "IMAGE" | "VIDEO";
   imageUrl: string;
   linkUrl?: string;
   displayOrder?: number;

@@ -33,7 +33,7 @@ export default function AdBannerModal({ onClose, onHideToday }: Props) {
 
   return (
     <div className="fixed inset-0 bg-black/50 z-[100] flex items-center justify-center px-4">
-      <div className="bg-surface-container-lowest rounded-3xl overflow-hidden w-full max-w-sm relative traveler-glow">
+      <div className="bg-surface-container-lowest rounded-3xl overflow-hidden w-full max-w-2xl relative traveler-glow">
         <button
           onClick={onClose}
           aria-label="닫기"
@@ -43,7 +43,23 @@ export default function AdBannerModal({ onClose, onHideToday }: Props) {
         </button>
 
         {isLoading ? (
-          <div className="w-full aspect-square bg-surface-container-high animate-pulse" />
+          <div className="w-full aspect-video bg-surface-container-high animate-pulse" />
+        ) : banner!.mediaType === "VIDEO" ? (
+          <button
+            type="button"
+            onClick={handleBannerClick}
+            className="block w-full text-left"
+            disabled={!banner?.linkUrl}
+          >
+            <video
+              src={banner!.imageUrl}
+              className="w-full aspect-video object-cover"
+              autoPlay
+              muted
+              loop
+              playsInline
+            />
+          </button>
         ) : (
           <button
             type="button"
@@ -54,7 +70,7 @@ export default function AdBannerModal({ onClose, onHideToday }: Props) {
             <img
               src={banner!.imageUrl}
               alt={banner!.title}
-              className="w-full aspect-square object-cover"
+              className="w-full aspect-video object-cover"
             />
           </button>
         )}

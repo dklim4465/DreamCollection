@@ -1,10 +1,12 @@
 import { useState } from "react";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import dayjs from "dayjs";
 import { useAuthStore } from "@/auth/store/authStore";
 import { paymentApi } from "@/payment/api/paymentApi";
+import { paymentCardApi } from "@/payment/api/paymentCardApi";
 import { levelApi } from "@/profile/api/levelApi";
 import { profileApi } from "@/profile/api/profileApi";
+import { deviceApi } from "@/profile/api/deviceApi";
 import type { TravelStyle } from "@/types";
 
 const TRAVEL_STYLE_LABEL: Record<TravelStyle, string> = {
@@ -25,12 +27,15 @@ const TRAVEL_STYLE_OPTIONS = Object.keys(TRAVEL_STYLE_LABEL) as TravelStyle[];
  */
 export default function ProfilePage() {
   const { user, logout, updateUser } = useAuthStore();
+  const queryClient = useQueryClient();
 
   const [isEditing, setIsEditing] = useState(false);
   const [nickname, setNickname] = useState(user?.nickname ?? "");
   const [profileImageUrl, setProfileImageUrl] = useState(user?.profileImage ?? "");
   const [travelStyle, setTravelStyle] = useState<TravelStyle>(user?.travelStyle ?? "RELAXED");
   const [editError, setEditError] = useState<string | null>(null);
+  const [showCardManager, setShowCardManager] = useState(false);
+  const [showLoginActivity, setShowLoginActivity] = useState(false);
 
   const { data: paymentsRes } = useQuery({
     queryKey: ["payments", "history"],
@@ -42,6 +47,50 @@ export default function ProfilePage() {
     queryKey: ["level", "me"],
     queryFn: levelApi.getMyLevel,
     enabled: !!user,
+  });
+
+  // 결제수단 관리 패널을 열었을 때만 조회
+  const { data: cardsRes, isLoading: cardsLoading } = useQuery({
+    queryKey: ["payment-cards", "me"],
+    queryFn: paymentCardApi.getMyCards,
+    enabled: !!user && showCardManager,
+  });
+
+  const deleteCardMutation = useMutation({
+    mutationFn: paymentCardApi.deleteCard,
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["payment-cards", "me"] }),
+  });
+
+  const setDefaultCardMutation = useMutation({
+    mutationFn: paymentCardApi.setDefaultCard,
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["payment-cards", "me"] }),
+  });
+
+  // 로그인 활동 패널을 열었을 때만 조회
+  const { data: loginHistoryRes, isLoading: loginHistoryLoading } = useQuery({
+    queryKey: ["login-history", "me"],
+    queryFn: deviceApi.getLoginHistory,
+    enabled: !!user && showLoginActivity,
+  });
+
+  const { data: devicesRes, isLoading: devicesLoading } = useQuery({
+    queryKey: ["devices", "me"],
+    queryFn: deviceApi.getMyDevices,
+    enabled: !!user && showLoginActivity,
+  });
+
+  const revokeDeviceMutation = useMutation({
+    mutationFn: deviceApi.revokeDevice,
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["devices", "me"] }),
+  });
+
+  const revokeAllDevicesMutation = useMutation({
+    mutationFn: deviceApi.revokeAllDevices,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["devices", "me"] });
+      // 지금 이 기기도 함께 로그아웃 처리됨
+      logout();
+    },
   });
 
   const updateProfileMutation = useMutation({
@@ -69,6 +118,9 @@ export default function ProfilePage() {
 
   const payments = paymentsRes?.data?.data ?? [];
   const levelInfo = levelRes?.data?.data;
+  const cards = cardsRes?.data?.data ?? [];
+  const loginHistory = loginHistoryRes?.data?.data ?? [];
+  const devices = devicesRes?.data?.data ?? [];
 
   const startEditing = () => {
     setNickname(user.nickname);
@@ -252,10 +304,134 @@ export default function ProfilePage() {
           <span className="material-symbols-outlined">edit</span>
           프로필 수정
         </button>
-        <button className="nav-item justify-start">
+        <button
+          onClick={() => setShowCardManager((v) => !v)}
+          className="nav-item justify-start"
+        >
           <span className="material-symbols-outlined">credit_card</span>
           결제수단 관리
         </button>
+
+        {showCardManager && (
+          <div className="border-t border-outline-variant pt-stack-sm pl-2 flex flex-col gap-2">
+            {cardsLoading ? (
+              <p className="text-label-sm text-on-surface-variant py-2">불러오는 중...</p>
+            ) : cards.length === 0 ? (
+              <p className="text-label-sm text-on-surface-variant py-2">
+                등록된 결제수단이 없어요
+              </p>
+            ) : (
+              cards.map((card) => (
+                <div
+                  key={card.id}
+                  className="flex items-center justify-between py-2 border-b border-outline-variant last:border-none"
+                >
+                  <div className="flex items-center gap-2">
+                    <span className="text-body-md">
+                      {card.cardCompany ?? "카드"} ****{card.cardLast4}
+                    </span>
+                    {card.isDefault && <span className="chip-primary text-label-sm">기본</span>}
+                  </div>
+                  <div className="flex gap-2">
+                    {!card.isDefault && (
+                      <button
+                        onClick={() => setDefaultCardMutation.mutate(card.id)}
+                        disabled={setDefaultCardMutation.isPending}
+                        className="text-label-sm text-primary hover:underline"
+                      >
+                        기본으로 설정
+                      </button>
+                    )}
+                    <button
+                      onClick={() => deleteCardMutation.mutate(card.id)}
+                      disabled={deleteCardMutation.isPending}
+                      className="text-label-sm text-error hover:underline"
+                    >
+                      삭제
+                    </button>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        )}
+
+        <button
+          onClick={() => setShowLoginActivity((v) => !v)}
+          className="nav-item justify-start"
+        >
+          <span className="material-symbols-outlined">history</span>
+          로그인 활동
+        </button>
+
+        {showLoginActivity && (
+          <div className="border-t border-outline-variant pt-stack-sm pl-2 flex flex-col gap-stack-sm">
+            <div>
+              <p className="text-label-sm font-bold text-on-surface-variant mb-1">
+                로그인된 기기
+              </p>
+              {devicesLoading ? (
+                <p className="text-label-sm text-on-surface-variant py-1">불러오는 중...</p>
+              ) : devices.length === 0 ? (
+                <p className="text-label-sm text-on-surface-variant py-1">
+                  로그인된 기기가 없어요
+                </p>
+              ) : (
+                <>
+                  {devices.map((d) => (
+                    <div
+                      key={d.id}
+                      className="flex items-center justify-between py-1.5"
+                    >
+                      <span className="text-label-sm text-on-surface-variant truncate max-w-[220px]">
+                        {d.userAgent ?? "알 수 없는 기기"} · {d.ipAddress ?? "-"}
+                      </span>
+                      <button
+                        onClick={() => revokeDeviceMutation.mutate(d.id)}
+                        disabled={revokeDeviceMutation.isPending}
+                        className="text-label-sm text-error hover:underline shrink-0"
+                      >
+                        로그아웃
+                      </button>
+                    </div>
+                  ))}
+                  <button
+                    onClick={() => revokeAllDevicesMutation.mutate()}
+                    disabled={revokeAllDevicesMutation.isPending}
+                    className="text-label-sm text-error hover:underline mt-1"
+                  >
+                    모든 기기에서 로그아웃
+                  </button>
+                </>
+              )}
+            </div>
+
+            <div>
+              <p className="text-label-sm font-bold text-on-surface-variant mb-1">
+                최근 로그인 기록
+              </p>
+              {loginHistoryLoading ? (
+                <p className="text-label-sm text-on-surface-variant py-1">불러오는 중...</p>
+              ) : loginHistory.length === 0 ? (
+                <p className="text-label-sm text-on-surface-variant py-1">기록이 없어요</p>
+              ) : (
+                loginHistory.map((h) => (
+                  <div key={h.id} className="flex items-center justify-between py-1">
+                    <span className="text-label-sm text-on-surface-variant">
+                      {h.loginType} · {dayjs(h.createdAt).format("YYYY.MM.DD HH:mm")}
+                    </span>
+                    <span
+                      className={`text-label-sm ${h.success ? "text-primary" : "text-error"}`}
+                    >
+                      {h.success ? "성공" : "실패"}
+                    </span>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+        )}
+
         <button onClick={logout} className="nav-item justify-start text-error">
           <span className="material-symbols-outlined">logout</span>
           로그아웃

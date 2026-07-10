@@ -28,6 +28,9 @@ public class Banner {
     @Column(nullable = false, length = 100)
     private String title;
 
+    @Column(name = "media_type", nullable = false, length = 10)
+    private String mediaType = "IMAGE";
+
     @Column(name = "image_url", nullable = false, length = 500)
     private String imageUrl;
 
@@ -55,9 +58,10 @@ public class Banner {
     private LocalDateTime updatedAt;
 
     @Builder
-    public Banner(Long adminId, String title, String imageUrl, String linkUrl, Integer displayOrder) {
+    public Banner(Long adminId, String title, String mediaType, String imageUrl, String linkUrl, Integer displayOrder) {
         this.adminId = adminId;
         this.title = title;
+        this.mediaType = mediaType != null ? mediaType : "IMAGE";
         this.imageUrl = imageUrl;
         this.linkUrl = linkUrl;
         this.displayOrder = displayOrder != null ? displayOrder : 0;

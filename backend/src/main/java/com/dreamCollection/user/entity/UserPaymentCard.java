@@ -50,4 +50,20 @@ public class UserPaymentCard {
         this.billingKey = billingKey;
         this.isDefault = true;
     }
+
+    /** 마이페이지 "기본 결제수단으로 설정" */
+    public void markAsDefault() {
+        this.isDefault = true;
+    }
+
+    /** 다른 카드를 기본으로 설정하기 전, 기존 기본카드의 표시를 해제 */
+    public void unmarkAsDefault() {
+        this.isDefault = false;
+    }
+
+    /** 마이페이지 "결제수단 삭제" — 실제 삭제 대신 soft delete (결제 이력 추적을 위해 행은 남겨둠) */
+    public void softDelete() {
+        this.deletedAt = LocalDateTime.now();
+        this.isDefault = false;
+    }
 }

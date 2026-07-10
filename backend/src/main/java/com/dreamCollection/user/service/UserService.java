@@ -26,6 +26,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.dreamCollection.user.entity.User;
 import com.dreamCollection.user.entity.UserOauthAccount;
+import com.dreamCollection.user.entity.LoginHistory;
+import com.dreamCollection.user.repository.LoginHistoryRepository;
 import com.dreamCollection.user.repository.UserOauthAccountRepository;
 import com.dreamCollection.user.repository.UserRepository;
 
@@ -37,6 +39,7 @@ public class UserService {
     private final PhoneVerificationRepository phoneVerificationRepository;
     private final EmailVerificationRepository emailVerificationRepository;
     private final UserOauthAccountRepository userOauthAccountRepository;
+    private final LoginHistoryRepository loginHistoryRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenProvider jwtTokenProvider;
     private final RefreshTokenService refreshTokenService;
@@ -134,10 +137,12 @@ public class UserService {
         // 소셜 전용 가입자는 passwordHash가 없음 → 이메일 로그인 자체를 허용하지 않음
         if (user.getPasswordHash() == null
                 || !passwordEncoder.matches(request.password(), user.getPasswordHash())) {
+            recordLoginHistory(user.getId(), LoginHistory.LoginType.EMAIL, userAgent, ipAddress, false);
             throw new InvalidCredentialsException();
         }
 
         validateActiveAccount(user);
+        recordLoginHistory(user.getId(), LoginHistory.LoginType.EMAIL, userAgent, ipAddress, true);
 
         return issueTokens(user, userAgent, ipAddress);
     }
@@ -160,6 +165,7 @@ public class UserService {
                 .orElseGet(() -> linkOrCreateKakaoUser(kakaoUser));
 
         validateActiveAccount(user);
+        recordLoginHistory(user.getId(), LoginHistory.LoginType.KAKAO, userAgent, ipAddress, true);
 
         return issueTokens(user, userAgent, ipAddress);
     }
@@ -227,6 +233,18 @@ public class UserService {
         String accessToken = jwtTokenProvider.generateToken(user.getId(), user.getEmail(), user.getRole().name());
         String refreshToken = refreshTokenService.issue(user.getId(), userAgent, ipAddress);
         return new AuthResponse(accessToken, refreshToken, UserResponse.from(user));
+    }
+
+    /** 로그인 성공/실패 시도를 login_history 테이블에 기록 (마이페이지 "최근 로그인 기록"에서 조회) */
+    private void recordLoginHistory(Long userId, LoginHistory.LoginType type,
+                                     String userAgent, String ipAddress, boolean success) {
+        loginHistoryRepository.save(LoginHistory.builder()
+                .userId(userId)
+                .loginType(type)
+                .userAgent(userAgent)
+                .ipAddress(ipAddress)
+                .success(success)
+                .build());
     }
 
     private void validateActiveAccount(User user) {
