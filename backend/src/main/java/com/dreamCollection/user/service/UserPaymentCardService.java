@@ -30,8 +30,6 @@ public class UserPaymentCardService {
 
         TossPaymentClient.BillingKeyResult result = tossPaymentClient.issueBillingKey(authKey, customerKey);
 
-        boolean isFirstCard = userPaymentCardRepository.findByUserIdAndDeletedAtIsNull(userId).isEmpty();
-
         UserPaymentCard card = UserPaymentCard.builder()
                 .userId(userId)
                 .cardCompany(result.cardCompany())

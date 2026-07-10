@@ -12,7 +12,15 @@ import org.springframework.web.client.RestClient;
 import java.util.List;
 import java.util.Map;
 
-
+/**
+ * Google Gemini API 연동 — 홈페이지 "AI 여행 챗봇"의 실제 대화 응답 생성.
+ *
+ * 준비물:
+ * 1) https://aistudio.google.com (Google AI Studio) 에서 API 키 발급
+ * 2) 환경변수 GEMINI_API_KEY 로 설정 (application.yml의 gemini.api-key가 이 값을 읽음)
+ *
+ * 키가 비어있으면(아직 발급 전 등) 예외 대신 안내 문구를 반환해서, 그 상태로도 화면은 정상 동작하게 한다.
+ */
 @Slf4j
 @Component
 public class GeminiChatClient {
@@ -55,7 +63,7 @@ public class GeminiChatClient {
 
         // Gemini는 "user"/"model" 두 role만 씀 → 프론트/DTO의 "assistant"를 "model"로 변환
         List<Map<String, Object>> contents = history.stream()
-                .map(m -> Map.<String, Object>of(
+                .map(m -> Map.of(
                         "role", m.role().equals("assistant") ? "model" : "user",
                         "parts", List.of(Map.of("text", m.content()))
                 ))

@@ -30,13 +30,13 @@ SET FOREIGN_KEY_CHECKS = 0;
 -- ────────────────────────────────────────────────────────────────
 
 CREATE TABLE IF NOT EXISTS users (
-                                     id                  BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-                                     uuid                CHAR(36)        NOT NULL DEFAULT (UUID())
-    COMMENT '마이페이지 "고유 ID 확인"에서 노출되는 회원 고유 식별자',
+    id                  BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    uuid                CHAR(36)        NOT NULL DEFAULT (UUID())
+                            COMMENT '마이페이지 "고유 ID 확인"에서 노출되는 회원 고유 식별자',
 
     email               VARCHAR(255)    NOT NULL,
     password_hash       VARCHAR(255)    NULL
-    COMMENT '소셜 전용 가입자는 NULL 허용 (BCrypt 해시 저장, 평문 절대 저장 금지)',
+                            COMMENT '소셜 전용 가입자는 NULL 허용 (BCrypt 해시 저장, 평문 절대 저장 금지)',
 
     name                VARCHAR(50)     NOT NULL COMMENT '실명',
     nickname            VARCHAR(30)     NOT NULL COMMENT '화면에 노출되는 닉네임',
@@ -46,32 +46,32 @@ CREATE TABLE IF NOT EXISTS users (
 
     profile_image_url   VARCHAR(500)    NULL,
     travel_style        ENUM('RELAXED','ACTIVE','CULTURE','FOOD','ADVENTURE')
-    NOT NULL DEFAULT 'RELAXED'
-    COMMENT '시작페이지 "내 여행스타일" 표시용',
+                            NOT NULL DEFAULT 'RELAXED'
+                            COMMENT '시작페이지 "내 여행스타일" 표시용',
 
     level               INT UNSIGNED    NOT NULL DEFAULT 1
-    COMMENT '현재 레벨 (계산 기준 미정, 우선 컬럼만 확보)',
+                            COMMENT '현재 레벨 (계산 기준 미정, 우선 컬럼만 확보)',
 
     role                ENUM('USER','ADMIN') NOT NULL DEFAULT 'USER',
     status              ENUM('ACTIVE','SUSPENDED','WITHDRAWN') NOT NULL DEFAULT 'ACTIVE'
-    COMMENT '신고 누적 등으로 정지/탈퇴 처리 시 사용',
+                            COMMENT '신고 누적 등으로 정지/탈퇴 처리 시 사용',
 
     created_at          DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at          DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP
-    ON UPDATE CURRENT_TIMESTAMP,
+                            ON UPDATE CURRENT_TIMESTAMP,
     withdrawn_at        DATETIME        NULL COMMENT '탈퇴(소프트 삭제) 시각',
 
     UNIQUE KEY uk_users_email (email),
     UNIQUE KEY uk_users_uuid (uuid),
     UNIQUE KEY uk_users_nickname (nickname)
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-    COMMENT='회원 기본 정보';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+  COMMENT='회원 기본 정보';
 
 CREATE TABLE IF NOT EXISTS user_payment_cards (
-                                                  id              BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-                                                  user_id         BIGINT UNSIGNED NOT NULL,
+    id              BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    user_id         BIGINT UNSIGNED NOT NULL,
 
-                                                  card_company    VARCHAR(30)     NULL COMMENT '예: 신한, 국민 (PG 응답값 그대로 저장)',
+    card_company    VARCHAR(30)     NULL COMMENT '예: 신한, 국민 (PG 응답값 그대로 저장)',
     card_last4      CHAR(4)         NULL COMMENT '카드번호 마지막 4자리만 저장 (마스킹 표시용)',
     billing_key     VARCHAR(255)    NOT NULL COMMENT 'PG사 발급 빌링키 (실제 결제는 이 키로 수행)',
     is_default      TINYINT(1)      NOT NULL DEFAULT 1,
@@ -81,29 +81,29 @@ CREATE TABLE IF NOT EXISTS user_payment_cards (
 
     KEY idx_cards_user (user_id),
     CONSTRAINT fk_cards_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-    COMMENT='회원 등록 결제수단 (빌링키 기반)';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+  COMMENT='회원 등록 결제수단 (빌링키 기반)';
 
 CREATE TABLE IF NOT EXISTS user_oauth_accounts (
-                                                   id                  BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-                                                   user_id             BIGINT UNSIGNED NOT NULL,
+    id                  BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    user_id             BIGINT UNSIGNED NOT NULL,
 
-                                                   provider            ENUM('GOOGLE','KAKAO','NAVER') NOT NULL,
+    provider            ENUM('GOOGLE','KAKAO','NAVER') NOT NULL,
     provider_user_id    VARCHAR(255)    NOT NULL COMMENT '소셜 서비스가 발급한 고유 사용자 ID',
     access_token        VARCHAR(1000)   NULL,
     refresh_token       VARCHAR(1000)   NULL,
     linked_at           DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     UNIQUE KEY uk_oauth_provider_user (provider, provider_user_id)
-    COMMENT '같은 소셜 계정으로 중복 가입 방지',
+        COMMENT '같은 소셜 계정으로 중복 가입 방지',
     KEY idx_oauth_user (user_id),
     CONSTRAINT fk_oauth_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-    COMMENT='소셜 로그인 연동 정보';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+  COMMENT='소셜 로그인 연동 정보';
 
 CREATE TABLE IF NOT EXISTS email_verifications (
-                                                   id              BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-                                                   email           VARCHAR(255)    NOT NULL,
+    id              BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    email           VARCHAR(255)    NOT NULL,
     code            VARCHAR(10)     NOT NULL COMMENT '6자리 인증번호 등',
     purpose         ENUM('SIGNUP','FIND_PASSWORD') NOT NULL DEFAULT 'SIGNUP',
 
@@ -112,12 +112,12 @@ CREATE TABLE IF NOT EXISTS email_verifications (
     created_at      DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     KEY idx_email_verif_email (email)
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-    COMMENT='이메일 인증 코드 발급/검증 이력';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+  COMMENT='이메일 인증 코드 발급/검증 이력';
 
 CREATE TABLE IF NOT EXISTS phone_verifications (
-                                                   id              BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-                                                   phone           VARCHAR(20)     NOT NULL,
+    id              BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    phone           VARCHAR(20)     NOT NULL,
     code            VARCHAR(10)     NOT NULL,
 
     expires_at      DATETIME        NOT NULL,
@@ -125,13 +125,13 @@ CREATE TABLE IF NOT EXISTS phone_verifications (
     created_at      DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     KEY idx_phone_verif_phone (phone)
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-    COMMENT='휴대폰 인증 코드 발급/검증 이력';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+  COMMENT='휴대폰 인증 코드 발급/검증 이력';
 
 CREATE TABLE IF NOT EXISTS password_reset_tokens (
-                                                     id              BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-                                                     user_id         BIGINT UNSIGNED NOT NULL,
-                                                     token           CHAR(64)        NOT NULL COMMENT '재설정 링크에 들어가는 1회용 토큰',
+    id              BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    user_id         BIGINT UNSIGNED NOT NULL,
+    token           CHAR(64)        NOT NULL COMMENT '재설정 링크에 들어가는 1회용 토큰',
 
     expires_at      DATETIME        NOT NULL,
     used_at         DATETIME        NULL,
@@ -140,13 +140,13 @@ CREATE TABLE IF NOT EXISTS password_reset_tokens (
     UNIQUE KEY uk_reset_token (token),
     KEY idx_reset_user (user_id),
     CONSTRAINT fk_reset_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-    COMMENT='비밀번호 재설정 토큰';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+  COMMENT='비밀번호 재설정 토큰';
 
 CREATE TABLE IF NOT EXISTS refresh_tokens (
-                                              id              BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-                                              user_id         BIGINT UNSIGNED NOT NULL,
-                                              token           VARCHAR(500)    NOT NULL,
+    id              BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    user_id         BIGINT UNSIGNED NOT NULL,
+    token           VARCHAR(500)    NOT NULL,
 
     user_agent      VARCHAR(255)    NULL COMMENT '기기/브라우저 식별용 (다중 기기 로그아웃 대비)',
     ip_address      VARCHAR(45)     NULL,
@@ -157,14 +157,14 @@ CREATE TABLE IF NOT EXISTS refresh_tokens (
 
     KEY idx_refresh_user (user_id),
     CONSTRAINT fk_refresh_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-    COMMENT='JWT Refresh Token / 로그인 세션';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+  COMMENT='JWT Refresh Token / 로그인 세션';
 
 CREATE TABLE IF NOT EXISTS login_history (
-                                             id              BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-                                             user_id         BIGINT UNSIGNED NOT NULL,
+    id              BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    user_id         BIGINT UNSIGNED NOT NULL,
 
-                                             login_type      ENUM('EMAIL','GOOGLE','KAKAO','NAVER') NOT NULL,
+    login_type      ENUM('EMAIL','GOOGLE','KAKAO','NAVER') NOT NULL,
     ip_address      VARCHAR(45)     NULL,
     user_agent      VARCHAR(255)    NULL,
     success         TINYINT(1)      NOT NULL DEFAULT 1,
@@ -173,8 +173,8 @@ CREATE TABLE IF NOT EXISTS login_history (
 
     KEY idx_login_history_user (user_id),
     CONSTRAINT fk_login_history_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-    COMMENT='로그인 시도 이력';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+  COMMENT='로그인 시도 이력';
 
 
 -- ────────────────────────────────────────────────────────────────
@@ -182,9 +182,9 @@ CREATE TABLE IF NOT EXISTS login_history (
 -- ────────────────────────────────────────────────────────────────
 
 CREATE TABLE IF NOT EXISTS city (
-                                    id              BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    id              BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
 
-                                    name_ko         VARCHAR(100)    NOT NULL COMMENT '도시명 (한글, 예: 도쿄)',
+    name_ko         VARCHAR(100)    NOT NULL COMMENT '도시명 (한글, 예: 도쿄)',
     name_en         VARCHAR(100)    NOT NULL COMMENT '도시명 (영문, 예: Tokyo) — 외부 날씨 API 호출용',
     country_code    VARCHAR(2)      NOT NULL COMMENT 'ISO 3166-1 alpha-2, 예: JP',
     country_name    VARCHAR(50)     NOT NULL COMMENT '국가명 (예: 일본)',
@@ -202,8 +202,8 @@ CREATE TABLE IF NOT EXISTS city (
 
     UNIQUE KEY uk_city_name_ko (name_ko),
     KEY idx_city_popular (is_popular, is_active)
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-    COMMENT='도시 마스터 (목적지 자동완성/날씨 연동)';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+  COMMENT='도시 마스터 (목적지 자동완성/날씨 연동)';
 
 
 -- ────────────────────────────────────────────────────────────────
@@ -211,9 +211,9 @@ CREATE TABLE IF NOT EXISTS city (
 -- ────────────────────────────────────────────────────────────────
 
 CREATE TABLE IF NOT EXISTS banner (
-                                      id              BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-                                      admin_id        BIGINT UNSIGNED NOT NULL COMMENT '등록한 관리자 (users.role=ADMIN)',
-                                      title           VARCHAR(100)    NOT NULL COMMENT '배너 제목 (관리용, 화면 미노출 가능)',
+    id              BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    admin_id        BIGINT UNSIGNED NOT NULL COMMENT '등록한 관리자 (users.role=ADMIN)',
+    title           VARCHAR(100)    NOT NULL COMMENT '배너 제목 (관리용, 화면 미노출 가능)',
     media_type      ENUM('IMAGE','VIDEO') NOT NULL DEFAULT 'IMAGE' COMMENT '배너 미디어 타입',
     image_url       VARCHAR(500)    NOT NULL COMMENT '배너 이미지/영상 경로',
     link_url        VARCHAR(500)    NULL COMMENT '클릭 시 이동할 URL',
@@ -223,39 +223,39 @@ CREATE TABLE IF NOT EXISTS banner (
     end_at          DATETIME        NULL COMMENT '노출 종료일시 (NULL이면 무기한)',
     created_at      DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at      DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP
-    ON UPDATE CURRENT_TIMESTAMP,
+                        ON UPDATE CURRENT_TIMESTAMP,
     KEY idx_banner_active_order (is_active, display_order),
     KEY idx_banner_admin (admin_id),
     CONSTRAINT fk_banner_admin FOREIGN KEY (admin_id) REFERENCES users(id) ON DELETE CASCADE
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-    COMMENT='메인페이지 배너';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+  COMMENT='메인페이지 배너';
 
 -- 이미 banner 테이블이 있는 상태로 스키마를 먼저 적용해뒀다면(위 CREATE TABLE은 IF NOT EXISTS라 컬럼이 안 생김),
 -- 아래 구문을 한 번만 직접 실행해서 media_type 컬럼을 추가해주세요.
 -- ALTER TABLE banner ADD COLUMN media_type ENUM('IMAGE','VIDEO') NOT NULL DEFAULT 'IMAGE' COMMENT '배너 미디어 타입' AFTER title;
 
 CREATE TABLE IF NOT EXISTS notice (
-                                      id              BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-                                      admin_id        BIGINT UNSIGNED NOT NULL COMMENT '작성한 관리자',
-                                      title           VARCHAR(150)    NOT NULL,
+    id              BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    admin_id        BIGINT UNSIGNED NOT NULL COMMENT '작성한 관리자',
+    title           VARCHAR(150)    NOT NULL,
     content         TEXT            NOT NULL,
     is_pinned       TINYINT(1)      NOT NULL DEFAULT 0 COMMENT '상단 고정 여부',
     is_active       TINYINT(1)      NOT NULL DEFAULT 1 COMMENT '노출 여부',
     view_count      INT UNSIGNED    NOT NULL DEFAULT 0,
     created_at      DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at      DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP
-    ON UPDATE CURRENT_TIMESTAMP,
+                        ON UPDATE CURRENT_TIMESTAMP,
     KEY idx_notice_pinned (is_pinned, created_at),
     KEY idx_notice_admin (admin_id),
     CONSTRAINT fk_notice_admin FOREIGN KEY (admin_id) REFERENCES users(id) ON DELETE CASCADE
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-    COMMENT='공지사항';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+  COMMENT='공지사항';
 
 CREATE TABLE IF NOT EXISTS monthly_destination (
-                                                   id              BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-                                                   admin_id        BIGINT UNSIGNED NOT NULL COMMENT '게시 승인한 관리자',
+    id              BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    admin_id        BIGINT UNSIGNED NOT NULL COMMENT '게시 승인한 관리자',
 
-                                                   display_month   CHAR(7)         NOT NULL COMMENT '노출 연월, 예: 2026-07',
+    display_month   CHAR(7)         NOT NULL COMMENT '노출 연월, 예: 2026-07',
     destination_name VARCHAR(100)   NOT NULL,
     title           VARCHAR(150)    NOT NULL COMMENT '카드에 노출될 제목/캐치프레이즈',
     description     VARCHAR(500)    NULL,
@@ -263,25 +263,25 @@ CREATE TABLE IF NOT EXISTS monthly_destination (
     link_url        VARCHAR(500)    NULL COMMENT '클릭 시 이동 경로 (예: 해당 목적지로 일정 생성 유도)',
 
     source_type     ENUM('MANUAL','AI') NOT NULL DEFAULT 'MANUAL'
-    COMMENT '관리자 수동 큐레이션 vs AI 추천 배치 결과',
+                        COMMENT '관리자 수동 큐레이션 vs AI 추천 배치 결과',
     display_order   INT UNSIGNED    NOT NULL DEFAULT 0,
     is_active       TINYINT(1)      NOT NULL DEFAULT 1,
 
     created_at      DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at      DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP
-    ON UPDATE CURRENT_TIMESTAMP,
+                        ON UPDATE CURRENT_TIMESTAMP,
 
     KEY idx_monthly_dest_month (display_month, is_active, display_order),
     KEY idx_monthly_dest_admin (admin_id),
     CONSTRAINT fk_monthly_dest_admin FOREIGN KEY (admin_id) REFERENCES users(id) ON DELETE CASCADE
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-    COMMENT='이달의 추천 여행지';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+  COMMENT='이달의 추천 여행지';
 
 CREATE TABLE IF NOT EXISTS main_background (
-                                               id              BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-                                               admin_id        BIGINT UNSIGNED NOT NULL,
+    id              BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    admin_id        BIGINT UNSIGNED NOT NULL,
 
-                                               media_type      ENUM('IMAGE','VIDEO') NOT NULL DEFAULT 'IMAGE',
+    media_type      ENUM('IMAGE','VIDEO') NOT NULL DEFAULT 'IMAGE',
     media_url       VARCHAR(500)    NOT NULL,
 
     is_active       TINYINT(1)      NOT NULL DEFAULT 1 COMMENT '현재 노출 여부 (동시에 1개만 true 권장, 앱 로직에서 관리)',
@@ -290,13 +290,13 @@ CREATE TABLE IF NOT EXISTS main_background (
 
     created_at      DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at      DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP
-    ON UPDATE CURRENT_TIMESTAMP,
+                        ON UPDATE CURRENT_TIMESTAMP,
 
     KEY idx_main_bg_active (is_active),
     KEY idx_main_bg_admin (admin_id),
     CONSTRAINT fk_main_bg_admin FOREIGN KEY (admin_id) REFERENCES users(id) ON DELETE CASCADE
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-    COMMENT='메인페이지 배경 이미지/영상';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+  COMMENT='메인페이지 배경 이미지/영상';
 
 
 -- ────────────────────────────────────────────────────────────────
@@ -306,10 +306,10 @@ CREATE TABLE IF NOT EXISTS main_background (
 -- ────────────────────────────────────────────────────────────────
 
 CREATE TABLE IF NOT EXISTS trip_requests (
-                                             id              BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-                                             user_id         BIGINT UNSIGNED NOT NULL COMMENT '요청한 사용자',
+    id              BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    user_id         BIGINT UNSIGNED NOT NULL COMMENT '요청한 사용자',
 
-                                             companion_type  VARCHAR(20)     NOT NULL COMMENT '누구랑 가는지(연인/친구/가족/혼자/기타)',
+    companion_type  VARCHAR(20)     NOT NULL COMMENT '누구랑 가는지(연인/친구/가족/혼자/기타)',
     start_date      DATE            NOT NULL,
     end_date        DATE            NOT NULL,
     destination     VARCHAR(50)     NOT NULL,
@@ -321,42 +321,42 @@ CREATE TABLE IF NOT EXISTS trip_requests (
 
     KEY idx_trip_requests_user (user_id),
     CONSTRAINT fk_trip_requests_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-    COMMENT='여행 조건 요청 (AI 추천의 시작점)';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+  COMMENT='여행 조건 요청 (AI 추천의 시작점)';
 
 CREATE TABLE IF NOT EXISTS recommendations (
-                                               id              BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-                                               request_id      BIGINT UNSIGNED NOT NULL,
+    id              BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    request_id      BIGINT UNSIGNED NOT NULL,
 
-                                               ai_text         TEXT            NULL COMMENT 'AI가 생성한 일정 요약/설명',
-                                               display_order   INT UNSIGNED    NOT NULL DEFAULT 0,
-                                               is_sel          TINYINT(1)      NOT NULL DEFAULT 0 COMMENT '사용자가 최종 선택한 후보인지',
+    ai_text         TEXT            NULL COMMENT 'AI가 생성한 일정 요약/설명',
+    display_order   INT UNSIGNED    NOT NULL DEFAULT 0,
+    is_sel          TINYINT(1)      NOT NULL DEFAULT 0 COMMENT '사용자가 최종 선택한 후보인지',
 
     created_date    DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     KEY idx_reco_request (request_id),
     CONSTRAINT fk_reco_request FOREIGN KEY (request_id) REFERENCES trip_requests(id) ON DELETE CASCADE
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-    COMMENT='AI 추천 결과(일정안) 후보';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+  COMMENT='AI 추천 결과(일정안) 후보';
 
 CREATE TABLE IF NOT EXISTS days (
-                                    id                  BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-                                    recommendation_id   BIGINT UNSIGNED NOT NULL,
+    id                  BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    recommendation_id   BIGINT UNSIGNED NOT NULL,
 
-                                    day_number         INT UNSIGNED    NOT NULL COMMENT '몇 일차 (1,2,3...)',
-                                    day_date           DATE            NOT NULL,
+    day_number         INT UNSIGNED    NOT NULL COMMENT '몇 일차 (1,2,3...)',
+    day_date           DATE            NOT NULL,
 
-                                    KEY idx_days_reco (recommendation_id),
+    KEY idx_days_reco (recommendation_id),
     CONSTRAINT fk_days_reco FOREIGN KEY (recommendation_id) REFERENCES recommendations(id) ON DELETE CASCADE
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-    COMMENT='추천안의 일자';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+  COMMENT='추천안의 일자';
 
 CREATE TABLE IF NOT EXISTS days_item (
-                                         id              BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-                                         day_id          BIGINT UNSIGNED NOT NULL,
+    id              BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    day_id          BIGINT UNSIGNED NOT NULL,
 
-                                         visit_order     INT UNSIGNED    NOT NULL COMMENT '하루 중 방문 순서 (order는 예약어라 변경)',
-                                         place_name      VARCHAR(100)    NOT NULL,
+    visit_order     INT UNSIGNED    NOT NULL COMMENT '하루 중 방문 순서 (order는 예약어라 변경)',
+    place_name      VARCHAR(100)    NOT NULL,
     category        VARCHAR(20)     NULL,
     description     TEXT            NULL COMMENT 'AI가 생성한 장소 설명/추천 이유',
     lat             DECIMAL(10,7)   NULL,
@@ -364,13 +364,13 @@ CREATE TABLE IF NOT EXISTS days_item (
 
     KEY idx_days_item_day (day_id),
     CONSTRAINT fk_days_item_day FOREIGN KEY (day_id) REFERENCES days(id) ON DELETE CASCADE
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-    COMMENT='일자별 세부 방문 항목';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+  COMMENT='일자별 세부 방문 항목';
 
 CREATE TABLE IF NOT EXISTS flights (
-                                       id                      BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    id                      BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
 
-                                       api_provider            VARCHAR(30)     NULL COMMENT '실시간 가격조회 API 제공사',
+    api_provider            VARCHAR(30)     NULL COMMENT '실시간 가격조회 API 제공사',
     graphql_operation_name  VARCHAR(50)     NULL,
     airline                 VARCHAR(50)     NULL,
     departure_code          VARCHAR(10)     NULL,
@@ -384,15 +384,15 @@ CREATE TABLE IF NOT EXISTS flights (
     api_response_id         VARCHAR(100)    NULL,
     fetched_at              DATETIME        NULL,
     expires_at              DATETIME        NULL COMMENT '캐시 만료 시각'
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-    COMMENT='항공권 API 캐시';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+  COMMENT='항공권 API 캐시';
 
 CREATE TABLE IF NOT EXISTS flights_options (
-                                               id                  BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-                                               recommendation_id   BIGINT UNSIGNED NOT NULL,
-                                               flight_id           BIGINT UNSIGNED NULL COMMENT 'API 캐시 참조 (직접입력이면 NULL)',
+    id                  BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    recommendation_id   BIGINT UNSIGNED NOT NULL,
+    flight_id           BIGINT UNSIGNED NULL COMMENT 'API 캐시 참조 (직접입력이면 NULL)',
 
-                                               source_type         VARCHAR(20)     NOT NULL COMMENT 'API/MANUAL 등 옵션 생성 방식',
+    source_type         VARCHAR(20)     NOT NULL COMMENT 'API/MANUAL 등 옵션 생성 방식',
     enter_airline       VARCHAR(50)     NULL COMMENT '직접입력 - 항공사명',
     enter_schedule      VARCHAR(100)    NULL COMMENT '직접입력 - 출도착 일정 텍스트',
     display_order       INT UNSIGNED    NOT NULL DEFAULT 0,
@@ -404,13 +404,13 @@ CREATE TABLE IF NOT EXISTS flights_options (
     KEY idx_flight_opt_flight (flight_id),
     CONSTRAINT fk_flight_opt_reco FOREIGN KEY (recommendation_id) REFERENCES recommendations(id) ON DELETE CASCADE,
     CONSTRAINT fk_flight_opt_flight FOREIGN KEY (flight_id) REFERENCES flights(id) ON DELETE SET NULL
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-    COMMENT='추천안에 포함된 항공 옵션';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+  COMMENT='추천안에 포함된 항공 옵션';
 
 CREATE TABLE IF NOT EXISTS accommodations (
-                                              id                  BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    id                  BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
 
-                                              name                VARCHAR(100)    NOT NULL,
+    name                VARCHAR(100)    NOT NULL,
     city                VARCHAR(30)     NULL,
     address             VARCHAR(150)    NULL,
     accommodation_type  VARCHAR(20)     NULL,
@@ -419,15 +419,15 @@ CREATE TABLE IF NOT EXISTS accommodations (
     image_url           VARCHAR(255)    NULL,
     description         TEXT            NULL,
     amenities           VARCHAR(255)    NULL
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-    COMMENT='숙소 정보';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+  COMMENT='숙소 정보';
 
 CREATE TABLE IF NOT EXISTS accommodations_options (
-                                                      id                  BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-                                                      recommendation_id   BIGINT UNSIGNED NOT NULL,
-                                                      accommodation_id    BIGINT UNSIGNED NULL,
+    id                  BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    recommendation_id   BIGINT UNSIGNED NOT NULL,
+    accommodation_id    BIGINT UNSIGNED NULL,
 
-                                                      source_type         VARCHAR(20)     NOT NULL,
+    source_type         VARCHAR(20)     NOT NULL,
     enter_name          VARCHAR(100)    NULL COMMENT '직접입력 - 숙소명',
     enter_address       VARCHAR(150)    NULL COMMENT '직접입력 - 주소',
     nights              INT UNSIGNED    NULL,
@@ -440,14 +440,14 @@ CREATE TABLE IF NOT EXISTS accommodations_options (
     KEY idx_acc_opt_acc (accommodation_id),
     CONSTRAINT fk_acc_opt_reco FOREIGN KEY (recommendation_id) REFERENCES recommendations(id) ON DELETE CASCADE,
     CONSTRAINT fk_acc_opt_acc FOREIGN KEY (accommodation_id) REFERENCES accommodations(id) ON DELETE SET NULL
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-    COMMENT='추천안에 포함된 숙소 옵션';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+  COMMENT='추천안에 포함된 숙소 옵션';
 
 CREATE TABLE IF NOT EXISTS trip_payments (
-                                             id                      BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-                                             request_id              BIGINT UNSIGNED NOT NULL COMMENT '결제 대상 여행 요청',
+    id                      BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    request_id              BIGINT UNSIGNED NOT NULL COMMENT '결제 대상 여행 요청',
 
-                                             payment_status          VARCHAR(20)     NOT NULL DEFAULT 'READY',
+    payment_status          VARCHAR(20)     NOT NULL DEFAULT 'READY',
     partner_order_id        VARCHAR(100)    NULL COMMENT '가맹점(우리 서비스) 주문번호',
     partner_user_id         VARCHAR(100)    NULL COMMENT '가맹점 회원 ID',
     imp_uid                 VARCHAR(100)    NULL COMMENT 'PortOne 고유 아이디',
@@ -462,14 +462,14 @@ CREATE TABLE IF NOT EXISTS trip_payments (
 
     KEY idx_trip_payments_request (request_id),
     CONSTRAINT fk_trip_payments_request FOREIGN KEY (request_id) REFERENCES trip_requests(id) ON DELETE CASCADE
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-    COMMENT='결제 (PortOne/카카오페이)';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+  COMMENT='결제 (PortOne/카카오페이)';
 
 CREATE TABLE IF NOT EXISTS trip_payment_items (
-                                                  id                  BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-                                                  payment_id          BIGINT UNSIGNED NOT NULL,
+    id                  BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    payment_id          BIGINT UNSIGNED NOT NULL,
 
-                                                  item_type           VARCHAR(20)     NOT NULL COMMENT 'FLIGHT/ACCOMMODATION 등 항목 구분',
+    item_type           VARCHAR(20)     NOT NULL COMMENT 'FLIGHT/ACCOMMODATION 등 항목 구분',
     flight_option_id    BIGINT UNSIGNED NULL,
     acc_option_id       BIGINT UNSIGNED NULL,
     amount              INT UNSIGNED    NOT NULL,
@@ -479,21 +479,21 @@ CREATE TABLE IF NOT EXISTS trip_payment_items (
     CONSTRAINT fk_pay_item_payment FOREIGN KEY (payment_id) REFERENCES trip_payments(id) ON DELETE CASCADE,
     CONSTRAINT fk_pay_item_flight_opt FOREIGN KEY (flight_option_id) REFERENCES flights_options(id) ON DELETE SET NULL,
     CONSTRAINT fk_pay_item_acc_opt FOREIGN KEY (acc_option_id) REFERENCES accommodations_options(id) ON DELETE SET NULL
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-    COMMENT='결제 상세 항목';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+  COMMENT='결제 상세 항목';
 
 -- AI 추천 배낭여행 저장분 (TripAiClient 모듈에서 사용 — 현재 병합 브랜치에서 실제로 쓰는 유일한 trip 테이블)
 CREATE TABLE IF NOT EXISTS saved_trips (
-                                           id                      BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-                                           user_id                 BIGINT UNSIGNED NOT NULL,
-                                           conditions_json         TEXT,
-                                           recommendation_json     LONGTEXT NOT NULL,
-                                           created_date            DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    id                      BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    user_id                 BIGINT UNSIGNED NOT NULL,
+    conditions_json         TEXT,
+    recommendation_json     LONGTEXT NOT NULL,
+    created_date            DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
-                                           KEY idx_saved_trips_user (user_id),
+    KEY idx_saved_trips_user (user_id),
     CONSTRAINT fk_saved_trips_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-    COMMENT='AI 추천 여행 저장 이력';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+  COMMENT='AI 추천 여행 저장 이력';
 
 
 -- ────────────────────────────────────────────────────────────────
@@ -501,11 +501,11 @@ CREATE TABLE IF NOT EXISTS saved_trips (
 -- ────────────────────────────────────────────────────────────────
 
 CREATE TABLE IF NOT EXISTS travel_log (
-                                          id              BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-                                          user_id         BIGINT UNSIGNED NOT NULL,
-                                          request_id      BIGINT UNSIGNED NULL COMMENT '연관 여행 요청 (선택)',
+    id              BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    user_id         BIGINT UNSIGNED NOT NULL,
+    request_id      BIGINT UNSIGNED NULL COMMENT '연관 여행 요청 (선택)',
 
-                                          title           VARCHAR(100)    NOT NULL,
+    title           VARCHAR(100)    NOT NULL,
     memo            TEXT            NULL,
 
     created_at      DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -514,36 +514,36 @@ CREATE TABLE IF NOT EXISTS travel_log (
     KEY idx_travel_log_request (request_id),
     CONSTRAINT fk_travel_log_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
     CONSTRAINT fk_travel_log_request FOREIGN KEY (request_id) REFERENCES trip_requests(id) ON DELETE SET NULL
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-    COMMENT='여행일지';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+  COMMENT='여행일지';
 
 CREATE TABLE IF NOT EXISTS log_photo (
-                                         id              BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-                                         log_id          BIGINT UNSIGNED NOT NULL,
+    id              BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    log_id          BIGINT UNSIGNED NOT NULL,
 
-                                         image_url       VARCHAR(255)    NOT NULL,
+    image_url       VARCHAR(255)    NOT NULL,
     latitude        DECIMAL(10,7)   NULL,
     longitude       DECIMAL(10,7)   NULL,
     taken_at        DATETIME        NULL,
 
     KEY idx_log_photo_log (log_id),
     CONSTRAINT fk_log_photo_log FOREIGN KEY (log_id) REFERENCES travel_log(id) ON DELETE CASCADE
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-    COMMENT='여행일지 사진';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+  COMMENT='여행일지 사진';
 
 CREATE TABLE IF NOT EXISTS receipt (
-                                       id              BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-                                       log_id          BIGINT UNSIGNED NOT NULL,
+    id              BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    log_id          BIGINT UNSIGNED NOT NULL,
 
-                                       image_url       VARCHAR(255)    NOT NULL,
+    image_url       VARCHAR(255)    NOT NULL,
     store_name      VARCHAR(100)    NULL,
     amount          DECIMAL(10,2)   NULL,
     purchased_at    DATETIME        NULL,
 
     KEY idx_receipt_log (log_id),
     CONSTRAINT fk_receipt_log FOREIGN KEY (log_id) REFERENCES travel_log(id) ON DELETE CASCADE
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-    COMMENT='영수증 (OCR 인식)';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+  COMMENT='영수증 (OCR 인식)';
 
 
 -- ────────────────────────────────────────────────────────────────
@@ -553,10 +553,10 @@ CREATE TABLE IF NOT EXISTS receipt (
 -- ────────────────────────────────────────────────────────────────
 
 CREATE TABLE IF NOT EXISTS board_post (
-                                          id              BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-                                          user_id         BIGINT UNSIGNED NOT NULL,
+    id              BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    user_id         BIGINT UNSIGNED NOT NULL,
 
-                                          category        VARCHAR(20)     NOT NULL COMMENT '예약양도/자유/후기',
+    category        VARCHAR(20)     NOT NULL COMMENT '예약양도/자유/후기',
     title           VARCHAR(150)    NOT NULL,
     content         TEXT            NOT NULL,
     price           DECIMAL(10,2)   NULL COMMENT '양도가 (예약양도 전용)',
@@ -569,42 +569,42 @@ CREATE TABLE IF NOT EXISTS board_post (
     KEY idx_board_post_user (user_id),
     KEY idx_board_post_category (category),
     CONSTRAINT fk_board_post_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-    COMMENT='게시글';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+  COMMENT='게시글';
 
 CREATE TABLE IF NOT EXISTS board_image (
-                                           id              BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-                                           post_id         BIGINT UNSIGNED NOT NULL,
+    id              BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    post_id         BIGINT UNSIGNED NOT NULL,
 
-                                           image_url       VARCHAR(255)    NOT NULL,
+    image_url       VARCHAR(255)    NOT NULL,
     order_no        INT UNSIGNED    NOT NULL DEFAULT 0,
 
     KEY idx_board_image_post (post_id),
     CONSTRAINT fk_board_image_post FOREIGN KEY (post_id) REFERENCES board_post(id) ON DELETE CASCADE
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-    COMMENT='게시글 이미지';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+  COMMENT='게시글 이미지';
 
 CREATE TABLE IF NOT EXISTS board_like (
-                                          id              BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-                                          post_id         BIGINT UNSIGNED NOT NULL,
-                                          user_id         BIGINT UNSIGNED NOT NULL,
+    id              BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    post_id         BIGINT UNSIGNED NOT NULL,
+    user_id         BIGINT UNSIGNED NOT NULL,
 
-                                          created_at      DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    created_at      DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
-                                          UNIQUE KEY uk_board_like (post_id, user_id) COMMENT '중복 좋아요 방지',
+    UNIQUE KEY uk_board_like (post_id, user_id) COMMENT '중복 좋아요 방지',
     KEY idx_board_like_user (user_id),
     CONSTRAINT fk_board_like_post FOREIGN KEY (post_id) REFERENCES board_post(id) ON DELETE CASCADE,
     CONSTRAINT fk_board_like_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-    COMMENT='게시글 좋아요';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+  COMMENT='게시글 좋아요';
 
 CREATE TABLE IF NOT EXISTS board_comment (
-                                             id                  BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-                                             post_id             BIGINT UNSIGNED NOT NULL,
-                                             user_id             BIGINT UNSIGNED NOT NULL,
-                                             parent_comment_id   BIGINT UNSIGNED NULL COMMENT '답글 대상 댓글 (NULL=최상위 댓글)',
+    id                  BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    post_id             BIGINT UNSIGNED NOT NULL,
+    user_id             BIGINT UNSIGNED NOT NULL,
+    parent_comment_id   BIGINT UNSIGNED NULL COMMENT '답글 대상 댓글 (NULL=최상위 댓글)',
 
-                                             content             VARCHAR(500)    NOT NULL,
+    content             VARCHAR(500)    NOT NULL,
     created_at          DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     KEY idx_board_comment_post (post_id),
@@ -613,14 +613,14 @@ CREATE TABLE IF NOT EXISTS board_comment (
     CONSTRAINT fk_board_comment_post FOREIGN KEY (post_id) REFERENCES board_post(id) ON DELETE CASCADE,
     CONSTRAINT fk_board_comment_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
     CONSTRAINT fk_board_comment_parent FOREIGN KEY (parent_comment_id) REFERENCES board_comment(id) ON DELETE CASCADE
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-    COMMENT='게시글 댓글 (대댓글 지원)';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+  COMMENT='게시글 댓글 (대댓글 지원)';
 
 CREATE TABLE IF NOT EXISTS report (
-                                      id              BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-                                      reporter_id     BIGINT UNSIGNED NOT NULL,
+    id              BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    reporter_id     BIGINT UNSIGNED NOT NULL,
 
-                                      target_type     VARCHAR(20)     NOT NULL COMMENT 'POST/COMMENT/USER',
+    target_type     VARCHAR(20)     NOT NULL COMMENT 'POST/COMMENT/USER',
     target_id       BIGINT UNSIGNED NOT NULL,
     reason          VARCHAR(255)    NOT NULL,
     status          VARCHAR(20)     NOT NULL DEFAULT 'PENDING',
@@ -630,8 +630,8 @@ CREATE TABLE IF NOT EXISTS report (
     KEY idx_report_reporter (reporter_id),
     KEY idx_report_target (target_type, target_id),
     CONSTRAINT fk_report_reporter FOREIGN KEY (reporter_id) REFERENCES users(id) ON DELETE CASCADE
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-    COMMENT='신고';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+  COMMENT='신고';
 
 
 -- ────────────────────────────────────────────────────────────────
@@ -641,11 +641,11 @@ CREATE TABLE IF NOT EXISTS report (
 -- ────────────────────────────────────────────────────────────────
 
 CREATE TABLE IF NOT EXISTS mate_post (
-                                         id              BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-                                         user_id         BIGINT UNSIGNED NOT NULL,
-                                         city_id         BIGINT UNSIGNED NULL COMMENT '선택된 도시 (자동완성)',
+    id              BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    user_id         BIGINT UNSIGNED NOT NULL,
+    city_id         BIGINT UNSIGNED NULL COMMENT '선택된 도시 (자동완성)',
 
-                                         destination     VARCHAR(100)    NOT NULL,
+    destination     VARCHAR(100)    NOT NULL,
     start_date      DATE            NOT NULL,
     end_date        DATE            NOT NULL,
     content         TEXT            NOT NULL,
@@ -661,15 +661,15 @@ CREATE TABLE IF NOT EXISTS mate_post (
     KEY idx_mate_post_city (city_id),
     CONSTRAINT fk_mate_post_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
     CONSTRAINT fk_mate_post_city FOREIGN KEY (city_id) REFERENCES city(id) ON DELETE SET NULL
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-    COMMENT='메이트 모집글';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+  COMMENT='메이트 모집글';
 
 CREATE TABLE IF NOT EXISTS mate_request (
-                                            id              BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-                                            mate_post_id    BIGINT UNSIGNED NOT NULL,
-                                            requester_id    BIGINT UNSIGNED NOT NULL,
+    id              BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    mate_post_id    BIGINT UNSIGNED NOT NULL,
+    requester_id    BIGINT UNSIGNED NOT NULL,
 
-                                            status          VARCHAR(20)     NOT NULL DEFAULT 'REQUESTED',
+    status          VARCHAR(20)     NOT NULL DEFAULT 'REQUESTED',
 
     created_at      DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
@@ -677,17 +677,17 @@ CREATE TABLE IF NOT EXISTS mate_request (
     KEY idx_mate_request_requester (requester_id),
     CONSTRAINT fk_mate_request_post FOREIGN KEY (mate_post_id) REFERENCES mate_post(id) ON DELETE CASCADE,
     CONSTRAINT fk_mate_request_requester FOREIGN KEY (requester_id) REFERENCES users(id) ON DELETE CASCADE
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-    COMMENT='메이트 매칭 요청';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+  COMMENT='메이트 매칭 요청';
 
 CREATE TABLE IF NOT EXISTS mate_review (
-                                           id              BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-                                           mate_post_id    BIGINT UNSIGNED NOT NULL,
-                                           reviewer_id     BIGINT UNSIGNED NOT NULL,
-                                           reviewee_id     BIGINT UNSIGNED NOT NULL,
+    id              BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    mate_post_id    BIGINT UNSIGNED NOT NULL,
+    reviewer_id     BIGINT UNSIGNED NOT NULL,
+    reviewee_id     BIGINT UNSIGNED NOT NULL,
 
-                                           rating          TINYINT UNSIGNED NOT NULL COMMENT '1~5',
-                                           content         VARCHAR(500)    NULL,
+    rating          TINYINT UNSIGNED NOT NULL COMMENT '1~5',
+    content         VARCHAR(500)    NULL,
 
     created_at      DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
@@ -697,31 +697,31 @@ CREATE TABLE IF NOT EXISTS mate_review (
     CONSTRAINT fk_mate_review_reviewer FOREIGN KEY (reviewer_id) REFERENCES users(id) ON DELETE CASCADE,
     CONSTRAINT fk_mate_review_reviewee FOREIGN KEY (reviewee_id) REFERENCES users(id) ON DELETE CASCADE,
     CONSTRAINT chk_mate_review_rating CHECK (rating BETWEEN 1 AND 5)
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-    COMMENT='메이트 후기';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+  COMMENT='메이트 후기';
 
 CREATE TABLE IF NOT EXISTS mate_schedule_link (
-                                                  id              BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-                                                  mate_post_id    BIGINT UNSIGNED NOT NULL,
-                                                  request_id      BIGINT UNSIGNED NOT NULL COMMENT '공유되는 여행 요청 (구 schedule_id)',
+    id              BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    mate_post_id    BIGINT UNSIGNED NOT NULL,
+    request_id      BIGINT UNSIGNED NOT NULL COMMENT '공유되는 여행 요청 (구 schedule_id)',
 
-                                                  linked_at       DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    linked_at       DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
-                                                  KEY idx_mate_link_post (mate_post_id),
+    KEY idx_mate_link_post (mate_post_id),
     KEY idx_mate_link_request (request_id),
     CONSTRAINT fk_mate_link_post FOREIGN KEY (mate_post_id) REFERENCES mate_post(id) ON DELETE CASCADE,
     CONSTRAINT fk_mate_link_request FOREIGN KEY (request_id) REFERENCES trip_requests(id) ON DELETE CASCADE
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-    COMMENT='메이트 모집글 - 개인 일정 공유 연결';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+  COMMENT='메이트 모집글 - 개인 일정 공유 연결';
 
 -- 여행 요청(trip_requests)에 종속되는 체크리스트 (main.checklist_item — 현재 병합 브랜치의
 -- ChecklistItem 엔티티가 실제로 사용하는 테이블. request_id는 JPA 연관관계가 아닌 Long 컬럼이라
 -- trip_requests가 비어있어도 앱 실행/컴파일에는 문제 없습니다)
 CREATE TABLE IF NOT EXISTS checklist_item (
-                                              id              BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-                                              request_id      BIGINT UNSIGNED NOT NULL,
+    id              BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    request_id      BIGINT UNSIGNED NOT NULL,
 
-                                              content         VARCHAR(150)    NOT NULL COMMENT '예: 여권 유효기간 확인, 로밍/유심 준비',
+    content         VARCHAR(150)    NOT NULL COMMENT '예: 여권 유효기간 확인, 로밍/유심 준비',
     category        VARCHAR(30)     NULL COMMENT '예: 서류/짐/예약/기타 (필터/그룹핑용)',
     is_checked      TINYINT(1)      NOT NULL DEFAULT 0,
     display_order   INT UNSIGNED    NOT NULL DEFAULT 0,
@@ -731,8 +731,8 @@ CREATE TABLE IF NOT EXISTS checklist_item (
 
     KEY idx_checklist_request (request_id, display_order),
     CONSTRAINT fk_checklist_request FOREIGN KEY (request_id) REFERENCES trip_requests(id) ON DELETE CASCADE
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-    COMMENT='여행자 준비 체크리스트 (일정별)';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+  COMMENT='여행자 준비 체크리스트 (일정별)';
 
 
 -- ────────────────────────────────────────────────────────────────
@@ -740,37 +740,37 @@ CREATE TABLE IF NOT EXISTS checklist_item (
 -- ────────────────────────────────────────────────────────────────
 
 CREATE TABLE IF NOT EXISTS chat_room (
-                                         id              BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-                                         mate_post_id    BIGINT UNSIGNED NOT NULL,
+    id              BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    mate_post_id    BIGINT UNSIGNED NOT NULL,
 
-                                         created_at      DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    created_at      DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
-                                         KEY idx_chat_room_mate_post (mate_post_id),
+    KEY idx_chat_room_mate_post (mate_post_id),
     CONSTRAINT fk_chat_room_mate_post FOREIGN KEY (mate_post_id) REFERENCES mate_post(id) ON DELETE CASCADE
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-    COMMENT='채팅방';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+  COMMENT='채팅방';
 
 CREATE TABLE IF NOT EXISTS chat_room_member (
-                                                id              BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-                                                room_id         BIGINT UNSIGNED NOT NULL,
-                                                user_id         BIGINT UNSIGNED NOT NULL,
+    id              BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    room_id         BIGINT UNSIGNED NOT NULL,
+    user_id         BIGINT UNSIGNED NOT NULL,
 
-                                                last_read_at    DATETIME        NULL,
-                                                joined_at       DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    last_read_at    DATETIME        NULL,
+    joined_at       DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
-                                                UNIQUE KEY uk_chat_room_member (room_id, user_id),
+    UNIQUE KEY uk_chat_room_member (room_id, user_id),
     KEY idx_chat_room_member_user (user_id),
     CONSTRAINT fk_chat_room_member_room FOREIGN KEY (room_id) REFERENCES chat_room(id) ON DELETE CASCADE,
     CONSTRAINT fk_chat_room_member_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-    COMMENT='채팅방 참여자 (안읽은 메시지 계산용 last_read_at 포함)';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+  COMMENT='채팅방 참여자 (안읽은 메시지 계산용 last_read_at 포함)';
 
 CREATE TABLE IF NOT EXISTS chat_message (
-                                            id              BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-                                            room_id         BIGINT UNSIGNED NOT NULL,
-                                            sender_id       BIGINT UNSIGNED NOT NULL,
+    id              BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    room_id         BIGINT UNSIGNED NOT NULL,
+    sender_id       BIGINT UNSIGNED NOT NULL,
 
-                                            content         VARCHAR(1000)   NOT NULL COMMENT '메시지 내용 (이미지면 URL)',
+    content         VARCHAR(1000)   NOT NULL COMMENT '메시지 내용 (이미지면 URL)',
     message_type    VARCHAR(10)     NOT NULL DEFAULT 'TEXT' COMMENT 'TEXT/IMAGE/SYSTEM',
     sent_at         DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
@@ -778,8 +778,8 @@ CREATE TABLE IF NOT EXISTS chat_message (
     KEY idx_chat_message_sender (sender_id),
     CONSTRAINT fk_chat_message_room FOREIGN KEY (room_id) REFERENCES chat_room(id) ON DELETE CASCADE,
     CONSTRAINT fk_chat_message_sender FOREIGN KEY (sender_id) REFERENCES users(id) ON DELETE CASCADE
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-    COMMENT='채팅 메시지';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+  COMMENT='채팅 메시지';
 
 
 -- ────────────────────────────────────────────────────────────────
@@ -787,25 +787,25 @@ CREATE TABLE IF NOT EXISTS chat_message (
 -- ────────────────────────────────────────────────────────────────
 
 CREATE TABLE IF NOT EXISTS `block` (
-                                       id                  BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-                                       user_id             BIGINT UNSIGNED NOT NULL,
-                                       blocked_user_id     BIGINT UNSIGNED NOT NULL,
+    id                  BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    user_id             BIGINT UNSIGNED NOT NULL,
+    blocked_user_id     BIGINT UNSIGNED NOT NULL,
 
-                                       created_at          DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    created_at          DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
-                                       UNIQUE KEY uk_block_pair (user_id, blocked_user_id),
+    UNIQUE KEY uk_block_pair (user_id, blocked_user_id),
     KEY idx_block_blocked_user (blocked_user_id),
     CONSTRAINT fk_block_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
     CONSTRAINT fk_block_blocked_user FOREIGN KEY (blocked_user_id) REFERENCES users(id) ON DELETE CASCADE,
     CONSTRAINT chk_block_not_self CHECK (user_id <> blocked_user_id)
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-    COMMENT='사용자 차단';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+  COMMENT='사용자 차단';
 
 CREATE TABLE IF NOT EXISTS notification (
-                                            id              BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-                                            user_id         BIGINT UNSIGNED NOT NULL,
+    id              BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    user_id         BIGINT UNSIGNED NOT NULL,
 
-                                            type            VARCHAR(30)     NOT NULL COMMENT '댓글/좋아요/매칭요청/채팅 등',
+    type            VARCHAR(30)     NOT NULL COMMENT '댓글/좋아요/매칭요청/채팅 등',
     target_type     VARCHAR(20)     NULL COMMENT '클릭 시 이동 대상 타입(POST/COMMENT/CHAT_ROOM/MATE_REQUEST)',
     target_id       BIGINT UNSIGNED NULL COMMENT '클릭 시 이동 대상 ID',
     content         VARCHAR(255)    NOT NULL,
@@ -816,8 +816,8 @@ CREATE TABLE IF NOT EXISTS notification (
     KEY idx_notification_user (user_id),
     KEY idx_notification_user_read (user_id, is_read)
     -- target_type에 따라 대상 테이블이 달라지는 폴리모픽 구조라 FK는 걸지 않음
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-    COMMENT='알림';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+  COMMENT='알림';
 
 
 -- ────────────────────────────────────────────────────────────────
@@ -825,15 +825,15 @@ CREATE TABLE IF NOT EXISTS notification (
 -- ────────────────────────────────────────────────────────────────
 
 CREATE TABLE IF NOT EXISTS badge (
-                                     id                  BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    id                  BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
 
-                                     code                VARCHAR(50)     NOT NULL COMMENT '내부 식별 코드, 예: FIRST_PAYMENT',
+    code                VARCHAR(50)     NOT NULL COMMENT '내부 식별 코드, 예: FIRST_PAYMENT',
     name                VARCHAR(50)     NOT NULL COMMENT '뱃지 이름, 예: 첫 결제 완료',
     description         VARCHAR(255)    NOT NULL,
     icon_url            VARCHAR(500)    NOT NULL,
 
     condition_type      ENUM('PAYMENT_COUNT','TRIP_COUNT','REVIEW_COUNT','LOG_COUNT','COUNTRY_COUNT','COUNTRY_VISIT','LEVEL_REACHED','MANUAL')
-    NOT NULL COMMENT '자동 지급 조건 종류 (MANUAL=관리자 수동 지급)',
+                            NOT NULL COMMENT '자동 지급 조건 종류 (MANUAL=관리자 수동 지급)',
     condition_value     INT UNSIGNED    NULL COMMENT '조건 달성 기준치 (예: PAYMENT_COUNT=1 → 결제 1회, LEVEL_REACHED=5 → 레벨 5 달성)',
     condition_country_code VARCHAR(2)   NULL COMMENT 'condition_type=COUNTRY_VISIT일 때 대상 국가 코드 (city.country_code와 매칭, 도감용)',
 
@@ -841,24 +841,24 @@ CREATE TABLE IF NOT EXISTS badge (
     created_at          DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     UNIQUE KEY uk_badge_code (code)
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-    COMMENT='뱃지 마스터';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+  COMMENT='뱃지 마스터';
 
 CREATE TABLE IF NOT EXISTS user_badge (
-                                          id              BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-                                          user_id         BIGINT UNSIGNED NOT NULL,
-                                          badge_id        BIGINT UNSIGNED NOT NULL,
+    id              BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    user_id         BIGINT UNSIGNED NOT NULL,
+    badge_id        BIGINT UNSIGNED NOT NULL,
 
-                                          earned_at       DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                                          is_representative TINYINT(1)    NOT NULL DEFAULT 0
-    COMMENT '닉네임 옆에 대표로 노출할 뱃지 (사용자가 선택, 1개 권장)',
+    earned_at       DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    is_representative TINYINT(1)    NOT NULL DEFAULT 0
+                        COMMENT '닉네임 옆에 대표로 노출할 뱃지 (사용자가 선택, 1개 권장)',
 
     UNIQUE KEY uk_user_badge (user_id, badge_id) COMMENT '동일 뱃지 중복 획득 방지',
     KEY idx_user_badge_badge (badge_id),
     CONSTRAINT fk_user_badge_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
     CONSTRAINT fk_user_badge_badge FOREIGN KEY (badge_id) REFERENCES badge(id) ON DELETE CASCADE
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-    COMMENT='사용자 획득 뱃지';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+  COMMENT='사용자 획득 뱃지';
 
 
 SET FOREIGN_KEY_CHECKS = 1;
@@ -1129,4 +1129,3 @@ WHERE NOT EXISTS (SELECT 1 FROM badge WHERE code = 'LEVEL_10');
 -- ════════════════════════════════════════════════════════════════
 DROP TABLE IF EXISTS user_badge;
 DROP TABLE IF EXISTS badge;
-ALTER TABLE banner ADD COLUMN media_type ENUM('IMAGE','VIDEO') NOT NULL DEFAULT 'IMAGE' COMMENT '배너 미디어 타입' AFTER title;

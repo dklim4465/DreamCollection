@@ -4,53 +4,8 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="fd679e6d-7401-4ff2-9511-feac0ecf743d" name="변경" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/.gitignore" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/DreamCollection-main.iml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/LanguageServersSettings.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/compiler.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/gradle.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.vscode/launch.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/.env.example" beforeDir="false" afterPath="$PROJECT_DIR$/backend/.env.example" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/dreamCollection/admin/dto/BannerAdminRequest.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/dreamCollection/admin/dto/BannerAdminRequest.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/dreamCollection/chatbot/client/AnthropicChatClient.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/dreamCollection/chatbot/controller/ChatbotController.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/dreamCollection/chatbot/controller/ChatbotController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/dreamCollection/main/dto/BannerResponse.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/dreamCollection/main/dto/BannerResponse.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/dreamCollection/main/entity/Banner.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/dreamCollection/main/entity/Banner.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/dreamCollection/main/service/BannerService.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/dreamCollection/main/service/BannerService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/dreamCollection/user/controller/UserController.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/dreamCollection/user/controller/UserController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/dreamCollection/user/controller/UserPaymentCardController.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/dreamCollection/user/controller/UserPaymentCardController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/dreamCollection/user/entity/User.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/dreamCollection/user/entity/User.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/dreamCollection/user/entity/UserPaymentCard.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/dreamCollection/user/entity/UserPaymentCard.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/dreamCollection/user/repository/LoginHistoryRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/dreamCollection/user/repository/LoginHistoryRepository.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/dreamCollection/user/repository/RefreshTokenRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/dreamCollection/user/repository/RefreshTokenRepository.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/dreamCollection/user/repository/UserPaymentCardRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/dreamCollection/user/repository/UserPaymentCardRepository.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/dreamCollection/user/service/RefreshTokenService.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/dreamCollection/user/service/RefreshTokenService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/dreamCollection/user/service/UserPaymentCardService.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/dreamCollection/user/service/UserPaymentCardService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/dreamCollection/user/service/UserService.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/dreamCollection/user/service/UserService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/resources/application.properties" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/main/resources/application.yml" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/resources/application.yml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/db/schema.sql" beforeDir="false" afterPath="$PROJECT_DIR$/db/schema.sql" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/.env.example" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/.env.example" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/.idea/.gitignore" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/.idea/frontend.iml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/.idea/misc.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/.idea/modules.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/.idea/vcs.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/App.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/App.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/admin/api/adminApi.ts" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/admin/api/adminApi.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/admin/pages/AdminBannersPage.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/admin/pages/AdminBannersPage.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/auth/api/authApi.ts" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/auth/api/authApi.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/auth/pages/LoginPage.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/auth/pages/LoginPage.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/home/api/bannerApi.ts" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/home/api/bannerApi.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/home/component/AdBannerModal.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/home/component/AdBannerModal.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/home/component/ChatbotWidget.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/home/component/ChatbotWidget.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/home/component/SiteIntro.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/home/component/SiteIntro.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/payment/api/paymentCardApi.ts" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/payment/api/paymentCardApi.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/profile/pages/ProfilePage.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/profile/pages/ProfilePage.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/vite.config.ts" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/vite.config.ts" afterDir="false" />
+    <list default="true" id="fd679e6d-7401-4ff2-9511-feac0ecf743d" name="변경" comment="홈페이지 이미지 삽입, 배너 이미지-&gt;영상으로 변경, ai 챗봇, 결제 카드 등록">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -77,22 +32,25 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
-  <component name="GitHubPullRequestSearchHistory"><![CDATA[{
-  "lastFilter": {
-    "state": "OPEN",
-    "assignee": "bokyoungjae"
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;,
+    &quot;assignee&quot;: &quot;bokyoungjae&quot;
   }
-}]]></component>
-  <component name="GithubPullRequestsUISettings"><![CDATA[{
-  "selectedUrlAndAccountId": {
-    "url": "https://github.com/dklim4465/DreamCollection.git",
-    "accountId": "b396707f-d6d2-4762-b06e-c3a69e16ac95"
+}</component>
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/dklim4465/DreamCollection.git&quot;,
+    &quot;accountId&quot;: &quot;b396707f-d6d2-4762-b06e-c3a69e16ac95&quot;
   }
-}]]></component>
-  <component name="ProjectColorInfo"><![CDATA[{
-  "associatedIndex": 2,
-  "fromUser": false
-}]]></component>
+}</component>
+  <component name="ProblemsViewState">
+    <option name="selectedTabId" value="CurrentFile" />
+  </component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 2,
+  &quot;fromUser&quot;: false
+}</component>
   <component name="ProjectId" id="3GIeVvl8S9yMTSRD7IVnMrCA6Nt" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
@@ -104,11 +62,17 @@
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.git.unshallow": "true",
     "RunOnceActivity.typescript.service.memoryLimit.init": "true",
+    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
     "codeWithMe.voiceChat.enabledByDefault": "false",
     "git-widget-placeholder": "yj에 #19개",
     "kotlin-language-version-configured": "true",
     "last_opened_file_path": "C:/Users/EZEN/Desktop/last/last2/DreamCollection",
-    "nodejs_package_manager_path": "npm"
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "ts.external.directory.path": "C:\\Users\\EZEN\\Desktop\\last\\last2\\DreamCollection\\frontend\\node_modules\\typescript\\lib"
   }
 }]]></component>
   <component name="TaskManager">
@@ -119,9 +83,38 @@
       <option name="presentableId" value="Default" />
       <updated>1783663537722</updated>
     </task>
+    <task id="LOCAL-00001" summary="홈페이지 이미지 삽입, 배너 이미지-&gt;영상으로 변경, ai 챗봇, 결제 카드 등록">
+      <option name="closed" value="true" />
+      <created>1783663674282</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1783663674282</updated>
+    </task>
+    <task id="LOCAL-00002" summary="홈페이지 이미지 삽입, 배너 이미지-&gt;영상으로 변경, ai 챗봇, 결제 카드 등록">
+      <option name="closed" value="true" />
+      <created>1783663680976</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1783663680976</updated>
+    </task>
+    <task id="LOCAL-00003" summary="홈페이지 이미지 삽입, 배너 이미지-&gt;영상으로 변경, ai 챗봇, 결제 카드 등록">
+      <option name="closed" value="true" />
+      <created>1783663757504</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1783663757504</updated>
+    </task>
+    <option name="localTasksCounter" value="4" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="홈페이지 이미지 삽입, 배너 이미지-&gt;영상으로 변경, ai 챗봇, 결제 카드 등록" />
+    <option name="LAST_COMMIT_MESSAGE" value="홈페이지 이미지 삽입, 배너 이미지-&gt;영상으로 변경, ai 챗봇, 결제 카드 등록" />
   </component>
 </project>
