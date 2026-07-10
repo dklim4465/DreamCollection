@@ -1,10 +1,10 @@
 package com.dreamCollection.flight.service;
 
 import com.dreamCollection.flight.dto.FlightRequestDTO;
-import com.dreamCollection.flight.dto.FlightResponseDTO;
+import com.dreamCollection.flight.dto.FlightOfferDTO;
 
 import java.util.List;
 
 public interface FlightService {
-    List<FlightResponseDTO> searchFlights(FlightRequestDTO requestDTO);
+    List<FlightOfferDTO> searchFlights(FlightRequestDTO requestDTO);
 }

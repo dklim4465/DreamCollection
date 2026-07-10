@@ -84,6 +84,12 @@ export default function LoginPage() {
                   {errors.password.message}
                 </p>
               )}
+              <Link
+                to="/forgot-password"
+                className="text-label-sm text-on-surface-variant hover:text-primary self-end mt-1"
+              >
+                비밀번호를 잊으셨나요?
+              </Link>
             </div>
 
             {mutation.isError && (

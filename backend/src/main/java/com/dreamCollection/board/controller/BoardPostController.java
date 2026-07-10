@@ -12,6 +12,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -23,7 +24,7 @@ public class BoardPostController {
 
     @PostMapping
     public ResponseEntity<ApiResponse<BoardPostDetailResponseDTO>> createPost(
-            @RequestHeader("X-User-Id") Long userId,
+            @AuthenticationPrincipal Long userId,
             @Valid @RequestBody BoardPostCreateRequestDTO request
     ) {
 
@@ -60,7 +61,7 @@ public class BoardPostController {
 
     @PutMapping("/{postId}")
     public ApiResponse<BoardPostDetailResponseDTO> updatePost(
-            @RequestHeader("X-User-Id") Long userId,
+            @AuthenticationPrincipal Long userId,
             @PathVariable Long postId,
             @Valid @RequestBody BoardPostUpdateRequestDTO request
     ) {
@@ -73,7 +74,7 @@ public class BoardPostController {
 
     @DeleteMapping("/{postId}")
     public ApiResponse<Void> deletePost(
-            @RequestHeader("X-User-Id") Long userId,
+            @AuthenticationPrincipal Long userId,
             @PathVariable Long postId
     ) {
 

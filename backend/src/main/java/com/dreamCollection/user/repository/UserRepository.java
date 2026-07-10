@@ -14,6 +14,9 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     boolean existsByNickname(String nickname);
 
+    // 회원가입 - 휴대폰 중복확인 (phone은 NULL 허용 컬럼이라 blank 체크는 호출부에서 처리)
+    boolean existsByPhone(String phone);
+
     Optional<User> findByEmail(String email);
 
     // 관리자 페이지 - 이메일/닉네임 검색 (둘 중 하나라도 포함되면 매치)

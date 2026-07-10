@@ -7,5 +7,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 
 public interface FlightRepository extends JpaRepository<Airport ,Long> {
-    List<Airport> findByRegionOrderByDisplayOrderAsc(String region);
+    List<Airport> findByRegionAndCityNameOrderByDisplayOrderAsc(String region,String cityName);
 }

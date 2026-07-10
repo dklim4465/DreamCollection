@@ -45,6 +45,9 @@ public class SecurityConfig {
             "/api/banners/**",
             "/api/notices/**",
             "/api/main/**",
+            "/api/images/**",
+            "/api/stats/**",
+            "/uploads/**",
             "/swagger-ui/**",
             "/swagger-ui.html",
             "/v3/api-docs/**",
@@ -72,10 +75,11 @@ public class SecurityConfig {
                         .accessDeniedHandler(accessDeniedHandler)
                 )
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(PUBLIC_URLS).permitAll()
-                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
-                        .anyRequest().authenticated()
-                )
+//                        .requestMatchers(PUBLIC_URLS).permitAll()
+//                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
+//                        .anyRequest().authenticated()
+//                )
+                        .anyRequest().permitAll())
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();

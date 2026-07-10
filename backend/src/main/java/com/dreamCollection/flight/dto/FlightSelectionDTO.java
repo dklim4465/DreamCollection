@@ -6,8 +6,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.time.LocalTime;
 
 @Data
 @AllArgsConstructor
@@ -17,28 +15,15 @@ public class FlightSelectionDTO {
 
     private boolean skipped;
 
-    private Long airportId;
+    private FlightSegmentDTO outboundFlight;
 
-    private String departureAirportCode;
-    private String departureAirportName;
-
-    private String arrivalAirportCode;
-    private String arrivalAirportName;
-
-    private String airlineName;
-    private String flightNumber;
-
-    private LocalDate departureDate;
-    private LocalDate arrivalDate;
-
-    private LocalTime departureTime;
-    private LocalTime arrivalTime;
-
-    private Integer durationMinutes;
+    private FlightSegmentDTO returnFlight;
 
     private BigDecimal price;
+
     private String currency;
 
     private String provider;
+
     private String externalUrl;
 }

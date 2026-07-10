@@ -39,4 +39,20 @@ public class UserPaymentCardController {
         Long userId = (Long) authentication.getPrincipal();
         return ApiResponse.ok(userPaymentCardService.getMyCards(userId));
     }
+
+    // 마이페이지 "결제수단 삭제" → DELETE /api/users/me/payment-cards/{cardId}
+    @DeleteMapping("/{cardId}")
+    public ApiResponse<Void> deleteCard(Authentication authentication, @PathVariable Long cardId) {
+        Long userId = (Long) authentication.getPrincipal();
+        userPaymentCardService.deleteCard(userId, cardId);
+        return ApiResponse.ok(null, "결제수단이 삭제되었습니다.");
+    }
+
+    // 마이페이지 "기본 결제수단으로 변경" → PATCH /api/users/me/payment-cards/{cardId}/default
+    @PatchMapping("/{cardId}/default")
+    public ApiResponse<Void> setDefaultCard(Authentication authentication, @PathVariable Long cardId) {
+        Long userId = (Long) authentication.getPrincipal();
+        userPaymentCardService.setDefaultCard(userId, cardId);
+        return ApiResponse.ok(null, "기본 결제수단으로 변경되었습니다.");
+    }
 }

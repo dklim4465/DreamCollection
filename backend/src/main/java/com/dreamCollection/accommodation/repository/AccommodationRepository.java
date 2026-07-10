@@ -7,5 +7,5 @@ import java.util.List;
 
 public interface AccommodationRepository extends JpaRepository<Accommodation, Long> {
 
-    List<Accommodation> findByRegionOrderByDisplayOrderAsc(String region);
+    List<Accommodation> findByRegionAndCityNameOrderByDisplayOrderAsc(String region, String cityName);
 }

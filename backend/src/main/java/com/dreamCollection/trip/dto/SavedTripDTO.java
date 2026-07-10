@@ -24,9 +24,9 @@ public class SavedTripDTO {
 
     private TripRecommendDTO recommendation;
 
-    private FlightSelectionDTO flightSelectionDTO;
+    private FlightSelectionDTO flightSelection;
 
-    private AccommodationSelectionDTO accommodationSelectionDTO;
+    private AccommodationSelectionDTO accommodationSelection;
 
     private LocalDateTime createdDate;
 }

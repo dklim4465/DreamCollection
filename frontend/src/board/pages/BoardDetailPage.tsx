@@ -8,7 +8,7 @@ import {
   boardImageApi,
   reportApi,
 } from "@/board/api/board";
-import { useAuthStore } from "@/store/authStore";
+import { useAuthStore } from "@/auth/store/authStore";
 import {
   BOARD_CATEGORY_LABELS,
   TRADE_STATUS_LABELS,

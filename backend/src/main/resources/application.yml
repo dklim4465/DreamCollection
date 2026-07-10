@@ -3,10 +3,15 @@ server:
 
 spring:
   datasource:
-    url: jdbc:mysql://localhost:3306/dream_collection?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
+    url: jdbc:mariadb://localhost:3306/dream_collection?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
+    driver-class-name: org.mariadb.jdbc.Driver
     username: ${DB_USERNAME:root}
     password: ${DB_PASSWORD:}
-    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
 
   jpa:
     hibernate:
@@ -23,7 +28,7 @@ spring:
     host: smtp.gmail.com
     port: 587
     username: ${MAIL_USERNAME:dudwo1410@nate.com}
-    password: ${MAIL_PASSWORD}
+    password: ${MAIL_PASSWORD:}
     default-encoding: UTF-8
     properties:
       mail:
@@ -62,9 +67,24 @@ cors:
 oauth:
   kakao:
     client-id: ${KAKAO_CLIENT_ID:dummy-client-id-for-local-dev}
-    client-secret: ${KAKAO_CLIENT_SECRET:}
+    client-secret: ${KAKAO_CLIENT_SECRET:a4fb2cc080df0e7a9304360d6926ac64}
     redirect-uri: ${KAKAO_REDIRECT_URI:http://localhost:3000/oauth/callback/kakao}
 
 toss:
   secret-key: ${TOSS_SECRET_KEY:test_sk_dummy_for_local_dev}
   client-key: ${TOSS_CLIENT_KEY:test_ck_dummy_for_local_dev}
+
+# ── 홈페이지 AI 챗봇 (Anthropic Claude API) ────────────────────
+# Google AI Studio(aistudio.google.com)에서 발급받은 키를 환경변수 GEMINI_API_KEY로 설정하면 실제 대화가 가능해짐.
+# 비어있으면 챗봇이 "관리자가 API 키를 설정해야 해요" 안내 문구만 반환함(에러는 안 남).
+gemini:
+  api-key: ${GEMINI_API_KEY:}
+  model: ${GEMINI_MODEL:gemini-2.5-flash}
+
+# ── 관리자 이미지 업로드(배너/메인배경/이달의 여행지) 로컬 저장 설정 ──────
+# dir: 서버가 파일을 실제로 저장하는 디스크 경로 (프로젝트 루트 기준 상대경로)
+# public-base-url: 저장된 파일에 접근할 때 쓰는 공개 URL의 앞부분
+#                  (배포 시 실제 도메인으로 바꿔줘야 함, 예: https://api.dreamcollection.com)
+upload:
+  dir: uploads
+  public-base-url: ${UPLOAD_PUBLIC_BASE_URL:http://localhost:8080}
