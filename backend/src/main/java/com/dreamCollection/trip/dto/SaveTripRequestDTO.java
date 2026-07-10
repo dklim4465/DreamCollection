@@ -19,8 +19,8 @@ public class SaveTripRequestDTO {
 
     private TripRecommendDTO recommendation;
 
-    private FlightSelectionDTO flightSelectionDTO;
+    private FlightSelectionDTO flightSelection;
 
-    private AccommodationSelectionDTO accommodationSelectionDTO;
+    private AccommodationSelectionDTO accommodationSelection;
 
 }

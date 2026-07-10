@@ -1,4 +1,4 @@
-package com.dreamCollection.service;
+package com.dreamCollection.trip;
 
 import com.dreamCollection.trip.dto.PlanRequestDTO;
 import com.dreamCollection.trip.dto.PlanResponseDTO;

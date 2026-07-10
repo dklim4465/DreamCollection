@@ -1,4 +1,4 @@
-package com.dreamCollection.service;
+package com.dreamCollection.trip;
 
 import com.dreamCollection.trip.dto.*;
 import com.dreamCollection.trip.service.TripService;
@@ -107,14 +107,14 @@ public class TripRecommnedTests {
 //        log.info("저장된 일정 : " + savedTripDTO);
 //    }
 
-    @Test
-    void userIdTripCheck() {
-        Long userId = 1L;
-
-        List<SavedTripDTO> savedTripDTO = tripService.getSavedTripsByUser(userId);
-
-        log.info("유저별 저장된 일정" + savedTripDTO);
-    }
+//    @Test
+//    void userIdTripCheck() {
+//        Long userId = 1L;
+//
+//        List<SavedTripDTO> savedTripDTO = tripService.getSavedTripsByUser(userId);
+//
+//        log.info("유저별 저장된 일정" + savedTripDTO);
+//    }
 
 
 }

@@ -23,6 +23,7 @@ public class PlanResponseDTO {
     private LocalDate startDate;
 
     private FlightConditionDTO flightCondition;
+    private String destination;
 
     private AccommodationConditionDTO accommodationCondition;
 

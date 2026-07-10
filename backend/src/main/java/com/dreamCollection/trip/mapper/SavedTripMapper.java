@@ -49,8 +49,8 @@ public class SavedTripMapper {
                 .userId(savedTrip.getUserId())
                 .conditions(fromJson(savedTrip.getConditionsJson(), PlanRequestDTO.class))
                 .recommendation(fromJson(savedTrip.getRecommendationJson(), TripRecommendDTO.class))
-                .flightSelectionDTO(fromJson(savedTrip.getFlightSelectionJson(), FlightSelectionDTO.class))
-                .accommodationSelectionDTO(fromJson(savedTrip.getAccommodationSelectionJson(), AccommodationSelectionDTO.class))
+                .flightSelection(fromJson(savedTrip.getFlightSelectionJson(), FlightSelectionDTO.class))
+                .accommodationSelection(fromJson(savedTrip.getAccommodationSelectionJson(), AccommodationSelectionDTO.class))
                 .createdDate(savedTrip.getCreatedDate())
                 .build();
     }

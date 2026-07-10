@@ -22,6 +22,7 @@ public class PlanRequestDTO {
     private String level;
     // 항공 관련 선택지
     private FlightConditionDTO flightCondition;
+    private String destination;
     // 숙소 관련 선택지
     private AccommodationConditionDTO accommodationCondition;
 }
