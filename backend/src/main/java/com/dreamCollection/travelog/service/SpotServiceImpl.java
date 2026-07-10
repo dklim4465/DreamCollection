@@ -9,7 +9,6 @@ import com.dreamCollection.travelog.repository.SpotRepository;
 import com.dreamCollection.travelog.util.GeometryUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import org.locationtech.jts.geom.Point;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
