@@ -1,26 +1,29 @@
 import { useEffect, useRef } from "react";
-import mapboxgl from "mapbox-gl";
-
-mapboxgl.accessToken = import.meta.env.VITE_MAPBOX_TOKEN;
+import { useSpotLayer } from "@/travelog/hooks/map/useSpotLayer";
+import { useMapInit } from "@/travelog/hooks/map/useMapInit";
+import { useMap } from "@/travelog/map/useMap";
 
 const MapComponent = () => {
   const mapContainer = useRef<HTMLDivElement | null>(null);
-  const mapRef = useRef<mapboxgl.Map | null>(null);
+  const { map } = useMap();
+
+  useMapInit(mapContainer);
+
+  useSpotLayer();
 
   useEffect(() => {
-    if (!mapContainer.current) return;
+    if (!map) return;
 
-    mapRef.current = new mapboxgl.Map({
-      container: mapContainer.current,
-      style: "mapbox://styles/mapbox/streets-v12",
-      center: [126.978, 37.5665],
-      zoom: 13,
-    });
+    const handleSytleLoad = () => {
+      console.log("context map:", map.getStyle());
+    };
+
+    map.once("style.load", handleSytleLoad);
 
     return () => {
-      mapRef.current?.remove();
+      map.off("style.load", handleSytleLoad);
     };
-  }, []);
+  }, [map]);
 
   return <div ref={mapContainer} style={{ width: "100%", height: "100%" }} />;
 };

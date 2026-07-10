@@ -1,28 +1,28 @@
 export interface TripLogRequestDTO {
-  title: string;
-  startDate: string;
-  endDate: string;
-  description: string;
+  title: string | null;
+  startDate: string | null;
+  endDate: string | null;
+  description: string | null;
 }
 
 export interface TripLogResponseDTO {
   tno: number;
 
-  title: string;
+  title: string | null;
 
-  startDate: string;
+  startDate: string | null;
 
-  endDate: string;
+  endDate: string | null;
 
   thumbnailPath: string | null;
 
-  description: string;
+  description: string | null;
 
   createdAt: string;
 
   modifiedAt: string;
 
-  tags: string[];
+  tags: string[] | null;
 }
 
 export interface UploadResultDTO {
@@ -38,7 +38,7 @@ export interface UploadResultDTO {
 export interface GeoJsonPointDTO {
   type: "Point";
 
-  coordinates: number[];
+  coordinates: [number, number];
 }
 
 export interface MediaDetailDTO {
@@ -48,21 +48,21 @@ export interface MediaDetailDTO {
 
   storedFileName: string;
 
-  takenAt: string;
+  takenAt: string | null;
 
-  location: GeoJsonPointDTO;
+  location: GeoJsonPointDTO | null;
 
-  mediaText: string;
+  mediaText: string | null;
 }
 
 export interface TripLogOverviewDTO {
   tno: number;
 
-  title: string;
+  title: string | null;
 
-  startDate: string;
+  startDate: string | null;
 
-  endDate: string;
+  endDate: string | null;
 
   spots: SpotDetailDTO[];
 }
@@ -70,9 +70,9 @@ export interface TripLogOverviewDTO {
 export interface SpotDetailDTO {
   sno: number;
 
-  name: string;
+  name: string | null;
 
-  description: string;
+  description: string | null;
 
   centerLocation: GeoJsonPointDTO;
 
@@ -80,7 +80,7 @@ export interface SpotDetailDTO {
 
   leaveAt: string;
 
-  coverImagePath: string;
+  coverImagePath: string | null;
 
   mediaList: MediaSummaryDTO[];
 }
@@ -92,7 +92,7 @@ export interface MediaSummaryDTO {
 
   storedFileName: string;
 
-  location: GeoJsonPointDTO;
+  location: GeoJsonPointDTO | null;
 
-  takenAt: string;
+  takenAt: string | null;
 }
