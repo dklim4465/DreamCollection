@@ -19,7 +19,7 @@ public class MediaController {
 
     private final MediaService mediaService;
 
-    @PostMapping(value = "/tripLog/{tno}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(value = "/triplog/{tno}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public UploadResultDTO upload(@PathVariable Long tno, @RequestPart("files")List<MultipartFile> files) {
         return mediaService.upload(tno, files);
     }
