@@ -1,8 +1,5 @@
 import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
-import { cityApi } from "@/common/api/cityApi";
-import { proxyImage } from "@/common/utils/proxyImage";
 
 const FEATURES = [
   {
@@ -11,6 +8,7 @@ const FEATURES = [
     description: "목적지와 취향만 입력하면 나만의 일정을 추천해드려요.",
     ctaLabel: "일정 바로가기",
     ctaTo: "/trip/new",
+    image: "/images/site-intro/feature-1-ai-planner.jpg",
   },
   {
     icon: "photo_library",
@@ -18,6 +16,7 @@ const FEATURES = [
     description: "여행지별, 날짜별로 자동 정리돼요. 흩어진 사진을 한 곳에 모아보세요.",
     ctaLabel: "나의기록 들어가기",
     ctaTo: "/records",
+    image: "/images/site-intro/feature-2-photo-organize.jpg",
   },
   {
     icon: "cloud_done",
@@ -25,6 +24,7 @@ const FEATURES = [
     description: "용량 걱정 없이 소중한 여행 기록을 안전하게 보관해드려요.",
     ctaLabel: "안전하게 보관하기",
     ctaTo: "/records",
+    image: "/images/site-intro/feature-3-storage.jpg",
   },
   {
     icon: "share",
@@ -32,7 +32,16 @@ const FEATURES = [
     description: "링크 하나로 여행 앨범을 공유하고, 함께한 순간을 나눠보세요.",
     ctaLabel: "커뮤니티 둘러보기",
     ctaTo: "/community",
+    image: "/images/site-intro/feature-4-share.jpg",
   },
+];
+
+// 사진이 로드에 실패했을 때 대신 보여줄, 외부 의존성 없는 그라데이션 (카드별 고정)
+const FALLBACK_GRADIENTS = [
+  "linear-gradient(135deg, #ff9a44, #ea5f9b, #7b4397)",
+  "linear-gradient(135deg, #134e5e, #71b280)",
+  "linear-gradient(135deg, #1e3c72, #2a5298)",
+  "linear-gradient(135deg, #0f2027, #203a43, #2c5364)",
 ];
 
 /**
@@ -40,17 +49,9 @@ const FEATURES = [
  * 페이지 최상단(히어로 자리)에 배치되어, 스크롤을 내리는 동안
  * "AI 일정 추천 → 사진 정리 → 보관 → 공유" 순서로 서비스 가치를 하나씩 보여준다.
  *
- * 배경 사진은 "지금 인기 있는 여행지"와 같은 데이터 소스를 재사용해서
- * (별도 API 호출 없음, 캐시 공유) 카드가 넘어갈 때마다 자연스럽게 바뀐다.
+ * 각 카드마다 내용에 맞는 고정 배경 사진을 사용한다 (FEATURES[i].image).
  */
 export default function SiteIntro() {
-  const { data } = useQuery({
-    queryKey: ["cities", "popular"],
-    queryFn: cityApi.getPopular,
-    retry: false,
-  });
-  const cities = (data?.data?.data ?? []).filter((c) => !!c.imageUrl);
-
   const sectionRef = useRef<HTMLElement>(null);
   const [active, setActive] = useState(0);
   const [failedPhotos, setFailedPhotos] = useState<Set<number>>(new Set());
@@ -86,21 +87,29 @@ export default function SiteIntro() {
       style={{ height: `${FEATURES.length * 100}vh` }}
     >
       <div className="sticky top-0 h-screen w-full overflow-hidden">
-        {/* 배경: 인기 여행지 사진이 활성 카드에 맞춰 크로스페이드 */}
+        {/* 배경: 카드마다 고정된 사진이 크로스페이드 */}
         <div className="absolute inset-0 bg-gradient-to-br from-primary to-tertiary">
-          {cities.map((city, i) => (
-            <img
-              key={city.id}
-              src={failedPhotos.has(i) ? undefined : (proxyImage(city.imageUrl) ?? undefined)}
-              alt=""
-              className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-700 ${
-                i % cities.length === active % cities.length && !failedPhotos.has(i)
-                  ? "opacity-100"
-                  : "opacity-0"
-              }`}
-              onError={() => markFailed(i)}
-            />
-          ))}
+          {FEATURES.map((f, i) =>
+            failedPhotos.has(i) ? (
+              <div
+                key={f.title}
+                className={`absolute inset-0 w-full h-full transition-opacity duration-700 ${
+                  i === active ? "opacity-100" : "opacity-0"
+                }`}
+                style={{ backgroundImage: FALLBACK_GRADIENTS[i % FALLBACK_GRADIENTS.length] }}
+              />
+            ) : (
+              <img
+                key={f.title}
+                src={f.image}
+                alt=""
+                className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-700 ${
+                  i === active ? "opacity-100" : "opacity-0"
+                }`}
+                onError={() => markFailed(i)}
+              />
+            )
+          )}
         </div>
         <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/45 to-black/30" />
 

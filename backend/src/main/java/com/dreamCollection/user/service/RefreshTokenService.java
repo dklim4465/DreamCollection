@@ -60,6 +60,17 @@ public class RefreshTokenService {
                 .ifPresent(RefreshToken::revoke);
     }
 
+    /**
+     * 비밀번호 재설정 완료 시 / 마이페이지 "모든 기기에서 로그아웃" 시 사용.
+     * 해당 유저의 활성 세션을 전부 폐기해서, 이전에 발급된 refreshToken으로는
+     * 더 이상 accessToken을 재발급받을 수 없게 한다.
+     */
+    @Transactional
+    public void revokeAll(Long userId) {
+        refreshTokenRepository.findAllByUserIdAndRevokedAtIsNullOrderByCreatedAtDesc(userId)
+                .forEach(RefreshToken::revoke);
+    }
+
     private String generateOpaqueToken() {
         byte[] bytes = new byte[48];
         RANDOM.nextBytes(bytes);

@@ -214,7 +214,8 @@ CREATE TABLE IF NOT EXISTS banner (
     id              BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     admin_id        BIGINT UNSIGNED NOT NULL COMMENT '등록한 관리자 (users.role=ADMIN)',
     title           VARCHAR(100)    NOT NULL COMMENT '배너 제목 (관리용, 화면 미노출 가능)',
-    image_url       VARCHAR(500)    NOT NULL COMMENT '배너 이미지 경로',
+    media_type      ENUM('IMAGE','VIDEO') NOT NULL DEFAULT 'IMAGE' COMMENT '배너 미디어 타입',
+    image_url       VARCHAR(500)    NOT NULL COMMENT '배너 이미지/영상 경로',
     link_url        VARCHAR(500)    NULL COMMENT '클릭 시 이동할 URL',
     display_order   INT UNSIGNED    NOT NULL DEFAULT 0 COMMENT '노출 순서 (작을수록 먼저)',
     is_active       TINYINT(1)      NOT NULL DEFAULT 1 COMMENT '노출 여부',
@@ -228,6 +229,10 @@ CREATE TABLE IF NOT EXISTS banner (
     CONSTRAINT fk_banner_admin FOREIGN KEY (admin_id) REFERENCES users(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
   COMMENT='메인페이지 배너';
+
+-- 이미 banner 테이블이 있는 상태로 스키마를 먼저 적용해뒀다면(위 CREATE TABLE은 IF NOT EXISTS라 컬럼이 안 생김),
+-- 아래 구문을 한 번만 직접 실행해서 media_type 컬럼을 추가해주세요.
+-- ALTER TABLE banner ADD COLUMN media_type ENUM('IMAGE','VIDEO') NOT NULL DEFAULT 'IMAGE' COMMENT '배너 미디어 타입' AFTER title;
 
 CREATE TABLE IF NOT EXISTS notice (
     id              BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
@@ -901,9 +906,16 @@ SELECT * FROM (SELECT '뉴욕' AS name_ko,'New York' AS name_en,'US' AS country_
 WHERE NOT EXISTS (SELECT 1 FROM city WHERE name_ko = '뉴욕');
 
 -- 11-2) 메인 배너
-INSERT INTO banner (admin_id, title, image_url, link_url, display_order, is_active)
-SELECT * FROM (SELECT 1 AS admin_id,'여름 특가 이벤트' AS title,'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=800&q=80' AS image_url,'https://example.com' AS link_url,0 AS display_order,1 AS is_active) AS tmp
+INSERT INTO banner (admin_id, title, media_type, image_url, link_url, display_order, is_active)
+SELECT * FROM (SELECT 1 AS admin_id,'여름 특가 이벤트' AS title,'IMAGE' AS media_type,'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=800&q=80' AS image_url,'https://example.com' AS link_url,1 AS display_order,1 AS is_active) AS tmp
 WHERE NOT EXISTS (SELECT 1 FROM banner WHERE title = '여름 특가 이벤트');
+
+-- 이미 위 행이 만들어져 있던 경우(과거 스키마 적용분) 순서만 2번으로 밀어서 새 영상 배너가 먼저 보이게 함
+UPDATE banner SET display_order = 1 WHERE title = '여름 특가 이벤트' AND display_order = 0;
+
+INSERT INTO banner (admin_id, title, media_type, image_url, link_url, display_order, is_active)
+SELECT * FROM (SELECT 1 AS admin_id,'대표 홍보 영상' AS title,'VIDEO' AS media_type,'http://localhost:8080/uploads/videos/main-banner.mp4' AS image_url,NULL AS link_url,0 AS display_order,1 AS is_active) AS tmp
+WHERE NOT EXISTS (SELECT 1 FROM banner WHERE title = '대표 홍보 영상');
 
 -- 11-3) 이달의 여행지 (display_month는 반드시 'YYYY-MM' 형식 — 매달 갱신 필요)
 INSERT INTO monthly_destination (admin_id, display_month, destination_name, title, description, image_url, link_url, source_type, display_order, is_active)

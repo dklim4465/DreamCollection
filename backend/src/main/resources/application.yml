@@ -75,11 +75,11 @@ toss:
   client-key: ${TOSS_CLIENT_KEY:test_ck_dummy_for_local_dev}
 
 # ── 홈페이지 AI 챗봇 (Anthropic Claude API) ────────────────────
-# console.anthropic.com에서 발급받은 키를 환경변수 ANTHROPIC_API_KEY로 설정하면 실제 대화가 가능해짐.
+# Google AI Studio(aistudio.google.com)에서 발급받은 키를 환경변수 GEMINI_API_KEY로 설정하면 실제 대화가 가능해짐.
 # 비어있으면 챗봇이 "관리자가 API 키를 설정해야 해요" 안내 문구만 반환함(에러는 안 남).
-anthropic:
-  api-key: ${ANTHROPIC_API_KEY:}
-  model: ${ANTHROPIC_MODEL:claude-sonnet-5}
+gemini:
+  api-key: ${GEMINI_API_KEY:}
+  model: ${GEMINI_MODEL:gemini-2.5-flash}
 
 # ── 관리자 이미지 업로드(배너/메인배경/이달의 여행지) 로컬 저장 설정 ──────
 # dir: 서버가 파일을 실제로 저장하는 디스크 경로 (프로젝트 루트 기준 상대경로)

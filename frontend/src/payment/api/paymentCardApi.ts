@@ -23,4 +23,12 @@ export const paymentCardApi = {
 
   getMyCards: () =>
     apiClient.get<ApiResponse<PaymentCard[]>>("/users/me/payment-cards"),
+
+  // 마이페이지 "결제수단 삭제"
+  deleteCard: (cardId: number) =>
+    apiClient.delete<ApiResponse<void>>(`/users/me/payment-cards/${cardId}`),
+
+  // 마이페이지 "기본 결제수단으로 변경"
+  setDefaultCard: (cardId: number) =>
+    apiClient.patch<ApiResponse<void>>(`/users/me/payment-cards/${cardId}/default`),
 };

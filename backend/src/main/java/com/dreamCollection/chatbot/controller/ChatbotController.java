@@ -1,6 +1,6 @@
 package com.dreamCollection.chatbot.controller;
 
-import com.dreamCollection.chatbot.client.AnthropicChatClient;
+import com.dreamCollection.chatbot.client.GeminiChatClient;
 import com.dreamCollection.chatbot.dto.ChatRequest;
 import com.dreamCollection.chatbot.dto.ChatResponse;
 import com.dreamCollection.global.response.ApiResponse;
@@ -21,11 +21,11 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class ChatbotController {
 
-    private final AnthropicChatClient anthropicChatClient;
+    private final GeminiChatClient geminiChatClient;
 
     @PostMapping("/message")
     public ApiResponse<ChatResponse> sendMessage(@Valid @RequestBody ChatRequest request) {
-        String reply = anthropicChatClient.chat(request.messages());
+        String reply = geminiChatClient.chat(request.messages());
         return ApiResponse.ok(new ChatResponse(reply));
     }
 }
