@@ -106,9 +106,29 @@ public class User {
         this.profileImageUrl = profileImageUrl;
     }
 
+    /**
+     * 마이페이지 "프로필 수정"에서 사용. null인 필드는 그대로 두고, 값이 있는 필드만 갱신한다.
+     */
+    public void updateProfile(String nickname, String profileImageUrl, TravelStyle travelStyle) {
+        if (nickname != null && !nickname.isBlank()) {
+            this.nickname = nickname;
+        }
+        if (profileImageUrl != null) {
+            this.profileImageUrl = profileImageUrl;
+        }
+        if (travelStyle != null) {
+            this.travelStyle = travelStyle;
+        }
+    }
+
     /** 회원가입 시 이메일 인증 방식을 선택해 완료한 경우 호출 */
     public void markEmailVerified() {
         this.emailVerified = true;
+    }
+
+    /** 비밀번호 찾기(재설정) 또는 마이페이지 "비밀번호 변경"에서 사용. 이미 BCrypt로 인코딩된 해시를 전달받는다. */
+    public void changePassword(String newPasswordHash) {
+        this.passwordHash = newPasswordHash;
     }
 
     /** 관리자 페이지에서 회원 상태(정상/정지/탈퇴) 변경 시 사용 */

@@ -1,5 +1,9 @@
-import { Link, NavLink } from "react-router-dom";
+import { useEffect, useRef, useState } from "react";
+import { Link, NavLink, useNavigate } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
 import { useAuthStore } from "@/auth/store/authStore";
+import { useThemeStore } from "@/common/store/themeStore";
+import { levelApi } from "@/profile/api/levelApi";
 import Logo from "./Logo";
 import SearchBar from "./SearchBar";
 
@@ -18,7 +22,37 @@ const NAV_ITEMS: NavItem[] = [
 ];
 
 export default function Navbar() {
-  const { isAuthenticated, user } = useAuthStore();
+  const { isAuthenticated, user, logout } = useAuthStore();
+  const { mode, toggle: toggleTheme } = useThemeStore();
+  const navigate = useNavigate();
+
+  const [profileMenuOpen, setProfileMenuOpen] = useState(false);
+  const profileMenuRef = useRef<HTMLDivElement>(null);
+
+  const { data: levelRes } = useQuery({
+    queryKey: ["level", "me"],
+    queryFn: levelApi.getMyLevel,
+    enabled: isAuthenticated,
+    retry: false,
+  });
+  const levelInfo = levelRes?.data?.data;
+
+  useEffect(() => {
+    if (!profileMenuOpen) return;
+    const handleClickOutside = (e: MouseEvent) => {
+      if (profileMenuRef.current && !profileMenuRef.current.contains(e.target as Node)) {
+        setProfileMenuOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [profileMenuOpen]);
+
+  const handleLogout = () => {
+    logout();
+    setProfileMenuOpen(false);
+    navigate("/");
+  };
 
   return (
     <header id="top-bar" className="bg-surface sticky top-0 z-50 shadow-glow">
@@ -29,23 +63,24 @@ export default function Navbar() {
         </Link>
 
         {/* 5대 메뉴 (일정/나의기록/게시판/메이트찾기/공지사항) */}
-        <ul className="hidden lg:flex items-center gap-stack-lg">
+        <ul className="hidden lg:flex items-center gap-3 xl:gap-stack-lg shrink-0">
           {NAV_ITEMS.map((item) => (
-            <li key={item.to}>
+            <li key={item.to} className="shrink-0">
               <NavLink
                 to={item.to}
+                title={item.label}
                 className={({ isActive }) =>
-                  `flex items-center gap-1.5 text-label-md font-bold transition-colors ${
+                  `flex items-center gap-1.5 whitespace-nowrap text-label-md font-bold transition-colors ${
                     isActive
                       ? "text-primary"
                       : "text-on-surface-variant hover:text-on-surface"
                   }`
                 }
               >
-                <span className="material-symbols-outlined text-[20px]">
+                <span className="material-symbols-outlined text-[20px] shrink-0">
                   {item.icon}
                 </span>
-                {item.label}
+                <span className="hidden xl:inline">{item.label}</span>
               </NavLink>
             </li>
           ))}
@@ -76,33 +111,83 @@ export default function Navbar() {
             </Link>
           )}
 
+          <button
+            type="button"
+            onClick={toggleTheme}
+            aria-label={mode === "dark" ? "라이트 모드로 전환" : "다크 모드로 전환"}
+            title={mode === "dark" ? "라이트 모드로 전환" : "다크 모드로 전환"}
+            className="material-symbols-outlined text-on-surface-variant hover:opacity-80"
+          >
+            {mode === "dark" ? "light_mode" : "dark_mode"}
+          </button>
+
           <button className="material-symbols-outlined text-on-surface-variant hover:opacity-80">
             notifications
           </button>
 
           {isAuthenticated ? (
-            <Link to="/profile" className="flex items-center gap-2">
-              <div className="w-10 h-10 rounded-full bg-primary-container flex items-center justify-center overflow-hidden">
-                {user?.profileImage ? (
-                  <img
-                    src={user.profileImage}
-                    alt={user.nickname}
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <span className="material-symbols-outlined text-primary text-lg">
-                    person
+            <div className="relative" ref={profileMenuRef}>
+              <button
+                type="button"
+                onClick={() => setProfileMenuOpen((v) => !v)}
+                className="flex items-center gap-2"
+              >
+                <div className="w-10 h-10 rounded-full bg-primary-container flex items-center justify-center overflow-hidden shrink-0">
+                  {user?.profileImage ? (
+                    <img
+                      src={user.profileImage}
+                      alt={user.nickname}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <span className="material-symbols-outlined text-primary text-lg">
+                      person
+                    </span>
+                  )}
+                </div>
+                <span className="hidden sm:inline text-label-md font-bold text-on-surface whitespace-nowrap">
+                  {user?.nickname}님 안녕하세요
+                </span>
+                {levelInfo && (
+                  <span className="chip-primary text-label-sm whitespace-nowrap">
+                    Lv. {levelInfo.level}
                   </span>
                 )}
-              </div>
-              <span className="hidden sm:inline text-label-md font-bold text-on-surface">
-                마이페이지
-              </span>
-            </Link>
+                <span className="material-symbols-outlined text-on-surface-variant text-lg">
+                  {profileMenuOpen ? "expand_less" : "expand_more"}
+                </span>
+              </button>
+
+              {profileMenuOpen && (
+                <div className="absolute right-0 top-full mt-2 w-48 bg-surface-container-lowest rounded-2xl shadow-glow border border-outline-variant overflow-hidden z-50">
+                  <Link
+                    to="/profile"
+                    onClick={() => setProfileMenuOpen(false)}
+                    className="flex items-center gap-2 px-4 py-3 text-label-md text-on-surface hover:bg-surface-container-low transition-colors"
+                  >
+                    <span className="material-symbols-outlined text-lg">person</span>
+                    마이페이지
+                  </Link>
+                  <button
+                    type="button"
+                    onClick={handleLogout}
+                    className="w-full flex items-center gap-2 px-4 py-3 text-label-md text-error hover:bg-surface-container-low transition-colors text-left"
+                  >
+                    <span className="material-symbols-outlined text-lg">logout</span>
+                    로그아웃
+                  </button>
+                </div>
+              )}
+            </div>
           ) : (
-            <Link to="/login" className="btn-ghost text-sm py-2 px-4">
-              로그인
-            </Link>
+            <div className="flex items-center gap-2">
+              <Link to="/login" className="btn-ghost text-sm py-2 px-4 whitespace-nowrap">
+                로그인
+              </Link>
+              <Link to="/register" className="btn-primary text-sm py-2 px-4 whitespace-nowrap">
+                회원가입
+              </Link>
+            </div>
           )}
         </div>
       </nav>

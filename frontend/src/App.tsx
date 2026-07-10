@@ -1,4 +1,4 @@
-import { lazy, Suspense } from "react";
+import { lazy, Suspense, useEffect } from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import LoadingSpinner from "./common/component/LoadingSpinner";
@@ -9,10 +9,13 @@ import TripResultPage from "@/trip/page/TripResultPage";
 import TripHubPage from "@/trip/page/TripHubPage";
 import TripSavedListPage from "@/trip/page/TripSavedListPage";
 import TravelPlanPage from "@/trip/page/TravelPlanPage";
+import { authApi } from "@/auth/api/authApi";
+import { useAuthStore } from "@/auth/store/authStore";
 
 // ── 코드 스플리팅 (lazy import) ──────────────────────────────
 const LoginPage = lazy(() => import("./auth/pages/LoginPage"));
 const RegisterPage = lazy(() => import("./auth/pages/RegisterPage"));
+const ForgotPasswordPage = lazy(() => import("./auth/pages/ForgotPasswordPage"));
 const KakaoCallbackPage = lazy(() => import("./auth/pages/KakaoCallbackPage"));
 
 const HomePage = lazy(() => import("./home/pages/HomePage"));
@@ -37,6 +40,7 @@ const AdminMonthlyDestinationsPage = lazy(
 const AdminUsersPage = lazy(() => import("./admin/pages/AdminUsersPage"));
 
 // TODO: 아래 페이지는 각 팀원이 추가
+// const CommunityDetailPage= lazy(() => import('@/pages/CommunityDetailPage'));
 // const MatchingDetailPage = lazy(() => import('@/pages/MatchingDetailPage'));
 // ─────────────────────────────────────────────────────────────
 
@@ -44,23 +48,47 @@ const queryClient = new QueryClient({
   defaultOptions: { queries: { retry: 1, staleTime: 1000 * 60 * 5 } },
 });
 
+/**
+ * 새로고침 직후 대응: 토큰(isAuthenticated)은 localStorage에 남아있지만
+ * user 정보는 메모리에서 날아간 상태이므로, 앱 시작 시 한 번 /api/auth/me로
+ * 최신 유저 정보를 복구한다. 토큰이 만료/무효면 로그아웃 처리.
+ */
+function AuthBootstrap() {
+  useEffect(() => {
+    const { isAuthenticated, user } = useAuthStore.getState();
+    if (!isAuthenticated || user) return;
+
+    authApi
+      .getMe()
+      .then((res) => {
+        const me = res.data?.data;
+        if (me) useAuthStore.getState().hydrateUser(me);
+        else useAuthStore.getState().logout();
+      })
+      .catch(() => useAuthStore.getState().logout());
+  }, []);
+
+  return null;
+}
+
 export default function App() {
   return (
     <QueryClientProvider client={queryClient}>
+      <AuthBootstrap />
       <BrowserRouter>
         <Suspense fallback={<LoadingSpinner message="페이지 로딩 중..." />}>
           <Routes>
             {/* Public */}
             <Route path="/login" element={<LoginPage />} />
             <Route path="/register" element={<RegisterPage />} />
-            <Route
-              path="/oauth/callback/kakao"
-              element={<KakaoCallbackPage />}
-            />
+            <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+            <Route path="/oauth/callback/kakao" element={<KakaoCallbackPage />} />
 
             {/* Layout 포함 라우트 */}
             <Route element={<AppLayout />}>
               <Route path="/" element={<HomePage />} />
+              <Route path="/community" element={<CommunityPage />} />
+              <Route path="/matching" element={<MatchingPage />} />
 
               <Route path="/trip" element={<TripHubPage />} />
               <Route path="/trip/new" element={<TravelPlanPage />} />
@@ -88,20 +116,11 @@ export default function App() {
               {/* 관리자 전용 (role=ADMIN) */}
               <Route element={<AdminRoute />}>
                 <Route path="/admin" element={<AdminLayout />}>
-                  <Route
-                    index
-                    element={<Navigate to="/admin/banners" replace />}
-                  />
+                  <Route index element={<Navigate to="/admin/banners" replace />} />
                   <Route path="banners" element={<AdminBannersPage />} />
-                  <Route
-                    path="main-backgrounds"
-                    element={<AdminMainBackgroundsPage />}
-                  />
+                  <Route path="main-backgrounds" element={<AdminMainBackgroundsPage />} />
                   <Route path="notices" element={<AdminNoticesPage />} />
-                  <Route
-                    path="monthly-destinations"
-                    element={<AdminMonthlyDestinationsPage />}
-                  />
+                  <Route path="monthly-destinations" element={<AdminMonthlyDestinationsPage />} />
                   <Route path="users" element={<AdminUsersPage />} />
                 </Route>
               </Route>

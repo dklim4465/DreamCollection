@@ -6,6 +6,7 @@ import com.dreamCollection.user.dto.KakaoLoginRequest;
 import com.dreamCollection.user.dto.LoginRequest;
 import com.dreamCollection.user.dto.SignupRequest;
 import com.dreamCollection.user.dto.UserResponse;
+import com.dreamCollection.user.entity.TravelStyle;
 import com.dreamCollection.verification.entity.EmailVerification;
 import com.dreamCollection.verification.repository.EmailVerificationRepository;
 import com.dreamCollection.verification.entity.PhoneVerification;
@@ -13,6 +14,7 @@ import com.dreamCollection.verification.repository.PhoneVerificationRepository;
 import com.dreamCollection.global.exception.AccountNotActiveException;
 import com.dreamCollection.global.exception.DuplicateEmailException;
 import com.dreamCollection.global.exception.DuplicateNicknameException;
+import com.dreamCollection.global.exception.DuplicatePhoneException;
 import com.dreamCollection.global.exception.InvalidCredentialsException;
 import com.dreamCollection.global.exception.InvalidVerificationCodeException;
 import com.dreamCollection.global.exception.PhoneNotVerifiedException;
@@ -24,6 +26,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.dreamCollection.user.entity.User;
 import com.dreamCollection.user.entity.UserOauthAccount;
+import com.dreamCollection.user.entity.LoginHistory;
+import com.dreamCollection.user.repository.LoginHistoryRepository;
 import com.dreamCollection.user.repository.UserOauthAccountRepository;
 import com.dreamCollection.user.repository.UserRepository;
 
@@ -35,15 +39,61 @@ public class UserService {
     private final PhoneVerificationRepository phoneVerificationRepository;
     private final EmailVerificationRepository emailVerificationRepository;
     private final UserOauthAccountRepository userOauthAccountRepository;
+    private final LoginHistoryRepository loginHistoryRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenProvider jwtTokenProvider;
     private final RefreshTokenService refreshTokenService;
     private final KakaoOauthClient kakaoOauthClient;
 
+    /**
+     * 프론트: authApi.getMe() → GET /api/auth/me
+     * 새로고침 시 accessToken은 남아있지만 유저 정보(user)는 메모리에서 날아간 상태를
+     * 복구하기 위해, 토큰의 userId로 최신 유저 정보를 다시 조회해서 내려준다.
+     * userId가 없으면(비로그인) null 반환 — 프론트에서 비로그인으로 처리.
+     */
+    public UserResponse getMe(Long userId) {
+        if (userId == null) return null;
+        return userRepository.findById(userId)
+                .map(UserResponse::from)
+                .orElse(null);
+    }
+
+    /**
+     * 마이페이지 "프로필 수정"에서 사용. nickname이 바뀌는 경우에만 중복 체크.
+     */
+    @Transactional
+    public UserResponse updateProfile(Long userId, String nickname, String profileImageUrl, TravelStyle travelStyle) {
+        User user = userRepository.findById(userId).orElseThrow(InvalidCredentialsException::new);
+
+        if (nickname != null && !nickname.isBlank() && !nickname.equals(user.getNickname())) {
+            validateDuplicateNickname(nickname);
+        }
+
+        user.updateProfile(nickname, profileImageUrl, travelStyle);
+        return UserResponse.from(user);
+    }
+
+    /**
+     * 회원가입창 "이메일 중복확인" 버튼 → GET /api/auth/check-email
+     * true = 사용 가능(중복 아님), false = 이미 가입된 이메일
+     */
+    public boolean isEmailAvailable(String email) {
+        return !userRepository.existsByEmail(email);
+    }
+
+    /**
+     * 회원가입창 "휴대폰 중복확인" 버튼 → GET /api/auth/check-phone
+     * true = 사용 가능(중복 아님), false = 이미 가입된 휴대폰 번호
+     */
+    public boolean isPhoneAvailable(String phone) {
+        return !userRepository.existsByPhone(phone);
+    }
+
     @Transactional
     public AuthResponse signup(SignupRequest request, String userAgent, String ipAddress) {
         validateDuplicateEmail(request.email());
         validateDuplicateNickname(request.nickname());
+        validateDuplicatePhone(request.phone());
 
         // 이메일/휴대폰 중 선택한 방식만 검증 (둘 다 요구하지 않음)
         boolean emailVerified = false;
@@ -87,10 +137,12 @@ public class UserService {
         // 소셜 전용 가입자는 passwordHash가 없음 → 이메일 로그인 자체를 허용하지 않음
         if (user.getPasswordHash() == null
                 || !passwordEncoder.matches(request.password(), user.getPasswordHash())) {
+            recordLoginHistory(user.getId(), LoginHistory.LoginType.EMAIL, userAgent, ipAddress, false);
             throw new InvalidCredentialsException();
         }
 
         validateActiveAccount(user);
+        recordLoginHistory(user.getId(), LoginHistory.LoginType.EMAIL, userAgent, ipAddress, true);
 
         return issueTokens(user, userAgent, ipAddress);
     }
@@ -113,6 +165,7 @@ public class UserService {
                 .orElseGet(() -> linkOrCreateKakaoUser(kakaoUser));
 
         validateActiveAccount(user);
+        recordLoginHistory(user.getId(), LoginHistory.LoginType.KAKAO, userAgent, ipAddress, true);
 
         return issueTokens(user, userAgent, ipAddress);
     }
@@ -182,6 +235,18 @@ public class UserService {
         return new AuthResponse(accessToken, refreshToken, UserResponse.from(user));
     }
 
+    /** 로그인 성공/실패 시도를 login_history 테이블에 기록 (마이페이지 "최근 로그인 기록"에서 조회) */
+    private void recordLoginHistory(Long userId, LoginHistory.LoginType type,
+                                     String userAgent, String ipAddress, boolean success) {
+        loginHistoryRepository.save(LoginHistory.builder()
+                .userId(userId)
+                .loginType(type)
+                .userAgent(userAgent)
+                .ipAddress(ipAddress)
+                .success(success)
+                .build());
+    }
+
     private void validateActiveAccount(User user) {
         switch (user.getStatus()) {
             case SUSPENDED -> throw new AccountNotActiveException("이용이 정지된 계정입니다. 고객센터에 문의해주세요.");
@@ -199,6 +264,13 @@ public class UserService {
     private void validateDuplicateNickname(String nickname) {
         if (userRepository.existsByNickname(nickname)) {
             throw new DuplicateNicknameException();
+        }
+    }
+
+    // phone은 NULL 허용 컬럼(EMAIL 인증 방식일 땐 미입력 가능)이라 값이 있을 때만 중복 검사
+    private void validateDuplicatePhone(String phone) {
+        if (phone != null && !phone.isBlank() && userRepository.existsByPhone(phone)) {
+            throw new DuplicatePhoneException();
         }
     }
 

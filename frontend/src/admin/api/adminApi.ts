@@ -35,6 +35,7 @@ export interface AdminUser {
 
 export interface BannerAdminForm {
   title: string;
+  mediaType: "IMAGE" | "VIDEO";
   imageUrl: string;
   linkUrl?: string;
   displayOrder?: number;
@@ -66,6 +67,15 @@ export interface MonthlyDestinationAdminForm {
 }
 
 export const adminApi = {
+  // ── 이미지 업로드 (배너/메인배경/이달의 여행지 공용) ──────
+  // 파일을 로컬 컴퓨터에서 골라 업로드하면, 서버가 저장하고 접근 가능한 URL을 돌려준다.
+  // (카카오톡 등에서 받아 컴퓨터에 저장해둔 사진도 이걸로 바로 등록 가능)
+  uploadImage: (file: File) => {
+    const formData = new FormData();
+    formData.append("file", file);
+    return apiClient.post<ApiResponse<{ url: string }>>("/admin/images/upload", formData);
+  },
+
   // ── 배너 ──────────────────────────────────────────
   getBanners: () => apiClient.get<ApiResponse<Banner[]>>("/admin/banners"),
   createBanner: (data: BannerAdminForm) =>
