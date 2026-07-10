@@ -16,6 +16,8 @@ public class FlightRequestDTO {
 
     private String region;
 
+    private String destination;
+
     private LocalDate startDate;
 
     private String when;

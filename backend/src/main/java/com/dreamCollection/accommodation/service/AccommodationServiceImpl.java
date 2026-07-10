@@ -3,6 +3,7 @@ package com.dreamCollection.accommodation.service;
 import com.dreamCollection.accommodation.dto.AccommodationRequestDTO;
 import com.dreamCollection.accommodation.dto.AccommodationResponseDTO;
 import com.dreamCollection.accommodation.entity.Accommodation;
+import com.dreamCollection.accommodation.exception.AccommodationValidator;
 import com.dreamCollection.accommodation.repository.AccommodationRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -16,15 +17,21 @@ import java.util.List;
 public class AccommodationServiceImpl implements AccommodationService{
 
     private final AccommodationRepository accommodationRepository;
+    private final AccommodationValidator accommodationValidator;
 
     @Override
-    public List<AccommodationResponseDTO> searchAccommodations(AccommodationRequestDTO requestDTO){
-        return accommodationRepository.findByRegionOrderByDisplayOrderAsc(requestDTO.getRegion())
+    public List<AccommodationResponseDTO> searchAccommodations(AccommodationRequestDTO requestDTO) {
+
+        accommodationValidator.validateSearch(requestDTO);
+
+        return accommodationRepository.findByRegionAndCityNameOrderByDisplayOrderAsc(
+                        requestDTO.getRegion(),
+                        requestDTO.getDestination()
+                )
                 .stream()
                 .map(this::toResponseDTO)
                 .toList();
     }
-
     private AccommodationResponseDTO toResponseDTO(Accommodation accommodation){
         return AccommodationResponseDTO.builder()
                 .accommodationId(accommodation.getId())

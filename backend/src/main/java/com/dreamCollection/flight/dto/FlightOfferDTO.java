@@ -11,9 +11,7 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class FlightSelectionDTO {
-
-    private boolean skipped;
+public class FlightOfferDTO {
 
     private FlightSegmentDTO outboundFlight;
 
