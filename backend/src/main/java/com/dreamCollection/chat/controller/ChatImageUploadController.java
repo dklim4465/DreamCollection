@@ -1,13 +1,12 @@
-package com.dreamCollection.board.controller;
+package com.dreamCollection.chat.controller;
 
-import com.dreamCollection.board.dto.ImageUploadResponseDTO;
 import com.dreamCollection.board.exception.FileUploadFailedException;
+import com.dreamCollection.chat.dto.ChatImageUploadResponseDTO;
 import com.dreamCollection.global.response.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -20,9 +19,9 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/board/upload")
+@RequestMapping("/api/chat/upload")
 @RequiredArgsConstructor
-public class BoardImageUploadController {
+public class ChatImageUploadController {
 
     @Value("${com.upload.path}")
     private String uploadDir;
@@ -33,8 +32,8 @@ public class BoardImageUploadController {
     private static final long MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 
     @PostMapping
-    public ResponseEntity<ApiResponse<ImageUploadResponseDTO>> uploadImage(
-            @AuthenticationPrincipal Long userId,
+    public ResponseEntity<ApiResponse<ChatImageUploadResponseDTO>> uploadImage(
+            @RequestHeader("X-User-Id") Long userId,
             @RequestParam("file") MultipartFile file
     ) {
         validateFile(file);
@@ -43,20 +42,20 @@ public class BoardImageUploadController {
         String savedFileName = UUID.randomUUID() + "." + extension;
 
         try {
-            Path boardUploadPath = Paths.get(uploadDir, "board");
-            Files.createDirectories(boardUploadPath);
+            Path chatUploadPath = Paths.get(uploadDir, "chat");
+            Files.createDirectories(chatUploadPath);
 
-            Path targetPath = boardUploadPath.resolve(savedFileName);
+            Path targetPath = chatUploadPath.resolve(savedFileName);
             file.transferTo(targetPath);
         } catch (IOException e) {
             throw new FileUploadFailedException();
         }
 
-        String imageUrl = "/upload/board/" + savedFileName;
+        String imageUrl = "/uploads/chat/" + savedFileName;
 
         return ResponseEntity
                 .status(HttpStatus.CREATED)
-                .body(ApiResponse.ok(new ImageUploadResponseDTO(imageUrl), "이미지가 업로드되었습니다."));
+                .body(ApiResponse.ok(new ChatImageUploadResponseDTO(imageUrl), "이미지가 업로드되었습니다."));
     }
 
     private void validateFile(MultipartFile file) {
