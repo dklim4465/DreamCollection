@@ -5,12 +5,12 @@ import com.dreamCollection.chat.entity.ChatMessage;
 import java.time.LocalDateTime;
 
 public record ChatMessageResponseDTO(
-        Long id,
+        Long messageId,
         Long roomId,
         Long senderId,
         String content,
         String messageType,
-        LocalDateTime sentAt
+        LocalDateTime createdAt
 ) {
     public static ChatMessageResponseDTO from(ChatMessage message) {
         return new ChatMessageResponseDTO(

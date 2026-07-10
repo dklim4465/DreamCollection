@@ -1,4 +1,4 @@
-import { lazy, Suspense } from "react";
+import { lazy, Suspense, useEffect } from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import LoadingSpinner from "./common/component/LoadingSpinner";
@@ -9,6 +9,8 @@ import TripResultPage from "@/trip/page/TripResultPage";
 import TripHubPage from "@/trip/page/TripHubPage";
 import TripSavedListPage from "@/trip/page/TripSavedListPage";
 import TravelPlanPage from "@/trip/page/TravelPlanPage";
+import { authApi } from "@/auth/api/authApi";
+import { useAuthStore } from "@/auth/store/authStore";
 
 // ── 코드 스플리팅 (lazy import) ──────────────────────────────
 const LoginPage = lazy(() => import("./auth/pages/LoginPage"));
@@ -19,7 +21,9 @@ const HomePage = lazy(() => import("./home/pages/HomePage"));
 const CommunityPage = lazy(() => import("@/board/pages/CommunityPage"));
 const BoardDetailPage = lazy(() => import("@/board/pages/BoardDetailPage"));
 const BoardWritePage = lazy(() => import("@/board/pages/BoardWritePage"));
-const MatchingPage = lazy(() => import("@/pages/MatchingPage"));
+const MatchingPage = lazy(() => import("@/mate/pages/MatchingPage"));
+const MateWritePage = lazy(() => import("@/mate/pages/MateWritePage"));
+const MateDetailPage = lazy(() => import("@/mate/pages/MateDetailPage"));
 
 const CartPage = lazy(() => import("./payment/pages/CartPage"));
 const RecordsPage = lazy(() => import("./records/pages/RecordsPage"));
@@ -36,8 +40,6 @@ const AdminMonthlyDestinationsPage = lazy(
 );
 const AdminUsersPage = lazy(() => import("./admin/pages/AdminUsersPage"));
 
-// TODO: 아래 페이지는 각 팀원이 추가
-// const MatchingDetailPage = lazy(() => import('@/pages/MatchingDetailPage'));
 // ─────────────────────────────────────────────────────────────
 
 const queryClient = new QueryClient({
@@ -45,6 +47,18 @@ const queryClient = new QueryClient({
 });
 
 export default function App() {
+  const { isAuthenticated, updateUser } = useAuthStore();
+
+  useEffect(() => {
+    if (!isAuthenticated) return;
+
+    authApi.getMe().then((res) => {
+      if (res.data.data) {
+        updateUser(res.data.data);
+      }
+    });
+  }, [isAuthenticated]);
+
   return (
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>
@@ -82,7 +96,20 @@ export default function App() {
                   path="/community/:postId/edit"
                   element={<BoardWritePage />}
                 />
+
+                {/* 순서 중요: /matching/new, /matching/:id/edit이
+                    /matching/:matePostId보다 먼저 와야
+                    "new"가 파라미터로 잘못 매칭되지 않음 */}
                 <Route path="/matching" element={<MatchingPage />} />
+                <Route path="/matching/new" element={<MateWritePage />} />
+                <Route
+                  path="/matching/:matePostId/edit"
+                  element={<MateWritePage />}
+                />
+                <Route
+                  path="/matching/:matePostId"
+                  element={<MateDetailPage />}
+                />
               </Route>
 
               {/* 관리자 전용 (role=ADMIN) */}

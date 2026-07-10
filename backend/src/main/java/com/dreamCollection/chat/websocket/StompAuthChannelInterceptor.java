@@ -5,6 +5,7 @@ import com.dreamCollection.global.security.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
+import org.springframework.messaging.support.MessageHeaderAccessor;
 import org.springframework.messaging.simp.stomp.StompCommand;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.messaging.support.ChannelInterceptor;
@@ -22,9 +23,13 @@ public class StompAuthChannelInterceptor implements ChannelInterceptor {
 
     @Override
     public Message<?> preSend(Message<?> message, MessageChannel channel) {
-        StompHeaderAccessor accessor = StompHeaderAccessor.wrap(message);
+        // StompHeaderAccessor.wrap(message)는 메시지를 감싸는 "새" accessor를 만들 뿐이라,
+        // 여기다 setUser()를 해도 실제 message에는 반영되지 않는 문제가 있었음.
+        // StompDecoder가 원본 메시지를 만들 때 쓴 진짜 accessor를 가져와야 수정이 실제로 반영됨.
+        StompHeaderAccessor accessor =
+                MessageHeaderAccessor.getAccessor(message, StompHeaderAccessor.class);
 
-        if (StompCommand.CONNECT.equals(accessor.getCommand())) {
+        if (accessor != null && StompCommand.CONNECT.equals(accessor.getCommand())) {
             String token = resolveToken(accessor.getFirstNativeHeader("Authorization"));
 
             if (token == null || !jwtTokenProvider.validateToken(token)) {

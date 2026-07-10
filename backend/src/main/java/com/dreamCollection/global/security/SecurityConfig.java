@@ -21,6 +21,7 @@ import org.springframework.web.cors.CorsConfigurationSource;
  *  - /api/auth/**        회원가입/로그인/인증코드 발송·확인
  *  - /api/cities/**       도시 자동완성 검색
  *  - /api/banners, /api/notices, /api/main/**   메인페이지 조회성 API
+ *  - /upload/**           업로드된 이미지 등 정적 파일 (브라우저가 img src로 바로 요청, 토큰 없음)
  *
  * 관리자 전용 API:
  *  - /api/admin/**       배너/메인배경/공지사항/이달의여행지/회원관리 (Role.ADMIN 필요)
@@ -50,6 +51,8 @@ public class SecurityConfig {
             "/v3/api-docs/**",
             "/api/trip/options/**",
             "/api/trip/recommend",
+            "/ws-stomp/**",
+            "/upload/**",
 
     };
 

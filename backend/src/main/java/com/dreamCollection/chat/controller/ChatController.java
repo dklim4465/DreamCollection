@@ -5,6 +5,7 @@ import com.dreamCollection.chat.dto.ChatRoomResponseDTO;
 import com.dreamCollection.chat.service.ChatService;
 import com.dreamCollection.global.response.ApiResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -18,7 +19,7 @@ public class ChatController {
 
     @PostMapping("/mate-posts/{matePostId}/room")
     public ApiResponse<Long> openRoom(
-            @RequestHeader("X-User-Id") Long userId,
+            @AuthenticationPrincipal Long userId,
             @PathVariable Long matePostId
     ) {
         Long roomId = chatService.getOrCreateRoom(matePostId, userId);
@@ -27,14 +28,14 @@ public class ChatController {
 
     @GetMapping("/rooms")
     public ApiResponse<List<ChatRoomResponseDTO>> getMyRooms(
-            @RequestHeader("X-User-Id") Long userId
+            @AuthenticationPrincipal Long userId
     ) {
         return ApiResponse.ok(chatService.getMyRooms(userId));
     }
 
     @GetMapping("/rooms/{roomId}/messages")
     public ApiResponse<List<ChatMessageResponseDTO>> getMessages(
-            @RequestHeader("X-User-Id") Long userId,
+            @AuthenticationPrincipal Long userId,
             @PathVariable Long roomId
     ) {
         return ApiResponse.ok(chatService.getMessages(roomId, userId));
@@ -42,7 +43,7 @@ public class ChatController {
 
     @PostMapping("/rooms/{roomId}/read")
     public ApiResponse<Void> markRead(
-            @RequestHeader("X-User-Id") Long userId,
+            @AuthenticationPrincipal Long userId,
             @PathVariable Long roomId
     ) {
         chatService.markRead(roomId, userId);
