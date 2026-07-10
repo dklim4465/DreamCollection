@@ -1,4 +1,4 @@
-package com.dreamcollection.travelog.dto.response;
+package com.dreamCollection.travelog.dto.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -15,7 +15,7 @@ import java.util.List;
 @NoArgsConstructor
 public class TripLogResponseDTO {
 
-    private Long id;
+    private Long tno;
 
     private String title;
 

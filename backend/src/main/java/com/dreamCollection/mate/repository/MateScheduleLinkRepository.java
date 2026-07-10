@@ -6,7 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 
 public interface MateScheduleLinkRepository extends JpaRepository<MateScheduleLink, Long> {
-    boolean existByRequestId(Long requestId);
+    boolean existsByRequestId(Long requestId);
     List<MateScheduleLink> findByMatePostId(Long matePostId);
 
 }

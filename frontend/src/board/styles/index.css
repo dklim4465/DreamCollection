@@ -1,0 +1,111 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ───────────────────────────────────────
+   Traveler's Hub — 글로벌 스타일
+   DESIGN.md 기반
+─────────────────────────────────────── */
+
+@layer base {
+  * {
+    box-sizing: border-box;
+  }
+
+  body {
+    font-family: "Plus Jakarta Sans", sans-serif;
+    background-color: #f7f9ff;
+    color: #181c20;
+    scroll-behavior: smooth;
+    overflow-x: hidden;
+  }
+
+  .material-symbols-outlined {
+    font-variation-settings:
+      "FILL" 0,
+      "wght" 300,
+      "GRAD" 0,
+      "opsz" 24;
+  }
+}
+
+@layer components {
+  /* ── 그림자 시스템 ── */
+  .traveler-glow {
+    box-shadow: 0px 10px 30px rgba(33, 37, 41, 0.05);
+  }
+  .traveler-glow-hover {
+    transition:
+      box-shadow 0.2s ease,
+      transform 0.2s ease;
+  }
+  .traveler-glow-hover:hover {
+    box-shadow: 0px 20px 40px rgba(33, 37, 41, 0.08);
+    transform: scale(1.02);
+  }
+
+  /* ── 스크롤바 숨김 ── */
+  .hide-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .hide-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  /* ── 버튼 ── */
+  .btn-primary {
+    @apply bg-primary text-on-primary font-bold px-6 py-3 rounded-xl
+           hover:opacity-90 transition-opacity active:scale-95 text-label-md;
+  }
+  .btn-ghost {
+    @apply border border-primary text-primary bg-transparent font-bold px-6 py-3 rounded-xl
+           hover:bg-primary hover:text-on-primary transition-all active:scale-95 text-label-md;
+  }
+  .btn-cta {
+    @apply bg-tertiary text-on-tertiary font-bold px-6 py-3 rounded-xl
+           hover:opacity-90 transition-opacity active:scale-95 text-label-md;
+  }
+
+  /* ── 카드 ── */
+  .card-base {
+    @apply bg-surface-container-lowest rounded-2xl overflow-hidden traveler-glow;
+  }
+  .card-interactive {
+    @apply card-base traveler-glow-hover cursor-pointer;
+  }
+
+  /* ── 입력 ── */
+  .input-base {
+    @apply bg-surface-container-low border-none rounded-lg px-4 py-3 text-body-md
+           focus:outline-none focus:ring-2 focus:ring-primary-container
+           placeholder:text-on-surface-variant transition-all w-full;
+  }
+  .input-search {
+    @apply input-base rounded-full pl-10 pr-4 py-2 text-label-md w-64;
+  }
+
+  /* ── 태그 / 칩 ── */
+  .chip {
+    @apply px-3 py-1 rounded-full text-label-sm font-semibold;
+  }
+  .chip-primary {
+    @apply chip bg-primary/10 text-primary;
+  }
+  .chip-tertiary {
+    @apply chip bg-tertiary/10 text-tertiary uppercase tracking-wider;
+  }
+  .chip-success {
+    @apply chip bg-green-100 text-green-700;
+  }
+
+  /* ── 사이드바 네비 아이템 ── */
+  .nav-item {
+    @apply flex items-center gap-3 p-3 text-on-surface-variant
+           hover:bg-surface-variant rounded-lg transition-all active:scale-95 text-label-md;
+  }
+  .nav-item-active {
+    @apply flex items-center gap-3 p-3 bg-primary-container text-on-primary-container
+           rounded-lg font-bold transition-all active:scale-95 text-label-md;
+  }
+}

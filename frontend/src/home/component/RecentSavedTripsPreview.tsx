@@ -2,7 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
 import dayjs from "dayjs";
 import { useAuthStore } from "@/auth/store/authStore";
-import { tripApi } from "@/api/trip";
+import { tripApi } from "@/trip/api/trip";
 
 /**
  * 홈페이지 "내가 저장한 여행" 미리보기.

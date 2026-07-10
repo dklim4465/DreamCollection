@@ -1,14 +1,10 @@
 package com.dreamCollection.mate.service;
 
-import com.dreamCollection.global.exception.DuplicateEmailException;
 import com.dreamCollection.mate.dto.MateRequestDecisionRequestDTO;
 import com.dreamCollection.mate.dto.MateRequestResponseDTO;
 import com.dreamCollection.mate.entity.MatePost;
 import com.dreamCollection.mate.entity.MateRequest;
-import com.dreamCollection.mate.excpetion.MatePostAccessDeniedException;
-import com.dreamCollection.mate.excpetion.MatePostNotFoundException;
-import com.dreamCollection.mate.excpetion.MateRecruitmentClosedException;
-import com.dreamCollection.mate.excpetion.MateRequestNotFoundException;
+import com.dreamCollection.mate.excpetion.*;
 import com.dreamCollection.mate.repository.MatePostRepository;
 import com.dreamCollection.mate.repository.MateRequestRepository;
 import lombok.RequiredArgsConstructor;
@@ -33,7 +29,7 @@ public class MateRequestService {
             throw new MateRecruitmentClosedException();
         }
         if(mateRequestRepository.existsByMatePostIdAndRequesterId(matePostId,requesterId)){
-            throw new DuplicateEmailException();
+            throw new DuplicateMateRequestException();
         }
         MateRequest request = MateRequest.builder()
                 .matePostId(matePostId)

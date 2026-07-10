@@ -1,17 +1,16 @@
-package com.dreamcollection.travelog.controller;
+package com.dreamCollection.travelog.controller;
 
-import com.dreamcollection.travelog.dto.upload.UploadRequestDTO;
-import com.dreamcollection.travelog.dto.upload.UploadResultDTO;
-import com.dreamcollection.travelog.service.MediaService;
+import com.dreamCollection.travelog.dto.MediaDetailDTO;
+import com.dreamCollection.travelog.dto.upload.UploadResultDTO;
+import com.dreamCollection.travelog.service.MediaService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import org.hibernate.annotations.Parameter;
 import org.springframework.core.io.Resource;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
 import java.util.List;
 
 @RestController
@@ -22,9 +21,9 @@ public class MediaController {
 
     private final MediaService mediaService;
 
-    @PostMapping(value = "/", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public UploadResultDTO upload(UploadRequestDTO request) {
-        return mediaService.upload(request);
+    @PostMapping(value = "/tripLog/{tno}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public UploadResultDTO upload(@PathVariable Long tno, @RequestPart("files")List<MultipartFile> files) {
+        return mediaService.upload(tno, files);
     }
 
     @DeleteMapping("/{mno}")
@@ -33,13 +32,8 @@ public class MediaController {
     }
 
     @GetMapping("/{mno}")
-    public ResponseEntity<Resource> viewMedia(@PathVariable Long mno) {
-        try {
-            return mediaService.view(mno);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return null;
+    public MediaDetailDTO readMedia(@PathVariable Long mno) {
+        return mediaService.getMediaDetail(mno);
     }
 
 }

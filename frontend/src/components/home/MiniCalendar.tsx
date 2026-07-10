@@ -77,7 +77,7 @@ export default function MiniCalendar() {
         ))}
       </div>
 
-      <Link to="/plan" className="btn-ghost text-sm text-center mt-1">
+      <Link to="/trip" className="btn-ghost text-sm text-center mt-1">
         + 새 일정 추가
       </Link>
     </section>

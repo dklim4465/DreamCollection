@@ -30,6 +30,9 @@ dependencyManagement {
 }
 
 dependencies {
+	// .env
+	implementation 'me.paulschwarz:springboot3-dotenv'
+
 	// Spring Boot
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
@@ -37,26 +40,19 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-security'
 	implementation 'org.springframework.boot:spring-boot-starter-mail'
 	implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
-	implementation 'org.springframework.boot:spring-boot-starter-web'
-	implementation 'org.springframework.boot:spring-boot-starter-validation'
-	implementation 'org.springframework.boot:spring-boot-starter-security'
 
-	// 이메일 발송
-	implementation 'org.springframework.boot:spring-boot-starter-mail'
-
-	// Swagger (API 문서 자동화) — http://localhost:8080/swagger-ui.html 에서 확인
+	// Swagger
 	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.6.0'
 
-	// DB 드라이버
+	// DB
 	runtimeOnly 'org.mariadb.jdbc:mariadb-java-client'
-	runtimeOnly 'com.mysql:mysql-connector-j'
 
-	// JWT (jjwt)
+	// JWT
 	implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
 	runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.11.5'
 	runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.11.5'
 
-	// trip/travelog 도메인에서 사용하는 라이브러리 (건드리지 않음)
+	// Domain libraries
 	implementation 'org.modelmapper:modelmapper:3.1.1'
 	implementation 'net.coobird:thumbnailator:0.4.20'
 	implementation 'com.google.code.gson:gson:2.10.1'
@@ -68,14 +64,6 @@ dependencies {
 	// Lombok
 	compileOnly 'org.projectlombok:lombok'
 	annotationProcessor 'org.projectlombok:lombok'
-
-	// Lombok
-	compileOnly 'org.projectlombok:lombok'
-	annotationProcessor 'org.projectlombok:lombok'
-
-	// Database
-	runtimeOnly 'com.mysql:mysql-connector-j'
-	runtimeOnly 'org.mariadb.jdbc:mariadb-java-client'
 
 	// Development
 	developmentOnly 'org.springframework.boot:spring-boot-devtools'

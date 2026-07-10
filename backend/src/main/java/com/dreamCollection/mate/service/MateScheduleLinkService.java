@@ -2,6 +2,7 @@ package com.dreamCollection.mate.service;
 
 
 import com.dreamCollection.mate.dto.MateScheduleLinkCreateRequestDTO;
+import com.dreamCollection.mate.dto.MateScheduleLinkResponseDTO;
 import com.dreamCollection.mate.entity.MatePost;
 import com.dreamCollection.mate.entity.MateRequest;
 import com.dreamCollection.mate.entity.MateScheduleLink;
@@ -9,7 +10,6 @@ import com.dreamCollection.mate.excpetion.*;
 import com.dreamCollection.mate.repository.MatePostRepository;
 import com.dreamCollection.mate.repository.MateRequestRepository;
 import com.dreamCollection.mate.repository.MateScheduleLinkRepository;
-import com.dreamCollection.mate.repository.MateScheduleLinkResponseDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -42,7 +42,7 @@ public class MateScheduleLinkService {
         if(!"ACCEPTED".equals(request.getStatus())){
             throw new MateRequestNotAcceptedException();
         }
-        if(mateScheduleLinkRepository.existByRequestId(request.getId())){
+        if(mateScheduleLinkRepository.existsByRequestId(request.getId())){
             throw new DuplicateScheduleLinkException();
         }
 

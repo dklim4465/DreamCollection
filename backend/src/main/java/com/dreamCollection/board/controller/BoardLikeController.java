@@ -5,6 +5,7 @@ import com.dreamCollection.board.dto.BoardLikeResponseDTO;
 import com.dreamCollection.board.service.BoardLikeService;
 import com.dreamCollection.global.response.ApiResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -16,7 +17,7 @@ public class BoardLikeController {
 
     @PostMapping
     public ApiResponse<BoardLikeResponseDTO> toogleLike(
-            @RequestHeader("X-User_Id") Long userId,
+            @AuthenticationPrincipal Long userId,
             @PathVariable Long postId
     ){
         BoardLikeResponseDTO responseDTO = boardLikeService.toggleLike(userId, postId);

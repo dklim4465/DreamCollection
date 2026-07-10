@@ -1,4 +1,4 @@
-package com.dreamcollection.travelog.domain;
+package com.dreamCollection.travelog.domain;
 
 import jakarta.persistence.*;
 import lombok.*;
@@ -11,7 +11,7 @@ import java.time.Instant;
 @NoArgsConstructor
 @Getter
 @Builder
-@ToString(exclude = "tripLog")
+@ToString(exclude = {"tripLog", "spot"})
 @Table(name="media")
 public class Media {
 
@@ -45,7 +45,7 @@ public class Media {
     @JoinColumn(name = "trip_id", nullable = false)
     private TripLog tripLog;
 
-    @ManyToOne(optional = true, fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "spot_id")
     private Spot spot;
 

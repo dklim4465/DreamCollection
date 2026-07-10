@@ -4,12 +4,13 @@ package com.dreamCollection.mate.controller;
 
 import com.dreamCollection.global.response.ApiResponse;
 import com.dreamCollection.mate.dto.MateScheduleLinkCreateRequestDTO;
-import com.dreamCollection.mate.repository.MateScheduleLinkResponseDTO;
+import com.dreamCollection.mate.dto.MateScheduleLinkResponseDTO;
 import com.dreamCollection.mate.service.MateScheduleLinkService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -23,7 +24,7 @@ public class MateScheduleLinkController {
 
     @PostMapping
     public ResponseEntity<ApiResponse<MateScheduleLinkResponseDTO>> createLink(
-            @RequestHeader("X-User-Id") Long userId,
+            @AuthenticationPrincipal Long userId,
             @PathVariable Long matePostId,
             @Valid @RequestBody MateScheduleLinkCreateRequestDTO requestDTO
             ){
@@ -40,7 +41,7 @@ public class MateScheduleLinkController {
 
     @DeleteMapping("/{linkId}")
     public ApiResponse<Void> deleteLink(
-            @RequestHeader("X-User-Id") Long userId,
+            @AuthenticationPrincipal Long userId,
             @PathVariable Long matePostId,
             @PathVariable Long linkId
     ){
