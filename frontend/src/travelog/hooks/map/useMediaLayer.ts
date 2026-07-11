@@ -1,55 +1,56 @@
 import { useMap } from "@/travelog/map/useMap";
-import { useSpotStore } from "@/travelog/store/useSpotStore";
 import { useEffect, useRef } from "react";
 import mapboxgl from "mapbox-gl";
+import { useMediaStore } from "@/travelog/store/useMediaStore";
 
 type Props = {
   visible: boolean;
 };
 
-export const useSpotLayer = ({ visible }: Props) => {
+export const useMediaLayer = ({ visible }: Props) => {
   const { map } = useMap();
 
-  const spots = useSpotStore((state) => state.spots);
+  const media = useMediaStore((state) => state.media);
 
   const markersRef = useRef<Map<number, mapboxgl.Marker>>(new Map());
 
   useEffect(() => {
     if (!map) return;
 
-    spots.forEach((spot) => {
-      if (markersRef.current.has(spot.sno)) return;
+    media.forEach((item) => {
+      if (markersRef.current.has(item.mno)) return;
 
       const element = document.createElement("div");
       element.className = "spot-marker";
 
       element.innerHTML = `
       <div class="spot-marker">
-        <img src="http://localhost:8080/${spot.coverImagePath}" />
+        <img src="http://localhost:8080/${item.mediaPath}/thumbnail/${item.storedFileName}" />
       </div>
       `;
 
+      if (!item.location) return;
       const marker = new mapboxgl.Marker({
         element: element,
         anchor: "bottom",
-      }).setLngLat(spot.centerLocation.coordinates);
+      }).setLngLat(item.location.coordinates);
 
-      markersRef.current.set(spot.sno, marker);
+      markersRef.current.set(item.mno, marker);
 
       if (visible) {
         marker.addTo(map);
       }
     });
 
-    markersRef.current.forEach((marker, sno) => {
-      const exists = spots.some((spot) => spot.sno === sno);
+    markersRef.current.forEach((marker, mno) => {
+      const exists = media.some((item) => item.mno === mno);
 
       if (!exists) {
         marker.remove();
-        markersRef.current.delete(sno);
+        markersRef.current.delete(mno);
       }
     });
-  }, [map, spots, visible]);
+  }, [map, media, visible]);
 
   useEffect(() => {
     if (!map) return;

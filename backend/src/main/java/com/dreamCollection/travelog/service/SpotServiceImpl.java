@@ -136,7 +136,7 @@ public class SpotServiceImpl implements SpotService{
                     spot.getMedias().stream()
                             .map(media -> MediaSummaryDTO.builder()
                                     .mno(media.getMno())
-                                    .mediaPath(media.getMediaPath())
+                                    .mediaPath(normalizePath(media.getMediaPath()))
                                     .storedFileName(media.getStoredFileName())
                                     .location(geometryUtils.toGeoJson(media.getLocation()))
                                     .takenAt(media.getTakenAt())
@@ -150,7 +150,7 @@ public class SpotServiceImpl implements SpotService{
                     .centerLocation(geometryUtils.toGeoJson(spot.getCenterLocation()))
                     .visitAt(spot.getVisitAt())
                     .leaveAt(spot.getLeaveAt())
-                    .coverImagePath(spot.getCoverImagePath())
+                    .coverImagePath(normalizePath(spot.getCoverImagePath()))
                     .mediaList(mediaSummaryList)
                     .build();
 
@@ -158,5 +158,13 @@ public class SpotServiceImpl implements SpotService{
         });
 
         return spotDetailDTOList;
+    }
+
+    private String normalizePath(String path) {
+        if (path == null) {
+            return null;
+        }
+
+        return path.replace("\\","/");
     }
 }

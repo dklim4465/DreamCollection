@@ -1,5 +1,5 @@
 import { getTripLogOverview } from "@/travelog/api/tripLogApi";
-import MapComponent from "@/travelog/components/MapComponent";
+import MapComponent from "@/travelog/components/tripLogDetailPage/MapComponent";
 import { useMediaStore } from "@/travelog/store/useMediaStore";
 import { useSpotStore } from "@/travelog/store/useSpotStore";
 import { useTripLogStore } from "@/travelog/store/useTripLogStore";
