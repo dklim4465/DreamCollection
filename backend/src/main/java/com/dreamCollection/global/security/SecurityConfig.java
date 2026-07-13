@@ -14,20 +14,7 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfigurationSource;
 
-/**
- * JWT 기반 Stateless 인증 설정.
- *
- * 공개(누구나 접근 가능) API:
- *  - /api/auth/**        회원가입/로그인/인증코드 발송·확인
- *  - /api/cities/**       도시 자동완성 검색
- *  - /api/banners, /api/notices, /api/main/**   메인페이지 조회성 API
- *
- * 관리자 전용 API:
- *  - /api/admin/**       배너/메인배경/공지사항/이달의여행지/회원관리 (Role.ADMIN 필요)
- *
- * 그 외 API는 전부 로그인(JWT) 필요.
- * 담당 도메인에서 공개로 열어야 하는 GET API가 있으면 이 목록에 추가하면 됩니다.
- */
+
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
@@ -37,17 +24,12 @@ public class SecurityConfig {
     private final AuthEntryPointHandler authEntryPointHandler;
     private final AccessDeniedHandlerImpl accessDeniedHandler;
     private final CorsConfigurationSource corsConfigurationSource;
-
-    // 프론트에서 주소를 공용으로 변경하고 여기서도 주소를 추가해야 인식이됨
     private static final String[] PUBLIC_URLS = {
             "/api/auth/**",
             "/api/cities/**",
             "/api/banners/**",
             "/api/notices/**",
             "/api/main/**",
-            "/api/images/**",
-            "/api/stats/**",
-            "/uploads/**",
             "/swagger-ui/**",
             "/swagger-ui.html",
             "/v3/api-docs/**",
@@ -55,6 +37,8 @@ public class SecurityConfig {
             "/api/trip/recommend",
             "/api/flight/search",
 
+            "/ws-stomp/**",
+            "/uploads/**",
     };
 
     @Bean

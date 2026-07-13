@@ -16,18 +16,6 @@ import java.net.URISyntaxException;
 import java.time.Duration;
 import java.util.List;
 
-/**
- * 외부 이미지(Unsplash 등)를 서버가 대신 받아와서 그대로 전달해주는 프록시.
- *
- * 왜 필요한가:
- *  - 브라우저 광고 차단 확장 프로그램(uBlock 등) 중 일부가 이미지 CDN(images.unsplash.com 등)에서
- *    페이지 안에 삽입된(<img>) 요청만 골라서 조용히 차단하는 경우가 있음 (주소창 직접 접속은 안 막힘).
- *  - 프론트에서 이 프록시(같은 출처 /api/images/proxy)를 통해서만 이미지를 요청하게 하면,
- *    브라우저 입장에서는 우리 서버로의 평범한 API 호출일 뿐이라 그런 차단을 우회할 수 있음.
- *
- * 보안: 화이트리스트에 있는 호스트만 프록시 허용 (임의 URL을 서버가 대신 요청해주는
- * SSRF성 오남용 방지).
- */
 @RestController
 @RequestMapping("/api/images")
 public class ImageProxyController {

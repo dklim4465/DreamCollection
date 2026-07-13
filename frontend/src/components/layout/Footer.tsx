@@ -6,14 +6,16 @@ export default function Footer() {
   return (
     <footer className="bg-surface-container-high w-full py-stack-xl">
       <div className="flex flex-col md:flex-row justify-between items-center px-margin-desktop w-full max-w-container-max mx-auto gap-stack-lg">
-        <div className="flex flex-col items-center md:items-start gap-2">
+        {/* 💡 shrink-0을 추가하여 화면이 줄어들어도 로고 영역이 찌그러지지 않게 고정합니다 */}
+        <div className="flex flex-col items-center md:items-start gap-2 shrink-0">
           <div className="flex items-center gap-2">
             <img
               src="/logo.png"
               alt="Dream Collection 로고"
               className="h-8 w-auto object-contain"
             />
-            <span className="text-headline-sm font-bold text-primary">
+            <span className="text-headline-sm font-bold text-primary whitespace-nowrap">
+              {/* 💡 whitespace-nowrap을 추가해 글자가 아래로 꺾이지 않게 합니다 */}
               Dream Collection
             </span>
           </div>
@@ -23,6 +25,7 @@ export default function Footer() {
         </div>
 
         <div className="flex flex-wrap justify-center gap-stack-lg">
+          {/* ... 기존 코드 동일 ... */}
           {LINKS.map((label) => (
             <Link
               key={label}
@@ -34,7 +37,8 @@ export default function Footer() {
           ))}
         </div>
 
-        <div className="flex gap-4">
+        <div className="flex gap-4 shrink-0">
+         
           {["public", "mail"].map((icon) => (
             <button
               key={icon}

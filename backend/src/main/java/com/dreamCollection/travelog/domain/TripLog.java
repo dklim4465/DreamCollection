@@ -1,6 +1,5 @@
 package com.dreamCollection.travelog.domain;
 
-import com.dreamCollection.user.entity.User;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
