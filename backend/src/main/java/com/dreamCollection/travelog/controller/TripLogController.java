@@ -1,5 +1,6 @@
 package com.dreamCollection.travelog.controller;
 
+import com.dreamCollection.travelog.dto.TripLogOverviewDTO;
 import com.dreamCollection.travelog.dto.request.TripLogRequestDTO;
 import com.dreamCollection.travelog.dto.response.TripLogResponseDTO;
 import com.dreamCollection.travelog.service.TripLogService;
@@ -7,12 +8,13 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
 @Log4j2
-@RequestMapping("/api/tripLog")
+@RequestMapping("/api/triplog")
 public class TripLogController {
 
     private final TripLogService tripLogService;
@@ -53,6 +55,23 @@ public class TripLogController {
         tripLogService.removeTrip(tno);
 
         return Map.of("result", "success");
+    }
+
+    @GetMapping("/list")
+    public List<TripLogResponseDTO> listTripLog() {
+
+        log.info("tripLog list");
+
+        return tripLogService.getList();
+    }
+
+    @GetMapping("/overview/{tno}")
+    public TripLogOverviewDTO tripLogOverview(@PathVariable(name = "tno") Long tno) {
+
+        log.info("tripLog Overview: " + tno);
+
+        return tripLogService.getOverview(tno);
+
     }
 
 }

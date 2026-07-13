@@ -3,22 +3,21 @@ package com.dreamCollection.travelog.service;
 import com.dreamCollection.travelog.domain.Media;
 import com.dreamCollection.travelog.domain.MediaType;
 import com.dreamCollection.travelog.domain.TripLog;
+import com.dreamCollection.travelog.dto.GeoJsonPointDTO;
+import com.dreamCollection.travelog.dto.MediaDetailDTO;
 import com.dreamCollection.travelog.dto.MetadataInfoDTO;
 import com.dreamCollection.travelog.dto.StoredFileDTO;
-import com.dreamCollection.travelog.dto.upload.UploadRequestDTO;
 import com.dreamCollection.travelog.dto.upload.UploadResultDTO;
 import com.dreamCollection.travelog.repository.MediaRepository;
 import com.dreamCollection.travelog.repository.TripLogRepository;
 import com.dreamCollection.travelog.service.extractor.MetadataService;
+import com.dreamCollection.travelog.util.GeometryUtils;
 import com.drew.imaging.ImageProcessingException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import net.coobird.thumbnailator.Thumbnailator;
 import org.apache.commons.io.FilenameUtils;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.Resource;
-import org.springframework.core.io.UrlResource;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionSynchronization;
@@ -26,7 +25,6 @@ import org.springframework.transaction.support.TransactionSynchronizationManager
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -43,23 +41,25 @@ public class MediaServiceImpl implements MediaService {
     private String uploadPath;
 
     private final TripLogRepository tripLogRepository;
-
     private final MediaRepository mediaRepository;
 
     private final MetadataService metadataService;
+    private final SpotService spotService;
+
+    private final GeometryUtils geometryUtils;
 
     @Override
     @Transactional
-    public UploadResultDTO upload(UploadRequestDTO request) {
+    public UploadResultDTO upload(Long tno, List<MultipartFile> files) {
 
-        TripLog tripLog = tripLogRepository.getReferenceById(request.getTripLogTno());
+        TripLog tripLog = tripLogRepository.getReferenceById(tno);
 
         List<Media> mediaList = new ArrayList<>();
         List<String> failedFiles = new ArrayList<>();
 
         int successCount = 0;
 
-        for (MultipartFile file : request.getFiles()) {
+        for (MultipartFile file : files) {
 
             try {
                 Media media = createMedia(file, tripLog);
@@ -77,8 +77,10 @@ public class MediaServiceImpl implements MediaService {
 
         mediaRepository.saveAll(mediaList);
 
+        spotService.clusteringSpot(tno);
+
         return UploadResultDTO.builder()
-                .totalCount(request.getFiles().size())
+                .totalCount(files.size())
                 .successCount(successCount)
                 .failCount(failedFiles.size())
                 .failedFiles(failedFiles)
@@ -108,18 +110,21 @@ public class MediaServiceImpl implements MediaService {
     }
 
     @Override
-    @Transactional(readOnly = true)
-    public ResponseEntity<Resource> view(Long mno) throws MalformedURLException {
+    @Transactional
+    public MediaDetailDTO getMediaDetail(Long mno) {
 
         Media media = mediaRepository.findById(mno).orElseThrow();
 
-        Path path = Paths.get(media.getMediaPath(), media.getStoredFileName());
+        GeoJsonPointDTO location = geometryUtils.toGeoJson(media.getLocation());
 
-        Resource resource = new UrlResource(path.toUri());
-
-        return ResponseEntity.ok()
-                .contentType(org.springframework.http.MediaType.parseMediaType(media.getMimeType()))
-                .body(resource);
+        return MediaDetailDTO.builder()
+                .mno(media.getMno())
+                .mediaPath(media.getMediaPath())
+                .storedFileName(media.getStoredFileName())
+                .takenAt(media.getTakenAt())
+                .location(location)
+                .mediaText(media.getMediaText())
+                .build();
     }
 
     private Media createMedia(MultipartFile file, TripLog tripLog) throws IOException, ImageProcessingException {

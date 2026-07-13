@@ -1,0 +1,28 @@
+package com.dreamCollection.flight.controller;
+
+import com.dreamCollection.flight.dto.FlightRequestDTO;
+import com.dreamCollection.flight.dto.FlightOfferDTO;
+import com.dreamCollection.flight.service.FlightService;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
+
+@RestController
+@Log4j2
+@RequiredArgsConstructor
+@RequestMapping("/api/flight")
+public class FlightController {
+
+    private final FlightService flightService;
+
+    //데이터 받아오는 속도가 너무 느림 이 부분은 리팩터링 해야 할거같음
+    @PostMapping("/search")
+    public List<FlightOfferDTO> searchFlights(@RequestBody FlightRequestDTO requestDTO) {
+        return flightService.searchFlights(requestDTO);
+    }
+}

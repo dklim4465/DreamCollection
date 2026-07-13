@@ -9,6 +9,7 @@ interface AuthState {
   isAuthenticated: boolean;
   setUser: (user: User, accessToken: string, refreshToken?: string) => void;
   updateUser: (user: User) => void;
+  hydrateUser: (user: User) => void;
   logout: () => void;
 }
 
@@ -21,6 +22,8 @@ export const useAuthStore = create<AuthState>((set) => ({
     set({ user, isAuthenticated: true });
   },
   updateUser: (user) => set({ user }),
+  // 새로고침 직후처럼 토큰은 있는데 user 정보만 비어있을 때, 토큰은 그대로 두고 user만 채워넣기
+  hydrateUser: (user) => set({ user, isAuthenticated: true }),
   logout: () => {
     localStorage.removeItem(TOKEN_KEY);
     localStorage.removeItem(REFRESH_TOKEN_KEY);

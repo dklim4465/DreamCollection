@@ -16,7 +16,7 @@ import java.util.List;
 @NoArgsConstructor
 @Getter
 @Builder
-@ToString(exclude = "tags")
+@ToString(exclude = {"tags", "user"})
 @Table(name = "trip_log")
 @EntityListeners(AuditingEntityListener.class)
 public class TripLog {
@@ -48,6 +48,10 @@ public class TripLog {
     @ElementCollection
     @Builder.Default
     private List<String> tags = new ArrayList<>();
+//
+//    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+//    @JoinColumn(name = "user_id", nullable = false)
+//    private User user;
 
     public void changeTitle(String title) { this.title = title; }
 

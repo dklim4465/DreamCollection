@@ -4,6 +4,7 @@ import type { ApiResponse } from "@/types";
 export interface Banner {
   id: number;
   title: string;
+  mediaType: "IMAGE" | "VIDEO";
   imageUrl: string;
   linkUrl: string | null;
   displayOrder: number;

@@ -14,13 +14,16 @@ export default function SavedTripList({ savedTrips }: Props) {
       prompt: "",
       aiResult: "",
       recommendations: [savedTrips.recommendation],
+      sideBlocks: [],
     };
-    navigate("/trip/result", {
+    navigate("/trip/edit", {
       state: {
         conditions: savedTrips.conditions,
         planResult,
         recommendation: savedTrips.recommendation,
+        savedTripId: savedTrips.savedTripId,
         isSavedView: true,
+        saveLabel: "일정 수정",
       },
     });
   };
@@ -31,7 +34,7 @@ export default function SavedTripList({ savedTrips }: Props) {
     <div className="grid gap-stack-md">
       {savedTrips.map((savedTrip) => (
         <button
-          key={savedTrip.savedTripID}
+          key={savedTrip.savedTripId}
           type="button"
           onClick={() => handleOpen(savedTrip)}
           className="card-interactive p-stack-lg text-left"

@@ -1,4 +1,5 @@
 import axios from "axios";
+import { useAuthStore } from "@/auth/store/authStore";
 
 const TOKEN_KEY = import.meta.env.VITE_JWT_KEY || "travelers_hub_token";
 

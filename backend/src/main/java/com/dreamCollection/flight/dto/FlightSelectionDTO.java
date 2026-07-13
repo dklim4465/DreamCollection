@@ -5,6 +5,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -13,9 +15,15 @@ public class FlightSelectionDTO {
 
     private boolean skipped;
 
-    private Long airportId;
+    private FlightSegmentDTO outboundFlight;
 
-    private String airportCode;
+    private FlightSegmentDTO returnFlight;
 
-    private String airportName;
+    private BigDecimal price;
+
+    private String currency;
+
+    private String provider;
+
+    private String externalUrl;
 }

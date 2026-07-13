@@ -49,7 +49,6 @@ export default function TripSavedListPage() {
 
       {data.length === 0 ? (
         <EmptyState
-          icon="calendar_month"
           title="저장된 일정이 없어요"
           description="AI에게 새 일정을 추천받아보세요."
           action={

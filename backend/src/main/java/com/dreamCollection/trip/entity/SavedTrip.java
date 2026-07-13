@@ -42,9 +42,14 @@ public class SavedTrip {
     }
 
     @Builder
-    public SavedTrip(Long userId, String conditionsJson, String recommendationJson) {
+    public SavedTrip(Long userId, String conditionsJson, String recommendationJson, String flightSelectionJson, String accommodationSelectionJson) {
         this.userId = userId;
         this.conditionsJson = conditionsJson;
+        this.recommendationJson = recommendationJson;
+        this.flightSelectionJson = flightSelectionJson;
+        this.accommodationSelectionJson = accommodationSelectionJson;
+    }
+    public void changeRecommendation(String recommendationJson) {
         this.recommendationJson = recommendationJson;
     }
 }

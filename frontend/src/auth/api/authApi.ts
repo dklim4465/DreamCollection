@@ -27,6 +27,18 @@ export interface AuthRes {
   user: User;
 }
 
+export interface AvailabilityRes {
+  available: boolean;
+}
+
+export interface PasswordResetTokenRes {
+  resetToken: string;
+}
+
+// ────────────────────────────────────────────────────────────
+// 카카오 로그인(인가 코드 방식) 설정
+// developers.kakao.com에서 발급받은 REST API 키 / 콜백 주소를 .env에서 읽어온다.
+// ────────────────────────────────────────────────────────────
 const KAKAO_CLIENT_ID = import.meta.env.VITE_KAKAO_CLIENT_ID;
 const KAKAO_REDIRECT_URI = import.meta.env.VITE_KAKAO_REDIRECT_URI;
 
@@ -43,9 +55,16 @@ export const authApi = {
   logout: (refreshToken: string) =>
     apiClient.post<ApiResponse<void>>("/auth/logout", { refreshToken }),
 
-  // 원래는 항상 data: null만 돌려주는 가짜(스텁) 함수였음.
-  // 실제 백엔드의 "내 정보 조회" 엔드포인트를 호출하도록 수정.
-  getMe: () => apiClient.get<ApiResponse<User>>("/users/me"),
+  // GET /api/auth/me — 새로고침 후 유저 정보 복구용 (비로그인/토큰만료 시 data: null)
+  getMe: () => apiClient.get<ApiResponse<User | null>>("/auth/me"),
+
+  // ── 회원가입창 중복확인 버튼 ────────────────────────────────
+  // GET /api/auth/check-email?email=...
+  checkEmail: (email: string) =>
+    apiClient.get<ApiResponse<AvailabilityRes>>("/auth/check-email", { params: { email } }),
+  // GET /api/auth/check-phone?phone=...
+  checkPhone: (phone: string) =>
+    apiClient.get<ApiResponse<AvailabilityRes>>("/auth/check-phone", { params: { phone } }),
 
   sendPhoneCode: (phone: string) =>
     apiClient.post<ApiResponse<void>>("/auth/phone/send-code", { phone }),
@@ -77,4 +96,21 @@ export const authApi = {
 
   loginWithKakaoCode: (code: string) =>
     apiClient.post<ApiResponse<AuthRes>>("/auth/oauth/kakao", { code }),
+
+  // ── 비밀번호 찾기(재설정) 3단계 ──────────────────────────
+  // 1) 가입된 이메일로 인증코드 발송
+  requestPasswordReset: (email: string) =>
+    apiClient.post<ApiResponse<void>>("/auth/password/request", { email }),
+  // 2) 인증코드 검증 → 성공 시 1회용 resetToken 발급
+  verifyPasswordResetCode: (email: string, code: string) =>
+    apiClient.post<ApiResponse<PasswordResetTokenRes>>("/auth/password/verify", {
+      email,
+      code,
+    }),
+  // 3) resetToken + 새 비밀번호로 최종 변경
+  confirmPasswordReset: (resetToken: string, newPassword: string) =>
+    apiClient.post<ApiResponse<void>>("/auth/password/confirm", {
+      resetToken,
+      newPassword,
+    }),
 };
