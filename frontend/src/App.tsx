@@ -17,7 +17,9 @@ import { MapProvider } from "@/travelog/map/MapProvider";
 
 // ── 코드 스플리팅 (lazy import) ──────────────────────────────
 const CardRegisterPage = lazy(() => import("./payment/pages/CardRegisterPage"));
-const BillingSuccessPage = lazy(() => import("./payment/pages/BillingSuccessPage"));
+const BillingSuccessPage = lazy(
+  () => import("./payment/pages/BillingSuccessPage"),
+);
 const BillingFailPage = lazy(() => import("./payment/pages/BillingFailPage"));
 
 const LoginPage = lazy(() => import("./auth/pages/LoginPage"));
@@ -102,21 +104,30 @@ export default function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <AuthBootstrap />
-      <BrowserRouter>
-        <Suspense fallback={<LoadingSpinner message="페이지 로딩 중..." />}>
-          <Routes>
-            {/* Public */}
-            <Route path="/login" element={<LoginPage />} />
-            <Route path="/register" element={<RegisterPage />} />
-            <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-            <Route
-              path="/oauth/callback/kakao"
-              element={<KakaoCallbackPage />}
-            />
+      <MapProvider>
+        <BrowserRouter>
+          <Suspense fallback={<LoadingSpinner message="페이지 로딩 중..." />}>
+            <Routes>
+              {/* Public */}
+              <Route path="/login" element={<LoginPage />} />
+              <Route path="/register" element={<RegisterPage />} />
+              <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+              <Route
+                path="/oauth/callback/kakao"
+                element={<KakaoCallbackPage />}
+              />
 
-            {/* Layout 포함 라우트 */}
-            <Route element={<AppLayout />}>
-              <Route path="/" element={<HomePage />} />
+              {/* Layout 포함 라우트 */}
+              <Route element={<AppLayout />}>
+                <Route path="/" element={<HomePage />} />
+                <Route path="/trip" element={<TripHubPage />} />
+                <Route path="/trip/new" element={<TravelPlanPage />} />
+                <Route path="/trip/flight" element={<TripFlightSelectPage />} />
+                <Route
+                  path="/trip/accommodation"
+                  element={<TripAccommodationSelectPage />}
+                />
+                <Route path="/trip/result" element={<TripResultPage />} />
                 <Route path="/community" element={<CommunityPage />} />
                 <Route path="/community/new" element={<BoardWritePage />} />
                 <Route
@@ -141,16 +152,6 @@ export default function App() {
                   path="/matching/:matePostId"
                   element={<MateDetailPage />}
                 />
-              </Route>
-
-                <Route path="/trip" element={<TripHubPage />} />
-                <Route path="/trip/new" element={<TravelPlanPage />} />
-                <Route path="/trip/flight" element={<TripFlightSelectPage />} />
-              <Route
-                path="/trip/accommodation"
-                element={<TripAccommodationSelectPage />}
-              />
-                <Route path="/trip/result" element={<TripResultPage />} />
 
                 {/* 로그인 필요 */}
                 <Route element={<PrivateRoute />}>
@@ -160,7 +161,10 @@ export default function App() {
                   <Route path="/records" element={<RecordsPage />} />
                   <Route path="/profile" element={<ProfilePage />} />
                   <Route path="/register/card" element={<CardRegisterPage />} />
-                  <Route path="/billing/success" element={<BillingSuccessPage />} />
+                  <Route
+                    path="/billing/success"
+                    element={<BillingSuccessPage />}
+                  />
                   <Route path="/billing/fail" element={<BillingFailPage />} />
                   <Route path="/community" element={<CommunityPage />} />
                   <Route path="/community/new" element={<BoardWritePage />} />
@@ -174,26 +178,25 @@ export default function App() {
                   />
                   <Route path="/matching" element={<MatchingPage />} />
                 </Route>
-
-                {/* 관리자 전용 (role=ADMIN) */}
-                <Route element={<AdminRoute />}>
-                  <Route path="/admin" element={<AdminLayout />}>
-                    <Route
-                      index
-                      element={<Navigate to="/admin/banners" replace />}
-                    />
-                    <Route path="banners" element={<AdminBannersPage />} />
-                    <Route
-                      path="main-backgrounds"
-                      element={<AdminMainBackgroundsPage />}
-                    />
-                    <Route path="notices" element={<AdminNoticesPage />} />
-                    <Route
-                      path="monthly-destinations"
-                      element={<AdminMonthlyDestinationsPage />}
-                    />
-                    <Route path="users" element={<AdminUsersPage />} />
-                  </Route>
+              </Route>
+              {/* 관리자 전용 (role=ADMIN) */}
+              <Route element={<AdminRoute />}>
+                <Route path="/admin" element={<AdminLayout />}>
+                  <Route
+                    index
+                    element={<Navigate to="/admin/banners" replace />}
+                  />
+                  <Route path="banners" element={<AdminBannersPage />} />
+                  <Route
+                    path="main-backgrounds"
+                    element={<AdminMainBackgroundsPage />}
+                  />
+                  <Route path="notices" element={<AdminNoticesPage />} />
+                  <Route
+                    path="monthly-destinations"
+                    element={<AdminMonthlyDestinationsPage />}
+                  />
+                  <Route path="users" element={<AdminUsersPage />} />
                 </Route>
               </Route>
 
