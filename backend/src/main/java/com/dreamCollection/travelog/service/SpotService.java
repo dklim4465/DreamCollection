@@ -1,6 +1,5 @@
 package com.dreamCollection.travelog.service;
 
-import com.dreamCollection.travelog.domain.Spot;
 import com.dreamCollection.travelog.dto.SpotDetailDTO;
 import org.springframework.transaction.annotation.Transactional;
 

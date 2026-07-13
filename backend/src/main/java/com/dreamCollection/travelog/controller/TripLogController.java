@@ -65,7 +65,7 @@ public class TripLogController {
         return tripLogService.getList();
     }
 
-    @GetMapping("/{tno}/overview")
+    @GetMapping("/overview/{tno}")
     public TripLogOverviewDTO tripLogOverview(@PathVariable(name = "tno") Long tno) {
 
         log.info("tripLog Overview: " + tno);

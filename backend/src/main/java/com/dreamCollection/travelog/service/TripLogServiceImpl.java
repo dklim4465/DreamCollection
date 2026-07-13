@@ -12,7 +12,6 @@ import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.regex.Pattern;
@@ -52,6 +51,7 @@ public class TripLogServiceImpl implements TripLogService {
         TripLog tripLog = result.orElseThrow();
 
         TripLogResponseDTO tripLogResponseDTO = modelMapper.map(tripLog, TripLogResponseDTO.class);
+        tripLogResponseDTO.setThumbnailPath(normalizePath(tripLogResponseDTO.getThumbnailPath()));
 
         return tripLogResponseDTO;
     }
@@ -112,7 +112,11 @@ public class TripLogServiceImpl implements TripLogService {
         List<TripLog> tripLogs = tripLogRepository.findAll();
 
         return tripLogs.stream()
-                .map(tripLog -> modelMapper.map(tripLog, TripLogResponseDTO.class))
+                .map(tripLog -> {
+                    TripLogResponseDTO dto = modelMapper.map(tripLog, TripLogResponseDTO.class);
+                    dto.setThumbnailPath(normalizePath(dto.getThumbnailPath()));
+                    return dto;
+                })
                 .toList();
     }
 
@@ -123,5 +127,13 @@ public class TripLogServiceImpl implements TripLogService {
                 .results()
                 .map(m -> m.group().substring(1))
                 .toList();
+    }
+
+    private String normalizePath(String path) {
+        if (path == null) {
+            return null;
+        }
+
+        return path.replace("\\", "/");
     }
 }
