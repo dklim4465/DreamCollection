@@ -31,7 +31,9 @@ const HomePage = lazy(() => import("./home/pages/HomePage"));
 const CommunityPage = lazy(() => import("@/board/pages/CommunityPage"));
 const BoardDetailPage = lazy(() => import("@/board/pages/BoardDetailPage"));
 const BoardWritePage = lazy(() => import("@/board/pages/BoardWritePage"));
-const MatchingPage = lazy(() => import("@/pages/MatchingPage"));
+const MatchingPage = lazy(() => import("@/mate/pages/MatchingPage"));
+const MateWritePage = lazy(() => import("@/mate/pages/MateWritePage"));
+const MateDetailPage = lazy(() => import("@/mate/pages/MateDetailPage"));
 
 const CartPage = lazy(() => import("./payment/pages/CartPage"));
 const RecordsPage = lazy(() => import("./records/pages/RecordsPage"));
@@ -85,6 +87,18 @@ function AuthBootstrap() {
 }
 
 export default function App() {
+  const { isAuthenticated, updateUser } = useAuthStore();
+
+  useEffect(() => {
+    if (!isAuthenticated) return;
+
+    authApi.getMe().then((res) => {
+      if (res.data.data) {
+        updateUser(res.data.data);
+      }
+    });
+  }, [isAuthenticated]);
+
   return (
     <QueryClientProvider client={queryClient}>
       <AuthBootstrap />
@@ -104,7 +118,30 @@ export default function App() {
             <Route element={<AppLayout />}>
               <Route path="/" element={<HomePage />} />
                 <Route path="/community" element={<CommunityPage />} />
+                <Route path="/community/new" element={<BoardWritePage />} />
+                <Route
+                  path="/community/:postId"
+                  element={<BoardDetailPage />}
+                />
+                <Route
+                  path="/community/:postId/edit"
+                  element={<BoardWritePage />}
+                />
+
+                {/* 순서 중요: /matching/new, /matching/:id/edit이
+                    /matching/:matePostId보다 먼저 와야
+                    "new"가 파라미터로 잘못 매칭되지 않음 */}
                 <Route path="/matching" element={<MatchingPage />} />
+                <Route path="/matching/new" element={<MateWritePage />} />
+                <Route
+                  path="/matching/:matePostId/edit"
+                  element={<MateWritePage />}
+                />
+                <Route
+                  path="/matching/:matePostId"
+                  element={<MateDetailPage />}
+                />
+              </Route>
 
                 <Route path="/trip" element={<TripHubPage />} />
                 <Route path="/trip/new" element={<TravelPlanPage />} />

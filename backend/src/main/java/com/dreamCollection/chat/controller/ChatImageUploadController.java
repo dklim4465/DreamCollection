@@ -6,7 +6,9 @@ import com.dreamCollection.global.response.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -31,9 +33,9 @@ public class ChatImageUploadController {
 
     private static final long MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 
-    @PostMapping
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ApiResponse<ChatImageUploadResponseDTO>> uploadImage(
-            @RequestHeader("X-User-Id") Long userId,
+            @AuthenticationPrincipal Long userId,
             @RequestParam("file") MultipartFile file
     ) {
         validateFile(file);
@@ -51,7 +53,7 @@ public class ChatImageUploadController {
             throw new FileUploadFailedException();
         }
 
-        String imageUrl = "/uploads/chat/" + savedFileName;
+        String imageUrl = "/upload/chat/" + savedFileName;
 
         return ResponseEntity
                 .status(HttpStatus.CREATED)

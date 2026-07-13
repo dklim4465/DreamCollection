@@ -36,7 +36,6 @@ public class SecurityConfig {
             "/api/trip/options/**",
             "/api/trip/recommend",
             "/api/flight/search",
-
             "/ws-stomp/**",
             "/uploads/**",
     };

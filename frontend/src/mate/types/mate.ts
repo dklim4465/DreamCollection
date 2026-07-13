@@ -21,6 +21,7 @@ export const MATE_REQUEST_STATUS_LABELS: Record<MateRequestStatus, string> = {
 
 export const PREFERRED_GENDERS = ["무관", "동성", "이성"] as const;
 export const TRAVEL_STYLES = [
+  "무관",
   "힐링",
   "액티비티",
   "맛집",
