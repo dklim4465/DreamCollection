@@ -21,9 +21,7 @@ export default function CardRegisterPage() {
     setIsRequesting(true);
     setError(null);
     try {
-      // customerKey는 반드시 로그인한 본인의 고유 id로 지정
-      await requestCardBillingAuth(TOSS_CLIENT_KEY, String(user.id));
-      // 성공 시 토스가 successUrl로 리다이렉트하므로 여기 이후 코드는 보통 실행되지 않음
+     await requestCardBillingAuth(TOSS_CLIENT_KEY, `user-${user.id}`);
     } catch (e) {
       setError(e instanceof Error ? e.message : "카드 등록 창을 여는 데 실패했습니다.");
       setIsRequesting(false);

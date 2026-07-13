@@ -1,6 +1,8 @@
 package com.dreamCollection.user.service;
 
 import com.dreamCollection.auth.service.KakaoOauthClient;
+import com.dreamCollection.global.exception.BusinessException;
+import com.dreamCollection.global.exception.NicknameChangeCooldownException;
 import com.dreamCollection.user.dto.AuthResponse;
 import com.dreamCollection.user.dto.KakaoLoginRequest;
 import com.dreamCollection.user.dto.LoginRequest;
@@ -20,9 +22,12 @@ import com.dreamCollection.global.exception.InvalidVerificationCodeException;
 import com.dreamCollection.global.exception.PhoneNotVerifiedException;
 import com.dreamCollection.global.security.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDateTime;
 
 import com.dreamCollection.user.entity.User;
 import com.dreamCollection.user.entity.UserOauthAccount;
@@ -34,6 +39,8 @@ import com.dreamCollection.user.repository.UserRepository;
 @Service
 @RequiredArgsConstructor
 public class UserService {
+
+    private static final int NICKNAME_CHANGE_COOLDOWN_DAYS = 14;
 
     private final UserRepository userRepository;
     private final PhoneVerificationRepository phoneVerificationRepository;
@@ -59,18 +66,42 @@ public class UserService {
     }
 
     /**
-     * 마이페이지 "프로필 수정"에서 사용. nickname이 바뀌는 경우에만 중복 체크.
+     * 마이페이지 "프로필 수정"에서 사용. nickname이 바뀌는 경우에만 중복 체크 + 2주 쿨다운 체크.
      */
     @Transactional
     public UserResponse updateProfile(Long userId, String nickname, String profileImageUrl, TravelStyle travelStyle) {
         User user = userRepository.findById(userId).orElseThrow(InvalidCredentialsException::new);
 
         if (nickname != null && !nickname.isBlank() && !nickname.equals(user.getNickname())) {
+            if (user.getNicknameChangedAt() != null
+                    && user.getNicknameChangedAt().isAfter(LocalDateTime.now().minusDays(NICKNAME_CHANGE_COOLDOWN_DAYS))) {
+                throw new NicknameChangeCooldownException(
+                        user.getNicknameChangedAt().plusDays(NICKNAME_CHANGE_COOLDOWN_DAYS));
+            }
             validateDuplicateNickname(nickname);
         }
 
         user.updateProfile(nickname, profileImageUrl, travelStyle);
         return UserResponse.from(user);
+    }
+
+    /**
+     * 마이페이지 "비밀번호 변경" (로그인 상태, 현재 비밀번호 재확인 후 변경).
+     * 성공 시 다른 기기의 로그인 세션은 전부 강제 로그아웃(보안).
+     */
+    @Transactional
+    public void changeMyPassword(Long userId, String currentPassword, String newPassword) {
+        User user = userRepository.findById(userId).orElseThrow(InvalidCredentialsException::new);
+
+        if (user.getPasswordHash() == null) {
+            throw new BusinessException("소셜 로그인 계정은 비밀번호 변경이 불가능해요.", HttpStatus.FORBIDDEN);
+        }
+        if (!passwordEncoder.matches(currentPassword, user.getPasswordHash())) {
+            throw new InvalidCredentialsException();
+        }
+
+        user.changePassword(passwordEncoder.encode(newPassword));
+        refreshTokenService.revokeAll(userId);
     }
 
     /**
@@ -237,7 +268,7 @@ public class UserService {
 
     /** 로그인 성공/실패 시도를 login_history 테이블에 기록 (마이페이지 "최근 로그인 기록"에서 조회) */
     private void recordLoginHistory(Long userId, LoginHistory.LoginType type,
-                                     String userAgent, String ipAddress, boolean success) {
+                                    String userAgent, String ipAddress, boolean success) {
         loginHistoryRepository.save(LoginHistory.builder()
                 .userId(userId)
                 .loginType(type)
