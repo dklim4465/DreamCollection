@@ -1,5 +1,7 @@
 package com.dreamCollection.user.controller;
 
+import com.dreamCollection.global.upload.FileStorageService;
+import com.dreamCollection.user.dto.ChangePasswordRequest;
 import com.dreamCollection.user.dto.DeviceSessionResponse;
 import com.dreamCollection.user.dto.LoginHistoryResponse;
 import com.dreamCollection.user.dto.UpdateProfileRequest;
@@ -17,9 +19,12 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -31,6 +36,7 @@ public class UserController {
     private final UserService userService;
     private final LevelService levelService;
     private final DeviceSessionService deviceSessionService;
+    private final FileStorageService fileStorageService;
 
     // 프론트: authApi.getMe() → GET /api/users/me (로그인 필요)
     @GetMapping("/me")
@@ -48,7 +54,7 @@ public class UserController {
         return ApiResponse.ok(levelService.getMyLevel(userId));
     }
 
-    // 마이페이지 "프로필 수정" → PATCH /api/users/me
+    // 마이페이지 "프로필 수정" (닉네임/이미지URL/여행스타일) → PATCH /api/users/me
     @PatchMapping("/me")
     public ApiResponse<UserResponse> updateMe(
             Authentication authentication,
@@ -58,6 +64,29 @@ public class UserController {
         UserResponse response = userService.updateProfile(
                 userId, request.nickname(), request.profileImageUrl(), request.travelStyle());
         return ApiResponse.ok(response, "프로필이 수정되었습니다.");
+    }
+
+    // 마이페이지 "프로필 사진 변경" (파일 업로드, 자동 512px 리사이즈) → POST /api/users/me/profile-image
+    @PostMapping("/me/profile-image")
+    public ApiResponse<UserResponse> uploadProfileImage(
+            Authentication authentication,
+            @RequestParam("file") MultipartFile file
+    ) {
+        Long userId = resolveUserId(authentication);
+        String url = fileStorageService.storeProfileImage(file);
+        UserResponse response = userService.updateProfile(userId, null, url, null);
+        return ApiResponse.ok(response, "프로필 사진이 변경되었습니다.");
+    }
+
+    // 마이페이지 "비밀번호 변경" (현재 비밀번호 확인 후 변경) → PATCH /api/users/me/password
+    @PatchMapping("/me/password")
+    public ApiResponse<Void> changePassword(
+            Authentication authentication,
+            @Valid @RequestBody ChangePasswordRequest request
+    ) {
+        Long userId = resolveUserId(authentication);
+        userService.changeMyPassword(userId, request.currentPassword(), request.newPassword());
+        return ApiResponse.ok(null, "비밀번호가 변경되었습니다. 다른 기기는 모두 로그아웃 처리됐어요.");
     }
 
     // 마이페이지 "최근 로그인 기록" → GET /api/users/me/login-history

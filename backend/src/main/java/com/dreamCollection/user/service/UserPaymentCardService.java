@@ -22,11 +22,10 @@ public class UserPaymentCardService {
     private final TossPaymentClient tossPaymentClient;
 
     @Transactional
-    public PaymentCardResponse registerCard(Long userId, String authKey, String customerKey) {
-        // customerKey는 프론트가 위젯 실행 시 넘긴 값 — 로그인한 본인 카드가 맞는지 대조
-        if (!customerKey.equals(String.valueOf(userId))) {
-            throw new BusinessException("본인 명의로만 카드를 등록할 수 있습니다.", HttpStatus.FORBIDDEN);
-        }
+   public PaymentCardResponse registerCard(Long userId, String authKey, String customerKey) {
+    if (!customerKey.equals("user-" + userId)) {
+        throw new BusinessException("본인 명의로만 카드를 등록할 수 있습니다.", HttpStatus.FORBIDDEN);
+    }
 
         TossPaymentClient.BillingKeyResult result = tossPaymentClient.issueBillingKey(authKey, customerKey);
 

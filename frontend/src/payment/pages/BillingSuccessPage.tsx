@@ -6,6 +6,10 @@ import { paymentCardApi } from "@/payment/api/paymentCardApi";
  * 토스페이먼츠가 카드 등록 성공 시 리다이렉트하는 페이지.
  * URL 쿼리로 authKey, customerKey를 넘겨주며, 이걸 백엔드로 전달해
  * 실제 빌링키로 교환 + 저장을 완료합니다.
+ *
+ * 저장이 끝나면 "일정 짜러 가시겠습니까?" 확인창을 보여주고,
+ * 예 → /trip/new (일정 만들기), 아니요 → /profile (마이페이지)로 이동.
+ * 카드는 이미 이 시점에 저장 완료된 상태라 어느 쪽을 눌러도 카드는 그대로 남아있음.
  */
 export default function BillingSuccessPage() {
   const [searchParams] = useSearchParams();
@@ -49,10 +53,24 @@ export default function BillingSuccessPage() {
             <span className="material-symbols-outlined text-primary text-5xl">
               check_circle
             </span>
-            <h1 className="text-headline-md font-bold">카드 등록 완료!</h1>
-            <button onClick={() => navigate("/")} className="btn-primary w-full mt-2">
-              시작하기
-            </button>
+            <h1 className="text-headline-md font-bold">카드 등록이 완료되었습니다</h1>
+            <p className="text-body-md text-on-surface-variant">
+              바로 일정을 짜러 가시겠어요?
+            </p>
+            <div className="flex gap-2 w-full mt-2">
+              <button
+                onClick={() => navigate("/profile")}
+                className="btn-ghost flex-1"
+              >
+                아니요, 마이페이지로
+              </button>
+              <button
+                onClick={() => navigate("/trip/new")}
+                className="btn-primary flex-1"
+              >
+                예, 일정 짜러 가기
+              </button>
+            </div>
           </>
         )}
 
@@ -62,7 +80,7 @@ export default function BillingSuccessPage() {
             <h1 className="text-headline-md font-bold">등록에 실패했어요</h1>
             <p className="text-label-sm text-error">{errorMessage}</p>
             <div className="flex gap-2 w-full mt-2">
-              <button onClick={() => navigate("/register/card")} className="btn-ghost flex-1">
+              <button onClick={() => navigate("/profile")} className="btn-ghost flex-1">
                 다시 시도
               </button>
               <button onClick={() => navigate("/")} className="btn-primary flex-1">

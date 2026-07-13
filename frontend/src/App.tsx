@@ -14,6 +14,10 @@ import { useAuthStore } from "@/auth/store/authStore";
 import { MapProvider } from "@/travelog/map/MapProvider";
 
 // ── 코드 스플리팅 (lazy import) ──────────────────────────────
+const CardRegisterPage = lazy(() => import("./payment/pages/CardRegisterPage"));
+const BillingSuccessPage = lazy(() => import("./payment/pages/BillingSuccessPage"));
+const BillingFailPage = lazy(() => import("./payment/pages/BillingFailPage"));
+
 const LoginPage = lazy(() => import("./auth/pages/LoginPage"));
 const RegisterPage = lazy(() => import("./auth/pages/RegisterPage"));
 const ForgotPasswordPage = lazy(
@@ -111,6 +115,9 @@ export default function App() {
                   <Route path="/cart" element={<CartPage />} />
                   <Route path="/records" element={<RecordsPage />} />
                   <Route path="/profile" element={<ProfilePage />} />
+                  <Route path="/register/card" element={<CardRegisterPage />} />
+                  <Route path="/billing/success" element={<BillingSuccessPage />} />
+                  <Route path="/billing/fail" element={<BillingFailPage />} />
                   <Route path="/community" element={<CommunityPage />} />
                   <Route path="/community/new" element={<BoardWritePage />} />
                   <Route
