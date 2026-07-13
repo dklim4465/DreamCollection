@@ -14,13 +14,16 @@ export default function SavedTripList({ savedTrips }: Props) {
       prompt: "",
       aiResult: "",
       recommendations: [savedTrips.recommendation],
+      sideBlocks: [],
     };
-    navigate("/trip/result", {
+    navigate("/trip/edit", {
       state: {
         conditions: savedTrips.conditions,
         planResult,
         recommendation: savedTrips.recommendation,
+        savedTripId: savedTrips.savedTripId,
         isSavedView: true,
+        saveLabel: "일정 수정",
       },
     });
   };

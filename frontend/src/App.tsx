@@ -9,13 +9,17 @@ import TripResultPage from "@/trip/page/TripResultPage";
 import TripHubPage from "@/trip/page/TripHubPage";
 import TripSavedListPage from "@/trip/page/TripSavedListPage";
 import TravelPlanPage from "@/trip/page/TravelPlanPage";
+import TripFlightSelectPage from "@/trip/page/TripFlightSelectPage";
+import TripAccommodationSelectPage from "@/trip/page/TripAccommodationSelectPage";
 import { authApi } from "@/auth/api/authApi";
 import { useAuthStore } from "@/auth/store/authStore";
 
 // ── 코드 스플리팅 (lazy import) ──────────────────────────────
 const LoginPage = lazy(() => import("./auth/pages/LoginPage"));
 const RegisterPage = lazy(() => import("./auth/pages/RegisterPage"));
-const ForgotPasswordPage = lazy(() => import("./auth/pages/ForgotPasswordPage"));
+const ForgotPasswordPage = lazy(
+  () => import("./auth/pages/ForgotPasswordPage"),
+);
 const KakaoCallbackPage = lazy(() => import("./auth/pages/KakaoCallbackPage"));
 
 const HomePage = lazy(() => import("./home/pages/HomePage"));
@@ -82,7 +86,10 @@ export default function App() {
             <Route path="/login" element={<LoginPage />} />
             <Route path="/register" element={<RegisterPage />} />
             <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-            <Route path="/oauth/callback/kakao" element={<KakaoCallbackPage />} />
+            <Route
+              path="/oauth/callback/kakao"
+              element={<KakaoCallbackPage />}
+            />
 
             {/* Layout 포함 라우트 */}
             <Route element={<AppLayout />}>
@@ -92,11 +99,17 @@ export default function App() {
 
               <Route path="/trip" element={<TripHubPage />} />
               <Route path="/trip/new" element={<TravelPlanPage />} />
+              <Route path="/trip/flight" element={<TripFlightSelectPage />} />
+              <Route
+                path="/trip/accommodation"
+                element={<TripAccommodationSelectPage />}
+              />
               <Route path="/trip/result" element={<TripResultPage />} />
 
               {/* 로그인 필요 */}
               <Route element={<PrivateRoute />}>
                 <Route path="/trip/saved" element={<TripSavedListPage />} />
+                <Route path="/trip/edit" element={<TripResultPage />} />
                 <Route path="/cart" element={<CartPage />} />
                 <Route path="/records" element={<RecordsPage />} />
                 <Route path="/profile" element={<ProfilePage />} />
@@ -116,11 +129,20 @@ export default function App() {
               {/* 관리자 전용 (role=ADMIN) */}
               <Route element={<AdminRoute />}>
                 <Route path="/admin" element={<AdminLayout />}>
-                  <Route index element={<Navigate to="/admin/banners" replace />} />
+                  <Route
+                    index
+                    element={<Navigate to="/admin/banners" replace />}
+                  />
                   <Route path="banners" element={<AdminBannersPage />} />
-                  <Route path="main-backgrounds" element={<AdminMainBackgroundsPage />} />
+                  <Route
+                    path="main-backgrounds"
+                    element={<AdminMainBackgroundsPage />}
+                  />
                   <Route path="notices" element={<AdminNoticesPage />} />
-                  <Route path="monthly-destinations" element={<AdminMonthlyDestinationsPage />} />
+                  <Route
+                    path="monthly-destinations"
+                    element={<AdminMonthlyDestinationsPage />}
+                  />
                   <Route path="users" element={<AdminUsersPage />} />
                 </Route>
               </Route>

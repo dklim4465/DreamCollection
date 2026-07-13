@@ -60,9 +60,7 @@ export default function TripOptionSelector({ type, value, onSelect }: Props) {
                   ? "p-stack-md rounded-2xl bg-primary text-on-primary text-label-md font-semibold"
                   : "p-stack-md rounded-2xl bg-surface-container-low hover:bg-primary-container text-label-md font-semibold"
               }
-            >
-              {option}
-            </button>
+            ></button>
           );
         })}
       </div>

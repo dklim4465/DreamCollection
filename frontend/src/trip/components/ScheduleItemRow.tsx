@@ -13,8 +13,6 @@ interface Props {
 }
 
 export default function ScheduleItemRow({ item, onOpen }: Props) {
-  const selectedPlace = item.options[item.selectedOptionIndex];
-
   return (
     <li className="border-b border-outline-variant last:border-b-0">
       <button
@@ -43,7 +41,7 @@ export default function ScheduleItemRow({ item, onOpen }: Props) {
             <h4 className="text-body-md font-bold truncate">{item.title}</h4>
 
             <p className="text-label-md text-on-surface-variant truncate mt-1">
-              {selectedPlace?.placeName ?? "선택된 후보 없음"}
+              {item.description ?? item.address ?? "상세 정보 없음"}
             </p>
           </div>
         </div>
