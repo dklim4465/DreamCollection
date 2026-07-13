@@ -1,6 +1,7 @@
 export interface ChatRoom {
   roomId: number;
   matePostId: number;
+  matePostTitle: string;
   memberIds: number[];
   lastMessage: string | null;
   lastMessageAt: string | null;

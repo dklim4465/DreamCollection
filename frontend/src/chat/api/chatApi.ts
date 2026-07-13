@@ -8,6 +8,8 @@ export const chatApi = {
     apiClient.get<ApiResponse<ChatMessage[]>>(`/chat/rooms/${roomId}/messages`),
   openRoom: (matePostId: number) =>
     apiClient.post<ApiResponse<number>>(`/chat/mate-posts/${matePostId}/room`),
+  openDmRoom: (friendUserId: number) =>
+    apiClient.post<ApiResponse<number>>(`/chat/friends/${friendUserId}/room`),
   markRead: (roomId: number) =>
     apiClient.post<ApiResponse<void>>(`/chat/rooms/${roomId}/read`),
   uploadImage: (file: File) => {

@@ -32,11 +32,26 @@ export const useChatStore = create<ChatState>((set) => ({
   appendMessage: (message) =>
     set((state) => {
       const roomMessages = state.messages[message.roomId] ?? [];
+
+      const updatedRooms = state.rooms.map((room) =>
+        room.roomId === message.roomId
+          ? {
+              ...room,
+              lastMessage:
+                message.messageType === "IMAGE"
+                  ? "사진을 보냈습니다."
+                  : message.content,
+              lastMessageAt: message.createdAt,
+            }
+          : room,
+      );
+
       return {
         messages: {
           ...state.messages,
           [message.roomId]: [...roomMessages, message],
         },
+        rooms: updatedRooms,
       };
     }),
   setConnected: (connected) => set({ isConnected: connected }),

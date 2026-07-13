@@ -50,10 +50,14 @@ export function unsubscribeRoom(roomId: number) {
   subscriptions.delete(roomId);
 }
 
-export function sendMessage(roomId: number, content: string) {
+export function sendMessage(
+  roomId: number,
+  content: string,
+  messageType: "TEXT" | "IMAGE" = "TEXT",
+) {
   if (!client?.active) return;
   client.publish({
     destination: `/pub/rooms/${roomId}/send`,
-    body: JSON.stringify({ content, messageType: "TEXT" }),
+    body: JSON.stringify({ content, messageType }),
   });
 }
