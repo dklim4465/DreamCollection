@@ -1,21 +1,33 @@
 import apiClient from "@/common/api/client";
 
-export type TripOptionType = "who" | "when" | "region" | "theme" | "level";
+export type TripOptionType = "who" | "when" | "theme" | "level";
 
 // DTO 받아온거 ts용 인식 시키기
 export interface PlanRequest {
   who: string;
+  startDate?: string;
   when: string;
   region: string;
   theme: string;
   level: string;
+  flightCondition?: FlightCondition;
+  destination?: string;
+  accommodationCondition?: AccommodationCondition;
 }
 
-export interface PlaceOption {
-  option: number;
-  placeName: string;
-  category: string;
-  description: string;
+export interface FlightCondition {
+  skip: boolean;
+  priority?: "PRICE" | "TIME" | "DIRECT";
+  seatClass?: "ECONOMY" | "BUSINESS";
+  directOnly?: boolean;
+  preferredDepartureTime?: "MORNING" | "AFTERNOON" | "EVENING";
+}
+
+export interface AccommodationCondition {
+  skip: boolean;
+  accommodationType?: "HOTEL" | "RESORT" | "GUESTHOUSE";
+  priority?: "PRICE" | "LOCATION" | "RATING";
+  maxPrice?: number;
 }
 
 export interface ScheduleItem {
@@ -23,8 +35,12 @@ export interface ScheduleItem {
   itemType: string;
   timeSlot: string;
   title: string;
-  options: PlaceOption[];
-  selectedOptionIndex: number;
+  description?: string;
+  address?: string;
+  durationMinutes?: number;
+  estimatedCost?: number;
+  imageUrl?: string;
+  locked?: boolean;
   replaceable: boolean;
 }
 
@@ -41,16 +57,84 @@ export interface TripRecommendation {
   days: DayPlan[];
 }
 
+export interface RecommendationBlock {
+  blockId: string;
+  category: "SCHEDULE" | "FOOD" | "EXPERIENCE" | string;
+  title: string;
+  description: string;
+  address?: string;
+  durationMinutes?: number;
+  estimatedCost?: number;
+  imageUrl?: string;
+}
+
 export interface PlanResponse extends PlanRequest {
   prompt: string;
   aiResult: string;
   recommendations: TripRecommendation[];
+  sideBlocks: RecommendationBlock[];
+}
+
+export interface FlightSegment {
+  airlineName: string;
+  flightNumber: string;
+  departureAirportCode: string;
+  departureAirportName: string;
+  arrivalAirportCode: string;
+  arrivalAirportName: string;
+  departureDate: string;
+  arrivalDate: string;
+  departureTime: string;
+  arrivalTime: string;
+  durationMinutes: number;
+}
+
+export interface FlightOffer {
+  outboundFlight?: FlightSegment;
+  returnFlight?: FlightSegment;
+  price?: number;
+  currency?: string;
+  provider?: string;
+  externalUrl?: string;
+}
+
+export interface FlightSelection extends FlightOffer {
+  skipped: boolean;
+}
+
+export interface AccommodationOption {
+  accommodationId?: number;
+  accommodationName?: string;
+  accommodationType?: string;
+  cityName?: string;
+  countryName?: string;
+  region?: string;
+  checkInDate?: string;
+  checkOutDate?: string;
+  address?: string;
+  price?: number;
+  currency?: string;
+  rating?: number;
+  provider?: string;
+  externalUrl?: string;
+  imageUrl?: string;
+}
+
+export interface AccommodationSelection extends AccommodationOption {
+  skipped: boolean;
 }
 
 export interface SaveTripRequest {
-  userId: number;
   conditions: PlanRequest;
   recommendation: TripRecommendation;
+  flightSelection?: FlightSelection | null;
+  accommodationSelection?: AccommodationSelection | null;
+}
+
+export interface TripFlowState {
+  conditions: PlanRequest;
+  flightSelection?: FlightSelection | null;
+  accommodationSelection?: AccommodationSelection | null;
 }
 
 export interface SaveTripResponse {
@@ -62,6 +146,8 @@ export interface SavedTrip {
   userId: number;
   conditions: PlanRequest;
   recommendation: TripRecommendation;
+  flightSelection?: FlightSelection | null;
+  accommodationSelection?: AccommodationSelection | null;
   createdDate: string;
 }
 
@@ -73,11 +159,20 @@ export interface SavedTripSummary {
   createdDate: string;
 }
 
+export interface CityOption {
+  id: number;
+  nameKo: string;
+  nameEn: string;
+  countryName: string;
+  latitude: number;
+  longitude: number;
+  imageUrl?: string;
+}
+
 // 타입이랑 타입별 내용 미리 세팅해두기
 export const tripOptionTypes: TripOptionType[] = [
   "who",
   "when",
-  "region",
   "theme",
   "level",
 ];
@@ -85,7 +180,6 @@ export const tripOptionTypes: TripOptionType[] = [
 export const tripOptionLabels: Record<TripOptionType, string> = {
   who: "누구와",
   when: "기간",
-  region: "지역",
   theme: "테마",
   level: "여행 강도",
 };
@@ -93,7 +187,6 @@ export const tripOptionLabels: Record<TripOptionType, string> = {
 export const tripOptionIcons: Record<TripOptionType, string> = {
   who: "group",
   when: "date_range",
-  region: "public",
   theme: "flag",
   level: "hiking",
 };
@@ -113,12 +206,41 @@ export const tripApi = {
     return response.data;
   },
 
+  searchFlights: async (request: PlanRequest) => {
+    const response = await apiClient.post<FlightOffer[]>("/flight/search", {
+      region: request.region,
+      destination: request.destination ?? request.region,
+      startDate: request.startDate,
+      when: request.when,
+      flightCondition: request.flightCondition,
+    });
+    return response.data;
+  },
+
+  searchAccommodations: async (request: PlanRequest) => {
+    const response = await apiClient.post<AccommodationOption[]>(
+      "/accommodation/search",
+      {
+        region: request.region,
+        destination: request.destination ?? request.region,
+        startDate: request.startDate,
+        when: request.when,
+        accommodationCondition: request.accommodationCondition,
+      },
+    );
+    return response.data;
+  },
+
   save: async (request: SaveTripRequest) => {
     const response = await apiClient.post<SaveTripResponse>(
       "/trip/saved",
       request,
     );
     return response.data;
+  },
+
+  updateSavedTrip: async (savedTripId: number, request: SaveTripRequest) => {
+    await apiClient.put<void>(`/trip/saved/${savedTripId}`, request);
   },
 
   getSavedTrip: async (savedTripId: number) => {
@@ -136,12 +258,35 @@ export const tripApi = {
 
   getSavedTrips: async () => {
     const response = await apiClient.get<SavedTrip[]>("/trip/saved/me");
-    return response.data.map((trip): SavedTripSummary => ({
-      id: trip.savedTripId,
-      title: trip.recommendation?.title ?? null,
-      region: trip.conditions?.region ?? null,
-      theme: trip.conditions?.theme ?? null,
-      createdDate: trip.createdDate,
-    }));
+    return response.data.map(
+      (trip): SavedTripSummary => ({
+        id: trip.savedTripId,
+        title: trip.recommendation?.title ?? null,
+        region: trip.conditions?.region ?? null,
+        theme: trip.conditions?.theme ?? null,
+        createdDate: trip.createdDate,
+      }),
+    );
+  },
+
+  deleteSavedTrip: async (savedTripId: number) => {
+    await apiClient.delete<void>(`/trip/remove/${savedTripId}`);
+  },
+
+  getPopularCities: async () => {
+    const response = await apiClient.get<{ data: CityOption[] }>(
+      "/cities/popular",
+    );
+    return response.data.data;
+  },
+
+  searchCities: async (keyword: string) => {
+    const response = await apiClient.get<{ data: CityOption[] }>(
+      "/api/flight/search",
+      {
+        params: { keyword },
+      },
+    );
+    return response.data.data;
   },
 };

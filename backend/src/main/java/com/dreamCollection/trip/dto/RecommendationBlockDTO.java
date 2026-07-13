@@ -5,24 +5,18 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.List;
-
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class ScheduleItemDTO {
+public class RecommendationBlockDTO {
 
-    private String itemKey;
-    private String itemType;
-    private String timeSlot;
+    private String blockId;
+    private String category; // SCHEDULE, FOOD, EXPERIENCE
     private String title;
     private String description;
     private String address;
     private Integer durationMinutes;
     private Integer estimatedCost;
     private String imageUrl;
-    private Boolean locked;
-    // 교체 확인 여부
-    private boolean replaceable;
 }

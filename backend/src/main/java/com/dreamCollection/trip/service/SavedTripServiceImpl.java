@@ -8,6 +8,7 @@ import com.dreamCollection.trip.exception.SavedTripValidator;
 import com.dreamCollection.trip.exception.TripSaveException;
 import com.dreamCollection.trip.mapper.SavedTripMapper;
 import com.dreamCollection.trip.repository.SavedTripRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -54,6 +55,18 @@ public class SavedTripServiceImpl implements SavedTripService {
     public void deleteSavedTrip(Long userId, Long savedTripId) {
         SavedTrip savedTrip = findSavedTripByUser(userId, savedTripId, "삭제할 일정이 없습니다.");
         savedTripRepository.delete(savedTrip);
+    }
+
+    @Override
+    public void modify(Long userId, Long savedTripId, SaveTripRequestDTO request) {
+        savedTripValidator.validateUpdate(userId, savedTripId, request);
+
+        SavedTrip savedTrip = savedTripRepository.findByIdAndUserId(savedTripId, userId)
+                .orElseThrow(() -> new TripSaveException("수정할 일정이 없습니다."));
+
+        savedTrip.changeRecommendation(savedTripMapper.toJson(request.getRecommendation()));
+
+        savedTripRepository.save(savedTrip);
     }
 
     private SavedTrip findSavedTripByUser(Long userId, Long savedTripId, String message) {

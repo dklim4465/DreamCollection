@@ -12,7 +12,6 @@ import java.util.stream.IntStream;
 public class TripRecommendationBuilder {
 
     private static final int DEFAULT_DAY_COUNT = 1;
-    private static final int OPTION_COUNT = 3;
     private static final Pattern DAY_COUNT_PATTERN = Pattern.compile("(\\d+)일");
 
     public List<TripRecommendDTO> build(PlanRequestDTO request, String aiResult) {
@@ -62,24 +61,7 @@ public class TripRecommendationBuilder {
                 .itemType(template.itemType())
                 .timeSlot(template.timeSlot())
                 .title(template.title())
-                .options(buildPlaceOptions(dayNumber, template))
-                .selectedOptionIndex(0)
                 .replaceable(true)
-                .build();
-    }
-
-    private List<PlaceOptionDTO> buildPlaceOptions(int dayNumber, ItemTemplate template) {
-        return IntStream.rangeClosed(1, OPTION_COUNT)
-                .mapToObj(option -> buildPlaceOption(dayNumber, option, template))
-                .toList();
-    }
-
-    private PlaceOptionDTO buildPlaceOption(int dayNumber, int option, ItemTemplate template) {
-        return PlaceOptionDTO.builder()
-                .option(option)
-                .placeName(template.title() + " 후보 " + option)
-                .category(template.itemType())
-                .description(dayNumber + "일차 " + template.title() + " " + option + "번째 후보입니다.")
                 .build();
     }
 

@@ -9,6 +9,8 @@ import TripResultPage from "@/trip/page/TripResultPage";
 import TripHubPage from "@/trip/page/TripHubPage";
 import TripSavedListPage from "@/trip/page/TripSavedListPage";
 import TravelPlanPage from "@/trip/page/TravelPlanPage";
+import TripFlightSelectPage from "@/trip/page/TripFlightSelectPage";
+import TripAccommodationSelectPage from "@/trip/page/TripAccommodationSelectPage";
 import { authApi } from "@/auth/api/authApi";
 import { useAuthStore } from "@/auth/store/authStore";
 import { MapProvider } from "@/travelog/map/MapProvider";
@@ -85,33 +87,38 @@ function AuthBootstrap() {
 export default function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <MapProvider>
-        <AuthBootstrap />
-        <BrowserRouter>
-          <Suspense fallback={<LoadingSpinner message="페이지 로딩 중..." />}>
-            <Routes>
-              {/* Public */}
-              <Route path="/login" element={<LoginPage />} />
-              <Route path="/register" element={<RegisterPage />} />
-              <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-              <Route
-                path="/oauth/callback/kakao"
-                element={<KakaoCallbackPage />}
-              />
+      <AuthBootstrap />
+      <BrowserRouter>
+        <Suspense fallback={<LoadingSpinner message="페이지 로딩 중..." />}>
+          <Routes>
+            {/* Public */}
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/register" element={<RegisterPage />} />
+            <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+            <Route
+              path="/oauth/callback/kakao"
+              element={<KakaoCallbackPage />}
+            />
 
-              {/* Layout 포함 라우트 */}
-              <Route element={<AppLayout />}>
-                <Route path="/" element={<HomePage />} />
+            {/* Layout 포함 라우트 */}
+            <Route element={<AppLayout />}>
+              <Route path="/" element={<HomePage />} />
                 <Route path="/community" element={<CommunityPage />} />
                 <Route path="/matching" element={<MatchingPage />} />
 
                 <Route path="/trip" element={<TripHubPage />} />
                 <Route path="/trip/new" element={<TravelPlanPage />} />
+                <Route path="/trip/flight" element={<TripFlightSelectPage />} />
+              <Route
+                path="/trip/accommodation"
+                element={<TripAccommodationSelectPage />}
+              />
                 <Route path="/trip/result" element={<TripResultPage />} />
 
                 {/* 로그인 필요 */}
                 <Route element={<PrivateRoute />}>
                   <Route path="/trip/saved" element={<TripSavedListPage />} />
+                  <Route path="/trip/edit" element={<TripResultPage />} />
                   <Route path="/cart" element={<CartPage />} />
                   <Route path="/records" element={<RecordsPage />} />
                   <Route path="/profile" element={<ProfilePage />} />

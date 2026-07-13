@@ -49,4 +49,7 @@ public class SavedTrip {
         this.flightSelectionJson = flightSelectionJson;
         this.accommodationSelectionJson = accommodationSelectionJson;
     }
+    public void changeRecommendation(String recommendationJson) {
+        this.recommendationJson = recommendationJson;
+    }
 }
