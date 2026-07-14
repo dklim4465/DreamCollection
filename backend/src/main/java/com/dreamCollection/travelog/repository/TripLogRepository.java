@@ -14,4 +14,8 @@ public interface TripLogRepository extends JpaRepository<TripLog, Long> {
 
     @EntityGraph(attributePaths = "tags")
     List<TripLog> findAll();
+
+    Optional<TripLog> findByTnoAndUser_Id(Long tno, Long userId);
+
+    List<TripLog> findByUser_Id(Long userId);
 }

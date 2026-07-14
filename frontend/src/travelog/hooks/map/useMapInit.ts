@@ -51,6 +51,33 @@ export const useMapInit = (mapContainer: RefObject<HTMLDivElement | null>) => {
         clusterMaxZoom: 10,
       });
 
+      mapInstance.addSource("spot-line", {
+        type: "geojson",
+        data: {
+          type: "Feature",
+          geometry: {
+            type: "LineString",
+            coordinates: [],
+          },
+          properties: {},
+        },
+      });
+
+      mapInstance.addLayer({
+        id: "spot-line",
+        type: "line",
+        source: "spot-line",
+        layout: {
+          "line-cap": "round",
+          "line-join": "round",
+        },
+        paint: {
+          "line-color": "#FF0000",
+          "line-width": 4,
+          "line-opacity": 0.7,
+        },
+      });
+
       mapInstance.addLayer({
         id: "spot-circle",
         type: "circle",

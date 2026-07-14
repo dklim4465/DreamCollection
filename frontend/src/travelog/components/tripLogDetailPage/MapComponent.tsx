@@ -5,6 +5,8 @@ import { useMap } from "@/travelog/map/useMap";
 import { useZoomLayerController } from "@/travelog/hooks/map/useZoomLayerController";
 import { useClusterLayer } from "@/travelog/hooks/map/useClusterLayer";
 import { useMediaLayer } from "@/travelog/hooks/map/useMediaLayer";
+import { useLineLayer } from "@/travelog/hooks/map/useLineLayer";
+import { useTimelineFollow } from "@/travelog/hooks/map/useTimelineFollow";
 
 const MapComponent = () => {
   const mapContainer = useRef<HTMLDivElement | null>(null);
@@ -15,7 +17,10 @@ const MapComponent = () => {
   useMapInit(mapContainer);
   useClusterLayer({ visible: showCluster });
   useSpotLayer({ visible: showSpot });
+  useLineLayer({ visible: showSpot });
   useMediaLayer({ visible: showMedia });
+
+  useTimelineFollow();
 
   useEffect(() => {
     if (!map) return;

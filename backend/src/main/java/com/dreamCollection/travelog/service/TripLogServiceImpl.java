@@ -6,6 +6,8 @@ import com.dreamCollection.travelog.dto.TripLogOverviewDTO;
 import com.dreamCollection.travelog.dto.request.TripLogRequestDTO;
 import com.dreamCollection.travelog.dto.response.TripLogResponseDTO;
 import com.dreamCollection.travelog.repository.TripLogRepository;
+import com.dreamCollection.user.entity.User;
+import com.dreamCollection.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.modelmapper.ModelMapper;
@@ -24,15 +26,20 @@ public class TripLogServiceImpl implements TripLogService {
     private final ModelMapper modelMapper;
 
     private final TripLogRepository tripLogRepository;
+    private final UserRepository userRepository;
 
     private final MediaService mediaService;
     private final SpotService spotService;
 
     @Override
     @Transactional
-    public Long registerTrip(TripLogRequestDTO tripLogRequestDTO) {
+    public Long registerTrip(Long userId, TripLogRequestDTO tripLogRequestDTO) {
+
+        User user = userRepository.getReferenceById(userId);
 
         TripLog tripLog = modelMapper.map(tripLogRequestDTO, TripLog.class);
+
+        tripLog.changeUser(user);
 
         List<String> tags = extract(tripLog.getDescription());
 
@@ -45,9 +52,9 @@ public class TripLogServiceImpl implements TripLogService {
 
     @Override
     @Transactional
-    public TripLogResponseDTO readTrip(Long tno) {
+    public TripLogResponseDTO readTrip(Long userId, Long tno) {
 
-        Optional<TripLog> result = tripLogRepository.findById(tno);
+        Optional<TripLog> result = tripLogRepository.findByTnoAndUser_Id(tno, userId);
         TripLog tripLog = result.orElseThrow();
 
         TripLogResponseDTO tripLogResponseDTO = modelMapper.map(tripLog, TripLogResponseDTO.class);
@@ -58,9 +65,9 @@ public class TripLogServiceImpl implements TripLogService {
 
     @Override
     @Transactional
-    public void updateTrip(Long tno, TripLogRequestDTO tripLogRequestDTO) {
+    public void updateTrip(Long userId, Long tno, TripLogRequestDTO tripLogRequestDTO) {
 
-        TripLog tripLog = tripLogRepository.findById(tno).orElseThrow();
+        TripLog tripLog = tripLogRepository.findByTnoAndUser_Id(tno, userId).orElseThrow();
 
         tripLog.changeTitle(tripLogRequestDTO.getTitle());
         tripLog.changeStartDate(tripLogRequestDTO.getStartDate());
@@ -79,20 +86,22 @@ public class TripLogServiceImpl implements TripLogService {
 
     @Override
     @Transactional
-    public void removeTrip(Long tno) {
+    public void removeTrip(Long userId, Long tno) {
+
+        TripLog tripLog = tripLogRepository.findByTnoAndUser_Id(tno, userId).orElseThrow();
 
         mediaService.deleteAllByTrip(tno);
 
         spotService.deleteAllByTrip(tno);
 
-        tripLogRepository.deleteById(tno);
+        tripLogRepository.delete(tripLog);
     }
 
     @Override
     @Transactional
-    public TripLogOverviewDTO getOverview(Long tno) {
+    public TripLogOverviewDTO getOverview(Long userId, Long tno) {
 
-        TripLog tripLog = tripLogRepository.findById(tno).orElseThrow();
+        TripLog tripLog = tripLogRepository.findByTnoAndUser_Id(tno, userId).orElseThrow();
 
         List<SpotDetailDTO> spots = spotService.getSpotDetailDTOsByTno(tno);
 
@@ -107,9 +116,9 @@ public class TripLogServiceImpl implements TripLogService {
 
     @Override
     @Transactional
-    public List<TripLogResponseDTO> getList() {
+    public List<TripLogResponseDTO> getList(Long userId) {
 
-        List<TripLog> tripLogs = tripLogRepository.findAll();
+        List<TripLog> tripLogs = tripLogRepository.findByUser_Id(userId);
 
         return tripLogs.stream()
                 .map(tripLog -> {

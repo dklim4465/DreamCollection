@@ -53,6 +53,19 @@ public class SpotServiceImpl implements SpotService{
         List<SpotClusterDTO> clusters = createClusters(mediaList);
 
         for (SpotClusterDTO cluster : clusters) {
+
+            Media coverMedia = cluster.getMediaList().stream()
+                    .filter(media -> media.getMediaType() == MediaType.IMAGE)
+                    .findFirst()
+                    .orElse(null);
+
+            String coverImagePath = null;
+
+            if (coverMedia != null) {
+                String mediaPath = coverMedia.getMediaPath();
+                String storedFileName = coverMedia.getStoredFileName();
+                coverImagePath = mediaPath + "/thumbnail/" + storedFileName;
+            }
             Spot spot = Spot.builder()
                     .tripLog(TripLog.builder().tno(tno).build())
                     .spotSource(SpotSource.AUTO)
@@ -60,6 +73,7 @@ public class SpotServiceImpl implements SpotService{
                     .centerLocation(cluster.getCenter(geometryUtils))
                     .visitAt(cluster.getVisitAt())
                     .leaveAt(cluster.getLeaveAt())
+                    .coverImagePath(coverImagePath)
                     .build();
 
             spotRepository.save(spot);
