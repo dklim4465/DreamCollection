@@ -24,9 +24,9 @@ public class MediaController {
         return mediaService.upload(tno, files);
     }
 
-    @DeleteMapping("/{mno}")
-    public void deleteMedia(@PathVariable Long mno) {
-        mediaService.deleteMedia(mno);
+    @DeleteMapping
+    public void deleteMedia(@RequestBody List<Long> mediaMnos) {
+        mediaService.deleteMedia(mediaMnos);
     }
 
     @GetMapping("/{mno}")
