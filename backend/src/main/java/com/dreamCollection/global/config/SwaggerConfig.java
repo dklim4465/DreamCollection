@@ -8,10 +8,7 @@ import io.swagger.v3.oas.models.security.SecurityScheme;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-/**
- * http://localhost:8080/swagger-ui.html 에서 전체 API 확인 가능.
- * 로그인 필요한 API는 우측 상단 "Authorize" 버튼에 accessToken 넣으면 테스트 가능.
- */
+
 @Configuration
 public class SwaggerConfig {
 

@@ -2,11 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-/* ───────────────────────────────────────
-   다크모드(무드있는 다크 테마) 지원용 색상 변수
-   :root = 라이트 모드, .dark = 다크 모드 (상단 네비게이션의 테마 토글이 <html>에 dark 클래스를 붙였다 뗐다 함)
-   tailwind.config.js의 색상 토큰들이 이 변수를 참조하도록 rgb(var(--color-x) / <alpha-value>) 형태로 연결되어 있음
-─────────────────────────────────────── */
 :root {
   --color-primary: 36 101 126;
   --color-on-primary: 255 255 255;
@@ -61,8 +56,7 @@
   --color-background: 247 249 255;
   --color-on-background: 24 28 32;
 }
-
-.dark {
+  .dark {
   --color-primary: 147 207 235;
   --color-on-primary: 0 53 71;
   --color-primary-container: 10 86 110;
@@ -96,31 +90,26 @@
   --color-error-container: 147 0 10;
   --color-on-error-container: 255 218 214;
 
-  --color-surface: 16 20 22;
-  --color-surface-dim: 16 20 22;
-  --color-surface-bright: 54 58 61;
-  --color-surface-container-lowest: 11 14 16;
-  --color-surface-container-low: 24 28 31;
-  --color-surface-container: 28 32 35;
-  --color-surface-container-high: 38 42 45;
-  --color-surface-container-highest: 49 53 56;
-  --color-surface-variant: 64 72 76;
+  --color-surface: 32 32 35;
+  --color-surface-dim: 32 32 35;
+  --color-surface-bright: 72 72 76;
+  --color-surface-container-lowest: 24 24 26;
+  --color-surface-container-low: 40 40 43;
+  --color-surface-container: 46 46 50;
+  --color-surface-container-high: 56 56 60;
+  --color-surface-container-highest: 66 66 70;
+  --color-surface-variant: 82 82 86;
   --color-surface-tint: 147 207 235;
-  --color-on-surface: 224 227 232;
-  --color-on-surface-variant: 192 200 205;
-  --color-inverse-surface: 224 227 232;
-  --color-inverse-on-surface: 45 49 53;
+  --color-on-surface: 230 230 232;
+  --color-on-surface-variant: 200 200 204;
+  --color-inverse-surface: 230 230 232;
+  --color-inverse-on-surface: 46 46 50;
 
-  --color-outline: 138 146 151;
-  --color-outline-variant: 64 72 76;
-  --color-background: 16 20 22;
-  --color-on-background: 224 227 232;
+  --color-outline: 154 154 158;
+  --color-outline-variant: 84 84 88;
+  --color-background: 32 32 35;
+  --color-on-background: 230 230 232;
 }
-
-/* ───────────────────────────────────────
-   Traveler's Hub — 글로벌 스타일
-   DESIGN.md 기반
-─────────────────────────────────────── */
 
 @layer base {
   * { box-sizing: border-box; }

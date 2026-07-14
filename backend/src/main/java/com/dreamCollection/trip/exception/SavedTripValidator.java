@@ -39,4 +39,15 @@ public class SavedTripValidator {
             throw new TripSaveException("일정 번호가 없습니다.");
         }
     }
+    public void validateUpdate(Long userId, Long savedTripId, SaveTripRequestDTO request) {
+        validateFind(userId, savedTripId);
+
+        if (request == null) {
+            throw new TripSaveException("수정 요청 정보가 없습니다.");
+        }
+
+        if (request.getRecommendation() == null) {
+            throw new TripSaveException("수정할 추천 일정이 없습니다.");
+        }
+    }
 }

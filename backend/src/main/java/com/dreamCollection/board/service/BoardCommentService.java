@@ -66,7 +66,7 @@ public class BoardCommentService {
         BoardComment comment = boardCommentRepository.findById(commentId)
                 .orElseThrow(CommentNotFoundException::new);
 
-        if(!comment.getUserId().equals(postId)){
+        if(!comment.getPostId().equals(postId)){
             throw new CommentNotFoundException();
         }
         if(!comment.getUserId().equals(userId)){

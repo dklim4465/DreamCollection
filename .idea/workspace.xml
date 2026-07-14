@@ -4,9 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="fd679e6d-7401-4ff2-9511-feac0ecf743d" name="변경" comment="홈페이지 이미지 삽입, 배너 이미지-&gt;영상으로 변경, ai 챗봇, 결제 카드 등록">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-    </list>
+    <list default="true" id="fd679e6d-7401-4ff2-9511-feac0ecf743d" name="변경" comment="30/3000&#10;Home page segmentation, calendar, popular travel destination in July BEST10" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -56,25 +54,49 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "ModuleVcsDetector.initialDetectionPerformed": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "RunOnceActivity.typescript.service.memoryLimit.init": "true",
-    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
-    "codeWithMe.voiceChat.enabledByDefault": "false",
-    "git-widget-placeholder": "yj에 #19개",
-    "kotlin-language-version-configured": "true",
-    "last_opened_file_path": "C:/Users/EZEN/Desktop/last/last2/DreamCollection",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_package_manager_path": "npm",
-    "ts.external.directory.path": "C:\\Users\\EZEN\\Desktop\\last\\last2\\DreamCollection\\frontend\\node_modules\\typescript\\lib"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;Gradle.backend 빌드.executor&quot;: &quot;Run&quot;,
+    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.typescript.service.memoryLimit.init&quot;: &quot;true&quot;,
+    &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
+    &quot;Spring Boot.BackendApplication.executor&quot;: &quot;Run&quot;,
+    &quot;codeWithMe.voiceChat.enabledByDefault&quot;: &quot;false&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;yj&quot;,
+    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;C:/Users/EZEN/Desktop/last/last2/DreamCollection&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;ts.external.directory.path&quot;: &quot;C:\\Users\\EZEN\\Desktop\\last\\last2\\DreamCollection\\frontend\\node_modules\\typescript\\lib&quot;
   }
-}]]></component>
+}</component>
+  <component name="RunManager">
+    <configuration name="BackendApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" temporary="true" nameIsGenerated="true">
+      <option name="FRAME_DEACTIVATION_UPDATE_POLICY" value="UnknownPolicyInFreeMode" />
+      <module name="backend.main" />
+      <option name="SPRING_BOOT_MAIN_CLASS" value="com.dreamCollection.BackendApplication" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="com.dreamCollection.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Spring Boot.BackendApplication" />
+      </list>
+    </recent_temporary>
+  </component>
   <component name="TaskManager">
     <task active="true" id="Default" summary="디폴트 작업">
       <changelist id="fd679e6d-7401-4ff2-9511-feac0ecf743d" name="변경" comment="" />
@@ -107,7 +129,39 @@
       <option name="project" value="LOCAL" />
       <updated>1783663757504</updated>
     </task>
-    <option name="localTasksCounter" value="4" />
+    <task id="LOCAL-00004" summary="30/3000&#10;&#10;&#10;용어집&#10;Home page segmentation, calendar, popular travel destination in July BEST10">
+      <option name="closed" value="true" />
+      <created>1783922325775</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1783922325775</updated>
+    </task>
+    <task id="LOCAL-00005" summary="30/3000&#10;Home page segmentation, calendar, popular travel destination in July BEST10">
+      <option name="closed" value="true" />
+      <created>1783922338770</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1783922338770</updated>
+    </task>
+    <task id="LOCAL-00006" summary="30/3000&#10;Home page segmentation, calendar, popular travel destination in July BEST10">
+      <option name="closed" value="true" />
+      <created>1783922408824</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1783922408824</updated>
+    </task>
+    <task id="LOCAL-00007" summary="30/3000&#10;Home page segmentation, calendar, popular travel destination in July BEST10">
+      <option name="closed" value="true" />
+      <created>1783922473205</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1783922473205</updated>
+    </task>
+    <option name="localTasksCounter" value="8" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -115,6 +169,8 @@
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="홈페이지 이미지 삽입, 배너 이미지-&gt;영상으로 변경, ai 챗봇, 결제 카드 등록" />
-    <option name="LAST_COMMIT_MESSAGE" value="홈페이지 이미지 삽입, 배너 이미지-&gt;영상으로 변경, ai 챗봇, 결제 카드 등록" />
+    <MESSAGE value="30/3000&#10;&#10;&#10;용어집&#10;Home page segmentation, calendar, popular travel destination in July BEST10" />
+    <MESSAGE value="30/3000&#10;Home page segmentation, calendar, popular travel destination in July BEST10" />
+    <option name="LAST_COMMIT_MESSAGE" value="30/3000&#10;Home page segmentation, calendar, popular travel destination in July BEST10" />
   </component>
 </project>

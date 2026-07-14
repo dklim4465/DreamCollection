@@ -27,7 +27,6 @@ export default function BoardDetailPage() {
   const { user } = useAuthStore();
 
   const [showReport, setShowReport] = useState(false);
-  const [newImageUrl, setNewImageUrl] = useState("");
 
   const {
     data: post,
@@ -59,14 +58,6 @@ export default function BoardDetailPage() {
   const deleteMutation = useMutation({
     mutationFn: () => boardPostApi.delete(id),
     onSuccess: () => navigate("/community"),
-  });
-
-  const addImageMutation = useMutation({
-    mutationFn: () => boardImageApi.add(id, { imageUrl: newImageUrl.trim() }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["board-images", postId] });
-      setNewImageUrl("");
-    },
   });
 
   const deleteImageMutation = useMutation({
@@ -161,24 +152,6 @@ export default function BoardDetailPage() {
               )}
             </div>
           ))}
-        </div>
-      )}
-
-      {isOwner && (
-        <div className="flex gap-2 mb-stack-md">
-          <input
-            className="input-base"
-            placeholder="이미지 URL을 입력하세요"
-            value={newImageUrl}
-            onChange={(e) => setNewImageUrl(e.target.value)}
-          />
-          <button
-            onClick={() => newImageUrl.trim() && addImageMutation.mutate()}
-            disabled={!newImageUrl.trim() || addImageMutation.isPending}
-            className="btn-ghost whitespace-nowrap disabled:opacity-50"
-          >
-            이미지 추가
-          </button>
         </div>
       )}
 

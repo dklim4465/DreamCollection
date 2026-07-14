@@ -8,6 +8,7 @@ import com.dreamCollection.social.repository.NotificationRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,7 +21,7 @@ public class NotificationController {
 
     @GetMapping
     public ApiResponse<Page<NotificationResponseDTO>> getMyNotifications(
-            @RequestHeader("X-User-Id") Long userId,
+            @AuthenticationPrincipal Long userId,
             Pageable pageable
     ) {
         Page<NotificationResponseDTO> result = notificationRepository
@@ -31,7 +32,7 @@ public class NotificationController {
 
     @GetMapping("/unread-count")
     public ApiResponse<Long> getUnreadCount(
-            @RequestHeader("X-User-Id") Long userId
+            @AuthenticationPrincipal Long userId
     ) {
         return ApiResponse.ok(notificationRepository.countByUserIdAndReadFalse(userId));
     }
@@ -39,7 +40,7 @@ public class NotificationController {
     @Transactional
     @PostMapping("/{notificationId}/read")
     public ApiResponse<Void> markRead(
-            @RequestHeader("X-User-Id") Long userId,
+            @AuthenticationPrincipal Long userId,
             @PathVariable Long notificationId
     ) {
         Notification notification = notificationRepository.findById(notificationId)

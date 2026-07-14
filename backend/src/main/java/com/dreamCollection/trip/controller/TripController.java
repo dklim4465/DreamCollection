@@ -56,5 +56,13 @@ public class TripController {
     public void deleteSavedTrip(@AuthenticationPrincipal Long userId, @PathVariable Long savedTripId) {
         savedTripService.deleteSavedTrip(userId, savedTripId);
     }
+    @PutMapping("/saved/{savedTripId}")
+    public void modifySavedTrip(
+            @AuthenticationPrincipal Long userId,
+            @PathVariable Long savedTripId,
+            @RequestBody SaveTripRequestDTO request
+    ) {
+        savedTripService.modify(userId, savedTripId, request);
+    }
 
 }

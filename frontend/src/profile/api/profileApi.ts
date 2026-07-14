@@ -7,8 +7,23 @@ export interface UpdateProfileReq {
   travelStyle?: TravelStyle;
 }
 
+export interface ChangePasswordReq {
+  currentPassword: string;
+  newPassword: string;
+}
+
 export const profileApi = {
-  // 마이페이지 "프로필 수정" — 값이 있는 필드만 보내면 그 필드만 갱신됨
+
   updateMe: (data: UpdateProfileReq) =>
     apiClient.patch<ApiResponse<User>>("/users/me", data),
+
+  uploadProfileImage: (file: File) => {
+    const formData = new FormData();
+    formData.append("file", file);
+    return apiClient.post<ApiResponse<User>>("/users/me/profile-image", formData, {
+      headers: { "Content-Type": undefined },
+    });
+  },
+  changePassword: (data: ChangePasswordReq) =>
+    apiClient.patch<ApiResponse<void>>("/users/me/password", data),
 };

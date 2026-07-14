@@ -9,20 +9,25 @@ import com.dreamCollection.chat.entity.ChatRoom;
 import com.dreamCollection.chat.entity.ChatRoomMember;
 import com.dreamCollection.chat.exception.ChatRoomAccessDeniedException;
 import com.dreamCollection.chat.exception.ChatRoomNotFoundException;
+import com.dreamCollection.chat.exception.FriendshipNotFoundException;
 import com.dreamCollection.chat.repository.ChatMessageRepository;
 import com.dreamCollection.chat.repository.ChatRoomMemberRepository;
 import com.dreamCollection.chat.repository.ChatRoomRepository;
+import com.dreamCollection.chat.repository.FriendshipRepository;
 import com.dreamCollection.mate.entity.MatePost;
 import com.dreamCollection.mate.excpetion.MatePostNotFoundException;
 import com.dreamCollection.mate.repository.MatePostRepository;
 import com.dreamCollection.mate.repository.MateRequestRepository;
 import com.dreamCollection.social.entity.Notification;
 import com.dreamCollection.social.repository.NotificationRepository;
+import com.dreamCollection.user.entity.User;
+import com.dreamCollection.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -36,6 +41,8 @@ public class ChatService {
     private final MatePostRepository matePostRepository;
     private final MateRequestRepository mateRequestRepository;
     private final NotificationRepository notificationRepository;
+    private final FriendshipRepository friendshipRepository;
+    private final UserRepository userRepository;
     private final SimpMessagingTemplate messagingTemplate;
 
     @Transactional
@@ -62,6 +69,43 @@ public class ChatService {
         return room.getId();
     }
 
+    @Transactional
+    public Long getOrCreateDmRoom(Long myUserId, Long friendUserId) {
+        boolean isFriend = friendshipRepository.findBetweenUsers(myUserId, friendUserId)
+                .map(f -> "ACCEPTED".equals(f.getStatus()))
+                .orElse(false);
+
+        if (!isFriend) {
+            throw new FriendshipNotFoundException();
+        }
+
+        return chatRoomRepository.findDmRoomIdBetween(myUserId, friendUserId)
+                .orElseGet(() -> {
+                    MatePost hiddenPost = matePostRepository.save(
+                            MatePost.builder()
+                                    .userId(myUserId)
+                                    .destination("DM")
+                                    .startDate(LocalDate.now())
+                                    .endDate(LocalDate.now())
+                                    .content("1:1 대화")
+                                    .recruitCount(2)
+                                    .build()
+                    );
+                    hiddenPost.setStatus("DM");
+
+                    ChatRoom room = chatRoomRepository.save(
+                            ChatRoom.builder().matePostId(hiddenPost.getId()).build()
+                    );
+                    chatRoomMemberRepository.save(
+                            ChatRoomMember.builder().roomId(room.getId()).userId(myUserId).build()
+                    );
+                    chatRoomMemberRepository.save(
+                            ChatRoomMember.builder().roomId(room.getId()).userId(friendUserId).build()
+                    );
+                    return room.getId();
+                });
+    }
+
     @Transactional(readOnly = true)
     public List<ChatRoomResponseDTO> getMyRooms(Long userId) {
         List<ChatRoomMember> myMemberships = chatRoomMemberRepository.findByUserId(userId);
@@ -72,9 +116,14 @@ public class ChatService {
                     ChatRoom room = chatRoomRepository.findById(roomId)
                             .orElseThrow(ChatRoomNotFoundException::new);
 
+                    MatePost matePost = matePostRepository.findById(room.getMatePostId())
+                            .orElseThrow(MatePostNotFoundException::new);
+
                     List<Long> memberIds = chatRoomMemberRepository.findByRoomId(roomId).stream()
                             .map(ChatRoomMember::getUserId)
                             .toList();
+
+                    String roomTitle = resolveRoomTitle(matePost, userId, memberIds);
 
                     List<ChatMessage> messages = chatMessageRepository.findByRoomIdOrderBySentAtAsc(roomId);
                     ChatMessage last = messages.isEmpty() ? null : messages.get(messages.size() - 1);
@@ -82,11 +131,12 @@ public class ChatService {
                     LocalDateTime since = membership.getLastReadAt() != null
                             ? membership.getLastReadAt()
                             : LocalDateTime.of(1970, 1, 1, 0, 0);
-                    long unreadCount = chatMessageRepository.countByRoomIdAndSentAtAfter(roomId, since);
+                    long unreadCount = chatMessageRepository.countByRoomIdAndSentAtAfterAndSenderIdNot(roomId, since, userId);
 
                     return new ChatRoomResponseDTO(
                             roomId,
                             room.getMatePostId(),
+                            roomTitle,
                             memberIds,
                             last != null ? last.getContent() : null,
                             last != null ? last.getSentAt() : null,
@@ -94,6 +144,18 @@ public class ChatService {
                     );
                 })
                 .toList();
+    }
+
+    private String resolveRoomTitle(MatePost matePost, Long myUserId, List<Long> memberIds) {
+        if ("DM".equals(matePost.getStatus())) {
+            return memberIds.stream()
+                    .filter(id -> !id.equals(myUserId))
+                    .findFirst()
+                    .flatMap(userRepository::findById)
+                    .map(User::getNickname)
+                    .orElse("1:1 채팅");
+        }
+        return matePost.getDestination();
     }
 
     @Transactional(readOnly = true)

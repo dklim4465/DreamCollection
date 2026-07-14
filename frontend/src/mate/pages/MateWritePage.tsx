@@ -4,11 +4,22 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import { matePostApi } from "@/mate/api/mate";
 import { PREFERRED_GENDERS, TRAVEL_STYLES } from "@/mate/types/mate";
 import LoadingSpinner from "@/common/component/LoadingSpinner";
+import DateSelect from "@/mate/components/DateSelect";
+
+function getTodayString() {
+  const today = new Date();
+  const year = today.getFullYear();
+  const month = String(today.getMonth() + 1).padStart(2, "0");
+  const day = String(today.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
 
 export default function MateWritePage() {
   const { matePostId } = useParams<{ matePostId: string }>();
   const isEditMode = Boolean(matePostId);
   const navigate = useNavigate();
+
+  const today = getTodayString();
 
   const [destination, setDestination] = useState("");
   const [startDate, setStartDate] = useState("");
@@ -38,6 +49,9 @@ export default function MateWritePage() {
       setRecruitCount(String(existingPost.recruitCount ?? 1));
     }
   }, [existingPost]);
+
+  const isStartDateValid = isEditMode || !startDate || startDate >= today;
+  const isDateRangeValid = !startDate || !endDate || startDate <= endDate;
 
   const createMutation = useMutation({
     mutationFn: () =>
@@ -72,7 +86,12 @@ export default function MateWritePage() {
   const mutation = isEditMode ? updateMutation : createMutation;
 
   const isFormValid =
-    destination.trim() && startDate && endDate && content.trim();
+    destination.trim() &&
+    startDate &&
+    endDate &&
+    content.trim() &&
+    isStartDateValid &&
+    isDateRangeValid;
 
   const handleSubmit = () => {
     if (!isFormValid) return;
@@ -104,23 +123,32 @@ export default function MateWritePage() {
         <div className="flex gap-stack-md">
           <div className="flex-1">
             <label className="text-label-md font-bold block mb-2">시작일</label>
-            <input
-              type="date"
-              className="input-base"
+            <DateSelect
               value={startDate}
-              onChange={(e) => setStartDate(e.target.value)}
+              onChange={setStartDate}
+              min={isEditMode ? undefined : today}
             />
           </div>
           <div className="flex-1">
             <label className="text-label-md font-bold block mb-2">종료일</label>
-            <input
-              type="date"
-              className="input-base"
+            <DateSelect
               value={endDate}
-              onChange={(e) => setEndDate(e.target.value)}
+              onChange={setEndDate}
+              min={startDate || undefined}
             />
           </div>
         </div>
+
+        {!isStartDateValid && (
+          <p className="text-error text-label-sm -mt-2">
+            시작일은 오늘 이후 날짜로 선택해주세요.
+          </p>
+        )}
+        {!isDateRangeValid && (
+          <p className="text-error text-label-sm -mt-2">
+            종료일은 시작일보다 빠를 수 없어요.
+          </p>
+        )}
 
         <div>
           <label className="text-label-md font-bold block mb-2">내용</label>
@@ -197,7 +225,7 @@ export default function MateWritePage() {
 
         {mutation.isError && (
           <p className="text-error text-label-md">
-            저장에 실패했어요. 입력값을 확인하고 다시 시도해주세요.
+            모든 항목을 올바르게 입력했는지 확인해주세요.
           </p>
         )}
 
