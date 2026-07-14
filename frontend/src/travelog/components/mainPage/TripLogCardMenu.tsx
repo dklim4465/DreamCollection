@@ -5,10 +5,7 @@ interface TripLogCardMenuProps {
   onDelete: () => void;
 }
 
-export default function TripLogCardMenu({
-  onDetail,
-  onDelete,
-}: TripLogCardMenuProps) {
+const TripLogCardMenu = ({ onDetail, onDelete }: TripLogCardMenuProps) => {
   const [open, setOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
@@ -71,4 +68,6 @@ export default function TripLogCardMenu({
       )}
     </div>
   );
-}
+};
+
+export default TripLogCardMenu;
