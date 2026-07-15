@@ -15,7 +15,7 @@ import type {
 } from "@/mate/types/mate";
 
 export const matePostApi = {
-  getList: (status: string, page = 0, size = 10) =>
+  getList: (status: string, page = 0, size = 9) =>
     apiClient.get<ApiResponse<SpringPage<MatePostListItem>>>("/mate/posts", {
       params: { status, page, size, sort: "createdAt,desc" },
     }),
@@ -37,9 +37,10 @@ export const matePostApi = {
 };
 
 export const mateRequestApi = {
-  apply: (matePostId: number) =>
+  apply: (matePostId: number, message?: string) =>
     apiClient.post<ApiResponse<MateRequest>>(
       `/mate/posts/${matePostId}/requests`,
+      { message },
     ),
 
   getList: (matePostId: number) =>
@@ -55,6 +56,11 @@ export const mateRequestApi = {
     apiClient.patch<ApiResponse<MateRequest>>(
       `/mate/posts/${matePostId}/requests/${requestId}`,
       request,
+    ),
+
+  cancel: (matePostId: number, requestId: number) =>
+    apiClient.delete<ApiResponse<void>>(
+      `/mate/posts/${matePostId}/requests/${requestId}`,
     ),
 
   getMyRequests: () =>

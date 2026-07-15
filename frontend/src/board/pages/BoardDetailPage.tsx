@@ -4,20 +4,15 @@ import dayjs from "dayjs";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   boardPostApi,
-  boardLikeApi,
   boardImageApi,
+  boardLikeApi,
   reportApi,
 } from "@/board/api/board";
 import { useAuthStore } from "@/auth/store/authStore";
-import {
-  BOARD_CATEGORY_LABELS,
-  TRADE_STATUS_LABELS,
-  type BoardCategory,
-} from "@/board/types/board";
 import CommentSection from "@/board/components/CommentSection";
-import ReportModal from "@/board/components/ReportModal";
-import LoadingSpinner from "@/components/common/LoadingSpinner";
-import EmptyState from "@/components/common/EmptyState";
+import UserProfileModal from "@/mate/components/UserProfileModal";
+import LoadingSpinner from "@/common/component/LoadingSpinner";
+import EmptyState from "@/common/component/EmptyState";
 
 export default function BoardDetailPage() {
   const { postId } = useParams<{ postId: string }>();
@@ -26,7 +21,10 @@ export default function BoardDetailPage() {
   const queryClient = useQueryClient();
   const { user } = useAuthStore();
 
-  const [showReport, setShowReport] = useState(false);
+  const [reportTargetUserId, setReportTargetUserId] = useState<number | null>(
+    null,
+  );
+  const [reportTargetLabel, setReportTargetLabel] = useState("");
 
   const {
     data: post,
@@ -38,40 +36,45 @@ export default function BoardDetailPage() {
   });
 
   const { data: images } = useQuery({
-    queryKey: ["board-images", postId],
+    queryKey: ["board-post-images", postId],
     queryFn: () => boardImageApi.getList(id).then((res) => res.data.data),
   });
 
-  const [likeState, setLikeState] = useState<{
-    liked: boolean;
-    likeCount: number;
-  } | null>(null);
+  const isOwner = user != null && post != null && user.id === post.userId;
 
   const likeMutation = useMutation({
     mutationFn: () => boardLikeApi.toggle(id),
-    onSuccess: (res) => setLikeState(res.data.data),
-    onError: (err: any) => {
-      alert(err?.response?.data?.message ?? "좋아요 처리에 실패했어요.");
+    onSuccess: (res) => {
+      queryClient.setQueryData(["board-post", postId], (old: any) => ({
+        ...old,
+        likeCount: res.data.data.likeCount,
+      }));
     },
   });
 
   const deleteMutation = useMutation({
     mutationFn: () => boardPostApi.delete(id),
-    onSuccess: () => navigate("/community"),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["board-posts"] });
+      navigate("/community");
+    },
   });
 
-  const deleteImageMutation = useMutation({
-    mutationFn: (imageId: number) => boardImageApi.delete(id, imageId),
-    onSuccess: () =>
-      queryClient.invalidateQueries({ queryKey: ["board-images", postId] }),
-  });
-
-  const reportMutation = useMutation({
+  const reportPostMutation = useMutation({
     mutationFn: (reason: string) =>
       reportApi.create({ targetType: "POST", targetId: id, reason }),
-    onSuccess: () => setShowReport(false),
-    onError: () => setShowReport(false),
+    onSuccess: () => alert("신고가 접수되었습니다."),
+    onError: (err: any) => {
+      alert(err?.response?.data?.message ?? "신고 접수에 실패했어요.");
+    },
   });
+
+  const handleReportPost = () => {
+    const reason = prompt("신고 사유를 입력해주세요.");
+    if (reason && reason.trim()) {
+      reportPostMutation.mutate(reason.trim());
+    }
+  };
 
   if (isLoading) return <LoadingSpinner message="게시글을 불러오는 중..." />;
 
@@ -90,130 +93,105 @@ export default function BoardDetailPage() {
     );
   }
 
-  const isOwner = user != null && user.id === post.userId;
-  const categoryLabel =
-    BOARD_CATEGORY_LABELS[post.category as BoardCategory] ?? post.category;
-  const likeCount = likeState?.likeCount ?? post.likeCount;
-  const liked = likeState?.liked ?? false;
-
   return (
-    <div className="max-w-2xl mx-auto">
+    <div className="w-full max-w-2xl mx-auto">
       <div className="flex items-center gap-2 mb-stack-sm">
-        <span className="chip-primary">{categoryLabel}</span>
-        {post.tradeStatus && (
-          <span className="chip bg-surface-container text-on-surface-variant">
-            {TRADE_STATUS_LABELS[post.tradeStatus] ?? post.tradeStatus}
-          </span>
-        )}
+        <span className="chip-primary">{post.category}</span>
       </div>
 
       <h1 className="text-headline-md font-bold mb-2">{post.title}</h1>
 
-      <div className="flex items-center justify-between text-label-sm text-outline mb-stack-md">
-        <span>
-          작성자 #{post.userId} ·{" "}
-          {dayjs(post.createdAt).format("YYYY.MM.DD HH:mm")}
-        </span>
-        <span className="flex items-center gap-1">
-          <span className="material-symbols-outlined text-sm">visibility</span>
-          {post.viewCount}
+      <div className="flex items-center justify-between mb-stack-md">
+        <button
+          onClick={() => {
+            setReportTargetUserId(post.userId);
+            setReportTargetLabel(`작성자 #${post.userId}`);
+          }}
+          className="flex items-center gap-2 hover:opacity-80"
+        >
+          <div className="w-8 h-8 rounded-full bg-primary-container flex items-center justify-center shrink-0">
+            <span className="material-symbols-outlined text-primary text-lg">
+              person
+            </span>
+          </div>
+          <span className="text-label-md font-bold text-primary">
+            작성자 #{post.userId}
+          </span>
+          <span className="text-label-sm text-outline">
+            · {dayjs(post.createdAt).format("YYYY.MM.DD HH:mm")}
+          </span>
+        </button>
+        <span className="text-label-sm text-outline">
+          조회 {post.viewCount}
         </span>
       </div>
 
-      {post.price != null && (
-        <p className="text-headline-sm font-bold text-primary mb-stack-md">
-          {post.price.toLocaleString()}원
-        </p>
+      {images && images.length > 0 && (
+        <div className="flex flex-wrap gap-2 mb-stack-md">
+          {images.map((img) => (
+            <img
+              key={img.id}
+              src={img.imageUrl}
+              alt="첨부 이미지"
+              className="w-40 h-40 object-cover rounded-lg border border-outline-variant"
+            />
+          ))}
+        </div>
       )}
 
       <div className="card-base p-stack-md mb-stack-md">
         <p className="text-body-md whitespace-pre-wrap">{post.content}</p>
       </div>
 
-      {images && images.length > 0 && (
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mb-stack-md">
-          {images.map((img) => (
-            <div
-              key={img.id}
-              className="relative rounded-xl overflow-hidden group"
-            >
-              <img
-                src={img.imageUrl}
-                alt=""
-                className="w-full h-32 object-cover"
-              />
-              {isOwner && (
-                <button
-                  onClick={() => deleteImageMutation.mutate(img.id)}
-                  className="absolute top-1 right-1 w-6 h-6 rounded-full bg-black/60 text-white text-xs flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
-                >
-                  ✕
-                </button>
-              )}
-            </div>
-          ))}
-        </div>
-      )}
-
-      <div className="flex items-center gap-3 mb-stack-lg">
+      <div className="flex items-center justify-between mb-stack-lg">
         <button
           onClick={() => likeMutation.mutate()}
-          disabled={likeMutation.isPending}
-          className={
-            liked
-              ? "flex items-center gap-1 chip bg-error/10 text-error"
-              : "flex items-center gap-1 chip bg-surface-container text-on-surface-variant"
-          }
+          className="btn-ghost flex items-center gap-1"
         >
-          <span
-            className="material-symbols-outlined text-lg"
-            style={liked ? { fontVariationSettings: "'FILL' 1" } : undefined}
-          >
-            favorite
-          </span>
-          좋아요 {likeCount}
+          <span className="material-symbols-outlined text-lg">favorite</span>
+          좋아요 {post.likeCount}
         </button>
 
-        <div className="ml-auto flex gap-3 text-label-sm">
+        <div className="flex items-center gap-3">
           {isOwner ? (
             <>
-              <Link
-                to={`/community/${post.id}/edit`}
-                className="text-on-surface-variant hover:text-primary"
-              >
+              <Link to={`/community/${post.id}/edit`} className="btn-ghost">
                 수정
               </Link>
               <button
                 onClick={() =>
                   confirm("게시글을 삭제할까요?") && deleteMutation.mutate()
                 }
-                className="text-on-surface-variant hover:text-error"
+                className="btn-ghost text-error"
               >
                 삭제
               </button>
             </>
           ) : (
-            user != null && (
-              <button
-                onClick={() => setShowReport(true)}
-                className="text-on-surface-variant hover:text-error"
-              >
-                신고
-              </button>
-            )
+            <button
+              onClick={handleReportPost}
+              className="text-label-sm text-on-surface-variant hover:text-error"
+            >
+              신고
+            </button>
           )}
         </div>
       </div>
 
-      <CommentSection postId={id} currentUserId={user?.id ?? null} />
+      <CommentSection
+        postId={id}
+        currentUserId={user?.id ?? null}
+        onReportUser={(userId, label) => {
+          setReportTargetUserId(userId);
+          setReportTargetLabel(label);
+        }}
+      />
 
-      {showReport && (
-        <ReportModal
-          targetType="POST"
-          targetId={id}
-          isSubmitting={reportMutation.isPending}
-          onClose={() => setShowReport(false)}
-          onSubmit={(reason) => reportMutation.mutate(reason)}
+      {reportTargetUserId != null && (
+        <UserProfileModal
+          userId={reportTargetUserId}
+          label={reportTargetLabel}
+          onClose={() => setReportTargetUserId(null)}
         />
       )}
     </div>

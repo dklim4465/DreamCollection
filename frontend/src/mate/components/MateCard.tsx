@@ -41,6 +41,8 @@ export default function MateCard({ post }: Props) {
         {post.destination}
       </h3>
 
+      <p className="text-label-sm text-on-surface-variant">{post.nickname}</p>
+
       <p className="text-label-md text-on-surface-variant">
         {dayjs(post.startDate).format("YYYY.MM.DD")} ~{" "}
         {dayjs(post.endDate).format("YYYY.MM.DD")}

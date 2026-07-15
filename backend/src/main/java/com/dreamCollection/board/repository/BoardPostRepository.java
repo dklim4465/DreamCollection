@@ -9,4 +9,5 @@ public interface BoardPostRepository extends JpaRepository<BoardPost, Long> {
     Page<BoardPost> findByCategoryOrderByCreatedAtDesc(String category, Pageable pageable);
     Page<BoardPost> findByUserIdOrderByCreatedAtDesc(Long userId, Pageable pageable);
     Page<BoardPost> findByTitleContainingOrContentContaining(String titleKeyword, String contentKeyword, Pageable pageable);
+    Page<BoardPost> findAllByOrderByCreatedAtDesc(Pageable pageable);
 }

@@ -8,6 +8,7 @@ import com.dreamCollection.board.entity.BoardPost;
 import com.dreamCollection.board.exception.PostAccessDeniedException;
 import com.dreamCollection.board.exception.PostNotFoundException;
 import com.dreamCollection.board.repository.BoardPostRepository;
+import com.dreamCollection.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -20,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class BoardPostService {
 
     private final BoardPostRepository boardPostRepository;
+    private final UserRepository userRepository;
 
     @Transactional
     public BoardPostDetailResponseDTO createPost(Long userId, BoardPostCreateRequestDTO requestDTO){
@@ -37,8 +39,15 @@ public class BoardPostService {
 
     @Transactional(readOnly = true)
     public Page<BoardPostListResponseDTO> getPostList(String category, Pageable pageable){
-        Page<BoardPost> posts = boardPostRepository.findByCategoryOrderByCreatedAtDesc(category, pageable);
-        return posts.map(BoardPostListResponseDTO::from);
+        Page<BoardPost> posts = "ALL".equalsIgnoreCase(category)
+                ? boardPostRepository.findAllByOrderByCreatedAtDesc(pageable)
+                : boardPostRepository.findByCategoryOrderByCreatedAtDesc(category, pageable);
+        return posts.map(post -> {
+            String nickname = userRepository.findById(post.getUserId())
+                    .map(u -> u.getNickname())
+                    .orElse("알 수 없음");
+            return BoardPostListResponseDTO.from(post, nickname);
+        });
     }
 
     @Transactional

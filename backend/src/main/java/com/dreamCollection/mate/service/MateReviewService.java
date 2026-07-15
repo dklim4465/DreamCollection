@@ -27,6 +27,7 @@ public class MateReviewService {
         MatePost post = matePostRepository.findById(requestDTO.getMatePostId())
                 .orElseThrow(MatePostNotFoundException::new);
 
+        Long revieweeId = requestDTO.getRevieweeId();
         boolean isHost = post.getUserId().equals(reviewerId);
         boolean isAcceptedRequester = mateRequestRepository.findByMatePostId(post.getId()).stream()
                 .anyMatch(r->r.getRequesterId().equals(reviewerId)&&"ACCEPTED".equals(r.getStatus()));
@@ -35,10 +36,22 @@ public class MateReviewService {
             throw new MateReviewNotAllowedException();
         }
 
+        if(isHost){
+            boolean revieweeIsAcceptedRequester = mateRequestRepository.findByMatePostId(post.getId()).stream()
+                    .anyMatch(r -> r.getRequesterId().equals(revieweeId) && "ACCEPTED".equals(r.getStatus()));
+            if(!revieweeIsAcceptedRequester){
+                throw new MateReviewNotAllowedException();
+            }
+        } else {
+            if(!post.getUserId().equals(revieweeId)){
+                throw new MateReviewNotAllowedException();
+            }
+        }
+
         MateReview review = MateReview.builder()
                 .matePostId(requestDTO.getMatePostId())
                 .reviewerId(reviewerId)
-                .revieweeId(requestDTO.getRevieweeId())
+                .revieweeId(revieweeId)
                 .rating(requestDTO.getRating())
                 .content(requestDTO.getContent())
                 .build();

@@ -13,17 +13,17 @@ import LoadingSpinner from "@/components/common/LoadingSpinner";
 /**
  * 게시판 페이지
  * 백엔드 GET /api/board/posts?category=&page=&size= 연동
- * 참고: 백엔드가 category 파라미터를 필수로 받기 때문에 "전체보기" 탭은 없음 (기본 자유 게시판부터 시작)
+ * category="ALL"이면 백엔드에서 전체 게시글 조회
  */
 export default function CommunityPage() {
   const { isAuthenticated } = useAuthStore();
-  const [category, setCategory] = useState<BoardCategory>("FREE");
+  const [category, setCategory] = useState<BoardCategory>("ALL");
   const [page, setPage] = useState(0);
 
   const { data, isLoading, isError } = useQuery({
     queryKey: ["board-posts", category, page],
     queryFn: () =>
-      boardPostApi.getList(category, page, 10).then((res) => res.data.data),
+      boardPostApi.getList(category, page, 9).then((res) => res.data.data),
   });
 
   const handleCategoryChange = (next: BoardCategory) => {

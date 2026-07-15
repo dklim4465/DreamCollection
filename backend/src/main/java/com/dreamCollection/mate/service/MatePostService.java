@@ -8,6 +8,7 @@ import com.dreamCollection.mate.entity.MatePost;
 import com.dreamCollection.mate.excpetion.MatePostAccessDeniedException;
 import com.dreamCollection.mate.excpetion.MatePostNotFoundException;
 import com.dreamCollection.mate.repository.MatePostRepository;
+import com.dreamCollection.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -18,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class MatePostService {
     private final MatePostRepository matePostRepository;
+    private final UserRepository userRepository;
 
     @Transactional
     public MatePostDetailResponseDTO createPost(Long userId, MatePostCreateRequestDTO requestDTO){
@@ -40,8 +42,18 @@ public class MatePostService {
 
     @Transactional(readOnly = true)
     public Page<MatePostListResponseDTO> getPostList(String status, Pageable pageable){
-        Page<MatePost> posts = matePostRepository.findByStatusOrderByCreatedAtDesc(status, pageable);
-        return posts.map(MatePostListResponseDTO::from);
+        Page<MatePost> posts;
+        if ("ALL".equals(status)) {
+            posts = matePostRepository.findByStatusNotOrderByCreatedAtDesc("DM", pageable);
+        } else {
+            posts = matePostRepository.findByStatusOrderByCreatedAtDesc(status, pageable);
+        }
+        return posts.map(post -> {
+            String nickname = userRepository.findById(post.getUserId())
+                    .map(u -> u.getNickname())
+                    .orElse("알 수 없음");
+            return MatePostListResponseDTO.from(post, nickname);
+        });
     }
 
     @Transactional(readOnly = true)
@@ -78,7 +90,7 @@ public class MatePostService {
 
     private MatePost findPostOrThrow(Long matePostId){
         return matePostRepository.findById(matePostId)
-            .orElseThrow(MatePostNotFoundException::new);
+                .orElseThrow(MatePostNotFoundException::new);
     }
 
     private void validateOwner(MatePost post, Long userId){
@@ -87,5 +99,3 @@ public class MatePostService {
         }
     }
 }
-
-

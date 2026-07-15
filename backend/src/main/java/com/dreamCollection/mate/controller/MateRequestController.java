@@ -1,7 +1,7 @@
 package com.dreamCollection.mate.controller;
 
-
 import com.dreamCollection.global.response.ApiResponse;
+import com.dreamCollection.mate.dto.MateRequestCreateRequestDTO;
 import com.dreamCollection.mate.dto.MateRequestDecisionRequestDTO;
 import com.dreamCollection.mate.dto.MateRequestResponseDTO;
 import com.dreamCollection.mate.service.MateRequestService;
@@ -21,9 +21,11 @@ public class MateRequestController {
     @PostMapping("/api/mate/posts/{matePostId}/requests")
     public ApiResponse<MateRequestResponseDTO> applyForMate(
             @AuthenticationPrincipal Long userId,
-            @PathVariable Long matePostId
+            @PathVariable Long matePostId,
+            @Valid @RequestBody(required = false) MateRequestCreateRequestDTO requestDTO
     ){
-        MateRequestResponseDTO responseDTO = mateRequestService.applyForMate(userId, matePostId);
+        String message = requestDTO != null ? requestDTO.getMessage() : null;
+        MateRequestResponseDTO responseDTO = mateRequestService.applyForMate(userId, matePostId, message);
         return ApiResponse.ok(responseDTO, "메이트 신청이 완료되었습니다.");
     }
 
@@ -35,7 +37,7 @@ public class MateRequestController {
         return ApiResponse.ok(mateRequestService.getRequestList(userId, matePostId));
     }
 
-    @PatchMapping("/api/mate/posts/{matePostId}/requests/{requestId}")
+    @PatchMapping("api/mate/posts/{matePostId}/requests/{requestId}")
     public ApiResponse<MateRequestResponseDTO> decideRequest(
             @AuthenticationPrincipal Long userId,
             @PathVariable Long matePostId,
@@ -45,6 +47,16 @@ public class MateRequestController {
         MateRequestResponseDTO responseDTO = mateRequestService.decideRequest(userId, matePostId, requestId, requestDTO);
         String message = "ACCEPT".equals(requestDTO.getDecision())? "신청을 수락했습니다.":"신청을 거절했습니다.";
         return ApiResponse.ok(responseDTO,message);
+    }
+
+    @DeleteMapping("/api/mate/posts/{matePostId}/requests/{requestId}")
+    public ApiResponse<Void> cancelRequest(
+            @AuthenticationPrincipal Long userId,
+            @PathVariable Long matePostId,
+            @PathVariable Long requestId
+    ){
+        mateRequestService.cancelRequest(userId, matePostId, requestId);
+        return ApiResponse.ok(null, "신청을 취소했습니다.");
     }
 
     @GetMapping("/api/mate/requests/me")
