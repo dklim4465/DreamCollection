@@ -52,6 +52,8 @@ public class SpotServiceImpl implements SpotService{
 
         List<SpotClusterDTO> clusters = createClusters(mediaList);
 
+        int i = 0;
+
         for (SpotClusterDTO cluster : clusters) {
 
             Media coverMedia = cluster.getMediaList().stream()
@@ -66,7 +68,11 @@ public class SpotServiceImpl implements SpotService{
                 String storedFileName = coverMedia.getStoredFileName();
                 coverImagePath = mediaPath + "/thumbnail/" + storedFileName;
             }
+
+            i++;
+
             Spot spot = Spot.builder()
+                    .name("spot" + i)
                     .tripLog(TripLog.builder().tno(tno).build())
                     .spotSource(SpotSource.AUTO)
                     .spotType(SpotType.ETC)

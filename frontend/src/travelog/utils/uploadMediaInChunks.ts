@@ -5,7 +5,7 @@ const CHUNK_SIZE = 20;
 export const uploadMediaInChunks = async (
   tno: number,
   files: File[],
-  onProgress?: (progress: number) => void,
+  onUploaded?: (uploadedFiles: number) => void,
 ) => {
   const total = Math.ceil(files.length / CHUNK_SIZE);
 
@@ -14,6 +14,8 @@ export const uploadMediaInChunks = async (
 
     await uploadMedia(tno, chunk);
 
-    onProgress?.(((i + 1) / total) * 100);
+    const uploadedFiles = Math.min((i + 1) * CHUNK_SIZE, files.length);
+
+    onUploaded?.(uploadedFiles);
   }
 };

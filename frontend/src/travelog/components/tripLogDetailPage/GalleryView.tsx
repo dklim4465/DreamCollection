@@ -2,7 +2,9 @@ import { deleteMedia } from "@/travelog/api/mediaApi";
 import MediaGrid from "@/travelog/components/tripLogDetailPage/MediaGrid";
 import { useSidebarStore } from "@/travelog/store/useSidebarStore";
 import { useSpotStore } from "@/travelog/store/useSpotStore";
+import { refreshTripLogOverview } from "@/travelog/utils/refreshTripLogOverview";
 import { useState } from "react";
+import { useParams } from "react-router-dom";
 
 const GalleryView = () => {
   const closeGallery = useSidebarStore((state) => state.closeGallery);
@@ -26,16 +28,20 @@ const GalleryView = () => {
     setSelectedMediaList([]);
   };
 
+  const { tno } = useParams();
+
   const handleDelete = async () => {
     if (selectedMediaList.length === 0) return;
 
     try {
       await deleteMedia(selectedMediaList);
 
-      // Store에서도 삭제
+      await refreshTripLogOverview(Number(tno));
 
       setSelectedMediaList([]);
       setDeleteMode(false);
+
+      closeGallery();
     } catch (error) {
       console.error(error);
       alert("미디어 삭제에 실패했습니다.");

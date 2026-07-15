@@ -22,7 +22,7 @@ const SpotListView = () => {
               setExpandedSpot(spot.sno);
             }}
           >
-            {spot.name}sfda
+            {spot.name}
           </button>
 
           {expandedSpotId == spot.sno && (

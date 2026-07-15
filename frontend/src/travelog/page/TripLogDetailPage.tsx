@@ -1,35 +1,20 @@
-import { getTripLogOverview } from "@/travelog/api/tripLogApi";
 import MapComponent from "@/travelog/components/tripLogDetailPage/MapComponent";
 import MapSidebarComponent from "@/travelog/components/tripLogDetailPage/MapSidebarComponent";
 import TimelineBar from "@/travelog/components/tripLogDetailPage/TimelineBar";
-import { useMediaStore } from "@/travelog/store/useMediaStore";
-import { useSpotStore } from "@/travelog/store/useSpotStore";
-import { useTripLogStore } from "@/travelog/store/useTripLogStore";
+import { refreshTripLogOverview } from "@/travelog/utils/refreshTripLogOverview";
 import { useEffect } from "react";
 import { useParams } from "react-router-dom";
 
 const TripLogDetailPage = () => {
   const { tno } = useParams();
 
-  const setTrip = useTripLogStore((state) => state.setTrip);
-  const setSpots = useSpotStore((state) => state.setSpots);
-  const setMedia = useMediaStore((state) => state.setMedia);
+  console.log(tno);
 
   useEffect(() => {
     if (!tno) return;
 
     const load = async () => {
-      const overview = await getTripLogOverview(Number(tno));
-
-      setTrip({
-        tno: overview.tno,
-        title: overview.title,
-        startDate: overview.startDate,
-        endDate: overview.endDate,
-      });
-
-      setSpots(overview.spots);
-      setMedia(overview.spots);
+      await refreshTripLogOverview(Number(tno));
     };
 
     load();

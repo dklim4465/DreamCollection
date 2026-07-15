@@ -7,6 +7,7 @@ import { useClusterLayer } from "@/travelog/hooks/map/useClusterLayer";
 import { useMediaLayer } from "@/travelog/hooks/map/useMediaLayer";
 import { useLineLayer } from "@/travelog/hooks/map/useLineLayer";
 import { useTimelineFollow } from "@/travelog/hooks/map/useTimelineFollow";
+import { useInitialCamera } from "@/travelog/hooks/map/useInitialCamera";
 
 const MapComponent = () => {
   const mapContainer = useRef<HTMLDivElement | null>(null);
@@ -19,6 +20,8 @@ const MapComponent = () => {
   useSpotLayer({ visible: showSpot });
   useLineLayer({ visible: showSpot });
   useMediaLayer({ visible: showMedia });
+
+  useInitialCamera();
 
   useTimelineFollow();
 

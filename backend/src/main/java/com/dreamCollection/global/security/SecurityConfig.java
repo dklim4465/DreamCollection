@@ -40,7 +40,8 @@ public class SecurityConfig {
             "/api/places/**",
             "/ws-stomp/**",
             "/uploads/**",
-            "/api/board/posts/**"
+            "/api/board/posts/**",
+            "/upload/**",
     };
 
     @Bean
