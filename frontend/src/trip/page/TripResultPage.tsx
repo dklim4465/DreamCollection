@@ -15,6 +15,7 @@ import type {
 import { tripApi } from "@/trip/api/trip";
 import { useAuthStore } from "@/auth/store/authStore";
 import TripScheduleView from "@/trip/components/TripScheduleView";
+import "@/trip/styles/trip.css";
 
 interface LocationState {
   conditions: PlanRequest;
@@ -61,8 +62,23 @@ export default function TripResultPage() {
 
       return tripApi.save(request);
     },
-    onSuccess: async () => {
+    onSuccess: async (result) => {
       await queryClient.invalidateQueries({ queryKey: ["savedTrips"] });
+
+      if (state?.isSavedView && state.savedTripId) {
+        await queryClient.invalidateQueries({
+          queryKey: ["savedTrip", state.savedTripId],
+        });
+
+        navigate(`/trip/saved/${state.savedTripId}`);
+        return;
+      }
+
+      if (result && "savedTripId" in result) {
+        navigate(`/trip/saved/${result.savedTripId}`);
+        return;
+      }
+
       navigate("/trip/saved");
     },
   });
@@ -177,8 +193,8 @@ export default function TripResultPage() {
   };
 
   return (
-    <div className="relative left-1/2 w-[calc(100vw-32px)] max-w-[1800px] -translate-x-1/2">
-      <div className="mb-stack-md flex flex-wrap items-center gap-stack-sm">
+    <div className="trip-page-wide">
+      <div className="flex flex-wrap items-center gap-stack-sm px-1">
         {isEditingTitle ? (
           <>
             <input
@@ -195,7 +211,7 @@ export default function TripResultPage() {
                 }
               }}
               autoFocus
-              className="min-w-[260px] rounded-xl border border-primary/50 bg-surface-container-lowest px-4 py-2 text-headline-sm font-bold text-on-surface outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/15"
+              className="min-w-[260px] rounded-xl border border-primary/50 bg-surface-container-lowest px-4 py-2 text-headline-sm font-bold text-on-surface shadow-glow outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/10"
               aria-label="일정 제목"
             />
             <button
@@ -244,7 +260,9 @@ export default function TripResultPage() {
         onChangeRecommendation={setRecommendation}
         onBack={handleBack}
         onSave={handleSave}
-        onDelete={state.isSavedView && state.savedTripId ? handleDelete : undefined}
+        onDelete={
+          state.isSavedView && state.savedTripId ? handleDelete : undefined
+        }
         isSaving={saveMutation.isPending}
         isDeleting={deleteMutation.isPending}
         saveLabel={saveLabel}
@@ -260,6 +278,8 @@ export default function TripResultPage() {
 }
 
 const AUTO_FLIGHT_ITEM_PREFIX = "selected-flight-";
+const AUTO_FLIGHT_LOCK_ITEM_PREFIX = "selected-flight-lock-";
+const TIME_SLOT_ORDER = ["Morning", "Lunch", "Afternoon", "Dinner", "Night"];
 
 function applyFlightSelectionToRecommendation(
   recommendation: TripRecommendation,
@@ -272,7 +292,9 @@ function applyFlightSelectionToRecommendation(
   const daysWithoutAutoFlights = recommendation.days.map((day) => ({
     ...day,
     items: day.items.filter(
-      (item) => !item.itemKey.startsWith(AUTO_FLIGHT_ITEM_PREFIX),
+      (item) =>
+        !item.itemKey.startsWith(AUTO_FLIGHT_ITEM_PREFIX) &&
+        !item.itemKey.startsWith(AUTO_FLIGHT_LOCK_ITEM_PREFIX),
     ),
   }));
 
@@ -289,33 +311,51 @@ function applyFlightSelectionToRecommendation(
   }));
 
   if (flightSelection.outboundFlight) {
+    const outboundSlot = getFlightTimeSlot(
+      flightSelection.outboundFlight.arrivalTime,
+    );
     nextDays[0] = {
       ...nextDays[0],
       items: [
+        ...createFlightLockedSlotItems(
+          "outbound",
+          getSlotsBefore(outboundSlot),
+        ),
         createFlightScheduleItem(
           "outbound",
           flightSelection.outboundFlight,
-          "가는 항공",
+          "출발",
           flightSelection.outboundFlight.arrivalTime,
         ),
-        ...nextDays[0].items,
+        ...nextDays[0].items.filter(
+          (item) =>
+            getTimeSlotIndex(item.timeSlot) > getTimeSlotIndex(outboundSlot),
+        ),
       ],
     };
   }
 
   if (flightSelection.returnFlight) {
     const lastDayIndex = nextDays.length - 1;
+    const returnSlot = getFlightTimeSlot(
+      flightSelection.returnFlight.departureTime,
+    );
 
     nextDays[lastDayIndex] = {
       ...nextDays[lastDayIndex],
       items: [
-        ...nextDays[lastDayIndex].items,
+        ...nextDays[lastDayIndex].items.filter(
+          (item) =>
+            item.itemKey.startsWith(AUTO_FLIGHT_ITEM_PREFIX) ||
+            getTimeSlotIndex(item.timeSlot) < getTimeSlotIndex(returnSlot),
+        ),
         createFlightScheduleItem(
           "return",
           flightSelection.returnFlight,
-          "오는 항공",
+          "복귀",
           flightSelection.returnFlight.departureTime,
         ),
+        ...createFlightLockedSlotItems("return", getSlotsAfter(returnSlot)),
       ],
     };
   }
@@ -352,6 +392,21 @@ function createFlightScheduleItem(
   };
 }
 
+function createFlightLockedSlotItems(
+  direction: "outbound" | "return",
+  timeSlots: string[],
+): ScheduleItem[] {
+  return timeSlots.map((timeSlot) => ({
+    itemKey: `${AUTO_FLIGHT_LOCK_ITEM_PREFIX}${direction}-${timeSlot}`,
+    itemType: "LockedSlot",
+    timeSlot,
+    title: "일정 생성 불가",
+    description: "",
+    locked: true,
+    replaceable: false,
+  }));
+}
+
 function getFlightTimeSlot(time?: string) {
   const hour = Number(time?.slice(0, 2));
 
@@ -361,6 +416,23 @@ function getFlightTimeSlot(time?: string) {
   if (hour < 18) return "Afternoon";
   if (hour < 22) return "Dinner";
   return "Night";
+}
+
+function getTimeSlotIndex(timeSlot: string) {
+  const index = TIME_SLOT_ORDER.indexOf(timeSlot);
+  return index >= 0 ? index : Number.MAX_SAFE_INTEGER;
+}
+
+function getSlotsBefore(timeSlot: string) {
+  const index = getTimeSlotIndex(timeSlot);
+  if (index <= 0 || index === Number.MAX_SAFE_INTEGER) return [];
+  return TIME_SLOT_ORDER.slice(0, index);
+}
+
+function getSlotsAfter(timeSlot: string) {
+  const index = getTimeSlotIndex(timeSlot);
+  if (index < 0 || index >= TIME_SLOT_ORDER.length - 1) return [];
+  return TIME_SLOT_ORDER.slice(index + 1);
 }
 
 function formatFlightTime(time?: string) {

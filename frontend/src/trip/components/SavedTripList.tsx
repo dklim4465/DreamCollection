@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import type { PlanResponse, SavedTrip } from "@/trip/api/trip";
+import type { SavedTrip } from "@/trip/api/trip";
 
 interface Props {
   savedTrips: SavedTrip[];
@@ -8,26 +8,9 @@ interface Props {
 export default function SavedTripList({ savedTrips }: Props) {
   const navigate = useNavigate();
 
-  const handleOpen = (savedTrips: SavedTrip) => {
-    const planResult: PlanResponse = {
-      ...savedTrips.conditions,
-      prompt: "",
-      aiResult: "",
-      recommendations: [savedTrips.recommendation],
-      sideBlocks: [],
-    };
-    navigate("/trip/edit", {
-      state: {
-        conditions: savedTrips.conditions,
-        planResult,
-        recommendation: savedTrips.recommendation,
-        savedTripId: savedTrips.savedTripId,
-        isSavedView: true,
-        saveLabel: "일정 수정",
-      },
-    });
+  const handleOpen = (savedTrip: SavedTrip) => {
+    navigate(`/trip/saved/${savedTrip.savedTripId}`);
   };
-
   //결과 보려고 이동했을때 아래 버튼 두개 숨기기
 
   return (
@@ -37,11 +20,11 @@ export default function SavedTripList({ savedTrips }: Props) {
           key={savedTrip.savedTripId}
           type="button"
           onClick={() => handleOpen(savedTrip)}
-          className="card-interactive p-stack-lg text-left"
+          className="trip-surface w-full p-stack-lg text-left transition-colors hover:border-primary/50 hover:bg-primary/5"
         >
           <div className="flex justify-between gap-stack-md">
             <div>
-              <p className="text-label-md text-primary font-semibold">
+              <p className="text-label-md font-semibold text-tertiary">
                 {savedTrip.conditions.region} · {savedTrip.conditions.when}
               </p>
 
@@ -54,8 +37,8 @@ export default function SavedTripList({ savedTrips }: Props) {
               </p>
             </div>
 
-            <span className="material-symbols-outlined text-primary">
-              chevron_right
+            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
+              <span className="material-symbols-outlined">chevron_right</span>
             </span>
           </div>
 

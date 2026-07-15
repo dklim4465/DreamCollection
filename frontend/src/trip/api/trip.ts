@@ -96,10 +96,23 @@ export interface FlightOffer {
   currency?: string;
   provider?: string;
   externalUrl?: string;
+  departureToken?: string;
+  arrivalAirportCode?: string;
+  priceType?: string;
 }
 
 export interface FlightSelection extends FlightOffer {
   skipped: boolean;
+}
+
+export interface FlightReturnRequest {
+  region?: string;
+  destination?: string;
+  startDate?: string;
+  when: string;
+  arrivalAirportCode: string;
+  departureToken: string;
+  flightCondition?: FlightCondition;
 }
 
 export interface AccommodationOption {
@@ -156,6 +169,7 @@ export interface SavedTripSummary {
   title: string | null;
   region: string | null;
   theme: string | null;
+  startDate: string | null;
   createdDate: string;
 }
 
@@ -217,6 +231,19 @@ export const tripApi = {
     return response.data;
   },
 
+  searchReturnFlights: async (request: FlightReturnRequest) => {
+    const response = await apiClient.post<FlightOffer[]>("/flight/returns", {
+      region: request.region,
+      destination: request.destination,
+      startDate: request.startDate,
+      when: request.when,
+      arrivalAirportCode: request.arrivalAirportCode,
+      departureToken: request.departureToken,
+      flightCondition: request.flightCondition,
+    });
+    return response.data;
+  },
+
   searchAccommodations: async (request: PlanRequest) => {
     const response = await apiClient.post<AccommodationOption[]>(
       "/accommodation/search",
@@ -264,6 +291,7 @@ export const tripApi = {
         title: trip.recommendation?.title ?? null,
         region: trip.conditions?.region ?? null,
         theme: trip.conditions?.theme ?? null,
+        startDate: trip.conditions?.startDate ?? null,
         createdDate: trip.createdDate,
       }),
     );

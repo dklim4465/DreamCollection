@@ -1,7 +1,8 @@
 package com.dreamCollection.flight.controller;
 
-import com.dreamCollection.flight.dto.FlightRequestDTO;
 import com.dreamCollection.flight.dto.FlightOfferDTO;
+import com.dreamCollection.flight.dto.FlightRequestDTO;
+import com.dreamCollection.flight.dto.FlightReturnRequestDTO;
 import com.dreamCollection.flight.service.FlightService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -20,9 +21,13 @@ public class FlightController {
 
     private final FlightService flightService;
 
-    //데이터 받아오는 속도가 너무 느림 이 부분은 리팩터링 해야 할거같음
     @PostMapping("/search")
-    public List<FlightOfferDTO> searchFlights(@RequestBody FlightRequestDTO requestDTO) {
-        return flightService.searchFlights(requestDTO);
+    public List<FlightOfferDTO> searchOutboundFlights(@RequestBody FlightRequestDTO requestDTO) {
+        return flightService.searchOutboundFlights(requestDTO);
+    }
+
+    @PostMapping("/returns")
+    public List<FlightOfferDTO> searchReturnFlights(@RequestBody FlightReturnRequestDTO requestDTO) {
+        return flightService.searchReturnFlights(requestDTO);
     }
 }

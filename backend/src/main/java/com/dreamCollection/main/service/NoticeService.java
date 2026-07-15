@@ -27,6 +27,16 @@ public class NoticeService {
                 .toList();
     }
 
+    // 공지 상세 조회 — 볼 때마다 조회수 1 증가 (비활성 공지는 목록에는 안 나오지만 직접 링크로는 조회 허용하지 않음)
+    @Transactional
+    public NoticeResponse getActiveNoticeDetail(Long id) {
+        Notice notice = noticeRepository.findById(id)
+                .filter(Notice::isActive)
+                .orElseThrow(() -> new BusinessException("공지사항을 찾을 수 없습니다.", HttpStatus.NOT_FOUND));
+        notice.setViewCount(notice.getViewCount() + 1);
+        return NoticeResponse.from(notice);
+    }
+
     // ── 관리자 ──────────────────────────────────────────────
     @Transactional(readOnly = true)
     public List<NoticeResponse> getAllForAdmin() {

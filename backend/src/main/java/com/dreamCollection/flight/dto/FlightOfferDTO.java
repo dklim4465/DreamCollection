@@ -24,4 +24,10 @@ public class FlightOfferDTO {
     private String provider;
 
     private String externalUrl;
+
+    private String departureToken;
+
+    private String arrivalAirportCode;
+
+    private String priceType;
 }
