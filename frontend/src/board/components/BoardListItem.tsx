@@ -31,6 +31,8 @@ export default function BoardListItem({ post }: Props) {
 
       <h3 className="text-headline-sm font-bold line-clamp-1">{post.title}</h3>
 
+      <p className="text-label-sm text-on-surface-variant">{post.nickname}</p>
+
       {post.price != null && (
         <p className="text-label-md font-bold text-primary">
           {post.price.toLocaleString()}원

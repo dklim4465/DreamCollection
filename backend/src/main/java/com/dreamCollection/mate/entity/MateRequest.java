@@ -27,14 +27,18 @@ public class MateRequest {
     @Column(nullable = false, length = 20)
     private String status = "REQUESTED";
 
+    @Column(length = 200)
+    private String message;
+
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
     @Builder
-    public MateRequest(Long matePostId, Long requesterId) {
+    public MateRequest(Long matePostId, Long requesterId, String message) {
         this.matePostId = matePostId;
         this.requesterId = requesterId;
         this.status = "REQUESTED";
+        this.message = message;
     }
 }

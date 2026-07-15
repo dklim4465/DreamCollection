@@ -1,7 +1,12 @@
-export const BOARD_CATEGORIES = ["FREE", "TRANSFER", "REVIEW"] as const;
+export const BOARD_CATEGORIES = ["ALL", "FREE", "TRANSFER", "REVIEW"] as const;
 export type BoardCategory = (typeof BOARD_CATEGORIES)[number];
 
+export const BOARD_WRITE_CATEGORIES = BOARD_CATEGORIES.filter(
+  (c) => c !== "ALL",
+) as Exclude<BoardCategory, "ALL">[];
+
 export const BOARD_CATEGORY_LABELS: Record<BoardCategory, string> = {
+  ALL: "전체",
   FREE: "자유",
   TRANSFER: "예약양도",
   REVIEW: "후기",
@@ -24,6 +29,8 @@ export interface BoardPostListItem {
   likeCount: number;
   tradeStatus: string | null;
   createdAt: string;
+  userId: number;
+  nickname: string;
 }
 
 export interface BoardPostDetail {

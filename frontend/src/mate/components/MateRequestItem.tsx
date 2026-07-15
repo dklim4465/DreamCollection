@@ -9,6 +9,7 @@ interface Props {
   request: MateRequest;
   onAccept: (requestId: number) => void;
   onReject: (requestId: number) => void;
+  onClickRequester: (userId: number, label: string, status: string) => void;
   isDeciding?: boolean;
 }
 
@@ -16,6 +17,7 @@ export default function MateRequestItem({
   request,
   onAccept,
   onReject,
+  onClickRequester,
   isDeciding,
 }: Props) {
   const statusLabel =
@@ -25,15 +27,38 @@ export default function MateRequestItem({
 
   return (
     <div className="card-base p-stack-sm flex items-center justify-between">
-      <div>
-        <p className="text-label-md font-bold">신청자 #{request.requesterId}</p>
-        <p className="text-label-sm text-outline">
+      <div className="flex-1">
+        <button
+          onClick={() =>
+            onClickRequester(
+              request.requesterId,
+              `신청자 #${request.requesterId}`,
+              request.status,
+            )
+          }
+          className="flex items-center gap-2 hover:opacity-80"
+        >
+          <div className="w-8 h-8 rounded-full bg-primary-container flex items-center justify-center shrink-0">
+            <span className="material-symbols-outlined text-primary text-lg">
+              person
+            </span>
+          </div>
+          <span className="text-label-md font-bold text-primary">
+            신청자 #{request.requesterId}
+          </span>
+        </button>
+        {request.message && (
+          <p className="text-label-md text-on-surface mt-1 ml-10">
+            {request.message}
+          </p>
+        )}
+        <p className="text-label-sm text-outline mt-1 ml-10">
           {dayjs(request.createdAt).format("YYYY.MM.DD HH:mm")} · {statusLabel}
         </p>
       </div>
 
       {isPending && (
-        <div className="flex gap-2">
+        <div className="flex gap-2 shrink-0">
           <button
             onClick={() => onReject(request.id)}
             disabled={isDeciding}

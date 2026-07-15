@@ -26,14 +26,6 @@ public class ChatController {
         return ApiResponse.ok(roomId, "채팅방이 준비되었습니다.");
     }
 
-    @PostMapping("/friends/{friendUserId}/room")
-    public ApiResponse<Long> openDmRoom(
-            @AuthenticationPrincipal Long userId,
-            @PathVariable Long friendUserId
-    ) {
-        return ApiResponse.ok(chatService.getOrCreateDmRoom(userId, friendUserId));
-    }
-
     @GetMapping("/rooms")
     public ApiResponse<List<ChatRoomResponseDTO>> getMyRooms(
             @AuthenticationPrincipal Long userId

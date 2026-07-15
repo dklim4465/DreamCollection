@@ -3,7 +3,6 @@ package com.dreamCollection.chat.service;
 import com.dreamCollection.chat.dto.ChatMessageResponseDTO;
 import com.dreamCollection.chat.dto.ChatMessageSendRequestDTO;
 import com.dreamCollection.chat.dto.ChatRoomResponseDTO;
-import com.dreamCollection.chat.dto.NotificationResponseDTO;
 import com.dreamCollection.chat.entity.ChatMessage;
 import com.dreamCollection.chat.entity.ChatRoom;
 import com.dreamCollection.chat.entity.ChatRoomMember;
@@ -18,12 +17,10 @@ import com.dreamCollection.mate.entity.MatePost;
 import com.dreamCollection.mate.excpetion.MatePostNotFoundException;
 import com.dreamCollection.mate.repository.MatePostRepository;
 import com.dreamCollection.mate.repository.MateRequestRepository;
-import com.dreamCollection.social.entity.Notification;
 import com.dreamCollection.social.repository.NotificationRepository;
 import com.dreamCollection.user.entity.User;
 import com.dreamCollection.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -43,7 +40,6 @@ public class ChatService {
     private final NotificationRepository notificationRepository;
     private final FriendshipRepository friendshipRepository;
     private final UserRepository userRepository;
-    private final SimpMessagingTemplate messagingTemplate;
 
     @Transactional
     public Long getOrCreateRoom(Long matePostId, Long userId) {
@@ -51,10 +47,9 @@ public class ChatService {
                 .orElseThrow(MatePostNotFoundException::new);
 
         boolean isHost = post.getUserId().equals(userId);
-        boolean isAcceptedRequester = mateRequestRepository.findByMatePostId(matePostId).stream()
-                .anyMatch(r -> r.getRequesterId().equals(userId) && "ACCEPTED".equals(r.getStatus()));
+        boolean isRequester = mateRequestRepository.existsByMatePostIdAndRequesterId(matePostId, userId);
 
-        if (!isHost && !isAcceptedRequester) {
+        if (!isHost && !isRequester) {
             throw new ChatRoomAccessDeniedException();
         }
 
@@ -179,36 +174,8 @@ public class ChatService {
                 .build();
 
         ChatMessage saved = chatMessageRepository.save(message);
-        notifyOtherMembers(roomId, senderId, saved);
 
         return ChatMessageResponseDTO.from(saved);
-    }
-
-    private void notifyOtherMembers(Long roomId, Long senderId, ChatMessage message) {
-        String preview = "IMAGE".equals(message.getMessageType())
-                ? "사진을 보냈습니다."
-                : message.getContent();
-
-        chatRoomMemberRepository.findByRoomId(roomId).stream()
-                .map(ChatRoomMember::getUserId)
-                .filter(memberId -> !memberId.equals(senderId))
-                .forEach(memberId -> {
-                    Notification notification = notificationRepository.save(
-                            Notification.builder()
-                                    .userId(memberId)
-                                    .type("CHAT_MESSAGE")
-                                    .targetType("CHAT_ROOM")
-                                    .targetId(roomId)
-                                    .content(preview)
-                                    .build()
-                    );
-
-                    messagingTemplate.convertAndSendToUser(
-                            String.valueOf(memberId),
-                            "/queue/notifications",
-                            NotificationResponseDTO.from(notification)
-                    );
-                });
     }
 
     @Transactional
