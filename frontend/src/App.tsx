@@ -9,13 +9,17 @@ import TripResultPage from "@/trip/page/TripResultPage";
 import TripHubPage from "@/trip/page/TripHubPage";
 import TripSavedListPage from "@/trip/page/TripSavedListPage";
 import TravelPlanPage from "@/trip/page/TravelPlanPage";
+import TripFlightSelectPage from "@/trip/page/TripFlightSelectPage";
+import TripAccommodationSelectPage from "@/trip/page/TripAccommodationSelectPage";
 import { authApi } from "@/auth/api/authApi";
 import { useAuthStore } from "@/auth/store/authStore";
 import { MapProvider } from "@/travelog/map/MapProvider";
 
 // ── 코드 스플리팅 (lazy import) ──────────────────────────────
 const CardRegisterPage = lazy(() => import("./payment/pages/CardRegisterPage"));
-const BillingSuccessPage = lazy(() => import("./payment/pages/BillingSuccessPage"));
+const BillingSuccessPage = lazy(
+  () => import("./payment/pages/BillingSuccessPage"),
+);
 const BillingFailPage = lazy(() => import("./payment/pages/BillingFailPage"));
 
 const LoginPage = lazy(() => import("./auth/pages/LoginPage"));
@@ -29,7 +33,11 @@ const HomePage = lazy(() => import("./home/pages/HomePage"));
 const CommunityPage = lazy(() => import("@/board/pages/CommunityPage"));
 const BoardDetailPage = lazy(() => import("@/board/pages/BoardDetailPage"));
 const BoardWritePage = lazy(() => import("@/board/pages/BoardWritePage"));
-const MatchingPage = lazy(() => import("@/pages/MatchingPage"));
+const MatchingPage = lazy(() => import("@/mate/pages/MatchingPage"));
+const MateWritePage = lazy(() => import("@/mate/pages/MateWritePage"));
+const MateDetailPage = lazy(() => import("@/mate/pages/MateDetailPage"));
+const NoticeListPage = lazy(() => import("@/notice/pages/NoticeListPage"));
+const NoticeDetailPage = lazy(() => import("@/notice/pages/NoticeDetailPage"));
 
 const CartPage = lazy(() => import("./payment/pages/CartPage"));
 const RecordsPage = lazy(() => import("./records/pages/RecordsPage"));
@@ -83,11 +91,23 @@ function AuthBootstrap() {
 }
 
 export default function App() {
+  const { isAuthenticated, updateUser } = useAuthStore();
+
+  useEffect(() => {
+    if (!isAuthenticated) return;
+
+    authApi.getMe().then((res) => {
+      if (res.data.data) {
+        updateUser(res.data.data);
+      }
+    });
+  }, [isAuthenticated]);
+
   return (
     <QueryClientProvider client={queryClient}>
+      <AuthBootstrap />
       <MapProvider>
-        <AuthBootstrap />
-        <BrowserRouter>
+        <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
           <Suspense fallback={<LoadingSpinner message="페이지 로딩 중..." />}>
             <Routes>
               {/* Public */}
@@ -102,21 +122,54 @@ export default function App() {
               {/* Layout 포함 라우트 */}
               <Route element={<AppLayout />}>
                 <Route path="/" element={<HomePage />} />
-                <Route path="/community" element={<CommunityPage />} />
-                <Route path="/matching" element={<MatchingPage />} />
-
                 <Route path="/trip" element={<TripHubPage />} />
                 <Route path="/trip/new" element={<TravelPlanPage />} />
+                <Route path="/trip/flight" element={<TripFlightSelectPage />} />
+                <Route
+                  path="/trip/accommodation"
+                  element={<TripAccommodationSelectPage />}
+                />
                 <Route path="/trip/result" element={<TripResultPage />} />
+                <Route path="/community" element={<CommunityPage />} />
+                <Route path="/community/new" element={<BoardWritePage />} />
+                <Route
+                  path="/community/:postId"
+                  element={<BoardDetailPage />}
+                />
+                <Route
+                  path="/community/:postId/edit"
+                  element={<BoardWritePage />}
+                />
+
+                {/* 순서 중요: /matching/new, /matching/:id/edit이
+                    /matching/:matePostId보다 먼저 와야
+                    "new"가 파라미터로 잘못 매칭되지 않음 */}
+                <Route path="/matching" element={<MatchingPage />} />
+                <Route path="/matching/new" element={<MateWritePage />} />
+                <Route
+                  path="/matching/:matePostId/edit"
+                  element={<MateWritePage />}
+                />
+                <Route
+                  path="/matching/:matePostId"
+                  element={<MateDetailPage />}
+                />
+
+                <Route path="/notices" element={<NoticeListPage />} />
+                <Route path="/notices/:noticeId" element={<NoticeDetailPage />} />
 
                 {/* 로그인 필요 */}
                 <Route element={<PrivateRoute />}>
                   <Route path="/trip/saved" element={<TripSavedListPage />} />
+                  <Route path="/trip/edit" element={<TripResultPage />} />
                   <Route path="/cart" element={<CartPage />} />
                   <Route path="/records" element={<RecordsPage />} />
                   <Route path="/profile" element={<ProfilePage />} />
                   <Route path="/register/card" element={<CardRegisterPage />} />
-                  <Route path="/billing/success" element={<BillingSuccessPage />} />
+                  <Route
+                    path="/billing/success"
+                    element={<BillingSuccessPage />}
+                  />
                   <Route path="/billing/fail" element={<BillingFailPage />} />
                   <Route path="/community" element={<CommunityPage />} />
                   <Route path="/community/new" element={<BoardWritePage />} />
@@ -130,26 +183,25 @@ export default function App() {
                   />
                   <Route path="/matching" element={<MatchingPage />} />
                 </Route>
-
-                {/* 관리자 전용 (role=ADMIN) */}
-                <Route element={<AdminRoute />}>
-                  <Route path="/admin" element={<AdminLayout />}>
-                    <Route
-                      index
-                      element={<Navigate to="/admin/banners" replace />}
-                    />
-                    <Route path="banners" element={<AdminBannersPage />} />
-                    <Route
-                      path="main-backgrounds"
-                      element={<AdminMainBackgroundsPage />}
-                    />
-                    <Route path="notices" element={<AdminNoticesPage />} />
-                    <Route
-                      path="monthly-destinations"
-                      element={<AdminMonthlyDestinationsPage />}
-                    />
-                    <Route path="users" element={<AdminUsersPage />} />
-                  </Route>
+              </Route>
+              {/* 관리자 전용 (role=ADMIN) */}
+              <Route element={<AdminRoute />}>
+                <Route path="/admin" element={<AdminLayout />}>
+                  <Route
+                    index
+                    element={<Navigate to="/admin/banners" replace />}
+                  />
+                  <Route path="banners" element={<AdminBannersPage />} />
+                  <Route
+                    path="main-backgrounds"
+                    element={<AdminMainBackgroundsPage />}
+                  />
+                  <Route path="notices" element={<AdminNoticesPage />} />
+                  <Route
+                    path="monthly-destinations"
+                    element={<AdminMonthlyDestinationsPage />}
+                  />
+                  <Route path="users" element={<AdminUsersPage />} />
                 </Route>
               </Route>
 

@@ -20,6 +20,10 @@ public class PlanResponseDTO {
     private String theme;
     private String level;
 
+
+    private List<TripRecommendDTO> recommendations;
+    private List<RecommendationBlockDTO> sideBlocks;
+
     private LocalDate startDate;
 
     private FlightConditionDTO flightCondition;
@@ -30,6 +34,5 @@ public class PlanResponseDTO {
     private String prompt;
     private String aiResult;
 
-    private List<TripRecommendDTO> recommendations;
 
 }

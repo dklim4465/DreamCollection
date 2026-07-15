@@ -123,11 +123,27 @@ export default function RecordsPage() {
           {logs.map((log) => (
             <div key={log.id} className="card-base p-stack-lg flex flex-col gap-stack-sm">
               <div className="flex items-center justify-between">
-                <div>
-                  <h3 className="text-headline-sm font-bold">{log.title}</h3>
-                  <p className="text-label-sm text-on-surface-variant">
-                    {dayjs(log.createdAt).format("YYYY.MM.DD")}
-                  </p>
+                <div className="flex items-center gap-3">
+                  {/* 대표 이미지 — 등록된 사진 중 첫 장을 원형 썸네일로 노출 */}
+                  <div className="w-12 h-12 rounded-full overflow-hidden bg-surface-container shrink-0 flex items-center justify-center">
+                    {log.photos[0] ? (
+                      <img
+                        src={log.photos[0].imageUrl}
+                        alt=""
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <span className="material-symbols-outlined text-on-surface-variant text-xl">
+                        photo_camera
+                      </span>
+                    )}
+                  </div>
+                  <div>
+                    <h3 className="text-headline-sm font-bold">{log.title}</h3>
+                    <p className="text-label-sm text-on-surface-variant">
+                      {dayjs(log.createdAt).format("YYYY.MM.DD")}
+                    </p>
+                  </div>
                 </div>
                 <button
                   onClick={() => handleFileSelect(log.id)}

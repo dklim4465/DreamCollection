@@ -15,10 +15,11 @@ public class CityService {
 
     private final CityRepository cityRepository;
 
-    // 일정 생성 화면의 목적지 자동완성 검색
+    // 일정 생성 화면 / 상단 검색바의 목적지 자동완성 검색
+    // 도시명(한글/영문)뿐 아니라 국가명("일본" 등)으로 검색해도 매칭되도록 함
     @Transactional(readOnly = true)
     public List<CityResponse> search(String keyword) {
-        return cityRepository.findByNameKoContainingAndActiveTrue(keyword).stream()
+        return cityRepository.searchByKeyword(keyword).stream()
                 .map(CityResponse::from)
                 .toList();
     }

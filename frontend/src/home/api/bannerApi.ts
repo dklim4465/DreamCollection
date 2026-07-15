@@ -5,6 +5,7 @@ export interface Banner {
   id: number;
   title: string;
   mediaType: "IMAGE" | "VIDEO";
+  bannerType: "POPUP" | "CORNER_AD";
   imageUrl: string;
   linkUrl: string | null;
   displayOrder: number;

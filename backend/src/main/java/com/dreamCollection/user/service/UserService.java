@@ -1,6 +1,8 @@
 package com.dreamCollection.user.service;
 
 import com.dreamCollection.auth.service.KakaoOauthClient;
+import com.dreamCollection.badge.service.BadgeService;
+import com.dreamCollection.coupon.service.CouponService;
 import com.dreamCollection.global.exception.BusinessException;
 import com.dreamCollection.global.exception.NicknameChangeCooldownException;
 import com.dreamCollection.user.dto.AuthResponse;
@@ -22,6 +24,7 @@ import com.dreamCollection.global.exception.InvalidVerificationCodeException;
 import com.dreamCollection.global.exception.PhoneNotVerifiedException;
 import com.dreamCollection.global.security.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -38,9 +41,11 @@ import com.dreamCollection.user.repository.UserRepository;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class UserService {
 
     private static final int NICKNAME_CHANGE_COOLDOWN_DAYS = 14;
+    private static final String WELCOME_BADGE_CODE = "WELCOME";
 
     private final UserRepository userRepository;
     private final PhoneVerificationRepository phoneVerificationRepository;
@@ -51,6 +56,8 @@ public class UserService {
     private final JwtTokenProvider jwtTokenProvider;
     private final RefreshTokenService refreshTokenService;
     private final KakaoOauthClient kakaoOauthClient;
+    private final BadgeService badgeService;
+    private final CouponService couponService;
 
     /**
      * 프론트: authApi.getMe() → GET /api/auth/me
@@ -154,6 +161,21 @@ public class UserService {
 
         User saved = userRepository.save(user);
 
+        // 가입 축하 기본 뱃지 지급 (모든 신규 유저 공통). 뱃지 지급이 실패해도
+        // 회원가입 자체는 막지 않기 위해 예외를 잡아서 로그만 남긴다.
+        try {
+            badgeService.grantBadge(saved.getId(), WELCOME_BADGE_CODE);
+        } catch (Exception e) {
+            log.warn("가입 축하 뱃지 지급 실패 (userId={})", saved.getId(), e);
+        }
+
+        // 7월 신규가입 이벤트: 10% 할인 쿠폰 자동 지급 (쿠폰 지급 실패해도 회원가입은 막지 않음)
+        try {
+            couponService.grantWelcomeCoupon(saved.getId());
+        } catch (Exception e) {
+            log.warn("신규가입 쿠폰 지급 실패 (userId={})", saved.getId(), e);
+        }
+
         // 카드 정보(cardNumber/cardExpiry/cardCvc)는 의도적으로 저장하지 않음
         // PCI-DSS 규정상 원본 카드 정보는 PG사에서만 다뤄야 함
 
@@ -226,6 +248,17 @@ public class UserService {
         User saved = userRepository.save(newUser);
         if (kakaoUser.profileImageUrl() != null) {
             saved.updateProfileImage(kakaoUser.profileImageUrl());
+        }
+        // 가입 축하 기본 뱃지 지급 (이메일 가입과 동일하게 신규 유저 전원 대상)
+        try {
+            badgeService.grantBadge(saved.getId(), WELCOME_BADGE_CODE);
+        } catch (Exception e) {
+            log.warn("가입 축하 뱃지 지급 실패 (userId={})", saved.getId(), e);
+        }
+        try {
+            couponService.grantWelcomeCoupon(saved.getId());
+        } catch (Exception e) {
+            log.warn("신규가입 쿠폰 지급 실패 (userId={})", saved.getId(), e);
         }
         return saved;
     }

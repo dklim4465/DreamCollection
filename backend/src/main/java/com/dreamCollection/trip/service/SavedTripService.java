@@ -15,4 +15,6 @@ public interface SavedTripService {
     List<SavedTripDTO> getSavedTrips(Long userId);
 
     void deleteSavedTrip(Long userId, Long savedTripId);
+
+    void modify(Long userId, Long savedTripId, SaveTripRequestDTO request);
 }

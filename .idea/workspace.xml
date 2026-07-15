@@ -4,7 +4,170 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="fd679e6d-7401-4ff2-9511-feac0ecf743d" name="변경" comment="30/3000&#10;Home page segmentation, calendar, popular travel destination in July BEST10" />
+    <list default="true" id="fd679e6d-7401-4ff2-9511-feac0ecf743d" name="변경" comment="30/3000&#10;Home page segmentation, calendar, popular travel destination in July BEST10">
+      <change afterPath="$PROJECT_DIR$/FINAL_SUMMARY.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/src/main/java/com/dreamCollection/chat/controller/FriendController.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/src/main/java/com/dreamCollection/chat/dto/FriendRequestResponseDTO.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/src/main/java/com/dreamCollection/chat/dto/FriendResponseDTO.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/src/main/java/com/dreamCollection/chat/dto/UserSearchResponseDTO.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/src/main/java/com/dreamCollection/chat/entity/Friendship.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/src/main/java/com/dreamCollection/chat/exception/DuplicateFriendRequestException.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/src/main/java/com/dreamCollection/chat/exception/FriendUserNotFoundException.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/src/main/java/com/dreamCollection/chat/exception/FriendshipNotFoundException.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/src/main/java/com/dreamCollection/chat/exception/SelfFriendRequestException.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/src/main/java/com/dreamCollection/chat/repository/FriendshipRepository.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/src/main/java/com/dreamCollection/chat/service/FriendService.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/src/main/java/com/dreamCollection/coupon/controller/CouponController.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/src/main/java/com/dreamCollection/coupon/dto/MyCouponResponse.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/src/main/java/com/dreamCollection/coupon/entity/Coupon.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/src/main/java/com/dreamCollection/coupon/entity/UserCoupon.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/src/main/java/com/dreamCollection/coupon/repository/CouponRepository.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/src/main/java/com/dreamCollection/coupon/repository/UserCouponRepository.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/src/main/java/com/dreamCollection/coupon/service/CouponService.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/src/main/java/com/dreamCollection/trip/dto/RecommendationBlockDTO.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/upload/board/04d758a9-1575-471f-8ae6-1cdacdc3ed6e.jpg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/upload/board/4a91effd-18b5-4f44-8393-670f6037730b.jpg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/upload/board/54468304-5f91-425a-9731-d92f98be2a95.jpg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/upload/board/822b6a99-f9ca-4a45-9f3d-51bc6b30db8f.jpg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/upload/chat/4590f658-7647-418c-9a6c-d28226e2b578.jpg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/public/badges/country_ae.svg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/public/badges/country_ar.svg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/public/badges/country_au.svg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/public/badges/country_br.svg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/public/badges/country_ca.svg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/public/badges/country_ch.svg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/public/badges/country_cn.svg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/public/badges/country_cz.svg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/public/badges/country_dk.svg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/public/badges/country_eg.svg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/public/badges/country_eu.svg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/public/badges/country_fj.svg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/public/badges/country_fr.svg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/public/badges/country_gb.svg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/public/badges/country_gu.svg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/public/badges/country_hk.svg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/public/badges/country_hu.svg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/public/badges/country_id.svg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/public/badges/country_il.svg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/public/badges/country_in.svg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/public/badges/country_jo.svg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/public/badges/country_jp.svg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/public/badges/country_kh.svg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/public/badges/country_kr.svg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/public/badges/country_kw.svg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/public/badges/country_la.svg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/public/badges/country_lk.svg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/public/badges/country_ma.svg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/public/badges/country_mn.svg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/public/badges/country_mx.svg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/public/badges/country_my.svg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/public/badges/country_no.svg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/public/badges/country_np.svg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/public/badges/country_nz.svg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/public/badges/country_ph.svg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/public/badges/country_pl.svg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/public/badges/country_qa.svg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/public/badges/country_ru.svg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/public/badges/country_sa.svg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/public/badges/country_se.svg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/public/badges/country_sg.svg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/public/badges/country_th.svg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/public/badges/country_tr.svg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/public/badges/country_tw.svg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/public/badges/country_us.svg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/public/badges/country_vn.svg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/public/badges/country_za.svg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/public/badges/welcome.svg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/src/chat/api/chatApi.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/src/chat/api/friendApi.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/src/chat/components/ChatWidget.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/src/chat/socket/stompClient.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/src/chat/store/chatStore.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/src/chat/store/friendStore.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/src/chat/types/chat.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/src/chat/types/friends.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/src/home/component/CornerAdBanner.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/src/mate/components/DateSelect.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/src/mate/pages/MateDetailPage.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/src/notice/pages/NoticeDetailPage.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/src/notice/pages/NoticeListPage.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/src/profile/api/couponApi.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/src/trip/components/DestinationSelector.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/src/trip/components/TripAccommodationSelector.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/src/trip/components/TripFlightSelector.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/src/trip/page/TripAccommodationSelectPage.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/src/trip/page/TripFlightSelectPage.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.vscode/launch.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/.env.example" beforeDir="false" afterPath="$PROJECT_DIR$/backend/.env.example" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/backend/build.gradle" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/dreamCollection/admin/dto/BannerAdminRequest.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/dreamCollection/admin/dto/BannerAdminRequest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/dreamCollection/board/service/BoardCommentService.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/dreamCollection/board/service/BoardCommentService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/dreamCollection/chat/controller/ChatController.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/dreamCollection/chat/controller/ChatController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/dreamCollection/chat/controller/ChatImageUploadController.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/dreamCollection/chat/controller/ChatImageUploadController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/dreamCollection/chat/controller/ChatWebSocketController.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/dreamCollection/chat/controller/ChatWebSocketController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/dreamCollection/chat/controller/NotificationController.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/dreamCollection/chat/controller/NotificationController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/dreamCollection/chat/dto/ChatMessageResponseDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/dreamCollection/chat/dto/ChatMessageResponseDTO.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/dreamCollection/chat/dto/ChatRoomResponseDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/dreamCollection/chat/dto/ChatRoomResponseDTO.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/dreamCollection/chat/repository/ChatMessageRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/dreamCollection/chat/repository/ChatMessageRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/dreamCollection/chat/repository/ChatRoomRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/dreamCollection/chat/repository/ChatRoomRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/dreamCollection/chat/service/ChatService.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/dreamCollection/chat/service/ChatService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/dreamCollection/chat/websocket/StompAuthChannelInterceptor.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/dreamCollection/chat/websocket/StompAuthChannelInterceptor.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/dreamCollection/city/repository/CityRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/dreamCollection/city/repository/CityRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/dreamCollection/city/service/CityService.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/dreamCollection/city/service/CityService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/dreamCollection/global/security/SecurityConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/dreamCollection/global/security/SecurityConfig.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/dreamCollection/main/controller/NoticeController.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/dreamCollection/main/controller/NoticeController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/dreamCollection/main/dto/BannerResponse.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/dreamCollection/main/dto/BannerResponse.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/dreamCollection/main/entity/Banner.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/dreamCollection/main/entity/Banner.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/dreamCollection/main/service/BannerService.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/dreamCollection/main/service/BannerService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/dreamCollection/main/service/NoticeService.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/dreamCollection/main/service/NoticeService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/dreamCollection/trip/controller/TripController.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/dreamCollection/trip/controller/TripController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/dreamCollection/trip/dto/PlaceOptionDTO.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/dreamCollection/trip/dto/PlanResponseDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/dreamCollection/trip/dto/PlanResponseDTO.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/dreamCollection/trip/dto/ScheduleItemDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/dreamCollection/trip/dto/ScheduleItemDTO.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/dreamCollection/trip/entity/SavedTrip.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/dreamCollection/trip/entity/SavedTrip.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/dreamCollection/trip/exception/SavedTripValidator.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/dreamCollection/trip/exception/SavedTripValidator.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/dreamCollection/trip/recommend/TripRecommendationBuilder.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/dreamCollection/trip/recommend/TripRecommendationBuilder.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/dreamCollection/trip/service/SavedTripService.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/dreamCollection/trip/service/SavedTripService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/dreamCollection/trip/service/SavedTripServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/dreamCollection/trip/service/SavedTripServiceImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/dreamCollection/user/service/UserService.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/dreamCollection/user/service/UserService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/resources/application.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/resources/application.yml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/db/schema.sql" beforeDir="false" afterPath="$PROJECT_DIR$/db/schema.sql" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/.env.example" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/.env.example" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/package-lock.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/App.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/App.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/auth/api/authApi.ts" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/auth/api/authApi.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/board/api/client.ts" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/board/api/client.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/board/pages/BoardDetailPage.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/board/pages/BoardDetailPage.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/board/pages/BoardWritePage.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/board/pages/BoardWritePage.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/common/layout/AppLayout.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/common/layout/AppLayout.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/common/layout/Logo.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/common/layout/Logo.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/common/layout/Navbar.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/common/layout/Navbar.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/home/api/bannerApi.ts" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/home/api/bannerApi.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/home/api/noticeApi.ts" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/home/api/noticeApi.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/home/component/AdBannerModal.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/home/component/AdBannerModal.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/home/component/MiniCalendar.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/home/component/MiniCalendar.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/home/component/ProfileSummary.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/home/component/ProfileSummary.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/home/component/SiteIntro.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/home/component/SiteIntro.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/home/pages/HomePage.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/home/pages/HomePage.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/mate/pages/MateWritePage.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/mate/pages/MateWritePage.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/mate/types/mate.ts" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/mate/types/mate.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/profile/pages/ProfilePage.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/profile/pages/ProfilePage.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/records/pages/RecordsPage.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/records/pages/RecordsPage.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/trip/api/trip.ts" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/trip/api/trip.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/trip/components/PlaceOptionPicker.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/trip/components/SavedTripList.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/trip/components/SavedTripList.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/trip/components/ScheduleItemRow.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/trip/components/ScheduleItemRow.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/trip/components/TripOptionModal.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/trip/components/TripOptionModal.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/trip/components/TripOptionSelector.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/trip/components/TripOptionSelector.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/trip/components/TripScheduleView.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/trip/components/TripScheduleView.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/trip/page/TravelPlanPage.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/trip/page/TravelPlanPage.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/trip/page/TripResultPage.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/trip/page/TripResultPage.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/trip/page/TripSavedListPage.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/trip/page/TripSavedListPage.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/vite.config.ts" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/vite.config.ts" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -67,7 +230,7 @@
     &quot;codeWithMe.voiceChat.enabledByDefault&quot;: &quot;false&quot;,
     &quot;git-widget-placeholder&quot;: &quot;yj&quot;,
     &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;C:/Users/EZEN/Desktop/last/last2/DreamCollection&quot;,
+    &quot;last_opened_file_path&quot;: &quot;C:/Users/EZEN/OneDrive/Desktop/last/DreamCollection-main&quot;,
     &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
     &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
     &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
@@ -161,11 +324,30 @@
       <option name="project" value="LOCAL" />
       <updated>1783922473205</updated>
     </task>
-    <option name="localTasksCounter" value="8" />
+    <task id="LOCAL-00008" summary="30/3000&#10;Home page segmentation, calendar, popular travel destination in July BEST10">
+      <option name="closed" value="true" />
+      <created>1784076879114</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1784076879114</updated>
+    </task>
+    <option name="localTasksCounter" value="9" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="홈페이지 이미지 삽입, 배너 이미지-&gt;영상으로 변경, ai 챗봇, 결제 카드 등록" />

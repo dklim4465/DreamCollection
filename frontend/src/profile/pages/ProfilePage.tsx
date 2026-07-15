@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import dayjs from "dayjs";
 import { useAuthStore } from "@/auth/store/authStore";
@@ -9,6 +10,8 @@ import { levelApi } from "@/profile/api/levelApi";
 import { profileApi } from "@/profile/api/profileApi";
 import { deviceApi } from "@/profile/api/deviceApi";
 import { badgeApi } from "@/profile/api/badgeApi";
+import { couponApi } from "@/profile/api/couponApi";
+import { matchesKoreanSearch } from "@/common/utils/hangul";
 import type { TravelStyle } from "@/types";
 
 const TRAVEL_STYLE_LABEL: Record<TravelStyle, string> = {
@@ -56,6 +59,17 @@ export default function ProfilePage() {
 
   const [showCardManager, setShowCardManager] = useState(false);
   const [showLoginActivity, setShowLoginActivity] = useState(false);
+  const [badgeQuery, setBadgeQuery] = useState("");
+  const badgeScrollRef = useRef<HTMLDivElement>(null);
+
+  type ProfileTab = "profile" | "badges" | "coupons" | "payments" | "account";
+  const [searchParams] = useSearchParams();
+  const initialTab = (searchParams.get("tab") as ProfileTab) || "profile";
+  const [activeTab, setActiveTab] = useState<ProfileTab>(
+    ["profile", "badges", "coupons", "payments", "account"].includes(initialTab)
+      ? initialTab
+      : "profile",
+  );
 
   const [isRequestingCard, setIsRequestingCard] = useState(false);
   const [cardRegisterError, setCardRegisterError] = useState<string | null>(null);
@@ -77,6 +91,13 @@ export default function ProfilePage() {
     queryKey: ["badges", "me"],
     queryFn: badgeApi.getMyBadges,
     enabled: !!user,
+  });
+
+  // 보관함(쿠폰) — 보관함 탭을 열었을 때 조회
+  const { data: couponsRes, isLoading: couponsLoading } = useQuery({
+    queryKey: ["coupons", "me"],
+    queryFn: couponApi.getMyCoupons,
+    enabled: !!user && activeTab === "coupons",
   });
 
   const setRepresentativeMutation = useMutation({
@@ -142,7 +163,6 @@ export default function ProfilePage() {
     onSuccess: (res) => {
       const updated = res.data?.data;
       if (updated) updateUser(updated);
-      setIsEditing(false);
       setEditError(null);
     },
     onError: (err: unknown) => setEditError(getErrorMessage(err, "프로필 수정에 실패했어요. 잠시 후 다시 시도해주세요.")),
@@ -170,11 +190,26 @@ export default function ProfilePage() {
     onError: (err: unknown) => setPasswordError(getErrorMessage(err, "비밀번호 변경에 실패했어요.")),
   });
 
+  // 프로필 수정 패널이 열려있는 동안, 닉네임/여행스타일이 바뀌면 800ms 후 자동 저장
+  useEffect(() => {
+    if (!user || !isEditing) return;
+    if (!nickname.trim()) return;
+    if (nickname === user.nickname && travelStyle === user.travelStyle) return;
+
+    const timer = setTimeout(() => {
+      updateProfileMutation.mutate();
+    }, 800);
+    return () => clearTimeout(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [nickname, travelStyle, isEditing, user]);
+
   if (!user) return null;
 
   const payments = paymentsRes?.data?.data ?? [];
   const levelInfo = levelRes?.data?.data;
   const badges = badgesRes?.data?.data ?? [];
+  const filteredBadges = badges.filter((b) => matchesKoreanSearch(badgeQuery, b.name));
+  const coupons = couponsRes?.data?.data ?? [];
   const representativeBadge = badges.find((b) => b.representative);
   const cards = cardsRes?.data?.data ?? [];
   const loginHistory = loginHistoryRes?.data?.data ?? [];
@@ -219,24 +254,63 @@ export default function ProfilePage() {
     }
   };
 
-  return (
-    <div className="flex flex-col gap-stack-lg max-w-2xl">
-      <h1 className="text-headline-md font-bold">마이페이지</h1>
+  const TABS: { key: ProfileTab; label: string; icon: string }[] = [
+    { key: "profile", label: "프로필", icon: "person" },
+    { key: "badges", label: "뱃지 도감", icon: "military_tech" },
+    { key: "coupons", label: "보관함", icon: "confirmation_number" },
+    { key: "payments", label: "결제내역", icon: "receipt_long" },
+    { key: "account", label: "계정 관리", icon: "manage_accounts" },
+  ];
 
-      {/* 프로필 카드 */}
+  return (
+    <div className="max-w-5xl">
+      <h1 className="text-headline-md font-bold mb-stack-lg">마이페이지</h1>
+
+      <div className="flex flex-col md:flex-row gap-stack-lg items-start">
+        {/* 좌측 탭 네비게이션 */}
+        <div className="card-base p-stack-sm w-full md:w-56 shrink-0 flex flex-row md:flex-col gap-1 overflow-x-auto hide-scrollbar">
+          {TABS.map((tab) => (
+            <button
+              key={tab.key}
+              type="button"
+              onClick={() => setActiveTab(tab.key)}
+              className={`${
+                activeTab === tab.key ? "nav-item-active" : "nav-item"
+              } whitespace-nowrap shrink-0`}
+            >
+              <span className="material-symbols-outlined">{tab.icon}</span>
+              {tab.label}
+            </button>
+          ))}
+        </div>
+
+        {/* 우측 컨텐츠 */}
+        <div className="flex-1 w-full flex flex-col gap-stack-lg">
+          {activeTab === "profile" && (
       <div className="card-base p-stack-lg flex flex-col gap-stack-md">
         <div className="flex items-center gap-stack-md">
-          <button
-            type="button"
-            onClick={() => displayedImage && setShowLightbox(true)}
-            className="w-20 h-20 rounded-full bg-primary-container flex items-center justify-center overflow-hidden shrink-0"
-          >
-            {displayedImage ? (
-              <img src={displayedImage} alt={user.nickname} className="w-full h-full object-cover" />
-            ) : (
-              <span className="material-symbols-outlined text-primary text-4xl">person</span>
-            )}
-          </button>
+          <div className="relative shrink-0">
+            <button
+              type="button"
+              onClick={() => displayedImage && setShowLightbox(true)}
+              className="w-20 h-20 rounded-full bg-primary-container flex items-center justify-center overflow-hidden"
+            >
+              {displayedImage ? (
+                <img src={displayedImage} alt={user.nickname} className="w-full h-full object-cover" />
+              ) : (
+                <span className="material-symbols-outlined text-primary text-4xl">person</span>
+              )}
+            </button>
+            <button
+              type="button"
+              onClick={() => (isEditing ? setIsEditing(false) : startEditing())}
+              aria-label="프로필 수정"
+              title="프로필 수정"
+              className="absolute -top-1 -right-1 w-7 h-7 rounded-full bg-primary text-on-primary flex items-center justify-center shadow-md hover:opacity-90 active:scale-95 transition-all"
+            >
+              <span className="material-symbols-outlined text-base leading-none">edit</span>
+            </button>
+          </div>
           <div>
             <div className="flex items-center gap-2">
               <p className="text-headline-sm font-bold">{user.nickname}</p>
@@ -348,25 +422,26 @@ export default function ProfilePage() {
 
             {editError && <p className="text-label-sm text-error">{editError}</p>}
 
-            <div className="flex gap-2 mt-1">
-              <button
-                onClick={() => updateProfileMutation.mutate()}
-                disabled={updateProfileMutation.isPending || !nickname.trim()}
-                className="btn-primary text-sm py-2 px-5 disabled:opacity-50"
-              >
-                {updateProfileMutation.isPending ? "저장 중..." : "저장하기"}
-              </button>
+            <div className="flex items-center gap-3 mt-1">
               <button onClick={() => setIsEditing(false)} className="btn-ghost text-sm py-2 px-5">
-                취소
+                닫기
               </button>
+              <span className="text-label-sm text-on-surface-variant">
+                {updateProfileMutation.isPending
+                  ? "저장 중..."
+                  : updateProfileMutation.isSuccess
+                    ? "자동 저장됨"
+                    : "변경하면 자동으로 저장돼요"}
+              </span>
             </div>
           </div>
         )}
       </div>
+          )}
 
-      {/* 뱃지 도감 */}
+          {activeTab === "badges" && (
       <div className="card-base p-stack-lg">
-        <div className="flex items-center justify-between mb-stack-sm">
+        <div className="flex items-center justify-between mb-stack-sm gap-stack-md flex-wrap">
           <h2 className="text-headline-sm font-bold">뱃지 도감</h2>
           {representativeBadge && (
             <button
@@ -378,30 +453,129 @@ export default function ProfilePage() {
             </button>
           )}
         </div>
+
+        {/* 검색: 국가 이름 초성만 쳐도 매칭됨 (예: "ㅇㅂ" → 일본) */}
+        <div className="relative mb-stack-md max-w-xs">
+          <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline text-lg">
+            search
+          </span>
+          <input
+            type="text"
+            value={badgeQuery}
+            onChange={(e) => setBadgeQuery(e.target.value)}
+            placeholder="뱃지 이름 검색 (초성 가능, 예: ㅇㅂ)"
+            className="input-search w-full"
+          />
+        </div>
+
         {badgesLoading ? (
           <p className="text-body-sm text-on-surface-variant py-4">불러오는 중...</p>
+        ) : filteredBadges.length === 0 ? (
+          <p className="text-body-md text-on-surface-variant py-4">검색 결과가 없어요.</p>
         ) : (
-          <div className="grid grid-cols-4 gap-3">
-            {badges.map((b) => (
-              <button
-                key={b.id}
-                type="button"
-                disabled={!b.earned || setRepresentativeMutation.isPending}
-                onClick={() => setRepresentativeMutation.mutate(b.id)}
-                title={b.earned ? b.description : `획득 조건: ${b.description}`}
-                className={`flex flex-col items-center gap-1 p-2 rounded-xl transition-opacity ${
-                  b.earned ? "opacity-100 hover:bg-surface-container-low" : "opacity-30 grayscale cursor-default"
-                } ${b.representative ? "ring-2 ring-primary" : ""}`}
-              >
-                <img src={b.iconUrl} alt={b.name} className="w-12 h-12" />
-                <span className="text-label-sm text-center line-clamp-1">{b.name}</span>
-              </button>
-            ))}
+          <div className="relative">
+            <button
+              type="button"
+              onClick={() =>
+                badgeScrollRef.current?.scrollBy({
+                  left: -badgeScrollRef.current.clientWidth,
+                  behavior: "smooth",
+                })
+              }
+              aria-label="이전 뱃지"
+              className="hidden sm:flex absolute left-0 top-1/2 -translate-y-1/2 -translate-x-1/2 z-10 w-9 h-9 items-center justify-center rounded-full bg-surface-container-lowest shadow-glow hover:bg-surface-container-low"
+            >
+              <span className="material-symbols-outlined">chevron_left</span>
+            </button>
+
+            <div
+              ref={badgeScrollRef}
+              className="grid grid-flow-col grid-rows-2 auto-cols-[19%] sm:auto-cols-[19%] gap-3 overflow-x-auto scroll-smooth snap-x snap-mandatory pb-2 hide-scrollbar"
+            >
+              {filteredBadges.map((b) => (
+                <button
+                  key={b.id}
+                  type="button"
+                  disabled={!b.earned || setRepresentativeMutation.isPending}
+                  onClick={() => setRepresentativeMutation.mutate(b.id)}
+                  title={b.earned ? b.description : `획득 조건: ${b.description}`}
+                  className={`snap-start flex flex-col items-center gap-1 p-2 rounded-xl transition-opacity ${
+                    b.earned ? "opacity-100 hover:bg-surface-container-low" : "opacity-30 grayscale cursor-default"
+                  } ${b.representative ? "ring-2 ring-primary" : ""}`}
+                >
+                  <img src={b.iconUrl} alt={b.name} className="w-12 h-12" />
+                  <span className="text-label-sm text-center line-clamp-1">{b.name}</span>
+                </button>
+              ))}
+            </div>
+
+            <button
+              type="button"
+              onClick={() =>
+                badgeScrollRef.current?.scrollBy({
+                  left: badgeScrollRef.current.clientWidth,
+                  behavior: "smooth",
+                })
+              }
+              aria-label="다음 뱃지"
+              className="hidden sm:flex absolute right-0 top-1/2 -translate-y-1/2 translate-x-1/2 z-10 w-9 h-9 items-center justify-center rounded-full bg-surface-container-lowest shadow-glow hover:bg-surface-container-low"
+            >
+              <span className="material-symbols-outlined">chevron_right</span>
+            </button>
           </div>
         )}
       </div>
+          )}
 
-      {/* 결제내역 */}
+          {activeTab === "coupons" && (
+      <div className="card-base p-stack-lg">
+        <h2 className="text-headline-sm font-bold mb-stack-sm">보관함</h2>
+        {couponsLoading ? (
+          <p className="text-body-sm text-on-surface-variant py-4">불러오는 중...</p>
+        ) : coupons.length === 0 ? (
+          <p className="text-body-md text-on-surface-variant py-4">
+            아직 보관 중인 쿠폰이 없어요. 홈 화면의 7월 이벤트 배너를 확인해보세요!
+          </p>
+        ) : (
+          <div className="flex flex-col gap-stack-sm">
+            {coupons.map((c) => {
+              const expired = c.status === "EXPIRED" || dayjs(c.expiresAt).isBefore(dayjs());
+              const used = c.status === "USED";
+              return (
+                <div
+                  key={c.id}
+                  className={`flex items-center justify-between rounded-2xl border p-stack-md ${
+                    used || expired
+                      ? "border-outline-variant opacity-50"
+                      : "border-primary-container bg-primary/5"
+                  }`}
+                >
+                  <div className="flex items-center gap-stack-md">
+                    <div className="w-14 h-14 rounded-xl bg-primary/10 flex items-center justify-center text-primary shrink-0">
+                      <span className="material-symbols-outlined text-3xl">confirmation_number</span>
+                    </div>
+                    <div>
+                      <p className="text-headline-sm font-bold">
+                        {c.discountValue}% 할인 · {c.name}
+                      </p>
+                      <p className="text-body-sm text-on-surface-variant">{c.description}</p>
+                      <p className="text-label-sm text-on-surface-variant mt-0.5">
+                        {dayjs(c.expiresAt).format("YYYY.MM.DD")}까지 사용 가능
+                      </p>
+                    </div>
+                  </div>
+                  <span className="text-label-md font-bold px-3 py-1 rounded-full bg-surface-container-high">
+                    {used ? "사용완료" : expired ? "기간만료" : "사용가능"}
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </div>
+          )}
+
+          {activeTab === "payments" && (
       <div className="card-base p-stack-lg flex flex-col gap-stack-sm">
         <h2 className="text-headline-sm font-bold mb-1">결제내역</h2>
         {payments.length === 0 ? (
@@ -424,14 +598,11 @@ export default function ProfilePage() {
           ))
         )}
       </div>
+          )}
 
+          {activeTab === "account" && (
       <div className="card-base p-stack-lg flex flex-col gap-stack-sm">
         <h2 className="text-headline-sm font-bold mb-2">계정 관리</h2>
-        <button onClick={startEditing} className="nav-item justify-start">
-          <span className="material-symbols-outlined">edit</span>
-          프로필 수정
-        </button>
-
         <button
           onClick={() => setShowPasswordForm((v) => !v)}
           className="nav-item justify-start"
@@ -616,6 +787,9 @@ export default function ProfilePage() {
           <span className="material-symbols-outlined">logout</span>
           로그아웃
         </button>
+      </div>
+          )}
+        </div>
       </div>
 
       {/* 프로필 사진 라이트박스 — 배경 클릭 또는 우측 상단 X로 닫힘 */}
