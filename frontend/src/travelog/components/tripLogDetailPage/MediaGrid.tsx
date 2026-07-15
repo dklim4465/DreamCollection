@@ -23,9 +23,11 @@ const MediaGrid = ({
           items-center
           justify-center
           rounded-xl
-          bg-white/10
+          border
+          border-outline-variant
+          bg-surface-container
           text-body-md
-          text-white/70
+          text-on-surface-variant
         "
       >
         미디어가 없습니다.

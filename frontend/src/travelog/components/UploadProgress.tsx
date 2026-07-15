@@ -8,22 +8,64 @@ const UploadProgress = () => {
   const progress = totalFiles === 0 ? 0 : (uploadedFiles / totalFiles) * 100;
 
   return (
-    <div className="fixed bottom-6 right-6 z-50 w-80 rounded-lg bg-white shadow-lg p-4">
-      <div className="mb-2 flex justify-between text-sm">
-        <span>사진 업로드 중...</span>
-        <span>
+    <div
+      className="
+        fixed
+        bottom-6
+        right-6
+        z-50
+        w-80
+        rounded-2xl
+        bg-surface-container-lowest
+        p-4
+        traveler-glow
+      "
+    >
+      <div
+        className="
+          mb-3
+          flex
+          justify-between
+          text-label-md
+        "
+      >
+        <span className="font-semibold text-on-surface">사진 업로드 중...</span>
+
+        <span className="text-on-surface-variant">
           {uploadedFiles} / {totalFiles}
         </span>
       </div>
 
-      <div className="h-2 overflow-hidden rounded-full bg-gray-200">
+      <div
+        className="
+          h-2
+          overflow-hidden
+          rounded-full
+          bg-surface-variant
+        "
+      >
         <div
-          className="h-full rounded-full bg-blue-500 transition-all duration-300"
-          style={{ width: `${progress}%` }}
+          className="
+            h-full
+            rounded-full
+            bg-primary
+            transition-all
+            duration-300
+          "
+          style={{
+            width: `${progress}%`,
+          }}
         />
       </div>
 
-      <div className="mt-2 text-right text-xs text-gray-500">
+      <div
+        className="
+          mt-2
+          text-right
+          text-label-sm
+          text-on-surface-variant
+        "
+      >
         {Math.round(progress)}%
       </div>
     </div>

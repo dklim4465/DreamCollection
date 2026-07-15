@@ -2,6 +2,7 @@ import { Search, Plus } from "lucide-react";
 import { TripLogResponseDTO } from "@/travelog/types/tripLog";
 import TripLogCardMenu from "@/travelog/components/mainPage/TripLogCardMenu";
 import { Link } from "react-router-dom";
+import EmptyState from "@/common/component/EmptyState";
 
 interface TripLogListProps {
   tripLogs: TripLogResponseDTO[];
@@ -66,9 +67,16 @@ const TripLogListComponent = ({
       {/* 여행 기록 목록 */}
       <div className="flex-1 overflow-y-auto overflow-x-hidden min-h-[600px] p-4 space-y-4">
         {tripLogs.length === 0 ? (
-          <div className="flex h-full items-center justify-center text-body-md text-on-surface-variant">
-            여행 기록이 없습니다.
-          </div>
+          <EmptyState
+            icon="📷"
+            title="아직 기록이 없어요"
+            description="다녀온 여행을 기록하고 추억을 모아보세요!"
+            action={
+              <button onClick={onCreateClick} className="btn-primary">
+                첫 일지 작성하기
+              </button>
+            }
+          />
         ) : (
           tripLogs.map((tripLog) => (
             <Link

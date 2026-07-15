@@ -1,5 +1,8 @@
 import { X } from "lucide-react";
 import { TripLogResponseDTO } from "@/travelog/types/tripLog";
+import { useEffect, useState } from "react";
+import useDebounce from "@/travelog/hooks/useDebounce";
+import { useUpdateTripLog } from "@/travelog/hooks/useUpdateTripLog";
 
 interface TripLogSidebarProps {
   open: boolean;
@@ -12,6 +15,48 @@ const TripLogSidebarComponent = ({
   tripLog,
   onClose,
 }: TripLogSidebarProps) => {
+  if (!tripLog) return;
+
+  const [title, setTitle] = useState(tripLog.title ?? "");
+  const [description, setDescription] = useState(tripLog.description ?? "");
+  const [startDate, setStartDate] = useState(tripLog.startDate ?? "");
+  const [endDate, setEndDate] = useState(tripLog.endDate ?? "");
+
+  const debouncedTitle = useDebounce(title, 3000);
+  const debouncedDescription = useDebounce(description, 3000);
+  const debouncedStartDate = useDebounce(startDate, 3000);
+  const debouncedEndDate = useDebounce(endDate, 3000);
+
+  const updateMutation = useUpdateTripLog();
+
+  useEffect(() => {
+    if (!tripLog) return;
+
+    if (
+      debouncedTitle === tripLog.title &&
+      debouncedDescription === (tripLog.description ?? "") &&
+      debouncedStartDate === tripLog.startDate &&
+      debouncedEndDate === tripLog.endDate
+    ) {
+      return;
+    }
+
+    updateMutation.mutate({
+      tno: tripLog.tno,
+      request: {
+        title: debouncedTitle,
+        description: debouncedDescription,
+        startDate: debouncedStartDate,
+        endDate: debouncedEndDate,
+      },
+    });
+  }, [
+    debouncedTitle,
+    debouncedDescription,
+    debouncedStartDate,
+    debouncedEndDate,
+  ]);
+
   return (
     <>
       {/* 배경 */}
@@ -58,35 +103,58 @@ const TripLogSidebarComponent = ({
               )}
 
               {/* 제목 */}
-              <div>
-                <p className="mb-1 text-label-sm text-on-surface-variant">
-                  제목
-                </p>
-                <p className="text-title-md font-bold text-on-surface">
-                  {tripLog.title}
-                </p>
-              </div>
+              <input
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                className="w-full rounded-lg border border-outline-variant bg-transparent p-2"
+              />
 
               {/* 기간 */}
               <div>
                 <p className="mb-1 text-label-sm text-on-surface-variant">
                   여행 기간
                 </p>
-                <p className="text-body-md text-on-surface">
-                  {tripLog.startDate} ~ {tripLog.endDate}
-                </p>
+
+                <div className="flex items-center gap-2">
+                  <input
+                    type="date"
+                    value={startDate}
+                    onChange={(e) => setStartDate(e.target.value)}
+                    className="
+                      rounded-md
+                      border border-outline-variant
+                      bg-surface-container
+                      px-3 py-2
+                      text-body-md text-on-surface
+                      outline-none
+                    "
+                  />
+
+                  <span>~</span>
+
+                  <input
+                    type="date"
+                    value={endDate}
+                    onChange={(e) => setEndDate(e.target.value)}
+                    className="
+                      rounded-md
+                      border border-outline-variant
+                      bg-surface-container
+                      px-3 py-2
+                      text-body-md text-on-surface
+                      outline-none
+                    "
+                  />
+                </div>
               </div>
 
               {/* 설명 */}
               {tripLog.description && (
-                <div>
-                  <p className="mb-1 text-label-sm text-on-surface-variant">
-                    설명
-                  </p>
-                  <p className="whitespace-pre-wrap text-body-md text-on-surface">
-                    {tripLog.description}
-                  </p>
-                </div>
+                <textarea
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  className="min-h-32 w-full rounded-lg border border-outline-variant bg-transparent p-2"
+                />
               )}
 
               {/* 태그 */}

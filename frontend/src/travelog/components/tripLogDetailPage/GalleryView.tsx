@@ -58,15 +58,15 @@ const GalleryView = () => {
           onClick={closeGallery}
           className="
             text-label-md
-            text-white/80
-            transition
-            hover:text-white
+            text-on-surface-variant
+            transition-colors
+            hover:text-on-surface
           "
         >
           ← 뒤로가기
         </button>
 
-        <h2 className="text-title-md font-bold text-white">{spot.name}</h2>
+        <h2 className="text-title-md font-bold text-on-surface">{spot.name}</h2>
       </div>
 
       {/* Action */}
@@ -82,7 +82,7 @@ const GalleryView = () => {
               text-label-md
               font-bold
               text-on-error
-              transition
+              transition-opacity
               hover:opacity-90
               active:scale-95
             "
@@ -91,7 +91,7 @@ const GalleryView = () => {
           </button>
         ) : (
           <>
-            <span className="text-label-md text-white/80">
+            <span className="text-label-md text-on-surface-variant">
               {selectedMediaList.length}개 선택됨
             </span>
 
@@ -101,13 +101,14 @@ const GalleryView = () => {
                 className="
                   rounded-lg
                   border
-                  border-white/30
+                  border-outline
+                  bg-surface
                   px-4
                   py-2
                   text-label-md
-                  text-white
-                  transition
-                  hover:bg-white/10
+                  text-on-surface
+                  transition-colors
+                  hover:bg-surface-container
                 "
               >
                 취소
@@ -124,7 +125,7 @@ const GalleryView = () => {
                   text-label-md
                   font-bold
                   text-on-error
-                  transition
+                  transition-opacity
                   hover:opacity-90
                   disabled:cursor-not-allowed
                   disabled:opacity-50

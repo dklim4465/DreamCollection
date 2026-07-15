@@ -23,8 +23,9 @@ const MediaThumbnail = ({
         cursor-pointer
         overflow-hidden
         rounded-xl
-        transition
-        ${selected ? "ring-2 ring-primary" : "hover:scale-[1.02]"}
+        bg-surface-container
+        transition-all
+        ${selected ? "ring-2 ring-primary shadow-lg" : "hover:scale-[1.02] hover:shabow-md"}
       `}
     >
       {deleteMode && (
@@ -33,25 +34,12 @@ const MediaThumbnail = ({
             type="checkbox"
             checked={selected}
             readOnly
-            className="
-              h-5
-              w-5
-              accent-primary
-            "
+            className="h-5 w-5 accent-primary"
           />
         </div>
       )}
 
-      {selected && (
-        <div
-          className="
-            absolute
-            inset-0
-            z-[5]
-            bg-primary/30
-          "
-        />
-      )}
+      {selected && <div className="absolute inset-0 z-10 bg-primary/25" />}
 
       <img
         src={`http://localhost:8080/${media.mediaPath}/thumbnail/${media.storedFileName}`}
@@ -61,7 +49,8 @@ const MediaThumbnail = ({
           h-full
           w-full
           object-cover
-          transition
+          transition-transform
+          duration-200
           group-hover:scale-105
         "
       />
