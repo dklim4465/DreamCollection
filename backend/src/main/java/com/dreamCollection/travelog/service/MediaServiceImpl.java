@@ -13,6 +13,7 @@ import com.dreamCollection.travelog.repository.TripLogRepository;
 import com.dreamCollection.travelog.service.extractor.MetadataService;
 import com.dreamCollection.travelog.util.GeometryUtils;
 import com.drew.imaging.ImageProcessingException;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import net.coobird.thumbnailator.Thumbnailator;
@@ -89,13 +90,24 @@ public class MediaServiceImpl implements MediaService {
 
     @Override
     @Transactional
-    public void deleteMedia(Long mno) {
+    public void deleteMedia(List<Long> mediaMnos) {
 
-        Media media = mediaRepository.findById(mno).orElseThrow();
+        List<Media> mediaList = mediaRepository.findAllById(mediaMnos);
 
-        registerFileDelete(media);
+        Long tno = mediaList.getFirst().getTripLog().getTno();
 
-        mediaRepository.delete(media);
+        if (mediaList.size() != mediaMnos.size()) {
+            throw new EntityNotFoundException("존재하지 않는 미디어가 포함되어 있습니다.");
+        }
+
+        for (Media media : mediaList) {
+            registerFileDelete(media);
+        }
+
+        mediaRepository.deleteAllInBatch(mediaList);
+
+        spotService.clusteringSpot(tno);
+
     }
 
     @Override

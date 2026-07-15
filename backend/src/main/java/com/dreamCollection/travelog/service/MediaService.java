@@ -11,7 +11,7 @@ import java.util.List;
 public interface MediaService {
 
     UploadResultDTO upload(Long tno, List<MultipartFile> request);
-    void deleteMedia(Long mno);
+    void deleteMedia(List<Long> mediaMnos);
     void deleteAllByTrip(Long tno);
     MediaDetailDTO getMediaDetail(Long mno);
 

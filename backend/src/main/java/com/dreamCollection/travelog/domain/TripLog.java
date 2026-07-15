@@ -1,5 +1,6 @@
 package com.dreamCollection.travelog.domain;
 
+import com.dreamCollection.user.entity.User;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
@@ -48,10 +49,10 @@ public class TripLog {
     @ElementCollection
     @Builder.Default
     private List<String> tags = new ArrayList<>();
-//
-//    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-//    @JoinColumn(name = "user_id", nullable = false)
-//    private User user;
+
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
 
     public void changeTitle(String title) { this.title = title; }
 
@@ -72,4 +73,6 @@ public class TripLog {
     public void clearTags() {
         tags.clear();
     }
+
+    public void changeUser(User user) { this.user = user; }
 }

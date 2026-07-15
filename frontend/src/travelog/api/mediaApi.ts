@@ -23,7 +23,7 @@ export const getMedia = async (mno: number): Promise<MediaDetailDTO> => {
   return res.data;
 };
 
-export const deleteMedia = async (mno: number) => {
-  const res = await apiClient.delete(`/media/${mno}`);
+export const deleteMedia = async (mediaMnos: number[]) => {
+  const res = await apiClient.delete(`/media`, { data: mediaMnos });
   return res.data;
 };

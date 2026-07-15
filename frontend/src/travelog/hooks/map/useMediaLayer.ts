@@ -2,6 +2,7 @@ import { useMap } from "@/travelog/map/useMap";
 import { useEffect, useRef } from "react";
 import mapboxgl from "mapbox-gl";
 import { useMediaStore } from "@/travelog/store/useMediaStore";
+import { useMarkerResize } from "@/travelog/hooks/map/useMarkerResize";
 
 type Props = {
   visible: boolean;
@@ -72,4 +73,6 @@ export const useMediaLayer = ({ visible }: Props) => {
       markersRef.current.clear();
     };
   }, []);
+
+  useMarkerResize({ map, markersRef });
 };

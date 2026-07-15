@@ -14,7 +14,7 @@ interface TripLogListProps {
   onCreateClick: () => void;
 }
 
-export default function TripLogListComponent({
+const TripLogListComponent = ({
   tripLogs,
   searchKeyword,
   sort,
@@ -23,7 +23,7 @@ export default function TripLogListComponent({
   onDetailClick,
   onDeleteClick,
   onCreateClick,
-}: TripLogListProps) {
+}: TripLogListProps) => {
   return (
     <div className="flex h-full flex-col rounded-xl border bg-white">
       {/* 검색 + 생성 */}
@@ -115,4 +115,6 @@ export default function TripLogListComponent({
       </div>
     </div>
   );
-}
+};
+
+export default TripLogListComponent;

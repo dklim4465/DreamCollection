@@ -10,11 +10,11 @@ import java.util.List;
 @Transactional
 public interface TripLogService {
 
-    Long registerTrip(TripLogRequestDTO tripLogRequestDTO);
-    TripLogResponseDTO readTrip(Long tno);
-    void updateTrip(Long tno, TripLogRequestDTO tripLogRequestDTO);
-    void removeTrip(Long tno);
-    TripLogOverviewDTO getOverview(Long tno);
-    List<TripLogResponseDTO> getList();
+    Long registerTrip(Long userId, TripLogRequestDTO tripLogRequestDTO);
+    TripLogResponseDTO readTrip(Long userId, Long tno);
+    void updateTrip(Long userId, Long tno, TripLogRequestDTO tripLogRequestDTO);
+    void removeTrip(Long userId, Long tno);
+    TripLogOverviewDTO getOverview(Long userId, Long tno);
+    List<TripLogResponseDTO> getList(Long userId);
 
 }

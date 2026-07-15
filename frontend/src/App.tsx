@@ -107,7 +107,7 @@ export default function App() {
     <QueryClientProvider client={queryClient}>
       <AuthBootstrap />
       <MapProvider>
-        <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+        <BrowserRouter>
           <Suspense fallback={<LoadingSpinner message="페이지 로딩 중..." />}>
             <Routes>
               {/* Public */}
@@ -163,7 +163,10 @@ export default function App() {
                   <Route path="/trip/saved" element={<TripSavedListPage />} />
                   <Route path="/trip/edit" element={<TripResultPage />} />
                   <Route path="/cart" element={<CartPage />} />
+                  {/* 여행기록 */}
                   <Route path="/records" element={<RecordsPage />} />
+                  <Route path="/triplog" element={<TripLogMainPage />} />
+
                   <Route path="/profile" element={<ProfilePage />} />
                   <Route path="/register/card" element={<CardRegisterPage />} />
                   <Route
@@ -205,8 +208,6 @@ export default function App() {
                 </Route>
               </Route>
 
-              {/* 여행기록 */}
-              <Route path="/triplog" element={<TripLogMainPage />} />
               <Route path="/triplog/:tno" element={<TripLogDetailPage />} />
 
               {/* 404 처리 */}
