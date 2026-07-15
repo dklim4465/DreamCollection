@@ -1,26 +1,4 @@
--- ════════════════════════════════════════════════════════════════
--- Dream Collection (dreamConnection) — 통합 스키마 + 시드데이터
---
--- 대상 DBMS : MySQL 8.x / MariaDB 10.6+ (InnoDB, utf8mb4)
--- 실행 방법 : 이 파일 하나만 처음부터 끝까지 실행하면 됩니다.
---
--- ⚠ 원본 실행 이력 대비 정리한 내용
---  - mate_request 가 두 번 정의돼 있던 것을 최신 버전(message 컬럼 포함)
---    하나로 통합했습니다.
---  - users.id 는 BIGINT(signed)인데 badge/user_badge/place/mate_request/
---    friendship 이 BIGINT UNSIGNED 로 FK를 걸고 있어 생성이 실패할 수
---    있던 문제를 BIGINT 로 통일해서 고쳤습니다.
---  - ALTER TABLE 로 나중에 추가했던 컬럼(banner.media_type/banner_type,
---    badge.condition_country_code, users.nickname_changed_at)은 처음
---    CREATE TABLE 안에 포함시켰습니다.
---  - USE traveldb / DESCRIBE / SELECT DATABASE() 등 디버그 쿼리,
---    컬럼 수가 안 맞는 미완성 INSERT, city insert 후 바로 delete하던
---    모순된 구문은 제거했습니다.
---  - admin_id=1 하드코딩 대신, dudwo1410@nate.com 계정을 우선으로 하고
---    없으면 가장 먼저 가입한 사용자를 관리자로 동적 조회하도록 통일했습니다.
---  - 맨 아래 "관리자 권한 부여" 문의 이메일을 본인 계정으로 바꿔서
---    실행해주세요.
--- ════════════════════════════════════════════════════════════════
+
 
 CREATE DATABASE IF NOT EXISTS dreamConnection
     DEFAULT CHARACTER SET utf8mb4
