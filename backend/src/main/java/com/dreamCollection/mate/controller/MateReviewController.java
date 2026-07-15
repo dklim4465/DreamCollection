@@ -9,6 +9,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -22,7 +23,7 @@ public class MateReviewController {
 
     @PostMapping
     public ResponseEntity<ApiResponse<MateReviewResponseDTO>> createReview(
-            @RequestHeader("X-User-Id") Long userId,
+            @AuthenticationPrincipal Long userId,
             @Valid @RequestBody MateReviewCreateRequestDTO requestDTO
             ){
         MateReviewResponseDTO responseDTO = mateReviewService.createReview(userId, requestDTO);

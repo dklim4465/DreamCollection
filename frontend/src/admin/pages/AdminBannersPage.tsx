@@ -2,8 +2,15 @@ import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { adminApi, type BannerAdminForm } from "@/admin/api/adminApi";
 import type { Banner } from "@/home/api/bannerApi";
+import ImageUrlOrUploadInput from "@/admin/component/ImageUrlOrUploadInput";
 
-const EMPTY_FORM: BannerAdminForm = { title: "", imageUrl: "", linkUrl: "", displayOrder: 0 };
+const EMPTY_FORM: BannerAdminForm = {
+  title: "",
+  mediaType: "IMAGE",
+  imageUrl: "",
+  linkUrl: "",
+  displayOrder: 0,
+};
 
 export default function AdminBannersPage() {
   const queryClient = useQueryClient();
@@ -47,6 +54,7 @@ export default function AdminBannersPage() {
     mutationFn: (b: Banner) =>
       adminApi.updateBanner(b.id, {
         title: b.title,
+        mediaType: b.mediaType,
         imageUrl: b.imageUrl,
         linkUrl: b.linkUrl ?? "",
         displayOrder: b.displayOrder,
@@ -59,6 +67,7 @@ export default function AdminBannersPage() {
     setEditingId(b.id);
     setForm({
       title: b.title,
+      mediaType: b.mediaType,
       imageUrl: b.imageUrl,
       linkUrl: b.linkUrl ?? "",
       displayOrder: b.displayOrder,
@@ -80,7 +89,12 @@ export default function AdminBannersPage() {
 
   return (
     <div className="flex flex-col gap-stack-lg">
-      <h1 className="text-headline-md font-bold">배너 관리</h1>
+      <div>
+        <h1 className="text-headline-md font-bold">배너 관리</h1>
+        <p className="text-body-sm text-on-surface-variant mt-1">
+          홈 진입 시 뜨는 팝업 배너예요. 이미지/영상(16:9) 둘 다 가능해요.
+        </p>
+      </div>
 
       <form onSubmit={handleSubmit} className="card-base p-stack-lg flex flex-col gap-stack-sm">
         <h2 className="text-headline-sm font-bold">{editingId ? "배너 수정" : "새 배너 등록"}</h2>
@@ -92,13 +106,29 @@ export default function AdminBannersPage() {
           onChange={(e) => setForm({ ...form, title: e.target.value })}
           required
         />
-        <input
+        <select
           className="input-base"
-          placeholder="이미지 URL"
-          value={form.imageUrl}
-          onChange={(e) => setForm({ ...form, imageUrl: e.target.value })}
-          required
-        />
+          value={form.mediaType}
+          onChange={(e) => setForm({ ...form, mediaType: e.target.value as "IMAGE" | "VIDEO" })}
+        >
+          <option value="IMAGE">이미지</option>
+          <option value="VIDEO">영상 (mp4, 16:9)</option>
+        </select>
+        {form.mediaType === "IMAGE" ? (
+          <ImageUrlOrUploadInput
+            value={form.imageUrl}
+            onChange={(url) => setForm({ ...form, imageUrl: url })}
+            placeholder="이미지 URL (또는 파일 선택으로 업로드)"
+          />
+        ) : (
+          <input
+            className="input-base"
+            placeholder="영상(mp4) URL — 파일 업로드는 이미지만 지원해요"
+            value={form.imageUrl}
+            onChange={(e) => setForm({ ...form, imageUrl: e.target.value })}
+            required
+          />
+        )}
         <input
           className="input-base"
           placeholder="클릭 시 이동할 URL (선택)"
@@ -134,10 +164,18 @@ export default function AdminBannersPage() {
           <ul className="flex flex-col gap-2">
             {banners.map((b) => (
               <li key={b.id} className="flex items-center gap-3 p-2.5 rounded-lg border border-outline-variant">
-                <img src={b.imageUrl} alt={b.title} className="w-16 h-16 object-cover rounded-md shrink-0 bg-surface-container-low" />
+                {b.mediaType === "VIDEO" ? (
+                  <div className="w-16 h-16 rounded-md shrink-0 bg-surface-container-low flex items-center justify-center">
+                    <span className="material-symbols-outlined text-on-surface-variant">movie</span>
+                  </div>
+                ) : (
+                  <img src={b.imageUrl} alt={b.title} className="w-16 h-16 object-cover rounded-md shrink-0 bg-surface-container-low" />
+                )}
                 <div className="min-w-0 flex-1">
                   <p className="text-body-sm font-semibold truncate">{b.title}</p>
-                  <p className="text-label-sm text-on-surface-variant">순서 {b.displayOrder}</p>
+                  <p className="text-label-sm text-on-surface-variant">
+                    {b.mediaType} · 순서 {b.displayOrder}
+                  </p>
                 </div>
                 <button
                   onClick={() => toggleActiveMutation.mutate(b)}

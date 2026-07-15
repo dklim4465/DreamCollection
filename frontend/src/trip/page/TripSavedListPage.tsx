@@ -5,6 +5,7 @@ import LoadingSpinner from "@/common/component/LoadingSpinner";
 import SavedTripList from "@/trip/components/SavedTripList";
 import { tripApi } from "@/trip/api/trip";
 import { useAuthStore } from "@/auth/store/authStore";
+import "@/trip/styles/trip.css";
 
 export default function TripSavedListPage() {
   const { user } = useAuthStore();
@@ -32,12 +33,16 @@ export default function TripSavedListPage() {
   }
 
   return (
-    <div>
-      <div className="flex justify-between items-center mb-stack-lg">
+    <div className="trip-page">
+      <div className="flex items-end justify-between gap-stack-md">
         <h1 className="text-headline-md font-bold">내 일정</h1>
 
-        <Link to="/trip/new" className="btn-primary text-sm">
-          + 새 일정
+        <Link
+          to="/trip/new"
+          className="btn-primary inline-flex items-center gap-2 text-sm"
+        >
+          <span className="material-symbols-outlined text-[18px]">add</span>새
+          일정
         </Link>
       </div>
 
@@ -49,7 +54,6 @@ export default function TripSavedListPage() {
 
       {data.length === 0 ? (
         <EmptyState
-          icon="calendar_month"
           title="저장된 일정이 없어요"
           description="AI에게 새 일정을 추천받아보세요."
           action={

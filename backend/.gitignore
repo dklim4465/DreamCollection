@@ -41,3 +41,6 @@ out/
 .env
 *.env
 !.env.example
+
+# 관리자 이미지 업로드 로컬 저장 폴더 (application.yml의 upload.dir)
+/uploads/

@@ -10,6 +10,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -23,7 +24,7 @@ public class BoardCommentController {
 
     @PostMapping
     public ResponseEntity<ApiResponse<BoardCommentResponseDTO>> createComment(
-            @RequestHeader("X-User-Id") Long userId,
+            @AuthenticationPrincipal Long userId,
             @PathVariable Long postId,
             @Valid @RequestBody BoardCommentCreateRequestDTO requestDTO) {
         BoardCommentResponseDTO responseDTO = boardCommentService.createComment(userId, postId, requestDTO);
@@ -39,7 +40,7 @@ public class BoardCommentController {
 
     @PutMapping("/{commentId}")
     public ApiResponse<BoardCommentResponseDTO> updateComment(
-            @RequestHeader("X-User-Id") Long userId,
+            @AuthenticationPrincipal Long userId,
             @PathVariable Long postId,
             @PathVariable Long commentId,
             @Valid @RequestBody BoardCommentUpdateRequestDTO requestDTO
@@ -50,7 +51,7 @@ public class BoardCommentController {
 
             @DeleteMapping("/{commentId}")
     public ApiResponse<Void> deleteComment(
-            @RequestHeader("X-User-Id") Long userId,
+            @AuthenticationPrincipal Long userId,
             @PathVariable Long postId,
             @PathVariable Long commentId
     ){

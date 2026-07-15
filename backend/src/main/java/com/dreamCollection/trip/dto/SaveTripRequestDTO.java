@@ -1,5 +1,6 @@
 package com.dreamCollection.trip.dto;
 
+import com.dreamCollection.accommodation.dto.AccommodationSelectionDTO;
 import com.dreamCollection.flight.dto.FlightSelectionDTO;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -12,14 +13,14 @@ import lombok.NoArgsConstructor;
 @Builder
 // 저장 요청용
 public class SaveTripRequestDTO {
-    //사용자 id값
-    private Long userId;
 
     //선택한 조건을 담기(이후에 사용자의 여행 성향 분석에 쓸수 있음)
     private PlanRequestDTO conditions;
 
     private TripRecommendDTO recommendation;
 
-    private FlightSelectionDTO flightSelectionDTO;
+    private FlightSelectionDTO flightSelection;
+
+    private AccommodationSelectionDTO accommodationSelection;
 
 }

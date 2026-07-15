@@ -33,9 +33,15 @@ public class Spot {
     @Column(nullable = false, columnDefinition = "timestamp")
     private Instant visitAt;
 
+    @Column(nullable = false, columnDefinition = "timestamp")
+    private Instant leaveAt;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private SpotType spotType;
+
+    @Enumerated(EnumType.STRING)
+    private SpotSource spotSource;
 
     private String timezone;
 

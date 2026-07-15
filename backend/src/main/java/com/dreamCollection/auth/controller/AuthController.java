@@ -2,16 +2,19 @@ package com.dreamCollection.auth.controller;
 
 import com.dreamCollection.user.service.UserService;
 import com.dreamCollection.user.dto.AuthResponse;
+import com.dreamCollection.user.dto.AvailabilityResponse;
 import com.dreamCollection.user.dto.KakaoLoginRequest;
 import com.dreamCollection.user.dto.LoginRequest;
 import com.dreamCollection.user.dto.RefreshTokenRequest;
 import com.dreamCollection.user.dto.SignupRequest;
+import com.dreamCollection.user.dto.UserResponse;
 import com.dreamCollection.global.response.ApiResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -20,6 +23,39 @@ import org.springframework.web.bind.annotation.*;
 public class AuthController {
 
     private final UserService userService;
+
+    // 새로고침 후 유저 정보 복구: 프론트 authApi.getMe() → GET /api/auth/me
+    // (/api/auth/**가 SecurityConfig에서 permitAll이라 토큰 없어도 호출은 되지만,
+    //  JwtAuthenticationFilter가 유효한 토큰일 때만 principal을 채워주므로
+    //  토큰이 없거나 만료됐으면 그냥 user: null로 응답한다.)
+    @GetMapping("/me")
+    public ApiResponse<UserResponse> me(Authentication authentication) {
+        Long userId = (authentication != null && authentication.getPrincipal() instanceof Long id)
+                ? id
+                : null;
+        UserResponse response = userService.getMe(userId);
+        return ApiResponse.ok(response, response != null ? "조회되었습니다." : "로그인 정보가 없습니다.");
+    }
+
+    // 회원가입창 "이메일 중복확인" 버튼 → GET /api/auth/check-email?email=...
+    @GetMapping("/check-email")
+    public ApiResponse<AvailabilityResponse> checkEmail(@RequestParam String email) {
+        boolean available = userService.isEmailAvailable(email);
+        return ApiResponse.ok(
+                AvailabilityResponse.of(available),
+                available ? "사용 가능한 이메일입니다." : "이미 가입된 이메일입니다."
+        );
+    }
+
+    // 회원가입창 "휴대폰 중복확인" 버튼 → GET /api/auth/check-phone?phone=...
+    @GetMapping("/check-phone")
+    public ApiResponse<AvailabilityResponse> checkPhone(@RequestParam String phone) {
+        boolean available = userService.isPhoneAvailable(phone);
+        return ApiResponse.ok(
+                AvailabilityResponse.of(available),
+                available ? "사용 가능한 휴대폰 번호입니다." : "이미 가입된 휴대폰 번호입니다."
+        );
+    }
 
     // 프론트: authApi.register() → POST /api/auth/signup
     @PostMapping("/signup")

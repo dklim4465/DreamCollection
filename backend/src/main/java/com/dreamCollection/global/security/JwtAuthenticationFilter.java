@@ -15,12 +15,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import java.io.IOException;
 import java.util.List;
 
-/**
- * Authorization: Bearer {accessToken} 헤더를 읽어서
- * 유효하면 SecurityContext에 인증 정보(+ role 기반 권한)를 심어주는 필터.
- * 토큰이 없거나 무효해도 여기서 막지 않고 그냥 통과시킴
- * (실제 차단은 SecurityConfig의 authorizeHttpRequests 규칙이 담당).
- */
+
 @Component
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {

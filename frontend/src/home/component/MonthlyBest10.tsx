@@ -13,7 +13,15 @@ export default function MonthlyBest10() {
     retry: false,
   });
 
-  const items = (data?.data?.data ?? []).slice(0, 10);
+  // 💡 [수정] 백엔드 데이터에서 'destinationName' 기준으로 중복을 제거한 후 상위 10개만 자릅니다.
+  const rawItems = data?.data?.data ?? [];
+  const uniqueItems = rawItems.filter(
+    (item, index, self) =>
+      self.findIndex((t) => t.destinationName === item.destinationName) === index
+  );
+  const items = uniqueItems.slice(0, 10);
+
+  // 💡 [추가] 렌더링 에러 방지를 위해 변수를 다시 정상적으로 정의합니다.
   const currentMonth = new Date().getMonth() + 1;
 
   return (

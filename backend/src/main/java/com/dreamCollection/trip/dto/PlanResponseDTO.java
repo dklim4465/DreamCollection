@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Data
@@ -19,9 +20,19 @@ public class PlanResponseDTO {
     private String theme;
     private String level;
 
+
+    private List<TripRecommendDTO> recommendations;
+    private List<RecommendationBlockDTO> sideBlocks;
+
+    private LocalDate startDate;
+
+    private FlightConditionDTO flightCondition;
+    private String destination;
+
+    private AccommodationConditionDTO accommodationCondition;
+
     private String prompt;
     private String aiResult;
 
-    private List<TripRecommendDTO> recommendations;
 
 }

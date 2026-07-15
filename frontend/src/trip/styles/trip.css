@@ -1,0 +1,59 @@
+.trip-page {
+    @apply space-y-stack-lg;
+}
+
+.trip-page-wide {
+    @apply relative left-1/2 w-[calc(100vw-32px)] max-w-[1800px] -translate-x-1/2 space-y-stack-lg;
+}
+
+.trip-surface {
+    @apply overflow-hidden rounded-2xl border border-outline-variant/40 bg-surface-container-lowest shadow-glow;
+}
+
+.trip-surface-flat {
+    @apply rounded-xl border border-outline-variant/60 bg-surface-container-lowest;
+}
+
+.trip-section-header {
+    @apply flex items-start gap-stack-sm;
+}
+
+.trip-section-icon {
+    @apply flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary;
+}
+
+.trip-action-card {
+    @apply flex min-h-[92px] items-center gap-stack-md rounded-2xl border border-outline-variant/40 bg-surface-container-lowest p-stack-md text-left shadow-glow transition-colors hover:border-primary/50 hover:bg-primary/5;
+}
+
+.trip-action-card-active {
+    @apply border-primary/60 bg-primary text-on-primary hover:bg-primary/90;
+}
+
+.trip-condition-row {
+    @apply overflow-hidden rounded-xl border border-outline-variant/50 bg-surface-container-lowest transition-colors hover:border-primary/40;
+}
+
+.trip-choice {
+    @apply rounded-lg border border-transparent bg-surface-container-low px-4 py-3 text-label-md font-bold text-on-surface transition-colors hover:border-primary/30 hover:bg-primary/10;
+}
+
+.trip-choice-selected {
+    @apply border-primary bg-primary text-on-primary;
+}
+
+.trip-action-bar {
+    @apply flex flex-wrap items-center justify-between gap-stack-md rounded-2xl border border-outline-variant/40 bg-surface-container-lowest p-stack-md shadow-glow;
+}
+
+.trip-list-row {
+    @apply border-b border-outline-variant/50 bg-surface-container-lowest transition-colors last:border-b-0 hover:bg-surface-container-low;
+}
+
+.trip-muted-panel {
+    @apply rounded-xl bg-surface-container-low p-stack-md;
+}
+
+.trip-status-message {
+    @apply rounded-xl border border-outline-variant/50 bg-surface-container-low p-stack-md text-label-md text-on-surface-variant;
+}

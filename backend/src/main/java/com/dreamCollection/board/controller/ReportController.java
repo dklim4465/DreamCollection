@@ -9,6 +9,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -22,7 +23,7 @@ public class ReportController {
 
     @PostMapping
     public ResponseEntity<ApiResponse<ReportResponseDTO>> createReport(
-            @RequestHeader("X-User-Id") Long userId,
+            @AuthenticationPrincipal Long userId,
             @Valid @RequestBody ReportCreateRequestDTO requestDTO
             ){
         ReportResponseDTO responseDTO = reportService.createReport(userId, requestDTO);
@@ -33,7 +34,7 @@ public class ReportController {
 
 @GetMapping("/me")
 public ApiResponse<List<ReportResponseDTO>> getMyReports(
-        @RequestHeader("X-User-Id") Long userId
+        @AuthenticationPrincipal Long userId
 ){
     return ApiResponse.ok(reportService.getMyReports(userId));
     }

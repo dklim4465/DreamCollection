@@ -10,6 +10,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -23,7 +24,7 @@ public class MateScheduleLinkController {
 
     @PostMapping
     public ResponseEntity<ApiResponse<MateScheduleLinkResponseDTO>> createLink(
-            @RequestHeader("X-User-Id") Long userId,
+            @AuthenticationPrincipal Long userId,
             @PathVariable Long matePostId,
             @Valid @RequestBody MateScheduleLinkCreateRequestDTO requestDTO
             ){
@@ -40,7 +41,7 @@ public class MateScheduleLinkController {
 
     @DeleteMapping("/{linkId}")
     public ApiResponse<Void> deleteLink(
-            @RequestHeader("X-User-Id") Long userId,
+            @AuthenticationPrincipal Long userId,
             @PathVariable Long matePostId,
             @PathVariable Long linkId
     ){

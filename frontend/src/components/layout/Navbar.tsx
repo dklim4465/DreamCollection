@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { useAuthStore } from "@/store/authStore";
+import { useAuthStore } from "@/auth/store/authStore";
 import Logo from "./Logo";
 import SearchBar from "./SearchBar";
 

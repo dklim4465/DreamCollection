@@ -8,7 +8,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @Configuration
 public class WebConfig implements WebMvcConfigurer {
 
-    @Value("${upload.dir}")
+    @Value("${com.upload.path}")
     private String uploadDir;
 
     @Override
@@ -18,7 +18,7 @@ public class WebConfig implements WebMvcConfigurer {
             location += "/";
         }
 
-        registry.addResourceHandler("/uploads/**")
+        registry.addResourceHandler("/upload/**")
                 .addResourceLocations(location);
     }
 }

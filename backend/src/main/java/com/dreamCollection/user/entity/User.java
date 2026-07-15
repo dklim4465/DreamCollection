@@ -48,6 +48,10 @@ public class User {
     @Column(nullable = false, length = 30)
     private String nickname;
 
+    // 마이페이지 "닉네임 2주 쿨다운" 판단 기준 — 마지막으로 닉네임이 바뀐 시각
+    @Column(name = "nickname_changed_at")
+    private LocalDateTime nicknameChangedAt;
+
     @Column(length = 20)
     private String phone;
 
@@ -87,7 +91,7 @@ public class User {
 
     @Builder
     private User(String email, String passwordHash, String name, String nickname,
-                  String phone, boolean phoneVerified, TravelStyle travelStyle) {
+                 String phone, boolean phoneVerified, TravelStyle travelStyle) {
         this.uuid = UUID.randomUUID().toString();
         this.email = email;
         this.passwordHash = passwordHash;
@@ -106,9 +110,31 @@ public class User {
         this.profileImageUrl = profileImageUrl;
     }
 
+    /**
+     * 마이페이지 "프로필 수정"에서 사용. null인 필드는 그대로 두고, 값이 있는 필드만 갱신한다.
+     * 닉네임이 실제로 바뀌는 경우에만 nicknameChangedAt을 갱신한다 (쿨다운 판단 기준).
+     */
+    public void updateProfile(String nickname, String profileImageUrl, TravelStyle travelStyle) {
+        if (nickname != null && !nickname.isBlank() && !nickname.equals(this.nickname)) {
+            this.nickname = nickname;
+            this.nicknameChangedAt = LocalDateTime.now();
+        }
+        if (profileImageUrl != null) {
+            this.profileImageUrl = profileImageUrl;
+        }
+        if (travelStyle != null) {
+            this.travelStyle = travelStyle;
+        }
+    }
+
     /** 회원가입 시 이메일 인증 방식을 선택해 완료한 경우 호출 */
     public void markEmailVerified() {
         this.emailVerified = true;
+    }
+
+    /** 비밀번호 찾기(재설정) 또는 마이페이지 "비밀번호 변경"에서 사용. 이미 BCrypt로 인코딩된 해시를 전달받는다. */
+    public void changePassword(String newPasswordHash) {
+        this.passwordHash = newPasswordHash;
     }
 
     /** 관리자 페이지에서 회원 상태(정상/정지/탈퇴) 변경 시 사용 */

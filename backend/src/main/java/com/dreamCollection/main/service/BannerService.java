@@ -41,6 +41,8 @@ public class BannerService {
         Banner banner = Banner.builder()
                 .adminId(adminId)
                 .title(request.title())
+                .mediaType(request.mediaType())
+                .bannerType(request.bannerType())
                 .imageUrl(request.imageUrl())
                 .linkUrl(request.linkUrl())
                 .displayOrder(request.displayOrder())
@@ -54,6 +56,8 @@ public class BannerService {
                 .orElseThrow(() -> new BusinessException("배너를 찾을 수 없습니다.", HttpStatus.NOT_FOUND));
 
         banner.setTitle(request.title());
+        banner.setMediaType(request.mediaType() != null ? request.mediaType() : "IMAGE");
+        banner.setBannerType(request.bannerType() != null ? request.bannerType() : "POPUP");
         banner.setImageUrl(request.imageUrl());
         banner.setLinkUrl(request.linkUrl());
         if (request.displayOrder() != null) banner.setDisplayOrder(request.displayOrder());

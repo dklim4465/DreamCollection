@@ -4,123 +4,128 @@ interface Props {
   day: DayPlan;
   item: ScheduleItem;
   onClose: () => void;
-  onSelect: (optionIndex: number) => void;
 }
 
 const TIME_SLOT_LABEL: Record<string, string> = {
-  Morning: "오전",
+  Morning: "아침",
   Lunch: "점심",
   Afternoon: "오후",
   Dinner: "저녁",
+  Night: "야간",
 };
 
-export default function TripOptionModal({
-  day,
-  item,
-  onClose,
-  onSelect,
-}: Props) {
-  const selectedPlace = item.options[item.selectedOptionIndex];
+const ITEM_META: Record<string, { label: string; icon: string }> = {
+  Activity: { label: "관광", icon: "location_on" },
+  Meal: { label: "식사", icon: "restaurant" },
+  Experience: { label: "체험", icon: "local_activity" },
+  Flight: { label: "항공", icon: "flight" },
+  Accommodation: { label: "숙소", icon: "hotel" },
+  Hotel: { label: "숙소", icon: "hotel" },
+};
+
+const formatCost = (cost: number | undefined) => {
+  if (cost === undefined || cost === null) return null;
+  return `${cost.toLocaleString()}원`;
+};
+
+export default function TripOptionModal({ day, item, onClose }: Props) {
+  const meta = ITEM_META[item.itemType] ?? {
+    label: item.itemType,
+    icon: "location_on",
+  };
+  const timeLabel = TIME_SLOT_LABEL[item.timeSlot] ?? item.timeSlot;
+  const cost = formatCost(item.estimatedCost);
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/30 flex items-end md:items-center justify-center p-4">
-      <section className="w-full max-w-4xl max-h-[90vh] overflow-y-auto bg-surface-container-lowest rounded-2xl traveler-glow">
-        <div className="p-stack-lg border-b border-outline-variant">
+    <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/40 p-4 backdrop-blur-[2px] md:items-center">
+      <section className="trip-surface w-full max-w-3xl">
+        <div className="border-b border-outline-variant/50 p-stack-lg">
           <div className="flex items-start justify-between gap-stack-md">
-            <div>
-              <span className="chip-primary">
-                {day.dayTitle} ·{" "}
-                {TIME_SLOT_LABEL[item.timeSlot] ?? item.timeSlot}
-              </span>
+            <div className="min-w-0">
+              <div className="flex flex-wrap items-center gap-stack-sm">
+                <span className="chip-primary">
+                  {day.dayTitle} · {timeLabel}
+                </span>
+                <span className="chip bg-surface-container text-on-surface-variant">
+                  {meta.label}
+                </span>
+                {item.locked && (
+                  <span className="chip bg-surface-container text-on-surface-variant">
+                    고정 일정
+                  </span>
+                )}
+              </div>
 
-              <h2 className="text-headline-md font-bold mt-3">{item.title}</h2>
-
-              <p className="text-body-md text-on-surface-variant mt-1">
-                후보 3가지를 비교하고 마음에 드는 일정으로 변경하세요.
+              <h2 className="mt-3 text-headline-md font-bold text-on-surface">
+                {item.title}
+              </h2>
+              <p className="mt-2 max-w-2xl text-body-md text-on-surface-variant">
+                {item.description ?? "상세 설명이 아직 없습니다."}
               </p>
             </div>
 
             <button
               type="button"
               onClick={onClose}
-              className="w-10 h-10 rounded-full border border-outline-variant flex items-center justify-center hover:bg-surface-container transition-colors shrink-0"
+              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-outline-variant transition-colors hover:bg-surface-container"
+              aria-label="닫기"
             >
               <span className="material-symbols-outlined">close</span>
             </button>
           </div>
-
-          {selectedPlace && (
-            <div className="mt-stack-md rounded-2xl bg-primary-container text-on-primary-container p-stack-md">
-              <p className="text-label-md font-semibold">현재 선택</p>
-              <p className="text-headline-sm font-bold mt-1">
-                {selectedPlace.placeName}
-              </p>
-            </div>
-          )}
         </div>
 
-        <div className="flex overflow-x-auto hide-scrollbar snap-x snap-mandatory gap-gutter p-stack-lg">
-          {item.options.map((place, optionIndex) => {
-            const selected = item.selectedOptionIndex === optionIndex;
-
-            return (
-              <button
-                key={place.option}
-                type="button"
-                onClick={() => onSelect(optionIndex)}
-                className={[
-                  "snap-start shrink-0 w-[82%] sm:w-[360px] rounded-2xl p-stack-lg text-left transition-all",
-                  selected
-                    ? "bg-primary text-on-primary traveler-glow"
-                    : "bg-surface-container-low hover:bg-primary-container text-on-surface",
-                ].join(" ")}
-              >
-                <div className="flex items-center justify-between gap-stack-sm">
-                  <div className="w-12 h-12 rounded-2xl bg-white/20 flex items-center justify-center">
-                    <span className="material-symbols-outlined">
-                      {item.itemType === "Meal" ? "restaurant" : "location_on"}
-                    </span>
-                  </div>
-
-                  {selected && (
-                    <span className="material-symbols-outlined">
-                      check_circle
-                    </span>
-                  )}
-                </div>
-
-                <p className="text-label-md mt-stack-lg opacity-80">
-                  후보 {place.option}
-                </p>
-
-                <h3 className="text-headline-sm font-bold mt-1">
-                  {place.placeName}
-                </h3>
-
-                <p className="text-label-md mt-2 opacity-80">
-                  {place.category}
-                </p>
-
-                <p className="text-body-md mt-stack-md leading-relaxed opacity-90">
-                  {place.description}
-                </p>
-
-                <div className="mt-stack-lg">
-                  <span
-                    className={
-                      selected
-                        ? "inline-flex px-4 py-2 rounded-full bg-white text-primary text-label-md font-bold"
-                        : "inline-flex px-4 py-2 rounded-full bg-primary text-on-primary text-label-md font-bold"
-                    }
-                  >
-                    {selected ? "현재 선택됨" : "이 후보로 변경"}
+        <div className="max-h-[64vh] overflow-y-auto p-stack-lg">
+          <div className="grid gap-stack-md md:grid-cols-[220px_minmax(0,1fr)]">
+            <div className="overflow-hidden rounded-xl bg-primary/10 text-primary">
+              {item.imageUrl ? (
+                <img
+                  src={item.imageUrl}
+                  alt=""
+                  className="h-full min-h-[180px] w-full object-cover"
+                />
+              ) : (
+                <div className="flex min-h-[180px] flex-col justify-between p-stack-md">
+                  <span className="material-symbols-outlined text-[36px]">
+                    {meta.icon}
                   </span>
+                  <div>
+                    <p className="text-label-md font-bold">현재 일정</p>
+                    <p className="mt-1 text-label-sm opacity-80">{timeLabel}</p>
+                  </div>
                 </div>
-              </button>
-            );
-          })}
+              )}
+            </div>
+
+            <div className="trip-muted-panel">
+              <dl className="grid gap-stack-sm text-label-md">
+                <DetailRow label="일자" value={day.dayTitle} />
+                <DetailRow label="시간대" value={timeLabel} />
+                <DetailRow label="구분" value={meta.label} />
+                {item.address && (
+                  <DetailRow label="주소" value={item.address} />
+                )}
+                {item.durationMinutes !== undefined && (
+                  <DetailRow
+                    label="소요 시간"
+                    value={`${item.durationMinutes}분`}
+                  />
+                )}
+                {cost && <DetailRow label="예상 비용" value={cost} />}
+              </dl>
+            </div>
+          </div>
         </div>
       </section>
+    </div>
+  );
+}
+
+function DetailRow({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="flex justify-between gap-stack-md">
+      <dt className="shrink-0 text-on-surface-variant">{label}</dt>
+      <dd className="text-right font-bold text-on-surface">{value}</dd>
     </div>
   );
 }

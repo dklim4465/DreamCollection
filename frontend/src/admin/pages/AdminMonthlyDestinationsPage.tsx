@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { adminApi, type MonthlyDestinationAdminForm } from "@/admin/api/adminApi";
 import type { MonthlyDestinationItem } from "@/home/api/monthlyDestinationApi";
+import ImageUrlOrUploadInput from "@/admin/component/ImageUrlOrUploadInput";
 
 function currentMonthString() {
   const now = new Date();
@@ -136,12 +137,10 @@ export default function AdminMonthlyDestinationsPage() {
           value={form.description}
           onChange={(e) => setForm({ ...form, description: e.target.value })}
         />
-        <input
-          className="input-base"
-          placeholder="이미지 URL"
+        <ImageUrlOrUploadInput
           value={form.imageUrl}
-          onChange={(e) => setForm({ ...form, imageUrl: e.target.value })}
-          required
+          onChange={(url) => setForm({ ...form, imageUrl: url })}
+          placeholder="이미지 URL (또는 파일 선택으로 업로드)"
         />
         <input
           className="input-base"

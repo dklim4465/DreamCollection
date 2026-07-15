@@ -14,19 +14,15 @@ import java.util.List;
 public class ScheduleItemDTO {
 
     private String itemKey;
-
     private String itemType;
-
     private String timeSlot;
-
     private String title;
-
-    // 현재 선택된 옵션
-    private List<PlaceOptionDTO> options;
-
-    // 선택된 태그(일정, 장소 등)의 번호
-    private Integer selectedOptionIndex;
-
+    private String description;
+    private String address;
+    private Integer durationMinutes;
+    private Integer estimatedCost;
+    private String imageUrl;
+    private Boolean locked;
     // 교체 확인 여부
     private boolean replaceable;
 }
