@@ -14,6 +14,7 @@ export interface NoticeItem {
   id: number;
   title: string;
   content: string;
+  couponCode: string | null;
   pinned: boolean;
   active: boolean;
   viewCount: number;
@@ -51,6 +52,8 @@ export interface MainBackgroundAdminForm {
 export interface NoticeAdminForm {
   title: string;
   content: string;
+  // 값이 있으면 상세 페이지에 [쿠폰받기] 버튼이 붙는 "쿠폰 지급형" 공지가 된다 (coupon.code와 일치해야 함)
+  couponCode?: string;
   pinned?: boolean;
   active?: boolean;
 }

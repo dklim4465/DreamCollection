@@ -12,8 +12,10 @@ import java.util.List;
 
 /**
  * 프론트: profile/api/couponApi.ts
- *  - GET  /api/coupons/me           → 마이페이지 "보관함" 목록
- *  - POST /api/coupons/claim-event  → 7월 이벤트 배너 클릭(기존 회원) 시 5% 쿠폰 발급
+ *  - GET  /api/coupons/me          → 마이페이지 "보관함" 목록
+ *  - POST /api/coupons/claim/{code} → 공지사항 상세의 [쿠폰받기] 버튼 클릭 시 지급
+ *    (어떤 공지가 어떤 쿠폰을 주는지는 notice.coupon_code에 저장되어 있고,
+ *     프론트는 공지 상세에서 받아온 그 코드를 그대로 이 API에 전달한다.)
  * SecurityConfig에서 /api/coupons/**는 공개 목록에 없으므로 기본적으로 로그인 필요.
  */
 @RestController
@@ -29,11 +31,11 @@ public class CouponController {
         return ApiResponse.ok(couponService.getMyCoupons(userId));
     }
 
-    @PostMapping("/claim-event")
-    public ApiResponse<Void> claimEventCoupon(Authentication authentication) {
+    @PostMapping("/claim/{code}")
+    public ApiResponse<Void> claimCoupon(@PathVariable String code, Authentication authentication) {
         Long userId = resolveUserId(authentication);
-        couponService.claimReturningCoupon(userId);
-        return ApiResponse.ok(null, "5% 할인 쿠폰이 보관함에 지급되었습니다.");
+        couponService.claimCoupon(userId, code);
+        return ApiResponse.ok(null, "쿠폰이 보관함에 지급되었습니다.");
     }
 
     private Long resolveUserId(Authentication authentication) {

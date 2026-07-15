@@ -30,14 +30,20 @@ public class SecurityConfig {
             "/api/banners/**",
             "/api/notices/**",
             "/api/main/**",
+            "/api/stats",
+            "/api/stats/**",
             "/swagger-ui/**",
             "/swagger-ui.html",
             "/v3/api-docs/**",
             "/api/trip/options/**",
             "/api/trip/recommend",
             "/api/flight/search",
+            "/api/flight/returns",
+            "/api/places/**",
             "/ws-stomp/**",
             "/uploads/**",
+            "/api/board/posts/**",
+            "/upload/**",
     };
 
     @Bean

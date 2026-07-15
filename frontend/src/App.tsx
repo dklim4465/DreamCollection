@@ -5,12 +5,6 @@ import LoadingSpinner from "./common/component/LoadingSpinner";
 import PrivateRoute from "./common/component/PrivateRoute";
 import AdminRoute from "./common/component/AdminRoute";
 import AppLayout from "./common/layout/AppLayout";
-import TripResultPage from "@/trip/page/TripResultPage";
-import TripHubPage from "@/trip/page/TripHubPage";
-import TripSavedListPage from "@/trip/page/TripSavedListPage";
-import TravelPlanPage from "@/trip/page/TravelPlanPage";
-import TripFlightSelectPage from "@/trip/page/TripFlightSelectPage";
-import TripAccommodationSelectPage from "@/trip/page/TripAccommodationSelectPage";
 import { authApi } from "@/auth/api/authApi";
 import { useAuthStore } from "@/auth/store/authStore";
 import { MapProvider } from "@/travelog/map/MapProvider";
@@ -30,6 +24,18 @@ const ForgotPasswordPage = lazy(
 const KakaoCallbackPage = lazy(() => import("./auth/pages/KakaoCallbackPage"));
 
 const HomePage = lazy(() => import("./home/pages/HomePage"));
+const TravelPlanPage = lazy(() => import("@/trip/page/TravelPlanPage"));
+const TripFlightSelectPage = lazy(
+  () => import("@/trip/page/TripFlightSelectPage"),
+);
+const TripAccommodationSelectPage = lazy(
+  () => import("@/trip/page/TripAccommodationSelectPage"),
+);
+const TripResultPage = lazy(() => import("@/trip/page/TripResultPage"));
+const TripSavedListPage = lazy(() => import("@/trip/page/TripSavedListPage"));
+const TripSavedDetailPage = lazy(
+  () => import("@/trip/page/TripSavedDetailPage"),
+);
 const CommunityPage = lazy(() => import("@/board/pages/CommunityPage"));
 const BoardDetailPage = lazy(() => import("@/board/pages/BoardDetailPage"));
 const BoardWritePage = lazy(() => import("@/board/pages/BoardWritePage"));
@@ -38,6 +44,7 @@ const MateWritePage = lazy(() => import("@/mate/pages/MateWritePage"));
 const MateDetailPage = lazy(() => import("@/mate/pages/MateDetailPage"));
 const NoticeListPage = lazy(() => import("@/notice/pages/NoticeListPage"));
 const NoticeDetailPage = lazy(() => import("@/notice/pages/NoticeDetailPage"));
+const CityDetailPage = lazy(() => import("@/destination/pages/CityDetailPage"));
 
 const CartPage = lazy(() => import("./payment/pages/CartPage"));
 const RecordsPage = lazy(() => import("./records/pages/RecordsPage"));
@@ -122,14 +129,26 @@ export default function App() {
               {/* Layout 포함 라우트 */}
               <Route element={<AppLayout />}>
                 <Route path="/" element={<HomePage />} />
-                <Route path="/trip" element={<TripHubPage />} />
-                <Route path="/trip/new" element={<TravelPlanPage />} />
-                <Route path="/trip/flight" element={<TripFlightSelectPage />} />
-                <Route
-                  path="/trip/accommodation"
-                  element={<TripAccommodationSelectPage />}
-                />
-                <Route path="/trip/result" element={<TripResultPage />} />
+                <Route path="/destinations/:cityId" element={<CityDetailPage />} />
+                <Route path="/trip">
+                  <Route index element={<TravelPlanPage />} />
+                  <Route path="new" element={<TravelPlanPage />} />
+                  <Route path="flight" element={<TripFlightSelectPage />} />
+                  <Route
+                    path="accommodation"
+                    element={<TripAccommodationSelectPage />}
+                  />
+                  <Route path="result" element={<TripResultPage />} />
+
+                  <Route element={<PrivateRoute />}>
+                    <Route path="saved" element={<TripSavedListPage />} />
+                    <Route
+                      path="saved/:savedTripId"
+                      element={<TripSavedDetailPage />}
+                    />
+                    <Route path="edit" element={<TripResultPage />} />
+                  </Route>
+                </Route>
                 <Route path="/community" element={<CommunityPage />} />
                 <Route path="/community/new" element={<BoardWritePage />} />
                 <Route
@@ -160,8 +179,6 @@ export default function App() {
 
                 {/* 로그인 필요 */}
                 <Route element={<PrivateRoute />}>
-                  <Route path="/trip/saved" element={<TripSavedListPage />} />
-                  <Route path="/trip/edit" element={<TripResultPage />} />
                   <Route path="/cart" element={<CartPage />} />
                   {/* 여행기록 */}
                   <Route path="/records" element={<RecordsPage />} />

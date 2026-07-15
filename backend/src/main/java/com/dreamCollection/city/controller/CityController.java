@@ -1,5 +1,6 @@
 package com.dreamCollection.city.controller;
 
+import com.dreamCollection.city.dto.CityDetailResponse;
 import com.dreamCollection.city.dto.CityResponse;
 import com.dreamCollection.global.response.ApiResponse;
 import lombok.RequiredArgsConstructor;
@@ -26,5 +27,11 @@ public class CityController {
     @GetMapping("/popular")
     public ApiResponse<List<CityResponse>> popular() {
         return ApiResponse.ok(cityService.getPopularCities());
+    }
+
+    // GET /api/cities/{id} — 여행지 상세 페이지
+    @GetMapping("/{id}")
+    public ApiResponse<CityDetailResponse> detail(@PathVariable Long id) {
+        return ApiResponse.ok(cityService.getCityDetail(id));
     }
 }

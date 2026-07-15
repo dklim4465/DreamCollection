@@ -3,8 +3,13 @@ import SockJS from "sockjs-client";
 import type { ChatMessage } from "@/chat/types/chat";
 
 const TOKEN_KEY = import.meta.env.VITE_JWT_KEY || "travelers_hub_token";
-const API_BASE_URL =
-  import.meta.env.VITE_API_BASE_URL || "http://localhost:8080";
+// ⚠ REST API용 baseURL(.env의 VITE_API_BASE_URL, 보통 "http://localhost:8080/api")을 그대로 쓰면
+// "/api/ws-stomp"가 되어버리는데, 백엔드 WebSocketConfig는 엔드포인트를 "/ws-stomp"(접두어 없이)로
+// 등록하므로 실제로는 항상 401(정확히는 SockJS info 요청이 permitAll 패턴과 안 맞아 실패)이 났었다.
+// 끝에 붙은 "/api"를 제거해서 순수 호스트만 사용하도록 고쳤다.
+const API_BASE_URL = (
+  import.meta.env.VITE_API_BASE_URL || "http://localhost:8080/api"
+).replace(/\/api\/?$/, "");
 
 let client: Client | null = null;
 const subscriptions = new Map<number, ReturnType<Client["subscribe"]>>();
@@ -50,14 +55,10 @@ export function unsubscribeRoom(roomId: number) {
   subscriptions.delete(roomId);
 }
 
-export function sendMessage(
-  roomId: number,
-  content: string,
-  messageType: "TEXT" | "IMAGE" = "TEXT",
-) {
+export function sendMessage(roomId: number, content: string) {
   if (!client?.active) return;
   client.publish({
     destination: `/pub/rooms/${roomId}/send`,
-    body: JSON.stringify({ content, messageType }),
+    body: JSON.stringify({ content, messageType: "TEXT" }),
   });
 }

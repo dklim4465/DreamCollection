@@ -62,7 +62,7 @@ export default function PopularDestinations() {
               return (
                 <Link
                   key={city.id}
-                  to={`/trip/new?destination=${encodeURIComponent(city.nameKo)}`}
+                  to={`/destinations/${city.id}`}
                   className="group relative h-80 rounded-2xl overflow-hidden traveler-glow"
                 >
                   {src ? (
