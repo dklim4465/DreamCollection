@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import { Navigate, useLocation, useNavigate } from "react-router-dom";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import TripConditionSummaryBar from "@/trip/components/planning/TripConditionSummaryBar";
+import { createManualPlanResult } from "@/trip/utils/manualTripRecommendation";
 import type {
   PlanRequest,
   PlanResponse,
@@ -19,14 +21,16 @@ import "@/trip/styles/trip.css";
 
 interface LocationState {
   conditions: PlanRequest;
-  planResult: PlanResponse;
-  recommendation: TripRecommendation;
+  planResult?: PlanResponse;
+  recommendation?: TripRecommendation;
   savedTripId?: number;
   isSavedView?: boolean;
   saveLabel?: string;
   shouldSave?: boolean;
   flightSelection?: FlightSelection | null;
   accommodationSelection?: AccommodationSelection | null;
+  planningMode?: "ai" | "manual";
+  pendingBuild?: boolean;
 }
 
 export default function TripResultPage() {
@@ -35,6 +39,13 @@ export default function TripResultPage() {
   const queryClient = useQueryClient();
   const { user } = useAuthStore();
   const state = location.state as LocationState | null;
+  const [conditions, setConditions] = useState<PlanRequest>(
+    () => state?.conditions ?? ({} as PlanRequest),
+  );
+
+  const [planResult, setPlanResult] = useState<PlanResponse | null>(
+    () => state?.planResult ?? null,
+  );
 
   const [recommendation, setRecommendation] =
     useState<TripRecommendation | null>(() =>
@@ -91,17 +102,37 @@ export default function TripResultPage() {
     },
   });
 
+  const buildMutation = useMutation({
+    mutationFn: tripApi.recommend,
+    onSuccess: (nextPlanResult: PlanResponse) => {
+      const nextRecommendation = nextPlanResult.recommendations[0];
+
+      if (!nextRecommendation) {
+        window.alert("추천 일정을 불러오지 못했습니다.");
+        return;
+      }
+
+      setPlanResult(nextPlanResult);
+      setRecommendation(
+        applyFlightSelectionToRecommendation(
+          nextRecommendation,
+          state?.flightSelection,
+        ),
+      );
+    },
+  });
+
   // 로그인 후 shouldSave로 돌아왔을 때 자동 저장 (1회만)
   useEffect(() => {
     if (autoSaveTriggered.current) return;
-    if (!state?.shouldSave || !user?.id || !state.conditions || !recommendation)
+    if (!state?.shouldSave || !user?.id || !conditions || !recommendation)
       return;
     if (state.isSavedView) return;
 
     autoSaveTriggered.current = true;
 
     saveMutation.mutate({
-      conditions: state.conditions,
+      conditions,
       recommendation,
       flightSelection: state.flightSelection,
       accommodationSelection: state.accommodationSelection,
@@ -109,18 +140,45 @@ export default function TripResultPage() {
   }, [
     state?.shouldSave,
     user?.id,
-    state?.conditions,
+    conditions,
     recommendation,
     state?.isSavedView,
   ]);
 
-  if (!state?.recommendation || !recommendation) {
+  if (!state) {
     return <Navigate to="/trip" replace />;
   }
 
-  const { conditions } = state;
-  const recommendationTitle = recommendation.title?.trim() || "추천 일정";
+  if (!state.recommendation && !state.pendingBuild) {
+    return <Navigate to="/trip" replace />;
+  }
+
+  const recommendationTitle = recommendation?.title?.trim() || "추천 일정";
   const saveLabel = state.isSavedView ? "일정 수정" : state.saveLabel;
+
+  const handleStartDateChange = (startDate: string) => {
+    const nextConditions: PlanRequest = {
+      ...conditions,
+      startDate: startDate.trim().length > 0 ? startDate : undefined,
+    };
+
+    setConditions(nextConditions);
+
+    if (!state?.pendingBuild || !nextConditions.startDate) {
+      return;
+    }
+
+    if (state.planningMode === "manual") {
+      const nextPlanResult = createManualPlanResult(nextConditions);
+      const nextRecommendation = nextPlanResult.recommendations[0];
+
+      setPlanResult(nextPlanResult);
+      setRecommendation(nextRecommendation);
+      return;
+    }
+
+    buildMutation.mutate(nextConditions);
+  };
 
   const handleBack = () => {
     navigate("/trip");
@@ -151,12 +209,16 @@ export default function TripResultPage() {
   };
 
   const handleSave = () => {
+    if (!recommendation) {
+      window.alert("저장할 일정이 없습니다.");
+      return;
+    }
     if (!user?.id) {
       navigate("/login", {
         state: {
           redirectState: {
             conditions,
-            planResult: state.planResult,
+            planResult,
             recommendation,
             shouldSave: true,
             flightSelection: state.flightSelection,
@@ -254,20 +316,37 @@ export default function TripResultPage() {
         )}
       </div>
 
-      <TripScheduleView
+      <TripConditionSummaryBar
         conditions={conditions}
-        recommendation={recommendation}
-        onChangeRecommendation={setRecommendation}
-        onBack={handleBack}
-        onSave={handleSave}
-        onDelete={
-          state.isSavedView && state.savedTripId ? handleDelete : undefined
-        }
-        isSaving={saveMutation.isPending}
-        isDeleting={deleteMutation.isPending}
-        saveLabel={saveLabel}
+        startDate={conditions.startDate ?? ""}
+        expanded={false}
+        onStartDateChange={handleStartDateChange}
+        onToggleConditions={() => navigate("/trip/new")}
       />
-
+      {recommendation ? (
+        <TripScheduleView
+          conditions={conditions}
+          recommendation={recommendation}
+          onChangeRecommendation={setRecommendation}
+          onBack={handleBack}
+          onSave={handleSave}
+          onDelete={
+            state.isSavedView && state.savedTripId ? handleDelete : undefined
+          }
+          isSaving={saveMutation.isPending}
+          isDeleting={deleteMutation.isPending}
+          saveLabel={saveLabel}
+        />
+      ) : (
+        <section className="trip-surface p-stack-lg text-center">
+          <p className="text-body-md font-bold text-on-surface">
+            출발일을 선택해 주세요.
+          </p>
+          <p className="mt-1 text-label-md text-on-surface-variant">
+            날짜를 선택하면 일정 생성이 시작됩니다.
+          </p>
+        </section>
+      )}
       {(saveMutation.isError || deleteMutation.isError) && (
         <p className="text-error text-label-md text-center mt-stack-md">
           저장에 실패했습니다.
