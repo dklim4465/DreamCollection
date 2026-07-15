@@ -29,9 +29,9 @@ export default function TripOptionSelector({ type, value, onSelect }: Props) {
 
   // 기본적인 선택지 틀
   return (
-    <section className="card-base p-stack-lg">
+    <section className="trip-surface p-stack-lg">
       <div className="flex items-center gap-stack-sm mb-stack-md">
-        <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center text-white">
+        <div className="trip-section-icon">
           <span className="material-symbols-outlined">
             {tripOptionIcons[type]}
           </span>
@@ -56,9 +56,7 @@ export default function TripOptionSelector({ type, value, onSelect }: Props) {
               type="button"
               onClick={() => onSelect(option)}
               className={
-                selected
-                  ? "p-stack-md rounded-2xl bg-primary text-on-primary text-label-md font-semibold"
-                  : "p-stack-md rounded-2xl bg-surface-container-low hover:bg-primary-container text-label-md font-semibold"
+                selected ? "trip-choice trip-choice-selected" : "trip-choice"
               }
             ></button>
           );

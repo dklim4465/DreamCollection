@@ -20,13 +20,13 @@ export default function DestinationSelector({
   });
 
   return (
-    <div className="rounded-lg border border-outline-variant/60 bg-surface-container-lowest">
+    <div className="trip-condition-row">
       <button
         type="button"
         onClick={onToggle}
         className="flex w-full items-center gap-stack-md px-stack-md py-stack-md text-left"
       >
-        <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-primary-container text-on-primary-container">
+        <span className="trip-section-icon">
           <span className="material-symbols-outlined">public</span>
         </span>
 
@@ -63,8 +63,8 @@ export default function DestinationSelector({
                     onClick={() => onSelect(city)}
                     className={
                       selected
-                        ? "rounded-lg bg-primary px-4 py-3 text-left text-label-md font-bold text-on-primary"
-                        : "rounded-lg bg-surface-container-low px-4 py-3 text-left text-label-md font-bold text-on-surface transition hover:bg-primary-container"
+                        ? "trip-choice trip-choice-selected text-left"
+                        : "trip-choice text-left"
                     }
                   >
                     <span className="block truncate">{city.nameKo}</span>

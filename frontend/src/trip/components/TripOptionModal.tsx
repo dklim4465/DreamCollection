@@ -37,9 +37,9 @@ export default function TripOptionModal({ day, item, onClose }: Props) {
   const cost = formatCost(item.estimatedCost);
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/30 p-4 md:items-center">
-      <section className="w-full max-w-3xl overflow-hidden rounded-2xl bg-surface-container-lowest traveler-glow">
-        <div className="border-b border-outline-variant p-stack-lg">
+    <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/40 p-4 backdrop-blur-[2px] md:items-center">
+      <section className="trip-surface w-full max-w-3xl">
+        <div className="border-b border-outline-variant/50 p-stack-lg">
           <div className="flex items-start justify-between gap-stack-md">
             <div className="min-w-0">
               <div className="flex flex-wrap items-center gap-stack-sm">
@@ -77,7 +77,7 @@ export default function TripOptionModal({ day, item, onClose }: Props) {
 
         <div className="max-h-[64vh] overflow-y-auto p-stack-lg">
           <div className="grid gap-stack-md md:grid-cols-[220px_minmax(0,1fr)]">
-            <div className="overflow-hidden rounded-xl bg-primary-container text-on-primary-container">
+            <div className="overflow-hidden rounded-xl bg-primary/10 text-primary">
               {item.imageUrl ? (
                 <img
                   src={item.imageUrl}
@@ -91,20 +91,20 @@ export default function TripOptionModal({ day, item, onClose }: Props) {
                   </span>
                   <div>
                     <p className="text-label-md font-bold">현재 일정</p>
-                    <p className="mt-1 text-label-sm opacity-80">
-                      {timeLabel}
-                    </p>
+                    <p className="mt-1 text-label-sm opacity-80">{timeLabel}</p>
                   </div>
                 </div>
               )}
             </div>
 
-            <div className="rounded-xl border border-outline-variant/70 p-stack-md">
+            <div className="trip-muted-panel">
               <dl className="grid gap-stack-sm text-label-md">
                 <DetailRow label="일자" value={day.dayTitle} />
                 <DetailRow label="시간대" value={timeLabel} />
                 <DetailRow label="구분" value={meta.label} />
-                {item.address && <DetailRow label="주소" value={item.address} />}
+                {item.address && (
+                  <DetailRow label="주소" value={item.address} />
+                )}
                 {item.durationMinutes !== undefined && (
                   <DetailRow
                     label="소요 시간"
