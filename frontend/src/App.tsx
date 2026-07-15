@@ -36,6 +36,8 @@ const BoardWritePage = lazy(() => import("@/board/pages/BoardWritePage"));
 const MatchingPage = lazy(() => import("@/mate/pages/MatchingPage"));
 const MateWritePage = lazy(() => import("@/mate/pages/MateWritePage"));
 const MateDetailPage = lazy(() => import("@/mate/pages/MateDetailPage"));
+const NoticeListPage = lazy(() => import("@/notice/pages/NoticeListPage"));
+const NoticeDetailPage = lazy(() => import("@/notice/pages/NoticeDetailPage"));
 
 const CartPage = lazy(() => import("./payment/pages/CartPage"));
 const RecordsPage = lazy(() => import("./records/pages/RecordsPage"));
@@ -152,6 +154,9 @@ export default function App() {
                   path="/matching/:matePostId"
                   element={<MateDetailPage />}
                 />
+
+                <Route path="/notices" element={<NoticeListPage />} />
+                <Route path="/notices/:noticeId" element={<NoticeDetailPage />} />
 
                 {/* 로그인 필요 */}
                 <Route element={<PrivateRoute />}>

@@ -42,6 +42,7 @@ public class BannerService {
                 .adminId(adminId)
                 .title(request.title())
                 .mediaType(request.mediaType())
+                .bannerType(request.bannerType())
                 .imageUrl(request.imageUrl())
                 .linkUrl(request.linkUrl())
                 .displayOrder(request.displayOrder())
@@ -56,6 +57,7 @@ public class BannerService {
 
         banner.setTitle(request.title());
         banner.setMediaType(request.mediaType() != null ? request.mediaType() : "IMAGE");
+        banner.setBannerType(request.bannerType() != null ? request.bannerType() : "POPUP");
         banner.setImageUrl(request.imageUrl());
         banner.setLinkUrl(request.linkUrl());
         if (request.displayOrder() != null) banner.setDisplayOrder(request.displayOrder());

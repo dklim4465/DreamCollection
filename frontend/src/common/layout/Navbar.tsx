@@ -58,7 +58,7 @@ export default function Navbar() {
     <header id="top-bar" className="bg-surface sticky top-0 z-50 shadow-glow">
       <nav className="flex justify-between items-center w-full px-margin-desktop py-unit max-w-container-max mx-auto h-20">
         {/* 로고 */}
-        <Link to="/">
+        <Link to="/" className="shrink-0">
           <Logo />
         </Link>
 

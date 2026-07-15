@@ -156,6 +156,7 @@ export interface SavedTripSummary {
   title: string | null;
   region: string | null;
   theme: string | null;
+  startDate: string | null;
   createdDate: string;
 }
 
@@ -264,6 +265,7 @@ export const tripApi = {
         title: trip.recommendation?.title ?? null,
         region: trip.conditions?.region ?? null,
         theme: trip.conditions?.theme ?? null,
+        startDate: trip.conditions?.startDate ?? null,
         createdDate: trip.createdDate,
       }),
     );
