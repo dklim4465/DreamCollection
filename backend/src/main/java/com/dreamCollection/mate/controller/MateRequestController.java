@@ -1,12 +1,13 @@
 package com.dreamCollection.mate.controller;
 
-
 import com.dreamCollection.global.response.ApiResponse;
+import com.dreamCollection.mate.dto.MateRequestCreateRequestDTO;
 import com.dreamCollection.mate.dto.MateRequestDecisionRequestDTO;
 import com.dreamCollection.mate.dto.MateRequestResponseDTO;
 import com.dreamCollection.mate.service.MateRequestService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -19,16 +20,18 @@ public class MateRequestController {
 
     @PostMapping("/api/mate/posts/{matePostId}/requests")
     public ApiResponse<MateRequestResponseDTO> applyForMate(
-            @RequestHeader("X-User-Id") Long userId,
-            @PathVariable Long matePostId
+            @AuthenticationPrincipal Long userId,
+            @PathVariable Long matePostId,
+            @Valid @RequestBody(required = false) MateRequestCreateRequestDTO requestDTO
     ){
-        MateRequestResponseDTO responseDTO = mateRequestService.applyForMate(userId, matePostId);
+        String message = requestDTO != null ? requestDTO.getMessage() : null;
+        MateRequestResponseDTO responseDTO = mateRequestService.applyForMate(userId, matePostId, message);
         return ApiResponse.ok(responseDTO, "메이트 신청이 완료되었습니다.");
     }
 
     @GetMapping("/api/mate/posts/{matePostId}/requests")
     public ApiResponse<List<MateRequestResponseDTO>> getRequestList(
-            @RequestHeader("X-User-Id") Long userId,
+            @AuthenticationPrincipal Long userId,
             @PathVariable Long matePostId
     ){
         return ApiResponse.ok(mateRequestService.getRequestList(userId, matePostId));
@@ -36,7 +39,7 @@ public class MateRequestController {
 
     @PatchMapping("api/mate/posts/{matePostId}/requests/{requestId}")
     public ApiResponse<MateRequestResponseDTO> decideRequest(
-            @RequestHeader("X-User-Id") Long userId,
+            @AuthenticationPrincipal Long userId,
             @PathVariable Long matePostId,
             @PathVariable Long requestId,
             @Valid @RequestBody MateRequestDecisionRequestDTO requestDTO
@@ -46,9 +49,19 @@ public class MateRequestController {
         return ApiResponse.ok(responseDTO,message);
     }
 
+    @DeleteMapping("/api/mate/posts/{matePostId}/requests/{requestId}")
+    public ApiResponse<Void> cancelRequest(
+            @AuthenticationPrincipal Long userId,
+            @PathVariable Long matePostId,
+            @PathVariable Long requestId
+    ){
+        mateRequestService.cancelRequest(userId, matePostId, requestId);
+        return ApiResponse.ok(null, "신청을 취소했습니다.");
+    }
+
     @GetMapping("/api/mate/requests/me")
     public ApiResponse<List<MateRequestResponseDTO>> getMyRequests(
-            @RequestHeader("X-User-Id") Long userId
+            @AuthenticationPrincipal Long userId
     ){
         return ApiResponse.ok(mateRequestService.getMyRequests(userId));
     }

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { matePostApi } from "@/mate/api/mate";
 import { PREFERRED_GENDERS, TRAVEL_STYLES } from "@/mate/types/mate";
 import LoadingSpinner from "@/common/component/LoadingSpinner";
@@ -18,6 +18,7 @@ export default function MateWritePage() {
   const { matePostId } = useParams<{ matePostId: string }>();
   const isEditMode = Boolean(matePostId);
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
   const today = getTodayString();
 
@@ -65,7 +66,10 @@ export default function MateWritePage() {
         travelStyle: travelStyle || null,
         recruitCount: recruitCount ? Number(recruitCount) : null,
       }),
-    onSuccess: (res) => navigate(`/matching/${res.data.data.id}`),
+    onSuccess: (res) => {
+      queryClient.invalidateQueries({ queryKey: ["mate-posts"] });
+      navigate(`/matching/${res.data.data.id}`);
+    },
   });
 
   const updateMutation = useMutation({
@@ -80,7 +84,11 @@ export default function MateWritePage() {
         travelStyle: travelStyle || null,
         recruitCount: recruitCount ? Number(recruitCount) : null,
       }),
-    onSuccess: () => navigate(`/matching/${matePostId}`),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["mate-posts"] });
+      queryClient.invalidateQueries({ queryKey: ["mate-post", matePostId] });
+      navigate(`/matching/${matePostId}`);
+    },
   });
 
   const mutation = isEditMode ? updateMutation : createMutation;
@@ -103,7 +111,7 @@ export default function MateWritePage() {
   }
 
   return (
-    <div className="max-w-2xl mx-auto">
+    <div className="w-full max-w-2xl mx-auto">
       <h1 className="text-headline-md font-bold mb-stack-lg">
         {isEditMode ? "동행 모집글 수정" : "동행 모집글 작성"}
       </h1>

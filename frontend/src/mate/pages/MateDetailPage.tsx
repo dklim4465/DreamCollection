@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import dayjs from "dayjs";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -7,9 +8,9 @@ import {
   type MatePostStatus,
 } from "@/mate/types/mate";
 import { useAuthStore } from "@/auth/store/authStore";
-import { chatApi } from "@/chat/api/chatApi";
-import { useChatStore } from "@/chat/store/chatStore";
 import MateRequestItem from "@/mate/components/MateRequestItem";
+import MateReviewSection from "@/mate/components/MateReviewSection";
+import UserProfileModal from "@/mate/components/UserProfileModal";
 import LoadingSpinner from "@/common/component/LoadingSpinner";
 import EmptyState from "@/common/component/EmptyState";
 
@@ -19,7 +20,13 @@ export default function MateDetailPage() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { user } = useAuthStore();
-  const { openRoom, toggleWidget, setRooms } = useChatStore();
+
+  const [applyMessage, setApplyMessage] = useState("");
+  const [profileTarget, setProfileTarget] = useState<{
+    userId: number;
+    label: string;
+    canChat: boolean;
+  } | null>(null);
 
   const {
     data: post,
@@ -30,7 +37,6 @@ export default function MateDetailPage() {
     queryFn: () => matePostApi.getDetail(id).then((res) => res.data.data),
   });
 
-  // 작성자만 신청자 목록을 볼 수 있음
   const isOwner = user != null && post != null && user.id === post.userId;
 
   const { data: requests } = useQuery({
@@ -39,7 +45,6 @@ export default function MateDetailPage() {
     enabled: isOwner,
   });
 
-  // 내가 이 모집글에 신청한 이력이 있는지 (신청 여부/수락 여부 판단용)
   const { data: myRequests } = useQuery({
     queryKey: ["mate-my-requests"],
     queryFn: () => mateRequestApi.getMyRequests().then((res) => res.data.data),
@@ -48,12 +53,24 @@ export default function MateDetailPage() {
   const myRequest = myRequests?.find((r) => r.matePostId === id);
 
   const applyMutation = useMutation({
-    mutationFn: () => mateRequestApi.apply(id),
+    mutationFn: (message: string) => mateRequestApi.apply(id, message),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["mate-my-requests"] });
+      queryClient.invalidateQueries({ queryKey: ["notifications"] });
+      setApplyMessage("");
+    },
+    onError: (err: any) => {
+      alert(err?.response?.data?.message ?? "신청에 실패했어요.");
+    },
+  });
+
+  const cancelMutation = useMutation({
+    mutationFn: (requestId: number) => mateRequestApi.cancel(id, requestId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["mate-my-requests"] });
     },
     onError: (err: any) => {
-      alert(err?.response?.data?.message ?? "신청에 실패했어요.");
+      alert(err?.response?.data?.message ?? "신청 취소에 실패했어요.");
     },
   });
 
@@ -77,18 +94,6 @@ export default function MateDetailPage() {
     onSuccess: () => navigate("/matching"),
   });
 
-  // 채팅방 열기 버튼: 이 모집글 기준 채팅방을 열고(없으면 생성), 채팅 위젯을 띄운다.
-  const handleOpenChat = async () => {
-    const res = await chatApi.openRoom(id);
-    const roomId = res.data.data;
-
-    // 새로 열린 방을 위젯의 방 목록에도 반영해서, 목록 화면 없이 바로 대화창으로 진입
-    const roomsRes = await chatApi.getMyRooms();
-    setRooms(roomsRes.data.data);
-    openRoom(roomId);
-    toggleWidget();
-  };
-
   if (isLoading) return <LoadingSpinner message="모집글을 불러오는 중..." />;
 
   if (isError || !post) {
@@ -109,11 +114,8 @@ export default function MateDetailPage() {
   const statusLabel =
     MATE_POST_STATUS_LABELS[post.status as MatePostStatus] ?? post.status;
 
-  // 채팅 버튼을 보여줄 조건: 작성자 본인이거나, 신청이 ACCEPTED된 신청자인 경우
-  const canChat = isOwner || myRequest?.status === "ACCEPTED";
-
   return (
-    <div className="max-w-2xl mx-auto">
+    <div className="w-full max-w-5xl mx-auto">
       <div className="flex items-center gap-2 mb-stack-sm">
         <span className="chip-primary">{statusLabel}</span>
         {post.travelStyle && (
@@ -125,10 +127,31 @@ export default function MateDetailPage() {
 
       <h1 className="text-headline-md font-bold mb-2">{post.destination}</h1>
 
-      <p className="text-label-sm text-outline mb-stack-md">
-        작성자 #{post.userId} · {dayjs(post.startDate).format("YYYY.MM.DD")} ~{" "}
-        {dayjs(post.endDate).format("YYYY.MM.DD")}
-      </p>
+      <div className="flex items-center gap-3 mb-stack-md flex-wrap">
+        <button
+          onClick={() =>
+            setProfileTarget({
+              userId: post.userId,
+              label: `작성자 #${post.userId}`,
+              canChat: !isOwner && myRequest != null,
+            })
+          }
+          className="flex items-center gap-2 hover:opacity-80"
+        >
+          <div className="w-8 h-8 rounded-full bg-primary-container flex items-center justify-center shrink-0">
+            <span className="material-symbols-outlined text-primary text-lg">
+              person
+            </span>
+          </div>
+          <span className="text-label-md font-bold text-primary">
+            작성자 #{post.userId}
+          </span>
+        </button>
+        <span className="text-label-sm text-outline">
+          {dayjs(post.startDate).format("YYYY.MM.DD")} ~{" "}
+          {dayjs(post.endDate).format("YYYY.MM.DD")}
+        </span>
+      </div>
 
       <div className="flex gap-3 text-label-sm text-on-surface-variant mb-stack-md">
         {post.preferredAge && <span>선호 연령: {post.preferredAge}</span>}
@@ -140,7 +163,7 @@ export default function MateDetailPage() {
         <p className="text-body-md whitespace-pre-wrap">{post.content}</p>
       </div>
 
-      <div className="flex items-center gap-3 mb-stack-lg">
+      <div className="flex items-center gap-3 mb-stack-lg flex-wrap">
         {isOwner ? (
           <>
             <Link to={`/matching/${post.id}/edit`} className="btn-ghost">
@@ -156,41 +179,57 @@ export default function MateDetailPage() {
             </button>
           </>
         ) : (
-          !myRequest && (
-            <button
-              onClick={() => applyMutation.mutate()}
-              disabled={applyMutation.isPending || post.status === "CLOSED"}
-              className="btn-primary disabled:opacity-50"
-            >
-              {post.status === "CLOSED" ? "모집 마감" : "신청하기"}
+          !myRequest &&
+          (post.status === "CLOSED" ? (
+            <button disabled className="btn-primary disabled:opacity-50">
+              모집 마감
             </button>
-          )
+          ) : (
+            <div className="flex flex-col gap-2 w-full">
+              <textarea
+                className="input-base h-20 resize-none"
+                placeholder="간단한 소개나 인사말을 남겨보세요 (선택)"
+                value={applyMessage}
+                onChange={(e) => setApplyMessage(e.target.value)}
+                maxLength={200}
+              />
+              <button
+                onClick={() => applyMutation.mutate(applyMessage)}
+                disabled={applyMutation.isPending}
+                className="btn-primary disabled:opacity-50 self-end"
+              >
+                신청하기
+              </button>
+            </div>
+          ))
         )}
 
         {myRequest && (
-          <span className="chip bg-surface-container text-on-surface-variant">
-            신청 상태:{" "}
-            {myRequest.status === "REQUESTED"
-              ? "대기중"
-              : myRequest.status === "ACCEPTED"
-                ? "수락됨"
-                : "거절됨"}
-          </span>
-        )}
-
-        {/* 채팅하기 버튼 — 작성자 본인이거나, 수락된 신청자만 보임 */}
-        {canChat && (
-          <button
-            onClick={handleOpenChat}
-            className="btn-ghost flex items-center gap-1 ml-auto"
-          >
-            <span className="material-symbols-outlined text-lg">chat</span>
-            채팅하기
-          </button>
+          <div className="flex items-center gap-2">
+            <span className="chip bg-surface-container text-on-surface-variant">
+              신청 상태:{" "}
+              {myRequest.status === "REQUESTED"
+                ? "대기중"
+                : myRequest.status === "ACCEPTED"
+                  ? "수락됨"
+                  : "거절됨"}
+            </span>
+            {myRequest.status !== "REJECTED" && (
+              <button
+                onClick={() =>
+                  confirm("신청을 취소할까요?") &&
+                  cancelMutation.mutate(myRequest.id)
+                }
+                disabled={cancelMutation.isPending}
+                className="btn-ghost text-error disabled:opacity-50"
+              >
+                {cancelMutation.isPending ? "취소 중..." : "신청 취소"}
+              </button>
+            )}
+          </div>
         )}
       </div>
 
-      {/* 작성자 전용: 신청자 목록 */}
       {isOwner && requests && requests.length > 0 && (
         <div className="mt-stack-lg">
           <h2 className="text-label-lg font-bold mb-stack-sm">
@@ -207,11 +246,56 @@ export default function MateDetailPage() {
                 onReject={(requestId) =>
                   decideMutation.mutate({ requestId, decision: "REJECT" })
                 }
+                onClickRequester={(userId, label) =>
+                  setProfileTarget({
+                    userId,
+                    label,
+                    canChat: true,
+                  })
+                }
                 isDeciding={decideMutation.isPending}
               />
             ))}
           </div>
         </div>
+      )}
+
+      {post.status === "CLOSED" && user != null && (
+        <div className="mt-stack-lg flex flex-col gap-stack-md">
+          <h2 className="text-label-lg font-bold">동행 후기</h2>
+
+          {isOwner &&
+            requests
+              ?.filter((r) => r.status === "ACCEPTED")
+              .map((r) => (
+                <MateReviewSection
+                  key={r.id}
+                  matePostId={id}
+                  targetUserId={r.requesterId}
+                  targetLabel={`신청자 #${r.requesterId}`}
+                  currentUserId={user.id}
+                />
+              ))}
+
+          {!isOwner && myRequest?.status === "ACCEPTED" && (
+            <MateReviewSection
+              matePostId={id}
+              targetUserId={post.userId}
+              targetLabel="작성자"
+              currentUserId={user.id}
+            />
+          )}
+        </div>
+      )}
+
+      {profileTarget && (
+        <UserProfileModal
+          userId={profileTarget.userId}
+          label={profileTarget.label}
+          matePostId={id}
+          canChat={profileTarget.canChat}
+          onClose={() => setProfileTarget(null)}
+        />
       )}
     </div>
   );

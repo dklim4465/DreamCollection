@@ -18,7 +18,7 @@ import type {
 
 // ── 게시글 ──────────────────────────────
 export const boardPostApi = {
-  getList: (category: string, page = 0, size = 10) =>
+  getList: (category: string, page = 0, size = 9) =>
     apiClient.get<ApiResponse<SpringPage<BoardPostListItem>>>("/board/posts", {
       params: { category, page, size, sort: "createdAt,desc" },
     }),
