@@ -72,7 +72,11 @@ const TripLogMainPage = () => {
   };
 
   if (isLoading) {
-    return <div>불러오는 중...</div>;
+    return (
+      <div className="flex flex-1 items-center justify-center text-body-md text-on-surface-variant">
+        불러오는 중...
+      </div>
+    );
   }
 
   if (error) {
@@ -80,8 +84,8 @@ const TripLogMainPage = () => {
   }
 
   return (
-    <div className="relative flex h-screen bg-gray-100">
-      <div className="flex-1 overflow-hidden">
+    <div className="relative flex flex-1 min-h-0 bg-background">
+      <div className="flex-1 min-w-0 overflow-hidden">
         <TripLogListComponent
           tripLogs={tripLogs}
           searchKeyword={searchKeyword}

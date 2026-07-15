@@ -39,7 +39,7 @@ const MapComponent = () => {
     };
   }, [map]);
 
-  return <div ref={mapContainer} style={{ width: "100%", height: "100%" }} />;
+  return <div ref={mapContainer} className="h-full w-full" />;
 };
 
 export default MapComponent;

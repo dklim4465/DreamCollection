@@ -5,8 +5,27 @@ const TimelinePlayButton = () => {
   const togglePlaying = useTimelineStore((state) => state.togglePlaying);
 
   return (
-    <button className="timeline-play-button" onClick={togglePlaying}>
-      {playing ? "⏸" : "▶"}
+    <button
+      onClick={togglePlaying}
+      className="
+        flex
+        h-6
+        w-6
+        items-center
+        justify-center
+        rounded-full
+        bg-primary
+        text-on-primary
+        text-xl
+        shadow-md
+        transition
+        hover:opacity-90
+        active:scale-95
+      "
+    >
+      <span className="material-symbols-outlined">
+        {playing ? "pause" : "play_arrow"}
+      </span>
     </button>
   );
 };

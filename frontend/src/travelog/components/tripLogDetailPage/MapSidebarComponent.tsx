@@ -35,29 +35,40 @@ const MapSidebarComponent = () => {
 
   return (
     <aside
-      className="map-sidebar"
-      style={{
-        position: "absolute",
-        top: 0,
-        right: 0,
-        width: 300,
-        height: "100%",
-        display: "flex",
-        flexDirection: "column",
-        background: "rgba(0, 0, 0, 0.82)",
-        backdropFilter: "blur(14px)",
-        WebkitBackdropFilter: "blur(14px)",
-
-        borderLeft: "1px solid rgba(255,255,255,0.3)",
-        boxShadow: "-8px 0 24px rgba(0,0,0,0.12)",
-
-        zIndex: 20,
-      }}
+      className="
+        absolute right-0 top-0 z-20
+        flex h-full w-[300px]
+        flex-col
+        border-l border-white/20
+        bg-black/80
+        backdrop-blur-md
+        shadow-[-8px_0_24px_rgba(0,0,0,0.12)]
+      "
     >
-      <div className="sidebar-header">
-        <h3>여행</h3>
+      <div
+        className="
+          flex items-center justify-between
+          border-b border-white/20
+          px-5 py-4
+        "
+      >
+        <h3 className="text-title-md font-bold text-white">여행</h3>
 
-        <button onClick={openFileDialog}>+</button>
+        <button
+          onClick={openFileDialog}
+          className="
+            flex h-9 w-9 items-center justify-center
+            rounded-full
+            bg-primary
+            text-on-primary
+            text-xl
+            transition
+            hover:opacity-90
+            active:scale-95
+          "
+        >
+          +
+        </button>
 
         <input
           ref={inputRef}
@@ -68,7 +79,10 @@ const MapSidebarComponent = () => {
           onChange={handleUpload}
         />
       </div>
-      {mode === "list" ? <SpotListView /> : <GalleryView />}
+
+      <div className="min-h-0 flex-1 overflow-y-auto">
+        {mode === "list" ? <SpotListView /> : <GalleryView />}
+      </div>
     </aside>
   );
 };

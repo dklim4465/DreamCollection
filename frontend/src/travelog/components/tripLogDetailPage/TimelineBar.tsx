@@ -3,10 +3,10 @@ import TimelineTrack from "@/travelog/components/tripLogDetailPage/TimelineTrack
 
 const TimelineBar = () => {
   return (
-    <div style={{ display: "flex", width: "100%" }}>
+    <div className="flex w-full items-center">
       <TimelinePlayButton />
 
-      <div style={{ flex: 1, position: "relative", marginLeft: "16px" }}>
+      <div className="relative ml-4 flex-1">
         <TimelineTrack />
       </div>
     </div>
