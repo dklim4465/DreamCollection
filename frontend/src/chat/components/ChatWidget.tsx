@@ -4,7 +4,9 @@ import { useChatStore } from "@/chat/store/chatStore";
 import { useFriendStore } from "@/chat/store/friendStore";
 import { chatApi } from "@/chat/api/chatApi";
 import { friendApi } from "@/chat/api/friendApi";
-import type { UserSearchResult } from "@/chat/types/friend";
+import { reportApi } from "@/board/api/board";
+import type { UserSearchResult } from "@/chat/types/friends";
+import type { ChatMessage } from "@/chat/types/chat";
 import {
   connectStomp,
   disconnectStomp,
@@ -44,6 +46,19 @@ export default function ChatWidget() {
   const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  const [showReportModal, setShowReportModal] = useState(false);
+  const [reportReason, setReportReason] = useState("");
+  const [isReporting, setIsReporting] = useState(false);
+
+  const isOpenRef = useRef(isOpen);
+  const activeRoomIdRef = useRef(activeRoomId);
+  useEffect(() => {
+    isOpenRef.current = isOpen;
+  }, [isOpen]);
+  useEffect(() => {
+    activeRoomIdRef.current = activeRoomId;
+  }, [activeRoomId]);
+
   useEffect(() => {
     if (!isAuthenticated) {
       disconnectStomp();
@@ -58,11 +73,24 @@ export default function ChatWidget() {
   }, [isAuthenticated]);
 
   useEffect(() => {
+    if (!isConnected) return;
+
+    const handleIncomingMessage = (message: ChatMessage) => {
+      const isBeingViewed =
+        isOpenRef.current && activeRoomIdRef.current === message.roomId;
+      appendMessage(message, isBeingViewed);
+    };
+
+    rooms.forEach((room) => {
+      subscribeRoom(room.roomId, handleIncomingMessage);
+    });
+  }, [isConnected, rooms]);
+
+  useEffect(() => {
     if (!activeRoomId || !isConnected) return;
     chatApi.getMessages(activeRoomId).then((res) => {
       setMessages(activeRoomId, res.data.data);
     });
-    subscribeRoom(activeRoomId, (message) => appendMessage(message));
     chatApi.markRead(activeRoomId);
   }, [activeRoomId, isConnected]);
 
@@ -156,6 +184,37 @@ export default function ChatWidget() {
 
   const totalUnread = rooms.reduce((sum, r) => sum + r.unreadCount, 0);
   const activeMessages = activeRoomId ? (messages[activeRoomId] ?? []) : [];
+  const activeRoom = rooms.find((r) => r.roomId === activeRoomId);
+  const otherUserId = activeRoom?.memberIds.find(
+    (id) => Number(id) !== Number(user?.id),
+  );
+
+  const isMine = (senderId: number | string) =>
+    Number(senderId) === Number(user?.id);
+
+  const handleOpenReport = () => {
+    setReportReason("");
+    setShowReportModal(true);
+  };
+
+  const handleSubmitReport = () => {
+    if (!reportReason.trim() || !otherUserId) return;
+    setIsReporting(true);
+    reportApi
+      .create({
+        targetType: "USER",
+        targetId: otherUserId,
+        reason: reportReason.trim(),
+      })
+      .then(() => {
+        alert("신고가 접수되었습니다.");
+        setShowReportModal(false);
+      })
+      .catch((err: any) => {
+        alert(err?.response?.data?.message ?? "신고 접수에 실패했어요.");
+      })
+      .finally(() => setIsReporting(false));
+  };
 
   const statusLabel = (status: UserSearchResult["friendStatus"]) => {
     switch (status) {
@@ -201,7 +260,16 @@ export default function ChatWidget() {
                 </button>
               </div>
             ) : (
-              <strong className="text-sm">채팅</strong>
+              <strong className="text-sm flex-1">채팅</strong>
+            )}
+            {activeRoomId && otherUserId != null && (
+              <button
+                onClick={handleOpenReport}
+                className="text-on-primary text-xs opacity-80 hover:opacity-100"
+                aria-label="상대방 신고"
+              >
+                신고
+              </button>
             )}
           </div>
 
@@ -352,35 +420,68 @@ export default function ChatWidget() {
           {activeRoomId && (
             <>
               <div className="flex-1 overflow-y-auto px-4 py-3 flex flex-col gap-1.5">
-                {activeMessages.map((msg) => (
-                  <div
-                    key={msg.messageId}
-                    className={`flex flex-col ${
-                      msg.senderId === user?.id ? "items-end" : "items-start"
-                    }`}
-                  >
-                    {msg.messageType === "IMAGE" ? (
-                      <img
-                        src={resolveImageUrl(msg.content)}
-                        alt="전송된 이미지"
-                        className="max-w-[70%] rounded-2xl cursor-pointer"
-                        onClick={() =>
-                          window.open(resolveImageUrl(msg.content), "_blank")
-                        }
-                      />
-                    ) : (
+                {activeMessages.map((msg, index) => {
+                  const prevMsg = index > 0 ? activeMessages[index - 1] : null;
+                  const currentDate = new Date(msg.createdAt).toDateString();
+                  const prevDate = prevMsg
+                    ? new Date(prevMsg.createdAt).toDateString()
+                    : null;
+                  const showDateDivider = currentDate !== prevDate;
+
+                  return (
+                    <div key={msg.messageId}>
+                      {showDateDivider && (
+                        <div className="flex justify-center my-2">
+                          <span className="text-[11px] text-on-surface-variant bg-surface-container px-2.5 py-1 rounded-full">
+                            {new Date(msg.createdAt).toLocaleDateString(
+                              "ko-KR",
+                              {
+                                year: "numeric",
+                                month: "long",
+                                day: "numeric",
+                              },
+                            )}
+                          </span>
+                        </div>
+                      )}
                       <div
-                        className={`px-3 py-1.5 rounded-2xl max-w-[70%] text-sm ${
-                          msg.senderId === user?.id
-                            ? "bg-primary text-on-primary"
-                            : "bg-surface-container text-on-surface"
+                        className={`flex flex-col ${
+                          isMine(msg.senderId) ? "items-end" : "items-start"
                         }`}
                       >
-                        {msg.content}
+                        {msg.messageType === "IMAGE" ? (
+                          <img
+                            src={resolveImageUrl(msg.content)}
+                            alt="전송된 이미지"
+                            className="max-w-[70%] rounded-2xl cursor-pointer"
+                            onClick={() =>
+                              window.open(
+                                resolveImageUrl(msg.content),
+                                "_blank",
+                              )
+                            }
+                          />
+                        ) : (
+                          <div
+                            className={`px-3 py-1.5 rounded-2xl max-w-[70%] text-sm ${
+                              isMine(msg.senderId)
+                                ? "bg-primary text-on-primary"
+                                : "bg-surface-container text-on-surface"
+                            }`}
+                          >
+                            {msg.content}
+                          </div>
+                        )}
+                        <span className="text-[10px] text-on-surface-variant mt-0.5 px-1">
+                          {new Date(msg.createdAt).toLocaleTimeString("ko-KR", {
+                            hour: "2-digit",
+                            minute: "2-digit",
+                          })}
+                        </span>
                       </div>
-                    )}
-                  </div>
-                ))}
+                    </div>
+                  );
+                })}
               </div>
               <div className="flex p-2 border-t border-outline-variant gap-1.5">
                 <input
@@ -415,6 +516,39 @@ export default function ChatWidget() {
               </div>
             </>
           )}
+        </div>
+      )}
+
+      {showReportModal && (
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-[60] p-4">
+          <div className="bg-surface-container-lowest rounded-2xl w-full max-w-sm p-5">
+            <h3 className="text-base font-bold mb-2">상대방 신고하기</h3>
+            <p className="text-sm text-on-surface-variant mb-3">
+              신고 사유를 알려주세요. 허위 신고는 제재될 수 있어요.
+            </p>
+            <textarea
+              className="w-full border border-outline-variant rounded-lg px-3 py-2 text-sm h-24 resize-none"
+              placeholder="신고 사유 (최대 255자)"
+              maxLength={255}
+              value={reportReason}
+              onChange={(e) => setReportReason(e.target.value)}
+            />
+            <div className="flex justify-end gap-2 mt-3">
+              <button
+                onClick={() => setShowReportModal(false)}
+                className="text-sm px-3 py-1.5 text-on-surface-variant"
+              >
+                취소
+              </button>
+              <button
+                onClick={handleSubmitReport}
+                disabled={!reportReason.trim() || isReporting}
+                className="text-sm px-3 py-1.5 bg-primary text-on-primary rounded-lg disabled:opacity-50"
+              >
+                {isReporting ? "접수 중..." : "신고 접수"}
+              </button>
+            </div>
+          </div>
         </div>
       )}
 

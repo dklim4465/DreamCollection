@@ -1,9 +1,13 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, NavLink, useNavigate } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useAuthStore } from "@/auth/store/authStore";
 import { useThemeStore } from "@/common/store/themeStore";
 import { levelApi } from "@/profile/api/levelApi";
+import {
+  notificationApi,
+  type NotificationItem,
+} from "@/mate/api/notificationApi";
 import Logo from "./Logo";
 import SearchBar from "./SearchBar";
 
@@ -21,13 +25,32 @@ const NAV_ITEMS: NavItem[] = [
   { to: "/notices", icon: "campaign", label: "공지사항" },
 ];
 
+function resolveNotificationLink(
+  notification: NotificationItem,
+): string | null {
+  if (notification.targetId == null) return null;
+
+  switch (notification.targetType) {
+    case "MATE_POST":
+      return `/matching/${notification.targetId}`;
+    case "BOARD_POST":
+      return `/community/${notification.targetId}`;
+    default:
+      return null;
+  }
+}
+
 export default function Navbar() {
   const { isAuthenticated, user, logout } = useAuthStore();
   const { mode, toggle: toggleTheme } = useThemeStore();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
   const profileMenuRef = useRef<HTMLDivElement>(null);
+
+  const [notificationMenuOpen, setNotificationMenuOpen] = useState(false);
+  const notificationMenuRef = useRef<HTMLDivElement>(null);
 
   const { data: levelRes } = useQuery({
     queryKey: ["level", "me"],
@@ -36,6 +59,28 @@ export default function Navbar() {
     retry: false,
   });
   const levelInfo = levelRes?.data?.data;
+
+  const { data: unreadRes } = useQuery({
+    queryKey: ["notifications", "unread-count"],
+    queryFn: notificationApi.getUnreadCount,
+    enabled: isAuthenticated,
+    refetchInterval: 30000,
+  });
+  const unreadCount = unreadRes?.data?.data ?? 0;
+
+  const { data: notificationListRes } = useQuery({
+    queryKey: ["notifications", "list"],
+    queryFn: () => notificationApi.getList(0, 10),
+    enabled: isAuthenticated && notificationMenuOpen,
+  });
+
+  const notifications = Array.from(
+    new Map(
+      (notificationListRes?.data?.data?.content ?? [])
+        .filter((n) => n.type !== "CHAT_MESSAGE")
+        .map((n) => [n.id, n]),
+    ).values(),
+  );
 
   useEffect(() => {
     if (!profileMenuOpen) return;
@@ -51,21 +96,50 @@ export default function Navbar() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [profileMenuOpen]);
 
+  useEffect(() => {
+    if (!notificationMenuOpen) return;
+    const handleClickOutside = (e: MouseEvent) => {
+      if (
+        notificationMenuRef.current &&
+        !notificationMenuRef.current.contains(e.target as Node)
+      ) {
+        setNotificationMenuOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [notificationMenuOpen]);
+
   const handleLogout = () => {
     logout();
+    queryClient.clear();
     setProfileMenuOpen(false);
     navigate("/");
+  };
+
+  const handleNotificationClick = async (notification: NotificationItem) => {
+    if (!notification.read) {
+      try {
+        await notificationApi.markRead(notification.id);
+        queryClient.invalidateQueries({ queryKey: ["notifications"] });
+      } catch {
+        // 읽음 처리 실패해도 이동은 계속 진행
+      }
+    }
+
+    setNotificationMenuOpen(false);
+
+    const link = resolveNotificationLink(notification);
+    if (link) navigate(link);
   };
 
   return (
     <header id="top-bar" className="bg-surface sticky top-0 z-50 shadow-glow">
       <nav className="flex justify-between items-center w-full px-margin-desktop py-unit max-w-container-max mx-auto h-20">
-        {/* 로고 */}
-        <Link to="/" className="shrink-0">
+        <Link to="/">
           <Logo />
         </Link>
 
-        {/* 5대 메뉴 (일정/나의기록/게시판/메이트찾기/공지사항) */}
         <ul className="hidden lg:flex items-center gap-3 xl:gap-stack-lg shrink-0">
           {NAV_ITEMS.map((item) => (
             <li key={item.to} className="shrink-0">
@@ -89,7 +163,6 @@ export default function Navbar() {
           ))}
         </ul>
 
-        {/* 검색 + 아이콘 + 마이페이지 */}
         <div className="flex items-center gap-stack-md">
           <SearchBar />
 
@@ -126,9 +199,50 @@ export default function Navbar() {
             {mode === "dark" ? "light_mode" : "dark_mode"}
           </button>
 
-          <button className="material-symbols-outlined text-on-surface-variant hover:opacity-80">
-            notifications
-          </button>
+          {isAuthenticated && (
+            <div className="relative" ref={notificationMenuRef}>
+              <button
+                type="button"
+                onClick={() => setNotificationMenuOpen((v) => !v)}
+                className="material-symbols-outlined text-on-surface-variant hover:opacity-80 relative"
+              >
+                notifications
+                {unreadCount > 0 && (
+                  <span className="absolute -top-1 -right-1 min-w-[16px] h-4 px-1 rounded-full bg-error text-on-error text-[10px] font-bold flex items-center justify-center">
+                    {unreadCount > 9 ? "9+" : unreadCount}
+                  </span>
+                )}
+              </button>
+
+              {notificationMenuOpen && (
+                <div className="absolute right-0 top-full mt-2 w-80 max-h-96 overflow-y-auto bg-surface-container-lowest rounded-2xl shadow-glow border border-outline-variant z-50">
+                  {notifications.length === 0 ? (
+                    <p className="text-label-md text-on-surface-variant text-center py-6">
+                      알림이 없어요
+                    </p>
+                  ) : (
+                    notifications.map((n) => (
+                      <button
+                        key={n.id}
+                        type="button"
+                        onClick={() => handleNotificationClick(n)}
+                        className={`w-full text-left px-4 py-3 border-b border-outline-variant last:border-b-0 hover:bg-surface-container-low transition-colors ${
+                          n.read ? "opacity-60" : ""
+                        }`}
+                      >
+                        <p className="text-label-md text-on-surface">
+                          {n.content}
+                        </p>
+                        <p className="text-label-sm text-outline mt-1">
+                          {new Date(n.createdAt).toLocaleString("ko-KR")}
+                        </p>
+                      </button>
+                    ))
+                  )}
+                </div>
+              )}
+            </div>
+          )}
 
           {isAuthenticated ? (
             <div className="relative" ref={profileMenuRef}>

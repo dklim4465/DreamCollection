@@ -19,8 +19,10 @@ public class BoardPostListResponseDTO {
     private final Integer likeCount;
     private final String tradeStatus;
     private final LocalDateTime createdAt;
+    private final Long userId;
+    private final String nickname;
 
-    public static BoardPostListResponseDTO from(BoardPost post) {
+    public static BoardPostListResponseDTO from(BoardPost post, String nickname) {
         return new BoardPostListResponseDTO(
                 post.getId(),
                 post.getCategory(),
@@ -29,7 +31,9 @@ public class BoardPostListResponseDTO {
                 post.getViewCount(),
                 post.getLikeCount(),
                 post.getTradeStatus(),
-                post.getCreatedAt()
+                post.getCreatedAt(),
+                post.getUserId(),
+                nickname
         );
     }
 }

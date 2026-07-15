@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface MatePostRepository extends JpaRepository<MatePost, Long> {
     Page<MatePost> findByStatusOrderByCreatedAtDesc(String status, Pageable pageable);
+    Page<MatePost> findByStatusNotOrderByCreatedAtDesc(String excludedStatus, Pageable pageable);
     Page<MatePost> findByDestinationContaining(String keyword, Pageable pageable);
     Page<MatePost> findByUserId(Long userId, Pageable pageable);
 }
