@@ -25,22 +25,26 @@ const TripLogListComponent = ({
   onCreateClick,
 }: TripLogListProps) => {
   return (
-    <div className="flex h-full flex-col rounded-xl border bg-white">
+    <div className="flex h-full flex-col card-base">
       {/* 검색 + 생성 */}
-      <div className="flex items-center gap-3 border-b p-4">
-        <div className="relative flex-1">
-          <Search
-            size={18}
-            className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
-          />
+      <div className="flex items-center gap-stack-md border-b border-outline-variant p-4">
+        <div className="relative flex flex-1 items-center gap-3">
+          <div className="relative flex-1">
+            <Search
+              size={18}
+              className="absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant"
+            />
 
-          <input
-            className="w-full rounded-lg border py-2 pl-10 pr-3 outline-none focus:ring-2 focus:ring-blue-400"
-            placeholder="여행 기록 검색"
-            value={searchKeyword}
-            onChange={(e) => onSearchChange(e.target.value)}
-          />
+            <input
+              className="input-search w-full"
+              placeholder="여행 기록 검색"
+              value={searchKeyword}
+              onChange={(e) => onSearchChange(e.target.value)}
+            />
+          </div>
+
           <select
+            className="bg-surface-container-low rounded-lg px-3 py-2 text-label-md text-on-surface outline-none"
             value={sort}
             onChange={(e) =>
               onSortChange(e.target.value as "modified" | "created")
@@ -53,16 +57,16 @@ const TripLogListComponent = ({
 
         <button
           onClick={onCreateClick}
-          className="flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-white transition hover:bg-blue-700"
+          className="btn-primary flex items-center gap-2 whitespace-nowrap"
         >
           <Plus size={18} />새 여행
         </button>
       </div>
 
       {/* 여행 기록 목록 */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4">
+      <div className="flex-1 overflow-y-auto overflow-x-hidden min-h-[600px] p-4 space-y-4">
         {tripLogs.length === 0 ? (
-          <div className="flex h-full items-center justify-center text-gray-500">
+          <div className="flex h-full items-center justify-center text-body-md text-on-surface-variant">
             여행 기록이 없습니다.
           </div>
         ) : (
@@ -72,14 +76,14 @@ const TripLogListComponent = ({
               to={`/triplog/${tripLog.tno}`}
               className="block"
             >
-              <div className="cursor-pointer rounded-xl border bg-white p-4 shadow-sm transition hover:shadow-md">
-                <div className="flex items-start justify-between">
+              <div className="card-interactive overflow-visible p-4">
+                <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0 flex-1">
-                    <h2 className="truncate text-lg font-semibold">
+                    <h2 className="truncate text-title-md font-bold text-on-surface">
                       {tripLog.title}
                     </h2>
 
-                    <p className="mt-1 text-sm text-gray-500">
+                    <p className="mt-1 text-body-sm text-on-surface-variant">
                       {tripLog.startDate} ~ {tripLog.endDate}
                     </p>
                   </div>
@@ -91,7 +95,7 @@ const TripLogListComponent = ({
                 </div>
 
                 {tripLog.description && (
-                  <p className="mt-3 line-clamp-2 text-sm text-gray-600">
+                  <p className="mt-3 line-clamp-2 text-body-md text-on-surface-variant">
                     {tripLog.description}
                   </p>
                 )}
@@ -99,10 +103,7 @@ const TripLogListComponent = ({
                 {tripLog.tags && tripLog.tags.length > 0 && (
                   <div className="mt-3 flex flex-wrap gap-2">
                     {tripLog.tags.map((tag) => (
-                      <span
-                        key={tag}
-                        className="rounded-full bg-slate-100 px-2 py-1 text-xs text-slate-700"
-                      >
+                      <span key={tag} className="chip-primary">
                         #{tag}
                       </span>
                     ))}

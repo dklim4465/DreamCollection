@@ -29,7 +29,7 @@ const TripLogCardMenu = ({ onDetail, onDelete }: TripLogCardMenuProps) => {
   return (
     <div className="relative" ref={menuRef}>
       <button
-        className="rounded-md p-2 hover:bg-gray-100"
+        className="rounded-lg p-2 text-on-surface-variant transition hover:bg-surface-variant"
         onClick={(e) => {
           e.preventDefault();
           e.stopPropagation();
@@ -40,9 +40,9 @@ const TripLogCardMenu = ({ onDetail, onDelete }: TripLogCardMenuProps) => {
       </button>
 
       {open && (
-        <div className="absolute right-0 top-full z-20 mt-1 w-36 rounded-lg border bg-white py-1 shadow-lg">
+        <div className="traveler-glow absolute right-0 top-full z-20 mt-1 w-36 overflow-hidden rounded-xl border border-outline-variant bg-surface-container-lowest py-1">
           <button
-            className="w-full px-4 py-2 text-left text-sm hover:bg-gray-100"
+            className="w-full px-4 py-2 text-left text-label-md text-on-surface transition hover:bg-surface-variant"
             onClick={(e) => {
               e.preventDefault();
               e.stopPropagation();
@@ -54,7 +54,7 @@ const TripLogCardMenu = ({ onDetail, onDelete }: TripLogCardMenuProps) => {
           </button>
 
           <button
-            className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-red-50"
+            className="w-full px-4 py-2 text-left text-label-md text-error transition hover:bg-error-container"
             onClick={(e) => {
               e.preventDefault();
               e.stopPropagation();

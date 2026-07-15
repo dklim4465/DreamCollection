@@ -15,7 +15,7 @@ interface NavItem {
 
 const NAV_ITEMS: NavItem[] = [
   { to: "/trip", icon: "calendar_month", label: "일정" },
-  { to: "/records", icon: "photo_library", label: "나의기록" },
+  { to: "/triplog", icon: "photo_library", label: "나의기록" },
   { to: "/community", icon: "forum", label: "게시판" },
   { to: "/matching", icon: "group", label: "메이트찾기" },
   { to: "/notices", icon: "campaign", label: "공지사항" },
@@ -40,7 +40,10 @@ export default function Navbar() {
   useEffect(() => {
     if (!profileMenuOpen) return;
     const handleClickOutside = (e: MouseEvent) => {
-      if (profileMenuRef.current && !profileMenuRef.current.contains(e.target as Node)) {
+      if (
+        profileMenuRef.current &&
+        !profileMenuRef.current.contains(e.target as Node)
+      ) {
         setProfileMenuOpen(false);
       }
     };
@@ -114,7 +117,9 @@ export default function Navbar() {
           <button
             type="button"
             onClick={toggleTheme}
-            aria-label={mode === "dark" ? "라이트 모드로 전환" : "다크 모드로 전환"}
+            aria-label={
+              mode === "dark" ? "라이트 모드로 전환" : "다크 모드로 전환"
+            }
             title={mode === "dark" ? "라이트 모드로 전환" : "다크 모드로 전환"}
             className="material-symbols-outlined text-on-surface-variant hover:opacity-80"
           >
@@ -165,7 +170,9 @@ export default function Navbar() {
                     onClick={() => setProfileMenuOpen(false)}
                     className="flex items-center gap-2 px-4 py-3 text-label-md text-on-surface hover:bg-surface-container-low transition-colors"
                   >
-                    <span className="material-symbols-outlined text-lg">person</span>
+                    <span className="material-symbols-outlined text-lg">
+                      person
+                    </span>
                     마이페이지
                   </Link>
                   <button
@@ -173,7 +180,9 @@ export default function Navbar() {
                     onClick={handleLogout}
                     className="w-full flex items-center gap-2 px-4 py-3 text-label-md text-error hover:bg-surface-container-low transition-colors text-left"
                   >
-                    <span className="material-symbols-outlined text-lg">logout</span>
+                    <span className="material-symbols-outlined text-lg">
+                      logout
+                    </span>
                     로그아웃
                   </button>
                 </div>
@@ -181,10 +190,16 @@ export default function Navbar() {
             </div>
           ) : (
             <div className="flex items-center gap-2">
-              <Link to="/login" className="btn-ghost text-sm py-2 px-4 whitespace-nowrap">
+              <Link
+                to="/login"
+                className="btn-ghost text-sm py-2 px-4 whitespace-nowrap"
+              >
                 로그인
               </Link>
-              <Link to="/register" className="btn-primary text-sm py-2 px-4 whitespace-nowrap">
+              <Link
+                to="/register"
+                className="btn-primary text-sm py-2 px-4 whitespace-nowrap"
+              >
                 회원가입
               </Link>
             </div>
