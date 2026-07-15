@@ -37,7 +37,7 @@ public class SecurityConfig {
             "/api/trip/recommend",
             "/api/flight/search",
             "/ws-stomp/**",
-            "/uploads/**",
+            "/upload/**",
     };
 
     @Bean
