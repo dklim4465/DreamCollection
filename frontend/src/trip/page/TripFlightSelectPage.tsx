@@ -10,6 +10,7 @@ import {
   type FlightSegment,
   type TripFlowState,
 } from "@/trip/api/trip";
+import TripConditionSummaryBar from "@/trip/components/planning/TripConditionSummaryBar";
 
 interface LocationState extends TripFlowState {}
 
@@ -162,59 +163,13 @@ export default function TripFlightSelectPage() {
 
   return (
     <div className="trip-page xl:-mx-10 2xl:-mx-16">
-      <section className="trip-surface p-stack-md">
-        <div className="grid gap-stack-md lg:grid-cols-[240px_1fr_auto] lg:items-center">
-          <label className="block">
-            <span className="mb-2 block text-label-md font-bold text-on-surface">
-              출발일 선택
-            </span>
-            <span className="relative block">
-              <input
-                type="date"
-                value={startDate}
-                onChange={(event) => handleDateChange(event.target.value)}
-                className="w-full rounded-xl border border-outline-variant/70 bg-surface-container-low px-4 py-3 text-label-md font-bold text-on-surface outline-none transition focus:border-primary focus:bg-surface-container-lowest focus:ring-2 focus:ring-primary/10"
-              />
-            </span>
-          </label>
-
-          <div className="grid gap-stack-sm rounded-xl bg-surface-container-low px-stack-md py-3 sm:grid-cols-2 xl:grid-cols-5">
-            <SummaryItem icon="group" label="누구와" value={conditions.who} />
-            <SummaryItem
-              icon="event"
-              label="여행 기간"
-              value={conditions.when}
-            />
-            <SummaryItem
-              icon="location_on"
-              label="지역"
-              value={`${conditions.region} · ${conditions.destination ?? conditions.region}`}
-            />
-            <SummaryItem
-              icon="interests"
-              label="테마"
-              value={conditions.theme}
-            />
-            <SummaryItem
-              icon="favorite"
-              label="여행 스타일"
-              value={conditions.level}
-            />
-          </div>
-
-          <button
-            type="button"
-            onClick={() => navigate("/trip/new")}
-            className="btn-ghost whitespace-nowrap"
-          >
-            <span className="material-symbols-outlined mr-2 align-[-5px] text-[18px]">
-              refresh
-            </span>
-            조건 다시 보기
-          </button>
-        </div>
-      </section>
-
+      <TripConditionSummaryBar
+        conditions={conditions}
+        startDate={startDate}
+        expanded={false}
+        onStartDateChange={handleDateChange}
+        onToggleConditions={() => navigate("/trip/new")}
+      />
       <section className="trip-surface border-primary/30 bg-primary/5 p-stack-md">
         <div className="grid gap-stack-md lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)_220px] lg:items-center">
           <SelectedFlightPreview
@@ -309,32 +264,6 @@ export default function TripFlightSelectPage() {
           </button>
         </div>
       </div>
-    </div>
-  );
-}
-
-function SummaryItem({
-  icon,
-  label,
-  value,
-}: {
-  icon: string;
-  label: string;
-  value?: string;
-}) {
-  return (
-    <div className="flex min-w-0 items-center gap-2">
-      <span className="material-symbols-outlined text-[18px] text-on-surface-variant">
-        {icon}
-      </span>
-      <span className="min-w-0">
-        <span className="block text-label-sm font-bold text-on-surface-variant">
-          {label}
-        </span>
-        <span className="block truncate text-label-md font-bold text-on-surface">
-          {value ?? "-"}
-        </span>
-      </span>
     </div>
   );
 }

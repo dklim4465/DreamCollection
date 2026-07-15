@@ -3,11 +3,13 @@ package com.dreamCollection.trip.service;
 import com.dreamCollection.trip.dto.SaveTripRequestDTO;
 import com.dreamCollection.trip.dto.SaveTripResponseDTO;
 import com.dreamCollection.trip.dto.SavedTripDTO;
+import com.dreamCollection.trip.dto.TripRecommendDTO;
 import com.dreamCollection.trip.entity.SavedTrip;
 import com.dreamCollection.trip.exception.SavedTripValidator;
 import com.dreamCollection.trip.exception.TripSaveException;
 import com.dreamCollection.trip.mapper.SavedTripMapper;
 import com.dreamCollection.trip.repository.SavedTripRepository;
+import com.dreamCollection.trip.util.TripScheduleSorter;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -21,6 +23,7 @@ public class SavedTripServiceImpl implements SavedTripService {
     private final SavedTripRepository savedTripRepository;
     private final SavedTripMapper savedTripMapper;
     private final SavedTripValidator savedTripValidator;
+    private final TripScheduleSorter tripScheduleSorter;
 
     @Override
     public SaveTripResponseDTO save(Long userId, SaveTripRequestDTO request) {
@@ -42,13 +45,14 @@ public class SavedTripServiceImpl implements SavedTripService {
         return savedTripRepository.findByUserIdOrderByCreatedDateDesc(userId)
                 .stream()
                 .map(savedTripMapper::toDTO)
+                .map(this::sortRecommendation)
                 .toList();
     }
 
     @Override
     public SavedTripDTO getSavedTrip(Long userId, Long savedTripId) {
         SavedTrip savedTrip = findSavedTripByUser(userId, savedTripId, "저장된 일정이 없습니다.");
-        return savedTripMapper.toDTO(savedTrip);
+        return sortRecommendation(savedTripMapper.toDTO(savedTrip));
     }
 
     @Override
@@ -64,7 +68,8 @@ public class SavedTripServiceImpl implements SavedTripService {
         SavedTrip savedTrip = savedTripRepository.findByIdAndUserId(savedTripId, userId)
                 .orElseThrow(() -> new TripSaveException("수정할 일정이 없습니다."));
 
-        savedTrip.changeRecommendation(savedTripMapper.toJson(request.getRecommendation()));
+        TripRecommendDTO sortedRecommendation = tripScheduleSorter.sort(request.getRecommendation());
+        savedTrip.changeRecommendation(savedTripMapper.toJson(sortedRecommendation));
 
         savedTripRepository.save(savedTrip);
     }
@@ -77,12 +82,30 @@ public class SavedTripServiceImpl implements SavedTripService {
     }
 
     private SavedTrip createSavedTrip(Long userId, SaveTripRequestDTO request) {
+        TripRecommendDTO sortedRecommendation = tripScheduleSorter.sort(request.getRecommendation());
+
         return SavedTrip.builder()
                 .userId(userId)
                 .conditionsJson(savedTripMapper.toJson(request.getConditions()))
-                .recommendationJson(savedTripMapper.toJson(request.getRecommendation()))
+                .recommendationJson(savedTripMapper.toJson(sortedRecommendation))
                 .flightSelectionJson(savedTripMapper.toJson(request.getFlightSelection()))
                 .accommodationSelectionJson(savedTripMapper.toJson(request.getAccommodationSelection()))
+                .build();
+    }
+
+    private SavedTripDTO sortRecommendation(SavedTripDTO savedTripDTO) {
+        if (savedTripDTO == null) {
+            return null;
+        }
+
+        return SavedTripDTO.builder()
+                .savedTripId(savedTripDTO.getSavedTripId())
+                .userId(savedTripDTO.getUserId())
+                .conditions(savedTripDTO.getConditions())
+                .recommendation(tripScheduleSorter.sort(savedTripDTO.getRecommendation()))
+                .flightSelection(savedTripDTO.getFlightSelection())
+                .accommodationSelection(savedTripDTO.getAccommodationSelection())
+                .createdDate(savedTripDTO.getCreatedDate())
                 .build();
     }
 }

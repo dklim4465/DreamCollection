@@ -146,6 +146,7 @@ export interface SaveTripRequest {
 
 export interface TripFlowState {
   conditions: PlanRequest;
+  planningMode?: "ai" | "manual";
   flightSelection?: FlightSelection | null;
   accommodationSelection?: AccommodationSelection | null;
 }
