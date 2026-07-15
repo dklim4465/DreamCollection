@@ -11,7 +11,7 @@ import TripLogSidebarComponent from "@/travelog/components/mainPage/TripLogSideb
 import TripLogModalComponent from "@/travelog/components/mainPage/TripLogModalComponent";
 import { useCreateTripLog } from "@/travelog/hooks/useCreateTripLog";
 import { useDeleteTripLog } from "@/travelog/hooks/useDeleteTripLog";
-import { uploadMediaInChunks } from "@/travelog/utils/uploadMediaInChunks";
+import { startUpload } from "@/travelog/service/UploadManager";
 
 const TripLogMainPage = () => {
   const [searchKeyword, setSearchKeyword] = useState("");
@@ -26,7 +26,7 @@ const TripLogMainPage = () => {
   const createMutation = useCreateTripLog();
   const deleteMutation = useDeleteTripLog();
 
-  const [uploadProgress, setUploadProgress] = useState(0);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const {
     data: tripLogs = [],
@@ -36,6 +36,7 @@ const TripLogMainPage = () => {
 
   const handleDetailClick = (tripLog: TripLogResponseDTO) => {
     setSelectedTripLog(tripLog);
+    setSidebarOpen(true);
   };
 
   const handleDeleteClick = (tripLog: TripLogResponseDTO) => {
@@ -45,12 +46,10 @@ const TripLogMainPage = () => {
 
   const handleCreate = async (request: TripLogRequestDTO, files: File[]) => {
     try {
-      setUploadProgress(0);
-
       const tno = await createMutation.mutateAsync(request);
 
       if (files.length > 0) {
-        await uploadMediaInChunks(tno, files, setUploadProgress);
+        await startUpload(tno, files);
       }
 
       setModalType(null);
@@ -96,9 +95,12 @@ const TripLogMainPage = () => {
       </div>
 
       <TripLogSidebarComponent
-        open={selectedTripLog !== null}
+        open={sidebarOpen}
         tripLog={selectedTripLog}
-        onClose={() => setSelectedTripLog(null)}
+        onClose={() => {
+          setSelectedTripLog(null);
+          setSidebarOpen(false);
+        }}
       />
 
       <TripLogModalComponent
@@ -107,7 +109,6 @@ const TripLogMainPage = () => {
         onClose={() => setModalType(null)}
         onCreate={handleCreate}
         onDelete={handleDelete}
-        progress={uploadProgress}
       />
     </div>
   );

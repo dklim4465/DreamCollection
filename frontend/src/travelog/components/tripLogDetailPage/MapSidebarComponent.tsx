@@ -1,7 +1,7 @@
 import GalleryView from "@/travelog/components/tripLogDetailPage/GalleryView";
 import SpotListView from "@/travelog/components/tripLogDetailPage/SpotListView";
+import { startUpload } from "@/travelog/service/UploadManager";
 import { useSidebarStore } from "@/travelog/store/useSidebarStore";
-import { uploadMediaInChunks } from "@/travelog/utils/uploadMediaInChunks";
 import React, { useRef } from "react";
 import { useParams } from "react-router-dom";
 
@@ -24,9 +24,7 @@ const MapSidebarComponent = () => {
     if (!files || files.length === 0) return;
 
     try {
-      await uploadMediaInChunks(Number(tno), Array.from(files), (progress) => {
-        console.log(progress);
-      });
+      await startUpload(Number(tno), Array.from(files));
     } catch (error) {
       console.error(error);
       alert("업로드에 실패했습니다.");

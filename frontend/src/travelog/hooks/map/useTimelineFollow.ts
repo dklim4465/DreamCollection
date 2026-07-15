@@ -7,9 +7,12 @@ export const useTimelineFollow = () => {
   const { map } = useMap();
 
   const spots = useSpotStore((state) => state.spots);
+
   const progress = useTimelineStore((state) => state.progress);
+  const playing = useTimelineStore((state) => state.playing);
 
   useEffect(() => {
+    if (!playing && progress === 0) return;
     if (!map || spots.length === 0) return;
 
     if (spots.length === 1) {

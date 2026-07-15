@@ -7,7 +7,6 @@ interface TripLogModalProps {
   onClose: () => void;
   onCreate: (request: TripLogRequestDTO, files: File[]) => void;
   onDelete: () => void;
-  progress: number;
 }
 
 const TripLogModalComponent = ({
@@ -16,7 +15,6 @@ const TripLogModalComponent = ({
   onClose,
   onCreate,
   onDelete,
-  progress,
 }: TripLogModalProps) => {
   const [request, setRequest] = useState<TripLogRequestDTO>({
     title: "",
