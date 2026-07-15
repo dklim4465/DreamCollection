@@ -20,7 +20,7 @@ export default function TripAccommodationSelector({
   onSelect,
 }: TripAccommodationSelectorProps) {
   return (
-    <div className="mt-stack-lg grid gap-stack-sm md:grid-cols-2 xl:grid-cols-3">
+    <div className="mt-stack-lg grid gap-stack-md md:grid-cols-2 xl:grid-cols-3">
       {isLoading && (
         <div className="md:col-span-2 xl:col-span-3">
           <LoadingSpinner message="숙소 검색 중..." />
@@ -28,13 +28,13 @@ export default function TripAccommodationSelector({
       )}
 
       {isError && (
-        <p className="rounded-lg border border-error/30 bg-error/5 p-stack-md text-label-md text-error md:col-span-2 xl:col-span-3">
+        <p className="rounded-xl border border-error/30 bg-error/5 p-stack-md text-label-md text-error md:col-span-2 xl:col-span-3">
           숙소 추천을 불러오지 못했습니다.
         </p>
       )}
 
       {!isLoading && !isError && accommodations.length === 0 && (
-        <p className="rounded-lg border border-outline-variant/70 bg-surface-container-low p-stack-md text-label-md text-on-surface-variant md:col-span-2 xl:col-span-3">
+        <p className="trip-status-message md:col-span-2 xl:col-span-3">
           선택할 수 있는 숙소 추천이 없습니다.
         </p>
       )}
@@ -65,20 +65,20 @@ function AccommodationCard({
       type="button"
       onClick={onSelect}
       className={[
-        "overflow-hidden rounded-lg border bg-surface-container-lowest text-left transition",
+        "overflow-hidden rounded-xl border bg-surface-container-lowest text-left shadow-glow transition-colors",
         selected
-          ? "border-primary ring-2 ring-primary/15"
-          : "border-outline-variant/70 hover:border-primary/60",
+          ? "border-primary bg-primary/5"
+          : "border-outline-variant/50 hover:border-primary/60",
       ].join(" ")}
     >
       {accommodation.imageUrl ? (
         <img
           src={accommodation.imageUrl}
           alt=""
-          className="h-36 w-full object-cover"
+          className="h-40 w-full object-cover"
         />
       ) : (
-        <div className="flex h-36 w-full items-center justify-center bg-primary-container text-on-primary-container">
+        <div className="flex h-40 w-full items-center justify-center bg-primary/10 text-primary">
           <span className="material-symbols-outlined text-[36px]">hotel</span>
         </div>
       )}
@@ -86,14 +86,14 @@ function AccommodationCard({
       <div className="p-stack-md">
         <div className="flex items-start justify-between gap-stack-sm">
           <div>
-            <p className="text-label-md font-bold text-primary">
+            <p className="text-label-md font-bold text-tertiary">
               {accommodation.accommodationType ?? "숙소"}
             </p>
             <h2 className="mt-1 line-clamp-2 text-body-md font-bold text-on-surface">
               {accommodation.accommodationName ?? "숙소 이름 미정"}
             </h2>
           </div>
-          <p className="shrink-0 text-label-md font-bold text-on-surface">
+          <p className="shrink-0 rounded-lg bg-surface-container-low px-2 py-1 text-label-sm font-bold text-on-surface">
             {formatRating(accommodation.rating)}
           </p>
         </div>

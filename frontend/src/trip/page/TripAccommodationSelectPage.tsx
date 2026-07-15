@@ -2,7 +2,8 @@ import { useEffect, useRef, useState } from "react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { Navigate, useLocation, useNavigate } from "react-router-dom";
 import LoadingSpinner from "@/common/component/LoadingSpinner";
-import TripAccommodationSelector from "@/trip/components/TripAccommodationSelector";
+import TripAccommodationSelector from "@/trip/components/fliAndAcc/TripAccommodationSelector";
+import "@/trip/styles/trip.css";
 import {
   tripApi,
   type AccommodationOption,
@@ -101,17 +102,19 @@ export default function TripAccommodationSelectPage() {
 
   if (skipAccommodation) {
     return (
-      <div className="card-base border border-outline-variant/60 p-stack-lg">
+      <div className="trip-surface p-stack-lg">
         <LoadingSpinner message="결과 생성 중..." />
       </div>
     );
   }
 
   return (
-    <div className="space-y-stack-md">
-      <section className="card-base border border-outline-variant/60 p-stack-lg">
-        <div className="flex items-start gap-stack-sm">
-          <span className="material-symbols-outlined text-primary">hotel</span>
+    <div className="trip-page">
+      <section className="trip-surface p-stack-lg">
+        <div className="trip-section-header">
+          <span className="trip-section-icon">
+            <span className="material-symbols-outlined">hotel</span>
+          </span>
           <div>
             <h1 className="text-headline-sm font-bold text-on-surface">
               숙소 선택
@@ -131,7 +134,7 @@ export default function TripAccommodationSelectPage() {
         />
       </section>
 
-      <div className="card-base flex items-center justify-between gap-stack-md border border-outline-variant/60 p-stack-md">
+      <div className="trip-action-bar">
         <button type="button" onClick={handleBack} className="btn-ghost">
           이전
         </button>

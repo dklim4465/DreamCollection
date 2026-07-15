@@ -11,7 +11,8 @@ import {
   type TripFlowState,
   type TripOptionType,
 } from "@/trip/api/trip";
-import DestinationSelector from "@/trip/components/DestinationSelector";
+import DestinationSelector from "@/trip/components/planning/DestinationSelector";
+import "@/trip/styles/trip.css";
 
 type FlightPrepareType = "recommend" | "booked";
 type AccommodationPrepareType = "recommend" | "booked";
@@ -123,19 +124,76 @@ export default function TravelPlanPage() {
   };
 
   return (
-    <div className="space-y-stack-md">
+    <div className="trip-page">
+      <section className="grid gap-stack-sm md:grid-cols-3">
+        <button
+          type="button"
+          onClick={handleSubmit}
+          disabled={!isReady}
+          className="trip-action-card disabled:cursor-not-allowed disabled:opacity-50"
+        >
+          <span className="trip-section-icon">
+            <span className="material-symbols-outlined">auto_awesome</span>
+          </span>
+          <span className="min-w-0">
+            <span className="block text-body-md font-bold text-on-surface">
+              AI 자동 생성하기
+            </span>
+            <span className="mt-1 block text-label-md text-on-surface-variant">
+              아래 조건을 전부 선택해 주세요.
+            </span>
+          </span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => window.alert("개인 일정 생성 기능은 준비 중입니다.")}
+          className="trip-action-card border-dashed"
+        >
+          <span className="trip-section-icon">
+            <span className="material-symbols-outlined">edit_calendar</span>
+          </span>
+          <span className="min-w-0">
+            <span className="block text-body-md font-bold text-on-surface">
+              개인 일정 생성하기
+            </span>
+            <span className="mt-1 block text-label-md text-on-surface-variant">
+              직접 구성 기능은 준비 중이에요.
+            </span>
+          </span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => navigate("/trip/saved")}
+          className="trip-action-card"
+        >
+          <span className="trip-section-icon">
+            <span className="material-symbols-outlined">event_note</span>
+          </span>
+          <span className="min-w-0">
+            <span className="block text-body-md font-bold text-on-surface">
+              내 일정 보러가기
+            </span>
+            <span className="mt-1 block text-label-md text-on-surface-variant">
+              저장한 일정을 확인해요.
+            </span>
+          </span>
+        </button>
+      </section>
+
       <div className="grid gap-stack-md xl:grid-cols-[minmax(0,1.25fr)_minmax(420px,0.75fr)]">
-        <section className="card-base border border-outline-variant/60 p-stack-lg">
-          <div className="flex items-start gap-stack-sm">
-            <span className="material-symbols-outlined text-primary">
-              auto_awesome
+        <section className="trip-surface p-stack-lg">
+          <div className="trip-section-header">
+            <span className="trip-section-icon">
+              <span className="material-symbols-outlined">auto_awesome</span>
             </span>
             <div>
               <h1 className="text-headline-sm font-bold text-on-surface">
                 기본 조건 선택
               </h1>
               <p className="mt-1 text-label-md text-on-surface-variant">
-                5가지 기본 조건을 간단히 선택해 주세요.
+                아래 조건을 선택해 주세요.
               </p>
             </div>
           </div>
@@ -180,7 +238,7 @@ export default function TravelPlanPage() {
               ))}
             </div>
 
-            <aside className="rounded-lg border border-outline-variant/60 bg-surface-container-lowest p-stack-md">
+            <aside className="trip-muted-panel">
               <div className="flex items-center gap-2">
                 <span className="material-symbols-outlined text-[20px] text-primary">
                   fact_check
@@ -242,7 +300,7 @@ export default function TravelPlanPage() {
               <p className="mb-2 text-label-md font-bold text-on-surface-variant">
                 우선 기준
               </p>
-              <div className="grid grid-cols-2 overflow-hidden rounded-lg border border-primary/40 text-center text-label-md font-bold">
+              <div className="grid grid-cols-2 overflow-hidden rounded-xl border border-primary/40 text-center text-label-md font-bold">
                 <button
                   type="button"
                   disabled={flightPrepare !== "recommend"}
@@ -291,27 +349,6 @@ export default function TravelPlanPage() {
           </PreparePanel>
         </div>
       </div>
-
-      <div className="card-base flex items-center justify-between gap-stack-md border border-outline-variant/60 p-stack-md">
-        <button
-          type="button"
-          onClick={() => navigate("/trip")}
-          className="btn-ghost"
-        >
-          이전
-        </button>
-        <button
-          type="button"
-          onClick={handleSubmit}
-          disabled={!isReady}
-          className="btn-primary min-w-[180px] disabled:opacity-50"
-        >
-          다음 단계
-          <span className="material-symbols-outlined ml-2 align-[-5px] text-[18px]">
-            arrow_forward
-          </span>
-        </button>
-      </div>
     </div>
   );
 }
@@ -335,13 +372,13 @@ function ConditionRow({
   });
 
   return (
-    <div className="rounded-lg border border-outline-variant/60 bg-surface-container-lowest">
+    <div className="trip-condition-row">
       <button
         type="button"
         onClick={onToggle}
         className="flex w-full items-center gap-stack-md px-stack-md py-stack-md text-left"
       >
-        <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-primary-container text-on-primary-container">
+        <span className="trip-section-icon">
           <span className="material-symbols-outlined">
             {tripOptionIcons[type]}
           </span>
@@ -374,8 +411,8 @@ function ConditionRow({
                     onClick={() => onSelect(option)}
                     className={
                       selected
-                        ? "rounded-lg bg-primary px-4 py-3 text-label-md font-bold text-on-primary"
-                        : "rounded-lg bg-surface-container-low px-4 py-3 text-label-md font-bold text-on-surface transition hover:bg-primary-container"
+                        ? "trip-choice trip-choice-selected"
+                        : "trip-choice"
                     }
                   >
                     {option}
@@ -401,7 +438,7 @@ function SummaryItem({
 }) {
   return (
     <div className="flex gap-stack-sm">
-      <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+      <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-surface-container-lowest text-primary">
         <span className="material-symbols-outlined text-[18px]">{icon}</span>
       </span>
       <div className="min-w-0">
@@ -428,9 +465,11 @@ function PreparePanel({
   children: React.ReactNode;
 }) {
   return (
-    <section className="card-base border border-outline-variant/60 p-stack-lg">
-      <div className="flex items-start gap-stack-sm">
-        <span className="material-symbols-outlined text-primary">{icon}</span>
+    <section className="trip-surface p-stack-lg">
+      <div className="trip-section-header">
+        <span className="trip-section-icon">
+          <span className="material-symbols-outlined">{icon}</span>
+        </span>
         <div>
           <h2 className="text-headline-sm font-bold text-on-surface">
             {title}
@@ -464,10 +503,10 @@ function PrepareCard({
       type="button"
       onClick={onClick}
       className={[
-        "relative flex min-h-[132px] flex-col items-center justify-center rounded-lg border p-stack-md text-center transition",
+        "relative flex min-h-[132px] flex-col items-center justify-center rounded-xl border p-stack-md text-center transition-colors",
         selected
-          ? "border-primary bg-primary/5 ring-2 ring-primary/15"
-          : "border-outline-variant bg-surface-container-lowest hover:border-primary/50",
+          ? "border-primary bg-primary/10"
+          : "border-outline-variant/60 bg-surface-container-low hover:border-primary/50 hover:bg-primary/5",
       ].join(" ")}
     >
       <span
