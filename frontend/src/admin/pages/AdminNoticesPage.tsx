@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { adminApi, type NoticeAdminForm, type NoticeItem } from "@/admin/api/adminApi";
 
-const EMPTY_FORM: NoticeAdminForm = { title: "", content: "", pinned: false };
+const EMPTY_FORM: NoticeAdminForm = { title: "", content: "", couponCode: "", pinned: false };
 
 export default function AdminNoticesPage() {
   const queryClient = useQueryClient();
@@ -44,13 +44,25 @@ export default function AdminNoticesPage() {
 
   const toggleActiveMutation = useMutation({
     mutationFn: (n: NoticeItem) =>
-      adminApi.updateNotice(n.id, { title: n.title, content: n.content, pinned: n.pinned, active: !n.active }),
+      adminApi.updateNotice(n.id, {
+        title: n.title,
+        content: n.content,
+        couponCode: n.couponCode ?? "",
+        pinned: n.pinned,
+        active: !n.active,
+      }),
     onSuccess: invalidate,
   });
 
   const startEdit = (n: NoticeItem) => {
     setEditingId(n.id);
-    setForm({ title: n.title, content: n.content, pinned: n.pinned, active: n.active });
+    setForm({
+      title: n.title,
+      content: n.content,
+      couponCode: n.couponCode ?? "",
+      pinned: n.pinned,
+      active: n.active,
+    });
   };
 
   const cancelEdit = () => {
@@ -86,6 +98,17 @@ export default function AdminNoticesPage() {
           onChange={(e) => setForm({ ...form, content: e.target.value })}
           required
         />
+        <div className="flex flex-col gap-1">
+          <input
+            className="input-base"
+            placeholder="쿠폰 코드 (선택, 예: WELCOME10) — 입력하면 상세페이지에 [쿠폰받기] 버튼이 붙어요"
+            value={form.couponCode ?? ""}
+            onChange={(e) => setForm({ ...form, couponCode: e.target.value })}
+          />
+          <p className="text-label-sm text-on-surface-variant">
+            비워두면 일반 공지, coupon 테이블의 코드를 입력하면 쿠폰 지급형 공지가 돼요.
+          </p>
+        </div>
         <label className="flex items-center gap-2 text-body-sm">
           <input
             type="checkbox"
@@ -119,6 +142,9 @@ export default function AdminNoticesPage() {
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-1.5">
                     {n.pinned && <span className="chip-tertiary text-[10px]">고정</span>}
+                    {n.couponCode && (
+                      <span className="chip-primary text-[10px]">쿠폰 {n.couponCode}</span>
+                    )}
                     <p className="text-body-sm font-semibold truncate">{n.title}</p>
                   </div>
                   <p className="text-label-sm text-on-surface-variant truncate mt-0.5">{n.content}</p>

@@ -25,12 +25,15 @@ public class MatePostDetailResponseDTO {
     private final Integer recruitCount;
     private final String status;
     private final LocalDateTime createdAt;
+    private final String nickname;
+    private final String profileImageUrl;
 
-    public static MatePostDetailResponseDTO from(MatePost post) {
+    public static MatePostDetailResponseDTO from(MatePost post, String nickname, String profileImageUrl) {
         return new MatePostDetailResponseDTO(
                 post.getId(), post.getUserId(), post.getCityId(), post.getDestination(), post.getStartDate(),
                 post.getEndDate(), post.getContent(), post.getPreferredAge(), post.getPreferredGender(),
-                post.getTravelStyle(), post.getRecruitCount(), post.getStatus(), post.getCreatedAt()
+                post.getTravelStyle(), post.getRecruitCount(), post.getStatus(), post.getCreatedAt(),
+                nickname, profileImageUrl
         );
 
     }

@@ -1,3 +1,4 @@
+// src/main/java/com/dreamCollection/mate/entity/MatePost.java
 package com.dreamCollection.mate.entity;
 
 import jakarta.persistence.*;
@@ -71,5 +72,15 @@ public class MatePost {
         this.travelStyle = travelStyle;
         this.recruitCount = recruitCount != null ? recruitCount : 1;
         this.status = "RECRUITING";
+    }
+
+    /**
+     * 소프트 삭제 — row를 진짜로 지우지 않고 status만 DELETED로 바꾼다.
+     * 이 글을 참조하는 chat_room(mate_post_id NOT NULL FK)이 있으면 실제 삭제 시
+     * FK ON DELETE CASCADE로 채팅방/채팅 기록까지 같이 사라지기 때문에,
+     * 채팅방을 보존하기 위해 하드 삭제 대신 이 방식을 쓴다.
+     */
+    public void markAsDeleted() {
+        this.status = "DELETED";
     }
 }

@@ -2,7 +2,6 @@ package com.dreamCollection.user.service;
 
 import com.dreamCollection.auth.service.KakaoOauthClient;
 import com.dreamCollection.badge.service.BadgeService;
-import com.dreamCollection.coupon.service.CouponService;
 import com.dreamCollection.global.exception.BusinessException;
 import com.dreamCollection.global.exception.NicknameChangeCooldownException;
 import com.dreamCollection.user.dto.AuthResponse;
@@ -57,7 +56,6 @@ public class UserService {
     private final RefreshTokenService refreshTokenService;
     private final KakaoOauthClient kakaoOauthClient;
     private final BadgeService badgeService;
-    private final CouponService couponService;
 
     /**
      * 프론트: authApi.getMe() → GET /api/auth/me
@@ -169,12 +167,9 @@ public class UserService {
             log.warn("가입 축하 뱃지 지급 실패 (userId={})", saved.getId(), e);
         }
 
-        // 7월 신규가입 이벤트: 10% 할인 쿠폰 자동 지급 (쿠폰 지급 실패해도 회원가입은 막지 않음)
-        try {
-            couponService.grantWelcomeCoupon(saved.getId());
-        } catch (Exception e) {
-            log.warn("신규가입 쿠폰 지급 실패 (userId={})", saved.getId(), e);
-        }
+        // 7월 신규가입 이벤트 쿠폰(WELCOME10)은 더 이상 가입 시 자동 지급하지 않는다.
+        // 대신 공지사항에 안내글을 올려두고, 사용자가 직접 열람 후 [쿠폰받기] 버튼을
+        // 눌러야 지급되도록 바뀌었다 (CouponController#claimCoupon, coupon_code 참조).
 
         // 카드 정보(cardNumber/cardExpiry/cardCvc)는 의도적으로 저장하지 않음
         // PCI-DSS 규정상 원본 카드 정보는 PG사에서만 다뤄야 함
@@ -255,11 +250,7 @@ public class UserService {
         } catch (Exception e) {
             log.warn("가입 축하 뱃지 지급 실패 (userId={})", saved.getId(), e);
         }
-        try {
-            couponService.grantWelcomeCoupon(saved.getId());
-        } catch (Exception e) {
-            log.warn("신규가입 쿠폰 지급 실패 (userId={})", saved.getId(), e);
-        }
+        // 웰컴 쿠폰은 공지사항 [쿠폰받기] 버튼을 통해서만 지급 (자동 지급하지 않음)
         return saved;
     }
 

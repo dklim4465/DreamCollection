@@ -38,10 +38,10 @@ export default function SearchBar() {
 
   const cities = data?.data?.data ?? [];
 
-  const goToDestination = (nameKo: string) => {
+  const goToDestination = (cityId: number) => {
     setOpen(false);
     setValue("");
-    navigate(`/trip/new?destination=${encodeURIComponent(nameKo)}`);
+    navigate(`/destinations/${cityId}`);
   };
 
   return (
@@ -81,7 +81,7 @@ export default function SearchBar() {
                 <button
                   key={city.id}
                   type="button"
-                  onClick={() => goToDestination(city.nameKo)}
+                  onClick={() => goToDestination(city.id)}
                   className="chip-primary hover:opacity-80 transition-opacity"
                 >
                   {city.nameKo}

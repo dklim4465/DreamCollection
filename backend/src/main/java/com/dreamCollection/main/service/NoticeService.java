@@ -52,6 +52,7 @@ public class NoticeService {
                 .adminId(adminId)
                 .title(request.title())
                 .content(request.content())
+                .couponCode(blankToNull(request.couponCode()))
                 .build();
         if (Boolean.TRUE.equals(request.pinned())) notice.setPinned(true);
         if (request.active() != null) notice.setActive(request.active());
@@ -65,10 +66,15 @@ public class NoticeService {
 
         notice.setTitle(request.title());
         notice.setContent(request.content());
+        notice.setCouponCode(blankToNull(request.couponCode()));
         if (request.pinned() != null) notice.setPinned(request.pinned());
         if (request.active() != null) notice.setActive(request.active());
 
         return NoticeResponse.from(notice);
+    }
+
+    private String blankToNull(String value) {
+        return (value == null || value.isBlank()) ? null : value.trim();
     }
 
     @Transactional

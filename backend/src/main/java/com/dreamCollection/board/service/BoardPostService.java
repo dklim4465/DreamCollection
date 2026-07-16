@@ -1,5 +1,7 @@
+// src/main/java/com/dreamCollection/board/service/BoardPostService.java
 package com.dreamCollection.board.service;
 
+import com.dreamCollection.board.dto.AuthorLevelBadgeInfo;
 import com.dreamCollection.board.dto.BoardPostCreateRequestDTO;
 import com.dreamCollection.board.dto.BoardPostDetailResponseDTO;
 import com.dreamCollection.board.dto.BoardPostListResponseDTO;
@@ -7,7 +9,10 @@ import com.dreamCollection.board.dto.BoardPostUpdateRequestDTO;
 import com.dreamCollection.board.entity.BoardPost;
 import com.dreamCollection.board.exception.PostAccessDeniedException;
 import com.dreamCollection.board.exception.PostNotFoundException;
+import com.dreamCollection.board.repository.BoardCommentRepository;
+import com.dreamCollection.board.repository.BoardLikeRepository;
 import com.dreamCollection.board.repository.BoardPostRepository;
+import com.dreamCollection.user.entity.User;
 import com.dreamCollection.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -22,6 +27,9 @@ public class BoardPostService {
 
     private final BoardPostRepository boardPostRepository;
     private final UserRepository userRepository;
+    private final BoardLikeRepository boardLikeRepository;
+    private final BoardCommentRepository boardCommentRepository;
+    private final BoardAuthorLevelBadgeService authorLevelBadgeService;
 
     @Transactional
     public BoardPostDetailResponseDTO createPost(Long userId, BoardPostCreateRequestDTO requestDTO){
@@ -34,7 +42,13 @@ public class BoardPostService {
                 .build();
 
         BoardPost saved = boardPostRepository.save(post);
-        return BoardPostDetailResponseDTO.from(saved);
+        User user = userRepository.findById(userId).orElse(null);
+        return BoardPostDetailResponseDTO.from(
+                saved,
+                user != null ? user.getNickname() : "알 수 없음",
+                user != null ? user.getProfileImageUrl() : null,
+                false
+        );
     }
 
     @Transactional(readOnly = true)
@@ -43,18 +57,27 @@ public class BoardPostService {
                 ? boardPostRepository.findAllByOrderByCreatedAtDesc(pageable)
                 : boardPostRepository.findByCategoryOrderByCreatedAtDesc(category, pageable);
         return posts.map(post -> {
-            String nickname = userRepository.findById(post.getUserId())
-                    .map(u -> u.getNickname())
-                    .orElse("알 수 없음");
-            return BoardPostListResponseDTO.from(post, nickname);
+            User user = userRepository.findById(post.getUserId()).orElse(null);
+            String nickname = user != null ? user.getNickname() : "알 수 없음";
+            String profileImageUrl = user != null ? user.getProfileImageUrl() : null;
+            long commentCount = boardCommentRepository.countByPostId(post.getId());
+            AuthorLevelBadgeInfo levelBadgeInfo = authorLevelBadgeService.resolve(post.getUserId());
+            return BoardPostListResponseDTO.from(post, nickname, profileImageUrl, commentCount, levelBadgeInfo);
         });
     }
 
     @Transactional
-    public BoardPostDetailResponseDTO getPostDetail(Long postId){
+    public BoardPostDetailResponseDTO getPostDetail(Long postId, Long viewerId){
         BoardPost post = findPostOrThrow(postId);
         post.increaseViewCount();
-        return BoardPostDetailResponseDTO.from(post);
+        User user = userRepository.findById(post.getUserId()).orElse(null);
+        boolean liked = viewerId != null && boardLikeRepository.existsByPostIdAndUserId(postId, viewerId);
+        return BoardPostDetailResponseDTO.from(
+                post,
+                user != null ? user.getNickname() : "알 수 없음",
+                user != null ? user.getProfileImageUrl() : null,
+                liked
+        );
     }
 
     @Transactional
@@ -69,7 +92,14 @@ public class BoardPostService {
             post.setTradeStatus(requestDTO.getTradeStatus());
         }
 
-        return BoardPostDetailResponseDTO.from(post);
+        User user = userRepository.findById(post.getUserId()).orElse(null);
+        boolean liked = boardLikeRepository.existsByPostIdAndUserId(postId, userId);
+        return BoardPostDetailResponseDTO.from(
+                post,
+                user != null ? user.getNickname() : "알 수 없음",
+                user != null ? user.getProfileImageUrl() : null,
+                liked
+        );
     }
 
     @Transactional

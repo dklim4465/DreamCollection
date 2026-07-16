@@ -1,3 +1,4 @@
+// src/main/java/com/dreamCollection/board/dto/BoardPostListResponseDTO.java
 package com.dreamCollection.board.dto;
 
 import com.dreamCollection.board.entity.BoardPost;
@@ -21,8 +22,14 @@ public class BoardPostListResponseDTO {
     private final LocalDateTime createdAt;
     private final Long userId;
     private final String nickname;
+    private final String profileImageUrl;
+    private final long commentCount;
+    private final int level;
+    private final String badgeName;
+    private final String badgeIconUrl;
+    private final String badgeConditionType;
 
-    public static BoardPostListResponseDTO from(BoardPost post, String nickname) {
+    public static BoardPostListResponseDTO from(BoardPost post, String nickname, String profileImageUrl, long commentCount, AuthorLevelBadgeInfo levelBadgeInfo) {
         return new BoardPostListResponseDTO(
                 post.getId(),
                 post.getCategory(),
@@ -33,7 +40,13 @@ public class BoardPostListResponseDTO {
                 post.getTradeStatus(),
                 post.getCreatedAt(),
                 post.getUserId(),
-                nickname
+                nickname,
+                profileImageUrl,
+                commentCount,
+                levelBadgeInfo.level(),
+                levelBadgeInfo.badgeName(),
+                levelBadgeInfo.badgeIconUrl(),
+                levelBadgeInfo.badgeConditionType()
         );
     }
 }

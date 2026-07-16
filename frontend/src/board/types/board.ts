@@ -1,3 +1,4 @@
+// src/board/types/board.ts
 export const BOARD_CATEGORIES = ["ALL", "FREE", "TRANSFER", "REVIEW"] as const;
 export type BoardCategory = (typeof BOARD_CATEGORIES)[number];
 
@@ -31,6 +32,12 @@ export interface BoardPostListItem {
   createdAt: string;
   userId: number;
   nickname: string;
+  profileImageUrl: string | null;
+  commentCount: number;
+  level: number;
+  badgeName: string | null;
+  badgeIconUrl: string | null;
+  badgeConditionType: string | null;
 }
 
 export interface BoardPostDetail {
@@ -44,6 +51,9 @@ export interface BoardPostDetail {
   likeCount: number;
   tradeStatus: string | null;
   createdAt: string;
+  nickname: string;
+  profileImageUrl: string | null;
+  liked: boolean;
 }
 
 export interface BoardPostCreateRequest {
@@ -67,6 +77,8 @@ export interface BoardComment {
   parentCommentId: number | null;
   content: string;
   createdAt: string;
+  nickname: string;
+  profileImageUrl: string | null;
 }
 
 export interface BoardCommentCreateRequest {

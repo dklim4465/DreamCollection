@@ -50,11 +50,12 @@ public class BoardPostController {
 
     @GetMapping("/{postId}")
     public ApiResponse<BoardPostDetailResponseDTO> getPostDetail(
+            @AuthenticationPrincipal Long userId,
             @PathVariable Long postId
     ) {
 
         BoardPostDetailResponseDTO response =
-                boardPostService.getPostDetail(postId);
+                boardPostService.getPostDetail(postId, userId);
 
         return ApiResponse.ok(response);
     }

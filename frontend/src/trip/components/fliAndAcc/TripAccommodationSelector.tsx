@@ -3,7 +3,6 @@ import type {
   AccommodationOption,
   AccommodationSelection,
 } from "@/trip/api/trip";
-
 interface TripAccommodationSelectorProps {
   isLoading: boolean;
   isError: boolean;

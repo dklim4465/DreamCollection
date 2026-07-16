@@ -8,9 +8,11 @@ public record CityResponse(
         Long id,
         String nameKo,
         String nameEn,
+        String countryCode,
         String countryName,
         BigDecimal latitude,
         BigDecimal longitude,
+        String timezone,
         String imageUrl
 ) {
     public static CityResponse from(City city) {
@@ -18,9 +20,11 @@ public record CityResponse(
                 city.getId(),
                 city.getNameKo(),
                 city.getNameEn(),
+                city.getCountryCode(),
                 city.getCountryName(),
                 city.getLatitude(),
                 city.getLongitude(),
+                city.getTimezone(),
                 city.getImageUrl()
         );
     }

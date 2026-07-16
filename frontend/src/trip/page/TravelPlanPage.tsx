@@ -90,98 +90,59 @@ export default function TravelPlanPage() {
     setActiveType((prev) => (prev === type ? null : type));
   };
 
-  const handleSubmit = () => {
+  const createPlanRequest = (): PlanRequest => ({
+    ...(conditions as PlanRequest),
+    flightCondition:
+      flightPrepare === "recommend"
+        ? {
+            skip: false,
+            priority: flightPriority,
+            seatClass: "ECONOMY",
+            directOnly: false,
+          }
+        : {
+            skip: true,
+          },
+    accommodationCondition:
+      accommodationPrepare === "recommend"
+        ? {
+            skip: false,
+          }
+        : {
+            skip: true,
+          },
+  });
+
+  const handleStartPlanning = (planningMode: "ai" | "manual") => {
     if (!isReady) return;
 
-    const request: PlanRequest = {
-      ...(conditions as PlanRequest),
-      flightCondition:
-        flightPrepare === "recommend"
-          ? {
-              skip: false,
-              priority: flightPriority,
-              seatClass: "ECONOMY",
-              directOnly: false,
-            }
-          : {
-              skip: true,
-            },
-      accommodationCondition:
-        accommodationPrepare === "recommend"
-          ? {
-              skip: false,
-            }
-          : {
-              skip: true,
-            },
-    };
+    const request = createPlanRequest();
 
     const flowState: TripFlowState = {
       conditions: request,
+      planningMode,
     };
 
-    navigate("/trip/flight", { state: flowState });
+    const entryPath = getTripFlowEntryPath(request);
+
+    navigate(entryPath, {
+      state:
+        entryPath === "/trip/result"
+          ? {
+              ...flowState,
+              pendingBuild: true,
+            }
+          : flowState,
+    });
   };
+
+  const handleAiSubmit = () => handleStartPlanning("ai");
+
+  const handleManualSubmit = () => handleStartPlanning("manual");
 
   return (
     <div className="trip-page">
-      <section className="grid gap-stack-sm md:grid-cols-3">
-        <button
-          type="button"
-          onClick={handleSubmit}
-          disabled={!isReady}
-          className="trip-action-card disabled:cursor-not-allowed disabled:opacity-50"
-        >
-          <span className="trip-section-icon">
-            <span className="material-symbols-outlined">auto_awesome</span>
-          </span>
-          <span className="min-w-0">
-            <span className="block text-body-md font-bold text-on-surface">
-              AI 자동 생성하기
-            </span>
-            <span className="mt-1 block text-label-md text-on-surface-variant">
-              아래 조건을 전부 선택해 주세요.
-            </span>
-          </span>
-        </button>
-
-        <button
-          type="button"
-          onClick={() => window.alert("개인 일정 생성 기능은 준비 중입니다.")}
-          className="trip-action-card border-dashed"
-        >
-          <span className="trip-section-icon">
-            <span className="material-symbols-outlined">edit_calendar</span>
-          </span>
-          <span className="min-w-0">
-            <span className="block text-body-md font-bold text-on-surface">
-              개인 일정 생성하기
-            </span>
-            <span className="mt-1 block text-label-md text-on-surface-variant">
-              직접 구성 기능은 준비 중이에요.
-            </span>
-          </span>
-        </button>
-
-        <button
-          type="button"
-          onClick={() => navigate("/trip/saved")}
-          className="trip-action-card"
-        >
-          <span className="trip-section-icon">
-            <span className="material-symbols-outlined">event_note</span>
-          </span>
-          <span className="min-w-0">
-            <span className="block text-body-md font-bold text-on-surface">
-              내 일정 보러가기
-            </span>
-            <span className="mt-1 block text-label-md text-on-surface-variant">
-              저장한 일정을 확인해요.
-            </span>
-          </span>
-        </button>
-      </section>
-
+      <h1 className="text-headline-md font-bold">일정</h1>
       <div className="grid gap-stack-md xl:grid-cols-[minmax(0,1.25fr)_minmax(420px,0.75fr)]">
         <section className="trip-surface p-stack-lg">
           <div className="trip-section-header">
@@ -349,6 +310,62 @@ export default function TravelPlanPage() {
           </PreparePanel>
         </div>
       </div>
+
+      <section className="grid gap-stack-sm md:grid-cols-3">
+        <button
+          type="button"
+          onClick={handleAiSubmit}
+          disabled={!isReady}
+          className="trip-action-card disabled:cursor-not-allowed disabled:opacity-50"
+        >
+          <span className="trip-section-icon">
+            <span className="material-symbols-outlined">auto_awesome</span>
+          </span>
+          <span className="min-w-0">
+            <span className="block text-body-md font-bold text-on-surface">
+              AI 자동 생성하기
+            </span>
+            <span className="mt-1 block text-label-md text-on-surface-variant">
+              선택한 조건을 기반으로 AI가 추천드려요
+            </span>
+          </span>
+        </button>
+
+        <button
+          type="button"
+          onClick={handleManualSubmit}
+          disabled={!isReady}
+          className="trip-action-card border-dashed disabled:cursor-not-allowed disabled:opacity-50"
+        >
+          <span className="trip-section-icon">
+            <span className="material-symbols-outlined">edit_calendar</span>
+          </span>
+          <span className="min-w-0">
+            <span className="block text-body-md font-bold text-on-surface">
+              직접 일정 생성하기
+            </span>
+            <span className="mt-1 block text-label-md text-on-surface-variant">
+              사용자가 직접 일정을 선택합니다
+            </span>
+          </span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => navigate("/trip/saved")}
+          className="trip-action-card"
+        >
+          <span className="trip-section-icon">
+            <span className="material-symbols-outlined">event_note</span>
+          </span>
+          <span className="min-w-0">
+            <span className="block text-body-md font-bold text-on-surface">
+              내 일정 보러가기
+            </span>
+            <span className="mt-1 block text-label-md text-on-surface-variant"></span>
+          </span>
+        </button>
+      </section>
     </div>
   );
 }
@@ -483,6 +500,18 @@ function PreparePanel({
       <div className="mt-stack-md">{children}</div>
     </section>
   );
+}
+
+function getTripFlowEntryPath(request: PlanRequest) {
+  if (!request.flightCondition?.skip) {
+    return "/trip/flight";
+  }
+
+  if (!request.accommodationCondition?.skip) {
+    return "/trip/accommodation";
+  }
+
+  return "/trip/result";
 }
 
 function PrepareCard({
