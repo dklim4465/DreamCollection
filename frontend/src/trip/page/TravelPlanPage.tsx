@@ -1,23 +1,27 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
 import {
-  tripApi,
-  tripOptionIcons,
-  tripOptionLabels,
   tripOptionTypes,
+  type AccommodationCondition,
+  type CityOption,
   type FlightCondition,
   type PlanRequest,
   type TripFlowState,
   type TripOptionType,
 } from "@/trip/api/trip";
-import DestinationSelector from "@/trip/components/planning/DestinationSelector";
+import {
+  DestinationConditionRow,
+  OptionConditionRow,
+  PrepareConditionRow,
+} from "@/trip/components/result/planning/TripConditionRows";
 import "@/trip/styles/trip.css";
 
 type FlightPrepareType = "recommend" | "booked";
 type AccommodationPrepareType = "recommend" | "booked";
 type FlightPriority = NonNullable<FlightCondition["priority"]>;
-type ActiveConditionType = TripOptionType | "destination" | null;
+type AccommodationPriority = NonNullable<AccommodationCondition["priority"]>;
+type BasicConditionType = TripOptionType | "destination";
+type PrepareConditionType = "flight" | "accommodation";
 
 const BASIC_QUESTIONS: Record<TripOptionType, string> = {
   who: "누구와 함께 여행하시나요?",
@@ -26,68 +30,126 @@ const BASIC_QUESTIONS: Record<TripOptionType, string> = {
   level: "어떤 여행 스타일을 선호하시나요?",
 };
 
-const PREPARE_OPTIONS = {
-  flight: [
-    {
-      value: "recommend",
-      icon: "thumb_up",
-      title: "추천 받기",
-      description: "최적의 항공편을 추천해드려요.",
-    },
-    {
-      value: "booked",
-      icon: "confirmation_number",
-      title: "이미 예약함",
-      description: "이미 예약한 항공편이 있어요.",
-    },
-  ],
-  accommodation: [
-    {
-      value: "recommend",
-      icon: "thumb_up",
-      title: "추천 받기",
-      description: "여행지에 맞는 숙소를 추천해드려요.",
-    },
-    {
-      value: "booked",
-      icon: "apartment",
-      title: "이미 예약함",
-      description: "이미 예약한 숙소가 있어요.",
-    },
-  ],
-} as const;
+const BASIC_SUMMARY_LABELS: Record<BasicConditionType, string> = {
+  who: "여행 동행",
+  when: "여행 기간",
+  destination: "여행 지역",
+  theme: "여행 테마",
+  level: "여행 스타일",
+};
+
+const CONDITION_ORDER: BasicConditionType[] = [
+  "who",
+  "when",
+  "destination",
+  "theme",
+  "level",
+];
+
+const FLIGHT_PRIORITY_OPTIONS: Array<{
+  value: FlightPriority;
+  label: string;
+}> = [
+  { value: "PRICE", label: "저렴한 가격 우선" },
+  { value: "TIME", label: "최단 여행 시간 우선" },
+];
+
+const ACCOMMODATION_PRIORITY_OPTIONS: Array<{
+  value: AccommodationPriority;
+  label: string;
+}> = [
+  { value: "PRICE", label: "저렴한 가격 우선" },
+  { value: "LOCATION", label: "좋은 위치 우선" },
+  { value: "RATING", label: "높은 평점 우선" },
+];
 
 export default function TravelPlanPage() {
   const navigate = useNavigate();
-  const [activeType, setActiveType] = useState<ActiveConditionType>("who");
+  const [activeBasicType, setActiveBasicType] =
+    useState<BasicConditionType | null>(null);
+  const [activePrepareType, setActivePrepareType] =
+    useState<PrepareConditionType | null>(null);
   const [conditions, setConditions] = useState<Partial<PlanRequest>>({});
-  const [flightPrepare, setFlightPrepare] =
-    useState<FlightPrepareType>("recommend");
+  const [flightPrepare, setFlightPrepare] = useState<FlightPrepareType | null>(
+    null,
+  );
   const [flightPriority, setFlightPriority] = useState<FlightPriority>("PRICE");
   const [accommodationPrepare, setAccommodationPrepare] =
-    useState<AccommodationPrepareType>("recommend");
+    useState<AccommodationPrepareType | null>(null);
+  const [accommodationPriority, setAccommodationPriority] =
+    useState<AccommodationPriority>("PRICE");
 
   const isReady =
     tripOptionTypes.every((type) => conditions[type]) &&
     !!conditions.region &&
-    !!conditions.destination;
+    !!conditions.destination &&
+    flightPrepare !== null &&
+    accommodationPrepare !== null;
 
   const handleSelect = (type: TripOptionType, selected: string) => {
     setConditions((prev) => ({ ...prev, [type]: selected }));
 
     if (type === "when") {
-      setActiveType("destination");
+      setActiveBasicType("destination");
       return;
     }
 
-    const nextIndex = tripOptionTypes.indexOf(type) + 1;
-    if (nextIndex < tripOptionTypes.length) {
-      setActiveType(tripOptionTypes[nextIndex]);
+    const nextIndex = CONDITION_ORDER.indexOf(type) + 1;
+    if (nextIndex < CONDITION_ORDER.length) {
+      setActiveBasicType(CONDITION_ORDER[nextIndex]);
+    } else {
+      setActiveBasicType(null);
+      setActivePrepareType("flight");
     }
   };
 
-  const handleToggle = (type: ActiveConditionType) => {
-    setActiveType((prev) => (prev === type ? null : type));
+  const handleSelectDestination = (city: CityOption) => {
+    setConditions((prev) => ({
+      ...prev,
+      region: city.countryName,
+      destination: city.nameKo,
+    }));
+    setActiveBasicType("theme");
+  };
+
+  const handleSelectFlightPrepare = (prepare: FlightPrepareType) => {
+    setFlightPrepare(prepare);
+
+    if (prepare === "booked") {
+      setActivePrepareType("accommodation");
+    }
+  };
+
+  const handleSelectFlightPriority = (priority: FlightPriority) => {
+    setFlightPriority(priority);
+    setActivePrepareType("accommodation");
+  };
+
+  const handleSelectAccommodationPrepare = (
+    prepare: AccommodationPrepareType,
+  ) => {
+    setAccommodationPrepare(prepare);
+
+    if (prepare === "booked") {
+      setActivePrepareType(null);
+    }
+  };
+
+  const handleSelectAccommodationPriority = (
+    priority: AccommodationPriority,
+  ) => {
+    setAccommodationPriority(priority);
+    setActivePrepareType(null);
+  };
+
+  const handleReset = () => {
+    setConditions({});
+    setFlightPrepare(null);
+    setFlightPriority("PRICE");
+    setAccommodationPrepare(null);
+    setAccommodationPriority("PRICE");
+    setActiveBasicType(null);
+    setActivePrepareType(null);
   };
 
   const createPlanRequest = (): PlanRequest => ({
@@ -107,6 +169,7 @@ export default function TravelPlanPage() {
       accommodationPrepare === "recommend"
         ? {
             skip: false,
+            priority: accommodationPriority,
           }
         : {
             skip: true,
@@ -142,363 +205,420 @@ export default function TravelPlanPage() {
 
   return (
     <div className="trip-page">
-      <h1 className="text-headline-md font-bold">일정</h1>
-      <div className="grid gap-stack-md xl:grid-cols-[minmax(0,1.25fr)_minmax(420px,0.75fr)]">
-        <section className="trip-surface p-stack-lg">
-          <div className="trip-section-header">
-            <span className="trip-section-icon">
-              <span className="material-symbols-outlined">auto_awesome</span>
-            </span>
-            <div>
-              <h1 className="text-headline-sm font-bold text-on-surface">
-                기본 조건 선택
-              </h1>
-              <p className="mt-1 text-label-md text-on-surface-variant">
-                아래 조건을 선택해 주세요.
-              </p>
-            </div>
+      <div className="mx-auto grid w-full max-w-[1180px] items-start gap-8 2xl:translate-x-[186px] xl:grid-cols-[minmax(0,780px)_340px]">
+        <main className="min-w-0">
+          <div className="mb-stack-lg">
+            <h1 className="text-headline-md font-bold text-on-surface">
+              여행 조건 선택
+            </h1>
+            <p className="mt-2 text-body-md text-on-surface-variant">
+              원하는 여행 조건을 선택하면 맞춤 일정을 제안해드려요.
+            </p>
           </div>
 
-          <div className="mt-stack-lg grid gap-stack-md lg:grid-cols-[minmax(0,1fr)_180px]">
-            <div className="space-y-stack-sm">
-              {(["who", "when"] as TripOptionType[]).map((type) => (
-                <ConditionRow
-                  key={type}
-                  type={type}
-                  value={conditions[type]}
-                  active={activeType === type}
-                  onToggle={() => handleToggle(type)}
-                  onSelect={(selected) => handleSelect(type, selected)}
-                />
-              ))}
-
-              <DestinationSelector
-                selectedDestination={conditions.destination}
-                selectedRegion={conditions.region}
-                active={activeType === "destination"}
-                onToggle={() => handleToggle("destination")}
-                onSelect={(city) => {
-                  setConditions((prev) => ({
-                    ...prev,
-                    region: city.countryName,
-                    destination: city.nameKo,
-                  }));
-                  setActiveType("theme");
-                }}
-              />
-
-              {(["theme", "level"] as TripOptionType[]).map((type) => (
-                <ConditionRow
-                  key={type}
-                  type={type}
-                  value={conditions[type]}
-                  active={activeType === type}
-                  onToggle={() => handleToggle(type)}
-                  onSelect={(selected) => handleSelect(type, selected)}
-                />
-              ))}
-            </div>
-
-            <aside className="trip-muted-panel">
-              <div className="flex items-center gap-2">
-                <span className="material-symbols-outlined text-[20px] text-primary">
-                  fact_check
-                </span>
-                <h2 className="text-label-md font-bold text-on-surface">
-                  선택 요약
-                </h2>
-              </div>
-
-              <div className="mt-stack-md space-y-stack-md">
-                {tripOptionTypes.map((type) => (
-                  <SummaryItem
+          <div className="rounded-2xl border border-outline-variant/60 bg-surface-container-lowest p-stack-md">
+            <section>
+              <h2 className="text-title-md font-bold text-on-surface">
+                기본 조건
+              </h2>
+              <div className="mt-stack-sm">
+                {(["who", "when"] as TripOptionType[]).map((type) => (
+                  <OptionConditionRow
                     key={type}
-                    icon={tripOptionIcons[type]}
-                    label={tripOptionLabels[type]}
-                    value={conditions[type] ?? "미선택"}
+                    type={type}
+                    question={BASIC_QUESTIONS[type]}
+                    value={conditions[type]}
+                    active={activeBasicType === type}
+                    onToggle={() =>
+                      setActiveBasicType((prev) =>
+                        prev === type ? null : type,
+                      )
+                    }
+                    onSelect={(selected) => handleSelect(type, selected)}
                   />
                 ))}
-                <SummaryItem
-                  icon="public"
-                  label="여행지"
-                  value={
-                    conditions.destination
-                      ? `${conditions.destination} (${conditions.region})`
-                      : "미선택"
+
+                <DestinationConditionRow
+                  value={conditions.destination}
+                  region={conditions.region}
+                  active={activeBasicType === "destination"}
+                  onToggle={() =>
+                    setActiveBasicType((prev) =>
+                      prev === "destination" ? null : "destination",
+                    )
                   }
+                  onSelect={handleSelectDestination}
                 />
-              </div>
-            </aside>
-          </div>
-        </section>
 
-        <div className="space-y-stack-md">
-          <PreparePanel
-            icon="flight_takeoff"
-            title="항공 준비"
-            description="항공을 어떻게 준비하시겠어요?"
-          >
-            <div className="grid grid-cols-2 gap-stack-sm">
-              {PREPARE_OPTIONS.flight.map((option) => (
-                <PrepareCard
-                  key={option.value}
-                  selected={flightPrepare === option.value}
-                  icon={option.icon}
-                  title={option.title}
-                  description={option.description}
-                  onClick={() => setFlightPrepare(option.value)}
-                />
-              ))}
-            </div>
-
-            <div
-              className={
-                flightPrepare === "recommend"
-                  ? "mt-stack-md"
-                  : "mt-stack-md opacity-50"
-              }
-            >
-              <p className="mb-2 text-label-md font-bold text-on-surface-variant">
-                우선 기준
-              </p>
-              <div className="grid grid-cols-2 overflow-hidden rounded-xl border border-primary/40 text-center text-label-md font-bold">
-                <button
-                  type="button"
-                  disabled={flightPrepare !== "recommend"}
-                  onClick={() => setFlightPriority("PRICE")}
-                  className={
-                    flightPriority === "PRICE"
-                      ? "bg-primary text-on-primary py-2 disabled:cursor-not-allowed"
-                      : "bg-surface-container-lowest py-2 text-primary disabled:cursor-not-allowed"
-                  }
-                >
-                  저렴한 가격 우선
-                </button>
-                <button
-                  type="button"
-                  disabled={flightPrepare !== "recommend"}
-                  onClick={() => setFlightPriority("TIME")}
-                  className={
-                    flightPriority === "TIME"
-                      ? "bg-primary text-on-primary py-2 disabled:cursor-not-allowed"
-                      : "bg-surface-container-lowest py-2 text-primary disabled:cursor-not-allowed"
-                  }
-                >
-                  최단 여행 시간 우선
-                </button>
-              </div>
-            </div>
-          </PreparePanel>
-
-          <PreparePanel
-            icon="hotel"
-            title="숙소 준비"
-            description="숙소를 어떻게 준비하시겠어요?"
-          >
-            <div className="grid grid-cols-2 gap-stack-sm">
-              {PREPARE_OPTIONS.accommodation.map((option) => (
-                <PrepareCard
-                  key={option.value}
-                  selected={accommodationPrepare === option.value}
-                  icon={option.icon}
-                  title={option.title}
-                  description={option.description}
-                  onClick={() => setAccommodationPrepare(option.value)}
-                />
-              ))}
-            </div>
-          </PreparePanel>
-        </div>
-      </div>
-
-      <section className="grid gap-stack-sm md:grid-cols-3">
-        <button
-          type="button"
-          onClick={handleAiSubmit}
-          disabled={!isReady}
-          className="trip-action-card disabled:cursor-not-allowed disabled:opacity-50"
-        >
-          <span className="trip-section-icon">
-            <span className="material-symbols-outlined">auto_awesome</span>
-          </span>
-          <span className="min-w-0">
-            <span className="block text-body-md font-bold text-on-surface">
-              AI 자동 생성하기
-            </span>
-            <span className="mt-1 block text-label-md text-on-surface-variant">
-              선택한 조건을 기반으로 AI가 추천드려요
-            </span>
-          </span>
-        </button>
-
-        <button
-          type="button"
-          onClick={handleManualSubmit}
-          disabled={!isReady}
-          className="trip-action-card border-dashed disabled:cursor-not-allowed disabled:opacity-50"
-        >
-          <span className="trip-section-icon">
-            <span className="material-symbols-outlined">edit_calendar</span>
-          </span>
-          <span className="min-w-0">
-            <span className="block text-body-md font-bold text-on-surface">
-              직접 일정 생성하기
-            </span>
-            <span className="mt-1 block text-label-md text-on-surface-variant">
-              사용자가 직접 일정을 선택합니다
-            </span>
-          </span>
-        </button>
-
-        <button
-          type="button"
-          onClick={() => navigate("/trip/saved")}
-          className="trip-action-card"
-        >
-          <span className="trip-section-icon">
-            <span className="material-symbols-outlined">event_note</span>
-          </span>
-          <span className="min-w-0">
-            <span className="block text-body-md font-bold text-on-surface">
-              내 일정 보러가기
-            </span>
-            <span className="mt-1 block text-label-md text-on-surface-variant"></span>
-          </span>
-        </button>
-      </section>
-    </div>
-  );
-}
-
-function ConditionRow({
-  type,
-  value,
-  active,
-  onToggle,
-  onSelect,
-}: {
-  type: TripOptionType;
-  value?: string;
-  active: boolean;
-  onToggle: () => void;
-  onSelect: (selected: string) => void;
-}) {
-  const { data: options = [], isLoading } = useQuery({
-    queryKey: ["tripOptions", type],
-    queryFn: () => tripApi.getOptions(type),
-  });
-
-  return (
-    <div className="trip-condition-row">
-      <button
-        type="button"
-        onClick={onToggle}
-        className="flex w-full items-center gap-stack-md px-stack-md py-stack-md text-left"
-      >
-        <span className="trip-section-icon">
-          <span className="material-symbols-outlined">
-            {tripOptionIcons[type]}
-          </span>
-        </span>
-
-        <span className="min-w-0 flex-1 text-body-md font-bold text-on-surface">
-          {BASIC_QUESTIONS[type]}
-        </span>
-
-        <span className="material-symbols-outlined text-on-surface-variant">
-          {active ? "expand_less" : "expand_more"}
-        </span>
-      </button>
-
-      {active && (
-        <div className="border-t border-outline-variant/60 p-stack-md">
-          {isLoading ? (
-            <p className="text-label-md text-on-surface-variant">
-              선택지를 불러오는 중...
-            </p>
-          ) : (
-            <div className="grid grid-cols-2 gap-stack-sm sm:grid-cols-3">
-              {options.map((option) => {
-                const selected = value === option;
-
-                return (
-                  <button
-                    key={option}
-                    type="button"
-                    onClick={() => onSelect(option)}
-                    className={
-                      selected
-                        ? "trip-choice trip-choice-selected"
-                        : "trip-choice"
+                {(["theme", "level"] as TripOptionType[]).map((type) => (
+                  <OptionConditionRow
+                    key={type}
+                    type={type}
+                    question={BASIC_QUESTIONS[type]}
+                    value={conditions[type]}
+                    active={activeBasicType === type}
+                    onToggle={() =>
+                      setActiveBasicType((prev) =>
+                        prev === type ? null : type,
+                      )
                     }
-                  >
-                    {option}
-                  </button>
-                );
-              })}
-            </div>
-          )}
-        </div>
-      )}
-    </div>
-  );
-}
+                    onSelect={(selected) => handleSelect(type, selected)}
+                  />
+                ))}
+              </div>
+            </section>
 
-function SummaryItem({
-  icon,
-  label,
-  value,
-}: {
-  icon: string;
-  label: string;
-  value: string;
-}) {
-  return (
-    <div className="flex gap-stack-sm">
-      <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-surface-container-lowest text-primary">
-        <span className="material-symbols-outlined text-[18px]">{icon}</span>
-      </span>
-      <div className="min-w-0">
-        <p className="text-label-sm font-bold text-on-surface-variant">
-          {label}
-        </p>
-        <p className="truncate text-label-md font-bold text-on-surface">
-          {value}
-        </p>
+            <section className="mt-stack-lg">
+              <h2 className="text-title-md font-bold text-on-surface">
+                예약 준비
+              </h2>
+
+              <div className="mt-stack-sm">
+                <PrepareConditionRow
+                  title="항공권을 추천해드릴까요?"
+                  selected={flightPrepare !== null}
+                  active={activePrepareType === "flight"}
+                  onToggle={() =>
+                    setActivePrepareType((prev) =>
+                      prev === "flight" ? null : "flight",
+                    )
+                  }
+                >
+                  <PrepareMethodSelector
+                    firstLabel="추천받기"
+                    firstDescription="조건에 맞는 항공권을 추천받아요."
+                    secondLabel="직접 입력하기"
+                    secondDescription="이미 예약한 항공권이 있어요."
+                    firstSelected={flightPrepare === "recommend"}
+                    secondSelected={flightPrepare === "booked"}
+                    onFirstSelect={() => handleSelectFlightPrepare("recommend")}
+                    onSecondSelect={() => handleSelectFlightPrepare("booked")}
+                  />
+
+                  <PrioritySelector
+                    title="우선 기준"
+                    disabled={flightPrepare !== "recommend"}
+                    options={FLIGHT_PRIORITY_OPTIONS}
+                    value={flightPriority}
+                    onChange={handleSelectFlightPriority}
+                  />
+                </PrepareConditionRow>
+
+                <PrepareConditionRow
+                  title="숙소를 추천해드릴까요?"
+                  selected={accommodationPrepare !== null}
+                  active={activePrepareType === "accommodation"}
+                  onToggle={() =>
+                    setActivePrepareType((prev) =>
+                      prev === "accommodation" ? null : "accommodation",
+                    )
+                  }
+                >
+                  <PrepareMethodSelector
+                    firstLabel="추천받기"
+                    firstDescription="여행 스타일에 맞는 숙소를 추천받아요."
+                    secondLabel="직접 입력하기"
+                    secondDescription="이미 예약한 숙소가 있어요."
+                    firstSelected={accommodationPrepare === "recommend"}
+                    secondSelected={accommodationPrepare === "booked"}
+                    onFirstSelect={() =>
+                      handleSelectAccommodationPrepare("recommend")
+                    }
+                    onSecondSelect={() =>
+                      handleSelectAccommodationPrepare("booked")
+                    }
+                  />
+
+                  <PrioritySelector
+                    title="숙소 우선 기준"
+                    disabled={accommodationPrepare !== "recommend"}
+                    options={ACCOMMODATION_PRIORITY_OPTIONS}
+                    value={accommodationPriority}
+                    onChange={handleSelectAccommodationPriority}
+                  />
+                </PrepareConditionRow>
+              </div>
+            </section>
+
+            <div className="sticky bottom-0 z-10 mt-stack-sm bg-surface-container-lowest/95 py-stack-sm backdrop-blur">
+              {!isReady && (
+                <p className="mb-2 text-label-sm font-semibold text-error">
+                  모든 조건을 선택해주세요
+                </p>
+              )}
+              <div className="grid gap-stack-sm sm:grid-cols-2">
+                <span
+                  title={!isReady ? "위 조건을 모두 선택해주세요" : undefined}
+                >
+                  <button
+                    type="button"
+                    onClick={handleManualSubmit}
+                    disabled={!isReady}
+                    className="h-12 w-full rounded-lg border border-outline-variant/70 bg-surface-container-lowest px-5 text-label-lg font-bold text-on-surface transition-colors hover:border-primary hover:text-primary disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    직접 일정 만들기
+                  </button>
+                </span>
+
+                <span
+                  title={!isReady ? "위 조건을 모두 선택해주세요" : undefined}
+                >
+                  <button
+                    type="button"
+                    onClick={handleAiSubmit}
+                    disabled={!isReady}
+                    className="h-12 w-full rounded-lg bg-primary px-5 text-label-lg font-bold text-on-primary transition-colors hover:bg-primary/90 disabled:cursor-not-allowed disabled:bg-surface-container-highest disabled:text-on-surface-variant"
+                  >
+                    이 조건으로 일정 추천받기
+                  </button>
+                </span>
+              </div>
+            </div>
+          </div>
+        </main>
+
+        <aside className="self-stretch">
+          <button
+            type="button"
+            onClick={() => navigate("/trip/saved")}
+            className="ml-auto flex w-fit items-center gap-1 border-b border-on-surface-variant/40 pb-1 text-label-md font-bold text-on-surface-variant transition-colors hover:border-primary hover:text-primary"
+          >
+            이미 일정이 있습니다
+            <span className="material-symbols-outlined text-[16px]">
+              arrow_forward
+            </span>
+          </button>
+
+          <section className="sticky top-[calc(50vh-180px)] mt-[clamp(56px,14vh,150px)] rounded-2xl border border-outline-variant/60 bg-surface-container-lowest p-5 shadow-glow">
+            <div className="flex items-center justify-between gap-stack-sm">
+              <h2 className="text-headline-sm font-bold text-on-surface">
+                현재 선택한 조건
+              </h2>
+              <button
+                type="button"
+                onClick={handleReset}
+                className="inline-flex items-center gap-1 text-label-md font-bold text-on-surface-variant transition-colors hover:text-primary"
+              >
+                <span className="material-symbols-outlined text-[18px]">
+                  refresh
+                </span>
+                초기화
+              </button>
+            </div>
+
+            <div className="mt-6">
+              <h3 className="text-label-md font-bold text-on-surface-variant">
+                기본 조건
+              </h3>
+              <div className="mt-3 grid grid-cols-2 gap-2.5">
+                <SummaryCard
+                  label={BASIC_SUMMARY_LABELS.who}
+                  value={conditions.who}
+                />
+                <SummaryCard
+                  label={BASIC_SUMMARY_LABELS.when}
+                  value={conditions.when}
+                />
+                <SummaryCard
+                  label={BASIC_SUMMARY_LABELS.destination}
+                  value={conditions.destination}
+                />
+                <SummaryCard
+                  label={BASIC_SUMMARY_LABELS.theme}
+                  value={conditions.theme}
+                />
+                <SummaryCard
+                  label={BASIC_SUMMARY_LABELS.level}
+                  value={conditions.level}
+                  wide
+                />
+              </div>
+            </div>
+
+            <div className="mt-6">
+              <h3 className="text-label-md font-bold text-on-surface-variant">
+                예약 준비
+              </h3>
+              <div className="mt-3 grid grid-cols-2 gap-2.5">
+                <SummaryCard
+                  label="항공권 준비"
+                  value={
+                    flightPrepare === null
+                      ? undefined
+                      : flightPrepare === "recommend"
+                        ? "추천받기"
+                        : "직접 입력하기"
+                  }
+                />
+                <SummaryCard
+                  label="숙소 준비"
+                  value={
+                    accommodationPrepare === null
+                      ? undefined
+                      : accommodationPrepare === "recommend"
+                        ? "추천받기"
+                        : "직접 입력하기"
+                  }
+                />
+              </div>
+            </div>
+          </section>
+        </aside>
       </div>
     </div>
   );
 }
 
-function PreparePanel({
-  icon,
+function PrepareMethodSelector({
+  firstLabel,
+  firstDescription,
+  secondLabel,
+  secondDescription,
+  firstSelected,
+  secondSelected,
+  onFirstSelect,
+  onSecondSelect,
+}: {
+  firstLabel: string;
+  firstDescription: string;
+  secondLabel: string;
+  secondDescription: string;
+  firstSelected: boolean;
+  secondSelected: boolean;
+  onFirstSelect: () => void;
+  onSecondSelect: () => void;
+}) {
+  return (
+    <div className="grid gap-stack-sm md:grid-cols-2">
+      <PrepareOption
+        selected={firstSelected}
+        title={firstLabel}
+        description={firstDescription}
+        onClick={onFirstSelect}
+      />
+      <PrepareOption
+        selected={secondSelected}
+        title={secondLabel}
+        description={secondDescription}
+        onClick={onSecondSelect}
+      />
+    </div>
+  );
+}
+
+function PrepareOption({
+  selected,
   title,
   description,
-  children,
+  onClick,
 }: {
-  icon: string;
+  selected: boolean;
   title: string;
   description: string;
-  children: React.ReactNode;
+  onClick: () => void;
 }) {
   return (
-    <section className="trip-surface p-stack-lg">
-      <div className="trip-section-header">
-        <span className="trip-section-icon">
-          <span className="material-symbols-outlined">{icon}</span>
-        </span>
-        <div>
-          <h2 className="text-headline-sm font-bold text-on-surface">
-            {title}
-          </h2>
-          <p className="mt-1 text-label-md text-on-surface-variant">
-            {description}
-          </p>
-        </div>
-      </div>
+    <button
+      type="button"
+      onClick={onClick}
+      className={
+        selected
+          ? "rounded-lg border border-primary bg-primary/5 px-4 py-3 text-left transition-colors"
+          : "rounded-lg border border-outline-variant/70 bg-surface-container-lowest px-4 py-3 text-left transition-colors hover:border-primary/50 hover:bg-primary/5"
+      }
+    >
+      <span
+        className={
+          selected
+            ? "block text-label-md font-bold text-primary"
+            : "block text-label-md font-bold text-on-surface"
+        }
+      >
+        {title}
+      </span>
+      <span className="mt-1 block text-label-sm text-on-surface-variant">
+        {description}
+      </span>
+    </button>
+  );
+}
 
-      <div className="mt-stack-md">{children}</div>
-    </section>
+function PrioritySelector<T extends string>({
+  title,
+  disabled,
+  options,
+  value,
+  onChange,
+}: {
+  title: string;
+  disabled: boolean;
+  options: Array<{ value: T; label: string }>;
+  value: T;
+  onChange: (value: T) => void;
+}) {
+  return (
+    <div className={disabled ? "mt-stack-md opacity-50" : "mt-stack-md"}>
+      <p className="mb-2 text-label-md font-bold text-on-surface-variant">
+        {title}
+      </p>
+      <div
+        className="grid overflow-hidden rounded-full border border-outline-variant/70 bg-surface-container-lowest text-center text-label-md font-bold"
+        style={{
+          gridTemplateColumns: `repeat(${options.length}, minmax(0, 1fr))`,
+        }}
+      >
+        {options.map((option) => (
+          <button
+            key={option.value}
+            type="button"
+            disabled={disabled}
+            onClick={() => onChange(option.value)}
+            className={
+              value === option.value
+                ? "bg-primary px-4 py-2.5 text-on-primary disabled:cursor-not-allowed"
+                : "border-l border-outline-variant/70 px-4 py-2.5 text-on-surface-variant first:border-l-0 hover:bg-primary/5 disabled:cursor-not-allowed"
+            }
+          >
+            {option.label}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function SummaryCard({
+  label,
+  value,
+  wide = false,
+}: {
+  label: string;
+  value?: string;
+  wide?: boolean;
+}) {
+  const hasValue = !!value;
+
+  return (
+    <div
+      className={
+        wide
+          ? "col-span-2 rounded-xl border border-outline-variant/50 bg-surface-container-lowest px-4 py-3.5 shadow-[0_1px_4px_rgba(15,23,42,0.04)]"
+          : "rounded-xl border border-outline-variant/50 bg-surface-container-lowest px-4 py-3.5 shadow-[0_1px_4px_rgba(15,23,42,0.04)]"
+      }
+    >
+      <span className="block text-label-md font-bold text-on-surface-variant">
+        {label}
+      </span>
+      <span
+        className={
+          hasValue
+            ? "mt-1.5 block truncate text-headline-sm font-bold text-on-surface"
+            : "mt-1.5 block truncate text-label-lg font-bold text-on-surface-variant"
+        }
+      >
+        {hasValue ? value : "선택해주세요"}
+      </span>
+    </div>
   );
 }
 
@@ -512,53 +632,4 @@ function getTripFlowEntryPath(request: PlanRequest) {
   }
 
   return "/trip/result";
-}
-
-function PrepareCard({
-  selected,
-  icon,
-  title,
-  description,
-  onClick,
-}: {
-  selected: boolean;
-  icon: string;
-  title: string;
-  description: string;
-  onClick: () => void;
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={[
-        "relative flex min-h-[132px] flex-col items-center justify-center rounded-xl border p-stack-md text-center transition-colors",
-        selected
-          ? "border-primary bg-primary/10"
-          : "border-outline-variant/60 bg-surface-container-low hover:border-primary/50 hover:bg-primary/5",
-      ].join(" ")}
-    >
-      <span
-        className={
-          selected
-            ? "flex h-12 w-12 items-center justify-center rounded-full bg-primary text-on-primary"
-            : "flex h-12 w-12 items-center justify-center rounded-full bg-surface-container text-on-surface-variant"
-        }
-      >
-        <span className="material-symbols-outlined">{icon}</span>
-      </span>
-      <span className="mt-stack-sm text-body-md font-bold text-on-surface">
-        {title}
-      </span>
-      <span className="mt-1 text-label-md text-on-surface-variant">
-        {description}
-      </span>
-
-      {selected && (
-        <span className="absolute right-3 top-3 flex h-6 w-6 items-center justify-center rounded-full bg-primary text-on-primary">
-          <span className="material-symbols-outlined text-[18px]">check</span>
-        </span>
-      )}
-    </button>
-  );
 }

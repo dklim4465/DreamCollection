@@ -30,6 +30,30 @@ interface Props {
   hideActions?: boolean;
 }
 
+function normalizeSlotOrders(items: ScheduleItem[]) {
+  const slotCounts = new Map<string, number>();
+
+  return items.map((item) => {
+    const nextOrder = (slotCounts.get(item.timeSlot) ?? 0) + 1;
+    slotCounts.set(item.timeSlot, nextOrder);
+
+    return {
+      ...item,
+      slotOrder: nextOrder,
+    };
+  });
+}
+
+function getNextSlotOrder(items: ScheduleItem[], timeSlot: string) {
+  return (
+    items.reduce((maxOrder, item, index) => {
+      if (item.timeSlot !== timeSlot) return maxOrder;
+
+      return Math.max(maxOrder, item.slotOrder ?? index + 1);
+    }, 0) + 1
+  );
+}
+
 export default function TripScheduleView({
   conditions,
   recommendation,
@@ -62,19 +86,21 @@ export default function TripScheduleView({
 
       return {
         ...day,
-        items: day.items.map((item, iIdx) => {
-          if (iIdx !== itemIndex) return item;
+        items: normalizeSlotOrders(
+          day.items.map((item, iIdx) => {
+            if (iIdx !== itemIndex) return item;
 
-          return {
-            ...item,
-            itemKey: `recommendation-${card.id}-${dayIndex}-${item.timeSlot}-${Date.now()}`,
-            itemType: card.itemType,
-            title: card.title,
-            description: card.description,
-            imageUrl: card.imageUrl,
-            address: card.sourceUrl,
-          };
-        }),
+            return {
+              ...item,
+              itemKey: `recommendation-${card.id}-${dayIndex}-${item.timeSlot}-${Date.now()}`,
+              itemType: card.itemType,
+              title: card.title,
+              description: card.description,
+              imageUrl: card.imageUrl,
+              address: card.sourceUrl,
+            };
+          }),
+        ),
       };
     });
 
@@ -100,23 +126,27 @@ export default function TripScheduleView({
 
     const nextDays = recommendation.days.map((day, dayIndex) => ({
       ...day,
-      items: day.items.map((item, itemIndex) => {
-        if (dayIndex === source.dayIndex && itemIndex === source.itemIndex) {
-          return {
-            ...targetItem,
-            timeSlot: sourceItem.timeSlot,
-          };
-        }
+      items: normalizeSlotOrders(
+        day.items.map((item, itemIndex) => {
+          if (dayIndex === source.dayIndex && itemIndex === source.itemIndex) {
+            return {
+              ...targetItem,
+              timeSlot: sourceItem.timeSlot,
+              slotOrder: sourceItem.slotOrder,
+            };
+          }
 
-        if (dayIndex === target.dayIndex && itemIndex === target.itemIndex) {
-          return {
-            ...sourceItem,
-            timeSlot: targetItem.timeSlot,
-          };
-        }
+          if (dayIndex === target.dayIndex && itemIndex === target.itemIndex) {
+            return {
+              ...sourceItem,
+              timeSlot: targetItem.timeSlot,
+              slotOrder: targetItem.slotOrder,
+            };
+          }
 
-        return item;
-      }),
+          return item;
+        }),
+      ),
     }));
 
     onChangeRecommendation({ ...recommendation, days: nextDays });
@@ -132,7 +162,9 @@ export default function TripScheduleView({
 
       return {
         ...day,
-        items: day.items.filter((_, iIdx) => iIdx !== itemIndex),
+        items: normalizeSlotOrders(
+          day.items.filter((_, iIdx) => iIdx !== itemIndex),
+        ),
       };
     });
 
@@ -150,6 +182,7 @@ export default function TripScheduleView({
         itemKey: `${card.id}-${target.timeSlot}-${Date.now()}`,
         itemType: card.itemType,
         timeSlot: target.timeSlot,
+        slotOrder: getNextSlotOrder(day.items, target.timeSlot),
         title: card.title,
         description: card.description,
         imageUrl: card.imageUrl,
@@ -159,7 +192,7 @@ export default function TripScheduleView({
 
       return {
         ...day,
-        items: [...day.items, newItem],
+        items: normalizeSlotOrders([...day.items, newItem]),
       };
     });
 
@@ -179,8 +212,10 @@ export default function TripScheduleView({
       if (dayIndex === source.dayIndex) {
         return {
           ...day,
-          items: day.items.filter(
-            (_, itemIndex) => itemIndex !== source.itemIndex,
+          items: normalizeSlotOrders(
+            day.items.filter(
+              (_, itemIndex) => itemIndex !== source.itemIndex,
+            ),
           ),
         };
       }
@@ -190,13 +225,17 @@ export default function TripScheduleView({
 
     nextDays[target.dayIndex] = {
       ...nextDays[target.dayIndex],
-      items: [
+      items: normalizeSlotOrders([
         ...nextDays[target.dayIndex].items,
         {
           ...sourceItem,
           timeSlot: target.timeSlot,
+          slotOrder: getNextSlotOrder(
+            nextDays[target.dayIndex].items,
+            target.timeSlot,
+          ),
         },
-      ],
+      ]),
     };
 
     onChangeRecommendation({ ...recommendation, days: nextDays });
@@ -211,7 +250,9 @@ export default function TripScheduleView({
 
     const nextDays = recommendation.days.map((day) => ({
       ...day,
-      items: day.items.filter((item) => isFixedTransportOrStayItem(item)),
+      items: normalizeSlotOrders(
+        day.items.filter((item) => isFixedTransportOrStayItem(item)),
+      ),
     }));
 
     setEditingTarget(null);

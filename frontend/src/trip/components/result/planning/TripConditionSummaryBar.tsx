@@ -34,25 +34,20 @@ export default function TripConditionSummaryBar({
         </label>
 
         <div className="grid gap-stack-sm rounded-xl bg-surface-container-low px-stack-md py-3 sm:grid-cols-2 xl:grid-cols-5">
-          <SummaryItem icon="group" label="누구와" value={conditions.who} />
+          <SummaryItem label="누구와" value={conditions.who} />
 
-          <SummaryItem icon="event" label="여행 기간" value={conditions.when} />
+          <SummaryItem label="여행 기간" value={conditions.when} />
 
           <SummaryItem
-            icon="location_on"
             label="지역"
             value={`${conditions.region} · ${
               conditions.destination ?? conditions.region
             }`}
           />
 
-          <SummaryItem icon="interests" label="테마" value={conditions.theme} />
+          <SummaryItem label="테마" value={conditions.theme} />
 
-          <SummaryItem
-            icon="favorite"
-            label="여행 스타일"
-            value={conditions.level}
-          />
+          <SummaryItem label="여행 스타일" value={conditions.level} />
         </div>
 
         <button
@@ -64,27 +59,17 @@ export default function TripConditionSummaryBar({
           <span className="material-symbols-outlined mr-2 align-[-5px] text-[18px]">
             {expanded ? "expand_less" : "refresh"}
           </span>
-          {expanded ? "조건 접기" : "조건 다시 보기"}
+          {expanded ? "조건 접기" : "다시 선택하기"}
         </button>
       </div>
     </section>
   );
 }
 
-function SummaryItem({
-  icon,
-  label,
-  value,
-}: {
-  icon: string;
-  label: string;
-  value?: string;
-}) {
+function SummaryItem({ label, value }: { label: string; value?: string }) {
   return (
     <div className="flex min-w-0 items-center gap-2">
-      <span className="material-symbols-outlined text-[18px] text-on-surface-variant">
-        {icon}
-      </span>
+      <span className="material-symbols-outlined text-[18px] text-on-surface-variant"></span>
 
       <span className="min-w-0">
         <span className="block text-label-sm font-bold text-on-surface-variant">

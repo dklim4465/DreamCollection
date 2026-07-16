@@ -36,6 +36,9 @@ const TripSavedListPage = lazy(() => import("@/trip/page/TripSavedListPage"));
 const TripSavedDetailPage = lazy(
   () => import("@/trip/page/TripSavedDetailPage"),
 );
+
+const CheckoutPage = lazy(() => import("./payment/pages/CheckoutPage"));
+
 const CommunityPage = lazy(() => import("@/board/pages/CommunityPage"));
 const BoardDetailPage = lazy(() => import("@/board/pages/BoardDetailPage"));
 const BoardWritePage = lazy(() => import("@/board/pages/BoardWritePage"));
@@ -46,6 +49,9 @@ const NoticeListPage = lazy(() => import("@/notice/pages/NoticeListPage"));
 const NoticeDetailPage = lazy(() => import("@/notice/pages/NoticeDetailPage"));
 
 const CartPage = lazy(() => import("./payment/pages/CartPage"));
+const PaymentCompletePage = lazy(
+  () => import("./payment/pages/PaymentCompletePage"),
+);
 const RecordsPage = lazy(() => import("./records/pages/RecordsPage"));
 const ProfilePage = lazy(() => import("./profile/pages/ProfilePage"));
 
@@ -173,11 +179,21 @@ export default function App() {
                 />
 
                 <Route path="/notices" element={<NoticeListPage />} />
-                <Route path="/notices/:noticeId" element={<NoticeDetailPage />} />
+                <Route
+                  path="/notices/:noticeId"
+                  element={<NoticeDetailPage />}
+                />
 
                 {/* 로그인 필요 */}
                 <Route element={<PrivateRoute />}>
                   <Route path="/cart" element={<CartPage />} />
+
+                  {/* 결제 */}
+                  <Route path="/payment/checkout" element={<CheckoutPage />} />
+                  <Route
+                    path="/payment/complete"
+                    element={<PaymentCompletePage />}
+                  />
                   {/* 여행기록 */}
                   <Route path="/records" element={<RecordsPage />} />
                   <Route path="/triplog" element={<TripLogMainPage />} />

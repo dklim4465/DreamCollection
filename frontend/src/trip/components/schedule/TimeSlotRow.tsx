@@ -1,6 +1,6 @@
 import type { DayPlan } from "@/trip/api/trip";
 import type { RecommendationCard } from "./types";
-import { TIME_GROUPS } from "./scheduleUtils";
+import { TIME_GROUPS, isLockedSlotItem } from "./scheduleUtils";
 import ScheduleCard, { type ScheduleDragItem } from "./ScheduleCard";
 import EmptySlot, { type EmptySlotTarget } from "./EmptySlot";
 
@@ -55,7 +55,13 @@ export default function TimeSlotRow({
       {days.map((day, dayIndex) => {
         const items = day.items
           .map((item, itemIndex) => ({ item, itemIndex }))
-          .filter(({ item }) => item.timeSlot === slot.key);
+          .filter(({ item }) => item.timeSlot === slot.key)
+          .sort(
+            (a, b) =>
+              (a.item.slotOrder ?? a.itemIndex + 1) -
+              (b.item.slotOrder ?? b.itemIndex + 1),
+          );
+        const isBlockedSlot = items.some(({ item }) => isLockedSlotItem(item));
 
         return (
           <div
@@ -63,30 +69,30 @@ export default function TimeSlotRow({
             className="min-h-[112px] border-r border-t border-outline-variant/50 bg-surface-container-low/60 p-2"
           >
             <div className="space-y-2">
-              {items.length > 0 ? (
-                items.map(({ item, itemIndex }) => (
-                  <ScheduleCard
-                    key={item.itemKey}
-                    item={item}
-                    isDragOver={
-                      dragOverTarget?.dayIndex === dayIndex &&
-                      dragOverTarget.itemIndex === itemIndex
-                    }
-                    onDragOverChange={(isOver) =>
-                      onDragOverTarget(isOver ? { dayIndex, itemIndex } : null)
-                    }
-                    onEdit={() => onEdit(dayIndex, itemIndex)}
-                    onRemove={() => onRemove(dayIndex, itemIndex)}
-                    onReplace={(card) => onReplace(dayIndex, itemIndex, card)}
-                    dayIndex={dayIndex}
-                    itemIndex={itemIndex}
-                    onSwap={(source) => onSwap(source, { dayIndex, itemIndex })}
-                  />
-                ))
-              ) : (
+              {items.map(({ item, itemIndex }) => (
+                <ScheduleCard
+                  key={item.itemKey}
+                  item={item}
+                  isDragOver={
+                    dragOverTarget?.dayIndex === dayIndex &&
+                    dragOverTarget.itemIndex === itemIndex
+                  }
+                  onDragOverChange={(isOver) =>
+                    onDragOverTarget(isOver ? { dayIndex, itemIndex } : null)
+                  }
+                  onEdit={() => onEdit(dayIndex, itemIndex)}
+                  onRemove={() => onRemove(dayIndex, itemIndex)}
+                  onReplace={(card) => onReplace(dayIndex, itemIndex, card)}
+                  dayIndex={dayIndex}
+                  itemIndex={itemIndex}
+                  onSwap={(source) => onSwap(source, { dayIndex, itemIndex })}
+                />
+              ))}
+              {!isBlockedSlot && (
                 <EmptySlot
                   dayIndex={dayIndex}
                   timeSlot={slot.key}
+                  compact={items.length > 0}
                   onAddRecommendation={onAddRecommendationToSlot}
                   onMoveSchedule={onMoveScheduleToSlot}
                 />
