@@ -6,6 +6,7 @@ interface MediaGridProps {
   deleteMode: boolean;
   selectedMediaList: number[];
   onToggleMedia: (mno: number) => void;
+  openMedia?: (mno: number) => void;
 }
 
 const MediaGrid = ({
@@ -13,6 +14,7 @@ const MediaGrid = ({
   deleteMode,
   selectedMediaList,
   onToggleMedia,
+  openMedia,
 }: MediaGridProps) => {
   if (mediaList.length === 0) {
     return (
@@ -23,9 +25,11 @@ const MediaGrid = ({
           items-center
           justify-center
           rounded-xl
-          bg-white/10
+          border
+          border-outline-variant
+          bg-surface-container
           text-body-md
-          text-white/70
+          text-on-surface-variant
         "
       >
         미디어가 없습니다.
@@ -37,7 +41,7 @@ const MediaGrid = ({
     <div
       className="
         grid
-        grid-cols-2
+        grid-cols-3
         gap-3
       "
     >
@@ -47,7 +51,9 @@ const MediaGrid = ({
           media={media}
           deleteMode={deleteMode}
           selected={selectedMediaList.includes(media.mno)}
-          onClick={() => onToggleMedia(media.mno)}
+          onClick={() =>
+            deleteMode ? onToggleMedia(media.mno) : openMedia?.(media.mno)
+          }
         />
       ))}
     </div>

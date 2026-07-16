@@ -2,6 +2,8 @@ import { Search, Plus } from "lucide-react";
 import { TripLogResponseDTO } from "@/travelog/types/tripLog";
 import TripLogCardMenu from "@/travelog/components/mainPage/TripLogCardMenu";
 import { Link } from "react-router-dom";
+import EmptyState from "@/common/component/EmptyState";
+import { getTripLogThumbnailUrl } from "@/travelog/utils/media";
 
 interface TripLogListProps {
   tripLogs: TripLogResponseDTO[];
@@ -66,9 +68,16 @@ const TripLogListComponent = ({
       {/* 여행 기록 목록 */}
       <div className="flex-1 overflow-y-auto overflow-x-hidden min-h-[600px] p-4 space-y-4">
         {tripLogs.length === 0 ? (
-          <div className="flex h-full items-center justify-center text-body-md text-on-surface-variant">
-            여행 기록이 없습니다.
-          </div>
+          <EmptyState
+            icon="📷"
+            title="아직 기록이 없어요"
+            description="다녀온 여행을 기록하고 추억을 모아보세요!"
+            action={
+              <button onClick={onCreateClick} className="btn-primary">
+                첫 일지 작성하기
+              </button>
+            }
+          />
         ) : (
           tripLogs.map((tripLog) => (
             <Link
@@ -77,38 +86,55 @@ const TripLogListComponent = ({
               className="block"
             >
               <div className="card-interactive overflow-visible p-4">
-                <div className="flex items-start justify-between gap-3">
-                  <div className="min-w-0 flex-1">
-                    <h2 className="truncate text-title-md font-bold text-on-surface">
-                      {tripLog.title}
-                    </h2>
-
-                    <p className="mt-1 text-body-sm text-on-surface-variant">
-                      {tripLog.startDate} ~ {tripLog.endDate}
-                    </p>
+                <div className="flex gap-4">
+                  <div className="h-24 w-24 flex-shrink-0 overflow-hidden rounded-lg bg-surface-container">
+                    {tripLog.thumbnailPath ? (
+                      <img
+                        src={getTripLogThumbnailUrl(tripLog)}
+                        className="h-full w-full object-cover"
+                      />
+                    ) : (
+                      <div className="flex h-full w-full items-center justify-center text-sm text-on-surface-variant">
+                        {tripLog.title}
+                      </div>
+                    )}
                   </div>
 
-                  <TripLogCardMenu
-                    onDetail={() => onDetailClick(tripLog)}
-                    onDelete={() => onDeleteClick(tripLog)}
-                  />
+                  <div className="card-interactive w-full overflow-visible p-4">
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="min-w-0 flex-1">
+                        <h2 className="truncate text-title-md font-bold text-on-surface">
+                          {tripLog.title}
+                        </h2>
+
+                        <p className="mt-1 text-body-sm text-on-surface-variant">
+                          {tripLog.startDate} ~ {tripLog.endDate}
+                        </p>
+                      </div>
+
+                      <TripLogCardMenu
+                        onDetail={() => onDetailClick(tripLog)}
+                        onDelete={() => onDeleteClick(tripLog)}
+                      />
+                    </div>
+
+                    {tripLog.description && (
+                      <p className="mt-3 line-clamp-2 text-body-md text-on-surface-variant">
+                        {tripLog.description}
+                      </p>
+                    )}
+
+                    {tripLog.tags && tripLog.tags.length > 0 && (
+                      <div className="mt-3 flex flex-wrap gap-2">
+                        {tripLog.tags.map((tag) => (
+                          <span key={tag} className="chip-primary">
+                            #{tag}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                  </div>
                 </div>
-
-                {tripLog.description && (
-                  <p className="mt-3 line-clamp-2 text-body-md text-on-surface-variant">
-                    {tripLog.description}
-                  </p>
-                )}
-
-                {tripLog.tags && tripLog.tags.length > 0 && (
-                  <div className="mt-3 flex flex-wrap gap-2">
-                    {tripLog.tags.map((tag) => (
-                      <span key={tag} className="chip-primary">
-                        #{tag}
-                      </span>
-                    ))}
-                  </div>
-                )}
               </div>
             </Link>
           ))

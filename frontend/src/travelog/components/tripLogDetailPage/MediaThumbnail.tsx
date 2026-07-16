@@ -1,16 +1,20 @@
 import { MediaSummaryDTO } from "@/travelog/types/tripLog";
+import { getMediaThumbnailUrl } from "@/travelog/utils/media";
+import { Check } from "lucide-react";
 
 interface MediaThumbnailProps {
   media: MediaSummaryDTO;
-  deleteMode: boolean;
-  selected: boolean;
-  onClick: () => void;
+  size?: string;
+  deleteMode?: boolean;
+  selected?: boolean;
+  onClick?: () => void;
 }
 
 const MediaThumbnail = ({
   media,
-  deleteMode,
-  selected,
+  size = "aspect-square",
+  deleteMode = false,
+  selected = false,
   onClick,
 }: MediaThumbnailProps) => {
   return (
@@ -19,52 +23,53 @@ const MediaThumbnail = ({
       className={`
         group
         relative
-        aspect-square
-        cursor-pointer
         overflow-hidden
-        rounded-xl
-        transition
-        ${selected ? "ring-2 ring-primary" : "hover:scale-[1.02]"}
+        rounded-lg
+        bg-surface-container
+        ${size}
+        ${onClick ? "cursor-pointer" : ""}
+        ${selected ? "ring-2 ring-primary shadow-lg" : "hover:scale-[1.02]"}
       `}
     >
-      {deleteMode && (
-        <div className="absolute left-2 top-2 z-10">
-          <input
-            type="checkbox"
-            checked={selected}
-            readOnly
-            className="
-              h-5
-              w-5
-              accent-primary
-            "
-          />
-        </div>
-      )}
-
-      {selected && (
-        <div
-          className="
-            absolute
-            inset-0
-            z-[5]
-            bg-primary/30
-          "
-        />
-      )}
-
       <img
-        src={`http://localhost:8080/${media.mediaPath}/thumbnail/${media.storedFileName}`}
+        src={getMediaThumbnailUrl(media)}
         alt=""
         draggable={false}
         className="
           h-full
           w-full
           object-cover
-          transition
+          transition-transform
+          duration-200
           group-hover:scale-105
         "
       />
+
+      {deleteMode && selected && (
+        <div
+          className={`
+            absolute
+            right-2
+            top-2
+            z-20
+            flex
+            h-6
+            w-6
+            items-center
+            justify-center
+            rounded-full
+            border-2
+            transition-all
+            ${
+              selected
+                ? "border-primary bg-primary text-white"
+                : "border-white bg-black/40 text-transparent"
+            }
+          `}
+        >
+          <Check size={14} strokeWidth={3} />
+        </div>
+      )}
     </div>
   );
 };

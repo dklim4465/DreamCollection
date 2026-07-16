@@ -3,6 +3,7 @@ import { useSpotStore } from "@/travelog/store/useSpotStore";
 import { useEffect, useRef } from "react";
 import mapboxgl from "mapbox-gl";
 import { useMarkerResize } from "@/travelog/hooks/map/useMarkerResize";
+import { getSpotThumbnailUrl } from "@/travelog/utils/media";
 
 type Props = {
   visible: boolean;
@@ -26,7 +27,7 @@ export const useSpotLayer = ({ visible }: Props) => {
 
       element.innerHTML = `
       <div class="spot-marker">
-        <img src="http://localhost:8080/${spot.coverImagePath}" />
+        <img src=${getSpotThumbnailUrl(spot)} />
         <div class="spot-pin"></div>
       </div>
       `;

@@ -53,7 +53,7 @@ public class MediaServiceImpl implements MediaService {
     @Transactional
     public UploadResultDTO upload(Long tno, List<MultipartFile> files) {
 
-        TripLog tripLog = tripLogRepository.getReferenceById(tno);
+        TripLog tripLog = tripLogRepository.findById(tno).orElseThrow();
 
         List<Media> mediaList = new ArrayList<>();
         List<String> failedFiles = new ArrayList<>();
@@ -79,6 +79,14 @@ public class MediaServiceImpl implements MediaService {
         mediaRepository.saveAll(mediaList);
 
         spotService.clusteringSpot(tno);
+
+        Media thumbnailMedia = mediaList.getFirst();
+        String thumbnailPath = thumbnailMedia.getMediaPath();
+        String thumbnailName = thumbnailMedia.getStoredFileName();
+
+        tripLog.changeThumbnail(thumbnailPath + "/thumbnail/" + thumbnailName);
+
+        tripLogRepository.save(tripLog);
 
         return UploadResultDTO.builder()
                 .totalCount(files.size())

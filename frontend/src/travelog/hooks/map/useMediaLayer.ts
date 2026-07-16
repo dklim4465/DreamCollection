@@ -3,6 +3,7 @@ import { useEffect, useRef } from "react";
 import mapboxgl from "mapbox-gl";
 import { useMediaStore } from "@/travelog/store/useMediaStore";
 import { useMarkerResize } from "@/travelog/hooks/map/useMarkerResize";
+import { getMediaThumbnailUrl } from "@/travelog/utils/media";
 
 type Props = {
   visible: boolean;
@@ -26,7 +27,7 @@ export const useMediaLayer = ({ visible }: Props) => {
 
       element.innerHTML = `
       <div class="spot-marker">
-        <img src="http://localhost:8080/${item.mediaPath}/thumbnail/${item.storedFileName}" />
+        <img src=${getMediaThumbnailUrl(item)} />
       </div>
       `;
 

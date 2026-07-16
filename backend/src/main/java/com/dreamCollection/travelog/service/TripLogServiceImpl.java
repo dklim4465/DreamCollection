@@ -1,6 +1,8 @@
 package com.dreamCollection.travelog.service;
 
+import com.dreamCollection.travelog.domain.Media;
 import com.dreamCollection.travelog.domain.TripLog;
+import com.dreamCollection.travelog.dto.MediaDetailDTO;
 import com.dreamCollection.travelog.dto.SpotDetailDTO;
 import com.dreamCollection.travelog.dto.TripLogOverviewDTO;
 import com.dreamCollection.travelog.dto.request.TripLogRequestDTO;
@@ -74,12 +76,19 @@ public class TripLogServiceImpl implements TripLogService {
         tripLog.changeEndDate(tripLogRequestDTO.getEndDate());
         tripLog.changeDesc(tripLogRequestDTO.getDescription());
 
+        if (tripLogRequestDTO.getThumbnailMediaMno() != null) {
+            MediaDetailDTO thumbnailMedia = mediaService.getMediaDetail(tripLogRequestDTO.getThumbnailMediaMno());
+
+            String thumbnailPath = thumbnailMedia.getMediaPath() + "/thumbnail/" + thumbnailMedia.getStoredFileName();
+
+            tripLog.changeThumbnail(thumbnailPath);
+        }
+
         tripLog.clearTags();
 
         List<String> tags = extract(tripLog.getDescription());
 
         tags.forEach(tripLog::addTag);
-
 
         tripLogRepository.save(tripLog);
     }

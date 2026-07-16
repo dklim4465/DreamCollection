@@ -63,6 +63,8 @@ dependencies {
 	implementation 'org.apache.tika:tika-core:3.2.3'
 	implementation 'org.apache.tika:tika-parsers-standard-package:3.2.3'
 	implementation 'me.paulschwarz:springboot3-dotenv'
+	implementation 'us.dustinj.timezonemap:timezonemap:4.5'
+	implementation 'org.locationtech.jts:jts-core:1.19.0'
 
 	// Lombok
 	compileOnly 'org.projectlombok:lombok'

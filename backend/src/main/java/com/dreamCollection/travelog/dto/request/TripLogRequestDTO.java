@@ -21,4 +21,6 @@ public class TripLogRequestDTO {
 
     private String description;
 
+    private Long thumbnailMediaMno;
+
 }

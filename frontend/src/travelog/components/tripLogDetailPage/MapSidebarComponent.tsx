@@ -1,7 +1,9 @@
 import GalleryView from "@/travelog/components/tripLogDetailPage/GalleryView";
+import MediaView from "@/travelog/components/tripLogDetailPage/MediaView";
 import SpotListView from "@/travelog/components/tripLogDetailPage/SpotListView";
 import { startUpload } from "@/travelog/service/UploadManager";
 import { useSidebarStore } from "@/travelog/store/useSidebarStore";
+import { Plus } from "lucide-react";
 import React, { useRef } from "react";
 import { useParams } from "react-router-dom";
 
@@ -39,20 +41,21 @@ const MapSidebarComponent = () => {
         absolute right-0 top-0 z-20
         flex h-full w-[300px]
         flex-col
-        border-l border-white/20
-        bg-black/80
-        backdrop-blur-md
-        shadow-[-8px_0_24px_rgba(0,0,0,0.12)]
+        border-l border-outline-variant
+        bg-surface-container-high/90
+        text-on-surface
+        backdrop-blur-xl
+        shadow-xl
       "
     >
       <div
         className="
           flex items-center justify-between
-          border-b border-white/20
+          border-b border-outline-variant
           px-5 py-4
         "
       >
-        <h3 className="text-title-md font-bold text-white">여행</h3>
+        <h3 className="text-title-md font-bold">여행</h3>
 
         <button
           onClick={openFileDialog}
@@ -61,13 +64,12 @@ const MapSidebarComponent = () => {
             rounded-full
             bg-primary
             text-on-primary
-            text-xl
             transition
             hover:opacity-90
             active:scale-95
           "
         >
-          +
+          <Plus size={20} strokeWidth={2.5} />
         </button>
 
         <input
@@ -81,7 +83,9 @@ const MapSidebarComponent = () => {
       </div>
 
       <div className="min-h-0 flex-1 overflow-y-auto">
-        {mode === "list" ? <SpotListView /> : <GalleryView />}
+        {mode === "list" && <SpotListView />}
+        {mode === "gallery" && <GalleryView />}
+        {mode === "media" && <MediaView />}
       </div>
     </aside>
   );

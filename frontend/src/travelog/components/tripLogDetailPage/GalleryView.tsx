@@ -1,18 +1,17 @@
 import { deleteMedia } from "@/travelog/api/mediaApi";
-import MediaGrid from "@/travelog/components/tripLogDetailPage/MediaGrid";
+import SpotGallerySection from "@/travelog/components/tripLogDetailPage/SpotGallerySection";
+import { useOpenMedia } from "@/travelog/hooks/map/useOpenMedia";
 import { useSidebarStore } from "@/travelog/store/useSidebarStore";
 import { useSpotStore } from "@/travelog/store/useSpotStore";
 import { refreshTripLogOverview } from "@/travelog/utils/refreshTripLogOverview";
+import { ArrowLeft, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { useParams } from "react-router-dom";
 
 const GalleryView = () => {
   const closeGallery = useSidebarStore((state) => state.closeGallery);
-  const gallerySpotId = useSidebarStore((state) => state.gallerySpotId);
 
-  const spot = useSpotStore((state) =>
-    state.spots.find((s) => s.sno === gallerySpotId),
-  );
+  const spots = useSpotStore((state) => state.spots);
 
   const [deleteMode, setDeleteMode] = useState(false);
   const [selectedMediaList, setSelectedMediaList] = useState<number[]>([]);
@@ -48,102 +47,117 @@ const GalleryView = () => {
     }
   };
 
-  if (!spot) return null;
+  const openMedia = useOpenMedia();
 
   return (
-    <div className="flex flex-col gap-4 p-4">
+    <div className="flex flex-col gap-4">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <button
-          onClick={closeGallery}
-          className="
-            text-label-md
-            text-white/80
-            transition
-            hover:text-white
-          "
-        >
-          ← 뒤로가기
-        </button>
-
-        <h2 className="text-title-md font-bold text-white">{spot.name}</h2>
-      </div>
-
-      {/* Action */}
-      <div className="flex items-center justify-between">
+      <div className="sticky top-0 z-20 border-b border-outline-variant bg-surface-container-high p-4">
         {!deleteMode ? (
-          <button
-            onClick={() => setDeleteMode(true)}
-            className="
-              rounded-lg
-              bg-error
-              px-4
-              py-2
-              text-label-md
-              font-bold
-              text-on-error
-              transition
-              hover:opacity-90
-              active:scale-95
-            "
-          >
-            🗑 삭제
-          </button>
+          <div className="grid grid-cols-3 items-center">
+            {/* Left */}
+            <button
+              onClick={closeGallery}
+              className="
+                flex
+                items-center
+                gap-1
+                justify-self-start
+                rounded-lg
+                p-2
+                text-on-surface-variant
+                transition-colors
+                hover:bg-surface-container
+                hover:text-on-surface
+              "
+            >
+              <ArrowLeft size={20} />
+            </button>
+
+            {/* Center */}
+            <h2 className="justify-self-center text-title-md font-bold text-on-surface">
+              전체 사진
+            </h2>
+
+            {/* Right */}
+            <button
+              onClick={() => setDeleteMode(true)}
+              className="
+                justify-self-end
+                rounded-lg
+                p-2
+                text-on-surface-variant
+                transition-colors
+                hover:bg-error-container
+                hover:text-error
+              "
+            >
+              <Trash2 size={20} />
+            </button>
+          </div>
         ) : (
-          <>
-            <span className="text-label-md text-white/80">
+          <div className="grid grid-cols-3 items-center">
+            {/* Left */}
+            <button
+              onClick={handleCancelDelete}
+              className="
+                justify-self-start
+                rounded-lg
+                px-3
+                py-2
+                text-label-md
+                text-on-surface-variant
+                transition-colors
+                hover:bg-surface-container
+                hover:text-on-surface
+              "
+            >
+              취소
+            </button>
+
+            {/* Center */}
+            <span className="justify-self-center text-label-lg font-semibold text-on-surface">
               {selectedMediaList.length}개 선택됨
             </span>
 
-            <div className="flex gap-2">
-              <button
-                onClick={handleCancelDelete}
-                className="
-                  rounded-lg
-                  border
-                  border-white/30
-                  px-4
-                  py-2
-                  text-label-md
-                  text-white
-                  transition
-                  hover:bg-white/10
-                "
-              >
-                취소
-              </button>
-
-              <button
-                onClick={handleDelete}
-                disabled={selectedMediaList.length === 0}
-                className="
-                  rounded-lg
-                  bg-error
-                  px-4
-                  py-2
-                  text-label-md
-                  font-bold
-                  text-on-error
-                  transition
-                  hover:opacity-90
-                  disabled:cursor-not-allowed
-                  disabled:opacity-50
-                "
-              >
-                삭제
-              </button>
-            </div>
-          </>
+            {/* Right */}
+            <button
+              onClick={handleDelete}
+              disabled={selectedMediaList.length === 0}
+              className="
+                justify-self-end
+                rounded-lg
+                bg-error
+                px-3
+                py-2
+                text-label-md
+                font-bold
+                text-on-error
+                transition-opacity
+                hover:opacity-90
+                disabled:cursor-not-allowed
+                disabled:opacity-50
+              "
+            >
+              삭제
+            </button>
+          </div>
         )}
       </div>
 
       {/* Gallery */}
-      <MediaGrid
-        mediaList={spot.mediaList}
-        deleteMode={deleteMode}
-        selectedMediaList={selectedMediaList}
-        onToggleMedia={toggleMedia}
-      />
+      <div className="flex flex-col gap-8 m-4">
+        {spots.map((spot) => (
+          <SpotGallerySection
+            key={spot.sno}
+            spot={spot}
+            deleteMode={deleteMode}
+            selectedMediaList={selectedMediaList}
+            onToggleMedia={toggleMedia}
+            openMedia={openMedia}
+          />
+        ))}
+      </div>
     </div>
   );
 };
