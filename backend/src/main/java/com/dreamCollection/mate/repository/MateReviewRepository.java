@@ -7,4 +7,5 @@ import java.util.List;
 
 public interface MateReviewRepository extends JpaRepository<MateReview, Long> {
     List<MateReview> findByRevieweeId(Long revieweeId);
+    boolean existsByMatePostIdAndReviewerId(Long matePostId, Long reviewerId);
 }

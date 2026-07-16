@@ -21,8 +21,11 @@ public class BoardPostDetailResponseDTO {
     private final Integer likeCount;
     private final String tradeStatus;
     private final LocalDateTime createdAt;
+    private final String nickname;
+    private final String profileImageUrl;
+    private final boolean liked;
 
-    public static BoardPostDetailResponseDTO from(BoardPost post) {
+    public static BoardPostDetailResponseDTO from(BoardPost post, String nickname, String profileImageUrl, boolean liked) {
         return new BoardPostDetailResponseDTO(
                 post.getId(),
                 post.getUserId(),
@@ -33,7 +36,10 @@ public class BoardPostDetailResponseDTO {
                 post.getViewCount(),
                 post.getLikeCount(),
                 post.getTradeStatus(),
-                post.getCreatedAt()
+                post.getCreatedAt(),
+                nickname,
+                profileImageUrl,
+                liked
         );
     }
 }

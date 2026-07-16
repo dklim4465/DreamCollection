@@ -1,3 +1,4 @@
+// src/board/pages/BoardWritePage.tsx
 import {
   useEffect,
   useRef,
@@ -169,6 +170,9 @@ export default function BoardWritePage() {
     onSuccess: async (res) => {
       const newPostId = res.data.data.id;
       await uploadAndAttachImages(newPostId);
+      // 게시판 목록 캐시(카테고리/페이지 조합 전체)를 무효화해서
+      // 목록으로 돌아갔을 때 방금 쓴 글이 F5 없이 바로 보이게 함
+      queryClient.invalidateQueries({ queryKey: ["board-posts"] });
       navigate(`/community/${newPostId}`);
     },
   });
@@ -183,6 +187,8 @@ export default function BoardWritePage() {
       }),
     onSuccess: async () => {
       await uploadAndAttachImages(Number(postId));
+      queryClient.invalidateQueries({ queryKey: ["board-posts"] });
+      queryClient.invalidateQueries({ queryKey: ["board-post", postId] });
       navigate(`/community/${postId}`);
     },
   });

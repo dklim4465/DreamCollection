@@ -1,3 +1,4 @@
+// src/board/pages/BoardDetailPage.tsx
 import { useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import dayjs from "dayjs";
@@ -45,10 +46,27 @@ export default function BoardDetailPage() {
   const likeMutation = useMutation({
     mutationFn: () => boardLikeApi.toggle(id),
     onSuccess: (res) => {
-      queryClient.setQueryData(["board-post", postId], (old: any) => ({
-        ...old,
-        likeCount: res.data.data.likeCount,
-      }));
+      // 백엔드 응답이 { data: { liked, likeCount } } 형태가 아닐 수도 있으니
+      // 서버가 준 값을 못 찾으면 캐시를 억지로 undefined로 덮어쓰지 않고,
+      // 안전하게 목록/상세 쿼리를 다시 불러오는 쪽으로 폴백한다.
+      const payload = res.data?.data;
+      const nextLiked = payload?.liked;
+      const nextLikeCount = payload?.likeCount;
+
+      if (typeof nextLiked === "boolean" && typeof nextLikeCount === "number") {
+        queryClient.setQueryData(["board-post", postId], (old: any) =>
+          old
+            ? {
+                ...old,
+                likeCount: nextLikeCount,
+                liked: nextLiked,
+              }
+            : old,
+        );
+      } else {
+        // 응답 구조가 예상과 다를 때를 대비한 안전망 — 서버에서 다시 받아온다.
+        queryClient.invalidateQueries({ queryKey: ["board-post", postId] });
+      }
     },
   });
 
@@ -105,17 +123,25 @@ export default function BoardDetailPage() {
         <button
           onClick={() => {
             setReportTargetUserId(post.userId);
-            setReportTargetLabel(`작성자 #${post.userId}`);
+            setReportTargetLabel(post.nickname);
           }}
           className="flex items-center gap-2 hover:opacity-80"
         >
-          <div className="w-8 h-8 rounded-full bg-primary-container flex items-center justify-center shrink-0">
-            <span className="material-symbols-outlined text-primary text-lg">
-              person
-            </span>
+          <div className="w-8 h-8 rounded-full bg-primary-container flex items-center justify-center shrink-0 overflow-hidden">
+            {post.profileImageUrl ? (
+              <img
+                src={post.profileImageUrl}
+                alt={post.nickname}
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <span className="material-symbols-outlined text-primary text-lg">
+                person
+              </span>
+            )}
           </div>
           <span className="text-label-md font-bold text-primary">
-            작성자 #{post.userId}
+            {post.nickname}
           </span>
           <span className="text-label-sm text-outline">
             · {dayjs(post.createdAt).format("YYYY.MM.DD HH:mm")}
@@ -146,9 +172,19 @@ export default function BoardDetailPage() {
       <div className="flex items-center justify-between mb-stack-lg">
         <button
           onClick={() => likeMutation.mutate()}
-          className="btn-ghost flex items-center gap-1"
+          disabled={likeMutation.isPending}
+          className="flex items-center gap-1 px-3 py-1.5 rounded-full text-label-md text-on-surface-variant hover:bg-surface-container disabled:opacity-50 transition-colors"
         >
-          <span className="material-symbols-outlined text-lg">favorite</span>
+          <span
+            className={`material-symbols-outlined text-lg ${
+              post.liked ? "text-error" : ""
+            }`}
+            style={
+              post.liked ? { fontVariationSettings: "'FILL' 1" } : undefined
+            }
+          >
+            favorite
+          </span>
           좋아요 {post.likeCount}
         </button>
 

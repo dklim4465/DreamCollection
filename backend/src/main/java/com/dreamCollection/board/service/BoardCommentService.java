@@ -12,6 +12,8 @@ import com.dreamCollection.board.repository.BoardCommentRepository;
 import com.dreamCollection.board.repository.BoardNotificationRepository;
 import com.dreamCollection.board.repository.BoardPostRepository;
 import com.dreamCollection.social.entity.Notification;
+import com.dreamCollection.user.entity.User;
+import com.dreamCollection.user.repository.UserRepository;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -26,6 +28,7 @@ public class BoardCommentService {
     private final BoardCommentRepository boardCommentRepository;
     private final BoardPostRepository boardPostRepository;
     private final BoardNotificationRepository boardNotificationRepository;
+    private final UserRepository userRepository;
 
     @Transactional
     public BoardCommentResponseDTO createComment(Long userId, Long postId, BoardCommentCreateRequestDTO requestDTO){
@@ -52,13 +55,45 @@ public class BoardCommentService {
             boardNotificationRepository.save(notification);
         }
 
-        return BoardCommentResponseDTO.from(saved);
+        if (requestDTO.getParentCommentId() != null) {
+            boardCommentRepository.findById(requestDTO.getParentCommentId())
+                    .ifPresent(parentComment -> {
+                        Long parentAuthorId = parentComment.getUserId();
+                        boolean isSelfReply = parentAuthorId.equals(userId);
+                        boolean alreadyNotifiedAsPostOwner = parentAuthorId.equals(post.getUserId());
+
+                        if (!isSelfReply && !alreadyNotifiedAsPostOwner) {
+                            Notification replyNotification = Notification.builder()
+                                    .userId(parentAuthorId)
+                                    .type("BOARD_REPLY")
+                                    .targetType("BOARD_POST")
+                                    .targetId(postId)
+                                    .content("내 댓글에 답글이 달렸어요.")
+                                    .build();
+                            boardNotificationRepository.save(replyNotification);
+                        }
+                    });
+        }
+
+        User user = userRepository.findById(userId).orElse(null);
+        return BoardCommentResponseDTO.from(
+                saved,
+                user != null ? user.getNickname() : "알 수 없음",
+                user != null ? user.getProfileImageUrl() : null
+        );
     }
 
     @Transactional(readOnly = true)
     public List<BoardCommentResponseDTO> getCommentList(Long postId){
         return boardCommentRepository.findByPostIdOrderByCreatedAtAsc(postId).stream()
-                .map(BoardCommentResponseDTO::from)
+                .map(comment -> {
+                    User user = userRepository.findById(comment.getUserId()).orElse(null);
+                    return BoardCommentResponseDTO.from(
+                            comment,
+                            user != null ? user.getNickname() : "알 수 없음",
+                            user != null ? user.getProfileImageUrl() : null
+                    );
+                })
                 .toList();
     }
 
@@ -89,6 +124,12 @@ public class BoardCommentService {
         }
 
         comment.updateContent(requestDTO.getContent());
-        return BoardCommentResponseDTO.from(comment);
+
+        User user = userRepository.findById(userId).orElse(null);
+        return BoardCommentResponseDTO.from(
+                comment,
+                user != null ? user.getNickname() : "알 수 없음",
+                user != null ? user.getProfileImageUrl() : null
+        );
     }
 }

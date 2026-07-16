@@ -13,6 +13,8 @@ import com.dreamCollection.mate.repository.MatePostRepository;
 import com.dreamCollection.mate.repository.MateRequestRepository;
 import com.dreamCollection.social.entity.Notification;
 import com.dreamCollection.social.repository.NotificationRepository;
+import com.dreamCollection.user.entity.User;
+import com.dreamCollection.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,6 +28,7 @@ public class MateRequestService {
     private final MateRequestRepository mateRequestRepository;
     private final MatePostRepository matePostRepository;
     private final NotificationRepository notificationRepository;
+    private final UserRepository userRepository;
 
     @Transactional
     public MateRequestResponseDTO applyForMate(Long requesterId, Long matePostId, String message){
@@ -55,7 +58,12 @@ public class MateRequestService {
                 .build();
         notificationRepository.save(notification);
 
-        return MateRequestResponseDTO.from(saved);
+        User requester = userRepository.findById(requesterId).orElse(null);
+        return MateRequestResponseDTO.from(
+                saved,
+                requester != null ? requester.getNickname() : "알 수 없음",
+                requester != null ? requester.getProfileImageUrl() : null
+        );
     }
 
     @Transactional(readOnly = true)
@@ -65,14 +73,25 @@ public class MateRequestService {
         validateHost(post,hostUserId);
 
         return mateRequestRepository.findByMatePostId(matePostId).stream()
-                .map(MateRequestResponseDTO::from)
+                .map(request -> {
+                    User requester = userRepository.findById(request.getRequesterId()).orElse(null);
+                    return MateRequestResponseDTO.from(
+                            request,
+                            requester != null ? requester.getNickname() : "알 수 없음",
+                            requester != null ? requester.getProfileImageUrl() : null
+                    );
+                })
                 .toList();
     }
 
     @Transactional(readOnly = true)
     public List<MateRequestResponseDTO> getMyRequests(Long requesterId){
+        User requester = userRepository.findById(requesterId).orElse(null);
+        String nickname = requester != null ? requester.getNickname() : "알 수 없음";
+        String profileImageUrl = requester != null ? requester.getProfileImageUrl() : null;
+
         return mateRequestRepository.findByRequesterId(requesterId).stream()
-                .map(MateRequestResponseDTO::from)
+                .map(request -> MateRequestResponseDTO.from(request, nickname, profileImageUrl))
                 .toList();
     }
 
@@ -116,7 +135,13 @@ public class MateRequestService {
                     .build();
             notificationRepository.save(notification);
         }
-        return MateRequestResponseDTO.from(request);
+
+        User requester = userRepository.findById(request.getRequesterId()).orElse(null);
+        return MateRequestResponseDTO.from(
+                request,
+                requester != null ? requester.getNickname() : "알 수 없음",
+                requester != null ? requester.getProfileImageUrl() : null
+        );
     }
 
     @Transactional

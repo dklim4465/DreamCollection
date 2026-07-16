@@ -15,11 +15,14 @@ public class MateRequestResponseDTO {
     private final String status;
     private final String message;
     private final LocalDateTime createdAt;
+    private final String nickname;
+    private final String profileImageUrl;
 
-    public static MateRequestResponseDTO from(MateRequest request){
+    public static MateRequestResponseDTO from(MateRequest request, String nickname, String profileImageUrl){
         return new MateRequestResponseDTO(
                 request.getId(), request.getMatePostId(), request.getRequesterId(),
-                request.getStatus(), request.getMessage(), request.getCreatedAt()
+                request.getStatus(), request.getMessage(), request.getCreatedAt(),
+                nickname, profileImageUrl
         );
     }
 }

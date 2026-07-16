@@ -13,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Service
@@ -26,6 +27,10 @@ public class MateReviewService {
     public MateReviewResponseDTO createReview(Long reviewerId, MateReviewCreateRequestDTO requestDTO){
         MatePost post = matePostRepository.findById(requestDTO.getMatePostId())
                 .orElseThrow(MatePostNotFoundException::new);
+
+        if(post.getStartDate().isAfter(LocalDate.now())){
+            throw new MateReviewNotAllowedException();
+        }
 
         Long revieweeId = requestDTO.getRevieweeId();
         boolean isHost = post.getUserId().equals(reviewerId);
