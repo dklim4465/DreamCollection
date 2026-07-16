@@ -9,4 +9,5 @@ import com.dreamCollection.social.entity.Notification;
 public interface NotificationRepository extends JpaRepository<Notification, Long> {
     Page<Notification> findByUserIdOrderByCreatedAtDesc(Long userId, Pageable pageable);
     long countByUserIdAndReadFalse(Long userId);
+    boolean existsByUserIdAndTypeAndTargetId(Long userId, String type, Long targetId);
 }
