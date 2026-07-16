@@ -105,30 +105,28 @@ const TimelineTrack = () => {
   return (
     <div
       ref={trackRef}
-      className="timeline-track"
       onMouseDown={handleMouseDown}
-      style={{
-        position: "relative",
-        flex: 1,
-        width: "100%",
-        height: "40px",
-        cursor: "pointer",
-        userSelect: "none",
-      }}
+      className="
+        relative
+        h-10
+        w-full
+        flex-1
+        cursor-pointer
+        select-none
+      "
     >
       {/* 선 */}
       <div
-        className="timeline-line"
-        style={{
-          position: "absolute",
-          top: "50%",
-          left: 0,
-          right: 0,
-          height: "6px",
-          transform: "translateY(-50%)",
-          borderRadius: "999px",
-          background: "#d9d9d9",
-        }}
+        className="
+          absolute
+          left-0
+          right-0
+          top-1/2
+          h-1.5
+          -translate-y-1/2
+          rounded-full
+          bg-outline-variant
+        "
       />
 
       {/* Spot */}
@@ -139,17 +137,19 @@ const TimelineTrack = () => {
         return (
           <div
             key={spot.sno}
-            className="timeline-spot"
+            className="
+              absolute
+              top-1/2
+              z-20
+              h-3
+              w-3
+              -translate-x-1/2
+              -translate-y-1/2
+              rounded-full
+              bg-secondary
+            "
             style={{
-              position: "absolute",
               left: `${position * 100}%`,
-              top: "50%",
-              width: "12px",
-              height: "12px",
-              transform: "translate(-50%, -50%)",
-              borderRadius: "50%",
-              background: "#666",
-              zIndex: 102,
             }}
           />
         );
@@ -157,19 +157,22 @@ const TimelineTrack = () => {
 
       {/* Cursor */}
       <div
-        className="timeline-cursor"
+        className="
+          absolute
+          top-1/2
+          z-30
+          h-[18px]
+          w-[18px]
+          -translate-x-1/2
+          -translate-y-1/2
+          rounded-full
+          border-[3px]
+          border-white
+          bg-primary
+          shadow-md
+        "
         style={{
-          position: "absolute",
           left: `${progress * 100}%`,
-          top: "50%",
-          width: "18px",
-          height: "18px",
-          transform: "translate(-50%, -50%)",
-          borderRadius: "50%",
-          background: "#1976d2",
-          border: "3px solid white",
-          boxShadow: "0 2px 8px rgba(0,0,0,.25)",
-          zIndex: 103,
         }}
       />
     </div>

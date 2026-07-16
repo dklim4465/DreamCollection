@@ -26,7 +26,9 @@ export default function RecentSavedTripsPreview() {
     retry: false,
   });
 
-  const trips = isAuthenticated ? (data ?? []).slice(0, 3) : LOCKED_SAMPLE_TRIPS;
+  const trips = isAuthenticated
+    ? (data ?? []).slice(0, 3)
+    : LOCKED_SAMPLE_TRIPS;
 
   return (
     <section>
@@ -38,7 +40,10 @@ export default function RecentSavedTripsPreview() {
           </h2>
         </div>
         {isAuthenticated && (
-          <Link to="/trip/saved" className="btn-ghost text-sm py-2 px-4 whitespace-nowrap">
+          <Link
+            to="/trip/saved"
+            className="btn-ghost text-sm py-2 px-4 whitespace-nowrap"
+          >
             전체 보기
           </Link>
         )}
@@ -59,16 +64,27 @@ export default function RecentSavedTripsPreview() {
           </div>
         )}
 
-        <div className={!isAuthenticated ? "pointer-events-none select-none blur-[3px] opacity-70" : undefined}>
+        <div
+          className={
+            !isAuthenticated
+              ? "pointer-events-none select-none blur-[3px] opacity-70"
+              : undefined
+          }
+        >
           {isAuthenticated && isLoading ? (
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               {Array.from({ length: 3 }).map((_, i) => (
-                <div key={i} className="h-32 rounded-2xl bg-surface-container-low animate-pulse" />
+                <div
+                  key={i}
+                  className="h-32 rounded-2xl bg-surface-container-low animate-pulse"
+                />
               ))}
             </div>
           ) : isAuthenticated && trips.length === 0 ? (
             <div className="w-full rounded-2xl bg-surface-container-low flex flex-col items-center justify-center text-center gap-3 py-12 px-6">
-              <span className="material-symbols-outlined text-4xl opacity-50">calendar_month</span>
+              <span className="material-symbols-outlined text-4xl opacity-50">
+                calendar_month
+              </span>
               <p className="text-body-md text-on-surface-variant">
                 아직 저장한 여행이 없어요. AI에게 여행을 추천받아보세요!
               </p>
@@ -89,12 +105,19 @@ export default function RecentSavedTripsPreview() {
                     {trip.title || trip.region || "저장된 여행"}
                   </p>
                   <div className="flex gap-2 flex-wrap">
-                    {trip.region && <span className="chip-tertiary">{trip.region}</span>}
-                    {trip.theme && <span className="chip-primary">{trip.theme}</span>}
+                    {trip.region && (
+                      <span className="chip-tertiary">{trip.region}</span>
+                    )}
+                    {trip.theme && (
+                      <span className="chip-primary">{trip.theme}</span>
+                    )}
                   </div>
                   {isAuthenticated && "createdDate" in trip && (
                     <p className="text-label-sm text-on-surface-variant mt-auto">
-                      {dayjs((trip as { createdDate: string }).createdDate).format("YYYY.MM.DD")} 저장
+                      {dayjs(
+                        (trip as { createdDate: string }).createdDate,
+                      ).format("YYYY.MM.DD")}{" "}
+                      저장
                     </p>
                   )}
                 </Link>

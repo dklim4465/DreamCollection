@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import { Navigate, useLocation, useNavigate } from "react-router-dom";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import TripConditionSummaryBar from "@/trip/components/planning/TripConditionSummaryBar";
+import { createManualPlanResult } from "@/trip/utils/manualTripRecommendation";
 import type {
   PlanRequest,
   PlanResponse,
@@ -15,17 +17,20 @@ import type {
 import { tripApi } from "@/trip/api/trip";
 import { useAuthStore } from "@/auth/store/authStore";
 import TripScheduleView from "@/trip/components/TripScheduleView";
+import "@/trip/styles/trip.css";
 
 interface LocationState {
   conditions: PlanRequest;
-  planResult: PlanResponse;
-  recommendation: TripRecommendation;
+  planResult?: PlanResponse;
+  recommendation?: TripRecommendation;
   savedTripId?: number;
   isSavedView?: boolean;
   saveLabel?: string;
   shouldSave?: boolean;
   flightSelection?: FlightSelection | null;
   accommodationSelection?: AccommodationSelection | null;
+  planningMode?: "ai" | "manual";
+  pendingBuild?: boolean;
 }
 
 export default function TripResultPage() {
@@ -34,6 +39,13 @@ export default function TripResultPage() {
   const queryClient = useQueryClient();
   const { user } = useAuthStore();
   const state = location.state as LocationState | null;
+  const [conditions, setConditions] = useState<PlanRequest>(
+    () => state?.conditions ?? ({} as PlanRequest),
+  );
+
+  const [planResult, setPlanResult] = useState<PlanResponse | null>(
+    () => state?.planResult ?? null,
+  );
 
   const [recommendation, setRecommendation] =
     useState<TripRecommendation | null>(() =>
@@ -61,8 +73,23 @@ export default function TripResultPage() {
 
       return tripApi.save(request);
     },
-    onSuccess: async () => {
+    onSuccess: async (result) => {
       await queryClient.invalidateQueries({ queryKey: ["savedTrips"] });
+
+      if (state?.isSavedView && state.savedTripId) {
+        await queryClient.invalidateQueries({
+          queryKey: ["savedTrip", state.savedTripId],
+        });
+
+        navigate(`/trip/saved/${state.savedTripId}`);
+        return;
+      }
+
+      if (result && "savedTripId" in result) {
+        navigate(`/trip/saved/${result.savedTripId}`);
+        return;
+      }
+
       navigate("/trip/saved");
     },
   });
@@ -75,17 +102,37 @@ export default function TripResultPage() {
     },
   });
 
+  const buildMutation = useMutation({
+    mutationFn: tripApi.recommend,
+    onSuccess: (nextPlanResult: PlanResponse) => {
+      const nextRecommendation = nextPlanResult.recommendations[0];
+
+      if (!nextRecommendation) {
+        window.alert("추천 일정을 불러오지 못했습니다.");
+        return;
+      }
+
+      setPlanResult(nextPlanResult);
+      setRecommendation(
+        applyFlightSelectionToRecommendation(
+          nextRecommendation,
+          state?.flightSelection,
+        ),
+      );
+    },
+  });
+
   // 로그인 후 shouldSave로 돌아왔을 때 자동 저장 (1회만)
   useEffect(() => {
     if (autoSaveTriggered.current) return;
-    if (!state?.shouldSave || !user?.id || !state.conditions || !recommendation)
+    if (!state?.shouldSave || !user?.id || !conditions || !recommendation)
       return;
     if (state.isSavedView) return;
 
     autoSaveTriggered.current = true;
 
     saveMutation.mutate({
-      conditions: state.conditions,
+      conditions,
       recommendation,
       flightSelection: state.flightSelection,
       accommodationSelection: state.accommodationSelection,
@@ -93,18 +140,45 @@ export default function TripResultPage() {
   }, [
     state?.shouldSave,
     user?.id,
-    state?.conditions,
+    conditions,
     recommendation,
     state?.isSavedView,
   ]);
 
-  if (!state?.recommendation || !recommendation) {
+  if (!state) {
     return <Navigate to="/trip" replace />;
   }
 
-  const { conditions } = state;
-  const recommendationTitle = recommendation.title?.trim() || "추천 일정";
+  if (!state.recommendation && !state.pendingBuild) {
+    return <Navigate to="/trip" replace />;
+  }
+
+  const recommendationTitle = recommendation?.title?.trim() || "추천 일정";
   const saveLabel = state.isSavedView ? "일정 수정" : state.saveLabel;
+
+  const handleStartDateChange = (startDate: string) => {
+    const nextConditions: PlanRequest = {
+      ...conditions,
+      startDate: startDate.trim().length > 0 ? startDate : undefined,
+    };
+
+    setConditions(nextConditions);
+
+    if (!state?.pendingBuild || !nextConditions.startDate) {
+      return;
+    }
+
+    if (state.planningMode === "manual") {
+      const nextPlanResult = createManualPlanResult(nextConditions);
+      const nextRecommendation = nextPlanResult.recommendations[0];
+
+      setPlanResult(nextPlanResult);
+      setRecommendation(nextRecommendation);
+      return;
+    }
+
+    buildMutation.mutate(nextConditions);
+  };
 
   const handleBack = () => {
     navigate("/trip");
@@ -135,12 +209,16 @@ export default function TripResultPage() {
   };
 
   const handleSave = () => {
+    if (!recommendation) {
+      window.alert("저장할 일정이 없습니다.");
+      return;
+    }
     if (!user?.id) {
       navigate("/login", {
         state: {
           redirectState: {
             conditions,
-            planResult: state.planResult,
+            planResult,
             recommendation,
             shouldSave: true,
             flightSelection: state.flightSelection,
@@ -177,8 +255,8 @@ export default function TripResultPage() {
   };
 
   return (
-    <div className="relative left-1/2 w-[calc(100vw-32px)] max-w-[1800px] -translate-x-1/2">
-      <div className="mb-stack-md flex flex-wrap items-center gap-stack-sm">
+    <div className="trip-page-wide">
+      <div className="flex flex-wrap items-center gap-stack-sm px-1">
         {isEditingTitle ? (
           <>
             <input
@@ -195,7 +273,7 @@ export default function TripResultPage() {
                 }
               }}
               autoFocus
-              className="min-w-[260px] rounded-xl border border-primary/50 bg-surface-container-lowest px-4 py-2 text-headline-sm font-bold text-on-surface outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/15"
+              className="min-w-[260px] rounded-xl border border-primary/50 bg-surface-container-lowest px-4 py-2 text-headline-sm font-bold text-on-surface shadow-glow outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/10"
               aria-label="일정 제목"
             />
             <button
@@ -238,18 +316,37 @@ export default function TripResultPage() {
         )}
       </div>
 
-      <TripScheduleView
+      <TripConditionSummaryBar
         conditions={conditions}
-        recommendation={recommendation}
-        onChangeRecommendation={setRecommendation}
-        onBack={handleBack}
-        onSave={handleSave}
-        onDelete={state.isSavedView && state.savedTripId ? handleDelete : undefined}
-        isSaving={saveMutation.isPending}
-        isDeleting={deleteMutation.isPending}
-        saveLabel={saveLabel}
+        startDate={conditions.startDate ?? ""}
+        expanded={false}
+        onStartDateChange={handleStartDateChange}
+        onToggleConditions={() => navigate("/trip/new")}
       />
-
+      {recommendation ? (
+        <TripScheduleView
+          conditions={conditions}
+          recommendation={recommendation}
+          onChangeRecommendation={setRecommendation}
+          onBack={handleBack}
+          onSave={handleSave}
+          onDelete={
+            state.isSavedView && state.savedTripId ? handleDelete : undefined
+          }
+          isSaving={saveMutation.isPending}
+          isDeleting={deleteMutation.isPending}
+          saveLabel={saveLabel}
+        />
+      ) : (
+        <section className="trip-surface p-stack-lg text-center">
+          <p className="text-body-md font-bold text-on-surface">
+            출발일을 선택해 주세요.
+          </p>
+          <p className="mt-1 text-label-md text-on-surface-variant">
+            날짜를 선택하면 일정 생성이 시작됩니다.
+          </p>
+        </section>
+      )}
       {(saveMutation.isError || deleteMutation.isError) && (
         <p className="text-error text-label-md text-center mt-stack-md">
           저장에 실패했습니다.
@@ -260,6 +357,8 @@ export default function TripResultPage() {
 }
 
 const AUTO_FLIGHT_ITEM_PREFIX = "selected-flight-";
+const AUTO_FLIGHT_LOCK_ITEM_PREFIX = "selected-flight-lock-";
+const TIME_SLOT_ORDER = ["Morning", "Lunch", "Afternoon", "Dinner", "Night"];
 
 function applyFlightSelectionToRecommendation(
   recommendation: TripRecommendation,
@@ -272,7 +371,9 @@ function applyFlightSelectionToRecommendation(
   const daysWithoutAutoFlights = recommendation.days.map((day) => ({
     ...day,
     items: day.items.filter(
-      (item) => !item.itemKey.startsWith(AUTO_FLIGHT_ITEM_PREFIX),
+      (item) =>
+        !item.itemKey.startsWith(AUTO_FLIGHT_ITEM_PREFIX) &&
+        !item.itemKey.startsWith(AUTO_FLIGHT_LOCK_ITEM_PREFIX),
     ),
   }));
 
@@ -289,33 +390,51 @@ function applyFlightSelectionToRecommendation(
   }));
 
   if (flightSelection.outboundFlight) {
+    const outboundSlot = getFlightTimeSlot(
+      flightSelection.outboundFlight.arrivalTime,
+    );
     nextDays[0] = {
       ...nextDays[0],
       items: [
+        ...createFlightLockedSlotItems(
+          "outbound",
+          getSlotsBefore(outboundSlot),
+        ),
         createFlightScheduleItem(
           "outbound",
           flightSelection.outboundFlight,
-          "가는 항공",
+          "출발",
           flightSelection.outboundFlight.arrivalTime,
         ),
-        ...nextDays[0].items,
+        ...nextDays[0].items.filter(
+          (item) =>
+            getTimeSlotIndex(item.timeSlot) > getTimeSlotIndex(outboundSlot),
+        ),
       ],
     };
   }
 
   if (flightSelection.returnFlight) {
     const lastDayIndex = nextDays.length - 1;
+    const returnSlot = getFlightTimeSlot(
+      flightSelection.returnFlight.departureTime,
+    );
 
     nextDays[lastDayIndex] = {
       ...nextDays[lastDayIndex],
       items: [
-        ...nextDays[lastDayIndex].items,
+        ...nextDays[lastDayIndex].items.filter(
+          (item) =>
+            item.itemKey.startsWith(AUTO_FLIGHT_ITEM_PREFIX) ||
+            getTimeSlotIndex(item.timeSlot) < getTimeSlotIndex(returnSlot),
+        ),
         createFlightScheduleItem(
           "return",
           flightSelection.returnFlight,
-          "오는 항공",
+          "복귀",
           flightSelection.returnFlight.departureTime,
         ),
+        ...createFlightLockedSlotItems("return", getSlotsAfter(returnSlot)),
       ],
     };
   }
@@ -352,6 +471,21 @@ function createFlightScheduleItem(
   };
 }
 
+function createFlightLockedSlotItems(
+  direction: "outbound" | "return",
+  timeSlots: string[],
+): ScheduleItem[] {
+  return timeSlots.map((timeSlot) => ({
+    itemKey: `${AUTO_FLIGHT_LOCK_ITEM_PREFIX}${direction}-${timeSlot}`,
+    itemType: "LockedSlot",
+    timeSlot,
+    title: "일정 생성 불가",
+    description: "",
+    locked: true,
+    replaceable: false,
+  }));
+}
+
 function getFlightTimeSlot(time?: string) {
   const hour = Number(time?.slice(0, 2));
 
@@ -361,6 +495,23 @@ function getFlightTimeSlot(time?: string) {
   if (hour < 18) return "Afternoon";
   if (hour < 22) return "Dinner";
   return "Night";
+}
+
+function getTimeSlotIndex(timeSlot: string) {
+  const index = TIME_SLOT_ORDER.indexOf(timeSlot);
+  return index >= 0 ? index : Number.MAX_SAFE_INTEGER;
+}
+
+function getSlotsBefore(timeSlot: string) {
+  const index = getTimeSlotIndex(timeSlot);
+  if (index <= 0 || index === Number.MAX_SAFE_INTEGER) return [];
+  return TIME_SLOT_ORDER.slice(0, index);
+}
+
+function getSlotsAfter(timeSlot: string) {
+  const index = getTimeSlotIndex(timeSlot);
+  if (index < 0 || index >= TIME_SLOT_ORDER.length - 1) return [];
+  return TIME_SLOT_ORDER.slice(index + 1);
 }
 
 function formatFlightTime(time?: string) {

@@ -1,10 +1,16 @@
-import { useEffect, useRef, useState, type ChangeEvent } from "react";
+import {
+  useEffect,
+  useRef,
+  useState,
+  type ChangeEvent,
+  type KeyboardEvent,
+} from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { boardPostApi, boardImageApi } from "@/board/api/board";
 import { uploadApi } from "@/board/api/upload";
 import {
-  BOARD_CATEGORIES,
+  BOARD_WRITE_CATEGORIES,
   BOARD_CATEGORY_LABELS,
   TRADE_STATUSES,
   TRADE_STATUS_LABELS,
@@ -189,12 +195,19 @@ export default function BoardWritePage() {
     mutation.mutate();
   };
 
+  const handleTitleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter" && !e.nativeEvent.isComposing) {
+      e.preventDefault();
+      handleSubmit();
+    }
+  };
+
   if (isEditMode && isLoading) {
     return <LoadingSpinner message="게시글을 불러오는 중..." />;
   }
 
   return (
-    <div className="max-w-2xl mx-auto">
+    <div className="w-full max-w-2xl mx-auto">
       <h1 className="text-headline-md font-bold mb-stack-lg">
         {isEditMode ? "게시글 수정" : "게시글 작성"}
       </h1>
@@ -203,7 +216,7 @@ export default function BoardWritePage() {
         <div>
           <label className="text-label-md font-bold block mb-2">카테고리</label>
           <div className="flex gap-2">
-            {BOARD_CATEGORIES.map((c) => (
+            {BOARD_WRITE_CATEGORIES.map((c) => (
               <button
                 key={c}
                 type="button"
@@ -233,6 +246,7 @@ export default function BoardWritePage() {
             className="input-base"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
+            onKeyDown={handleTitleKeyDown}
           />
         </div>
 

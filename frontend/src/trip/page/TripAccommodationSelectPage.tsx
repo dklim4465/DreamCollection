@@ -1,8 +1,11 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { Navigate, useLocation, useNavigate } from "react-router-dom";
 import LoadingSpinner from "@/common/component/LoadingSpinner";
-import TripAccommodationSelector from "@/trip/components/TripAccommodationSelector";
+import TripAccommodationSelector from "@/trip/components/fliAndAcc/TripAccommodationSelector";
+import TripConditionSummaryBar from "@/trip/components/planning/TripConditionSummaryBar";
+import { createManualPlanResult } from "@/trip/utils/manualTripRecommendation";
+import "@/trip/styles/trip.css";
 import {
   tripApi,
   type AccommodationOption,
@@ -22,12 +25,26 @@ export default function TripAccommodationSelectPage() {
       state?.accommodationSelection ?? null,
     );
 
+  const [startDate, setStartDate] = useState(state?.conditions.startDate ?? "");
+
+  const hasStartDate = startDate.trim().length > 0;
+
+  const flowStateWithDate = useMemo<TripFlowState | null>(() => {
+    if (!state) return null;
+    return {
+      ...state,
+      conditions: {
+        ...state.conditions,
+        startDate: hasStartDate ? startDate : undefined,
+      },
+    };
+  }, [hasStartDate, startDate, state]);
   const skipAccommodation = state?.conditions.accommodationCondition?.skip;
 
   const accommodationQuery = useQuery({
-    queryKey: ["accommodationSearch", state?.conditions],
-    queryFn: () => tripApi.searchAccommodations(state!.conditions),
-    enabled: !!state && !skipAccommodation,
+    queryKey: ["accommodationSearch", flowStateWithDate?.conditions],
+    queryFn: () => tripApi.searchAccommodations(flowStateWithDate!.conditions),
+    enabled: !!flowStateWithDate && !skipAccommodation && hasStartDate,
   });
 
   const resultMutation = useMutation({
@@ -54,33 +71,65 @@ export default function TripAccommodationSelectPage() {
       });
     },
   });
+  const navigateToManualResult = (flowState: TripFlowState) => {
+    const planResult = createManualPlanResult(flowState.conditions);
+    const recommendation = planResult.recommendations[0];
+
+    navigate("/trip/result", {
+      state: {
+        conditions: flowState.conditions,
+        planResult,
+        recommendation,
+        saveLabel: "개인 일정 저장",
+        flightSelection: flowState.flightSelection,
+        accommodationSelection: flowState.accommodationSelection,
+      },
+    });
+  };
+
+  const finishFlow = (flowState: TripFlowState) => {
+    if (flowState.planningMode === "manual") {
+      navigateToManualResult(flowState);
+      return;
+    }
+
+    resultMutation.mutate(flowState);
+  };
 
   useEffect(() => {
-    if (!state || !skipAccommodation || autoFinalized.current) return;
+    if (
+      !flowStateWithDate ||
+      !skipAccommodation ||
+      !hasStartDate ||
+      autoFinalized.current
+    ) {
+      return;
+    }
 
     const accommodationSelection: AccommodationSelection = {
       skipped: true,
     };
 
     autoFinalized.current = true;
-    resultMutation.mutate({
-      ...state,
+
+    finishFlow({
+      ...flowStateWithDate,
       accommodationSelection,
     });
-  }, [resultMutation, skipAccommodation, state]);
+  }, [flowStateWithDate, hasStartDate, resultMutation, skipAccommodation]);
 
   if (!state) {
     return <Navigate to="/trip/new" replace />;
   }
 
-  if (!state.conditions.startDate) {
-    return <Navigate to="/trip/flight" state={state} replace />;
-  }
+  const conditions = flowStateWithDate?.conditions ?? state.conditions;
 
   const accommodations = (accommodationQuery.data ?? []).slice(0, 5);
 
   const handleBack = () => {
-    navigate("/trip/flight", { state });
+    navigate("/trip/flight", {
+      state: flowStateWithDate ?? state,
+    });
   };
 
   const handleSelectAccommodation = (accommodation: AccommodationOption) => {
@@ -91,27 +140,55 @@ export default function TripAccommodationSelectPage() {
   };
 
   const handleCreateResult = () => {
-    if (!selectedAccommodation) return;
+    if (!selectedAccommodation || !flowStateWithDate) return;
 
-    resultMutation.mutate({
-      ...state,
+    finishFlow({
+      ...flowStateWithDate,
       accommodationSelection: selectedAccommodation,
     });
   };
 
   if (skipAccommodation) {
     return (
-      <div className="card-base border border-outline-variant/60 p-stack-lg">
-        <LoadingSpinner message="결과 생성 중..." />
+      <div className="trip-page">
+        <TripConditionSummaryBar
+          conditions={conditions}
+          startDate={startDate}
+          expanded={false}
+          onStartDateChange={setStartDate}
+          onToggleConditions={() => navigate("/trip/new")}
+        />
+
+        <div className="trip-surface p-stack-lg">
+          {hasStartDate ? (
+            <LoadingSpinner message="결과 생성 중..." />
+          ) : (
+            <p className="text-center text-body-md text-on-surface-variant">
+              출발일을 선택해 주세요.
+            </p>
+          )}
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="space-y-stack-md">
-      <section className="card-base border border-outline-variant/60 p-stack-lg">
-        <div className="flex items-start gap-stack-sm">
-          <span className="material-symbols-outlined text-primary">hotel</span>
+    <div className="trip-page">
+      <TripConditionSummaryBar
+        conditions={conditions}
+        startDate={startDate}
+        expanded={false}
+        onStartDateChange={(nextStartDate) => {
+          setStartDate(nextStartDate);
+          setSelectedAccommodation(null);
+        }}
+        onToggleConditions={() => navigate("/trip/new")}
+      />
+      <section className="trip-surface p-stack-lg">
+        <div className="trip-section-header">
+          <span className="trip-section-icon">
+            <span className="material-symbols-outlined">hotel</span>
+          </span>
           <div>
             <h1 className="text-headline-sm font-bold text-on-surface">
               숙소 선택
@@ -131,7 +208,7 @@ export default function TripAccommodationSelectPage() {
         />
       </section>
 
-      <div className="card-base flex items-center justify-between gap-stack-md border border-outline-variant/60 p-stack-md">
+      <div className="trip-action-bar">
         <button type="button" onClick={handleBack} className="btn-ghost">
           이전
         </button>

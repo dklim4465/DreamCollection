@@ -2,7 +2,9 @@ import { deleteMedia } from "@/travelog/api/mediaApi";
 import MediaGrid from "@/travelog/components/tripLogDetailPage/MediaGrid";
 import { useSidebarStore } from "@/travelog/store/useSidebarStore";
 import { useSpotStore } from "@/travelog/store/useSpotStore";
+import { refreshTripLogOverview } from "@/travelog/utils/refreshTripLogOverview";
 import { useState } from "react";
+import { useParams } from "react-router-dom";
 
 const GalleryView = () => {
   const closeGallery = useSidebarStore((state) => state.closeGallery);
@@ -26,16 +28,20 @@ const GalleryView = () => {
     setSelectedMediaList([]);
   };
 
+  const { tno } = useParams();
+
   const handleDelete = async () => {
     if (selectedMediaList.length === 0) return;
 
     try {
       await deleteMedia(selectedMediaList);
 
-      // Store에서도 삭제
+      await refreshTripLogOverview(Number(tno));
 
       setSelectedMediaList([]);
       setDeleteMode(false);
+
+      closeGallery();
     } catch (error) {
       console.error(error);
       alert("미디어 삭제에 실패했습니다.");
@@ -45,32 +51,84 @@ const GalleryView = () => {
   if (!spot) return null;
 
   return (
-    <>
-      <button onClick={closeGallery}>뒤로가기</button>
+    <div className="flex flex-col gap-4 p-4">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <button
+          onClick={closeGallery}
+          className="
+            text-label-md
+            text-white/80
+            transition
+            hover:text-white
+          "
+        >
+          ← 뒤로가기
+        </button>
 
-      <h2>{spot.name}</h2>
+        <h2 className="text-title-md font-bold text-white">{spot.name}</h2>
+      </div>
 
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          marginBottom: "12px",
-        }}
-      >
+      {/* Action */}
+      <div className="flex items-center justify-between">
         {!deleteMode ? (
-          <>
-            <button onClick={() => setDeleteMode(true)}>🗑 삭제</button>
-          </>
+          <button
+            onClick={() => setDeleteMode(true)}
+            className="
+              rounded-lg
+              bg-error
+              px-4
+              py-2
+              text-label-md
+              font-bold
+              text-on-error
+              transition
+              hover:opacity-90
+              active:scale-95
+            "
+          >
+            🗑 삭제
+          </button>
         ) : (
           <>
-            <span>{selectedMediaList.length}개 선택됨</span>
+            <span className="text-label-md text-white/80">
+              {selectedMediaList.length}개 선택됨
+            </span>
 
-            <div style={{ display: "flex", gap: "8px" }}>
-              <button onClick={handleCancelDelete}>취소</button>
+            <div className="flex gap-2">
+              <button
+                onClick={handleCancelDelete}
+                className="
+                  rounded-lg
+                  border
+                  border-white/30
+                  px-4
+                  py-2
+                  text-label-md
+                  text-white
+                  transition
+                  hover:bg-white/10
+                "
+              >
+                취소
+              </button>
 
               <button
                 onClick={handleDelete}
                 disabled={selectedMediaList.length === 0}
+                className="
+                  rounded-lg
+                  bg-error
+                  px-4
+                  py-2
+                  text-label-md
+                  font-bold
+                  text-on-error
+                  transition
+                  hover:opacity-90
+                  disabled:cursor-not-allowed
+                  disabled:opacity-50
+                "
               >
                 삭제
               </button>
@@ -79,13 +137,14 @@ const GalleryView = () => {
         )}
       </div>
 
+      {/* Gallery */}
       <MediaGrid
         mediaList={spot.mediaList}
         deleteMode={deleteMode}
         selectedMediaList={selectedMediaList}
         onToggleMedia={toggleMedia}
       />
-    </>
+    </div>
   );
 };
 

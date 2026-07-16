@@ -1,7 +1,8 @@
-export const MATE_POST_STATUSES = ["RECRUITING", "CLOSED"] as const;
+export const MATE_POST_STATUSES = ["ALL", "RECRUITING", "CLOSED"] as const;
 export type MatePostStatus = (typeof MATE_POST_STATUSES)[number];
 
 export const MATE_POST_STATUS_LABELS: Record<MatePostStatus, string> = {
+  ALL: "전체",
   RECRUITING: "모집중",
   CLOSED: "모집완료",
 };
@@ -40,6 +41,8 @@ export interface MatePostListItem {
   recruitCount: number;
   status: string;
   createdAt: string;
+  userId: number;
+  nickname: string;
 }
 
 export interface MatePostDetail {
@@ -87,7 +90,12 @@ export interface MateRequest {
   matePostId: number;
   requesterId: number;
   status: string;
+  message: string | null;
   createdAt: string;
+}
+
+export interface MateRequestCreateRequest {
+  message?: string | null;
 }
 
 export interface MateRequestDecisionRequest {

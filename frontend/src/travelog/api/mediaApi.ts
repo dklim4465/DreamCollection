@@ -13,6 +13,7 @@ export const uploadMedia = async (
 
   const res = await apiClient.post(`/media/triplog/${tno}`, formData, {
     headers: { "Content-Type": undefined },
+    timeout: 120000,
   });
 
   return res.data;

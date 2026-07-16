@@ -15,11 +15,32 @@ const MediaGrid = ({
   onToggleMedia,
 }: MediaGridProps) => {
   if (mediaList.length === 0) {
-    return <div className="media-empty">미디어가 없습니다.</div>;
+    return (
+      <div
+        className="
+          flex
+          h-40
+          items-center
+          justify-center
+          rounded-xl
+          bg-white/10
+          text-body-md
+          text-white/70
+        "
+      >
+        미디어가 없습니다.
+      </div>
+    );
   }
 
   return (
-    <div className="media-grid">
+    <div
+      className="
+        grid
+        grid-cols-2
+        gap-3
+      "
+    >
       {mediaList.map((media) => (
         <MediaThumbnail
           key={media.mno}

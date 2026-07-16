@@ -96,10 +96,23 @@ export interface FlightOffer {
   currency?: string;
   provider?: string;
   externalUrl?: string;
+  departureToken?: string;
+  arrivalAirportCode?: string;
+  priceType?: string;
 }
 
 export interface FlightSelection extends FlightOffer {
   skipped: boolean;
+}
+
+export interface FlightReturnRequest {
+  region?: string;
+  destination?: string;
+  startDate?: string;
+  when: string;
+  arrivalAirportCode: string;
+  departureToken: string;
+  flightCondition?: FlightCondition;
 }
 
 export interface AccommodationOption {
@@ -133,6 +146,7 @@ export interface SaveTripRequest {
 
 export interface TripFlowState {
   conditions: PlanRequest;
+  planningMode?: "ai" | "manual";
   flightSelection?: FlightSelection | null;
   accommodationSelection?: AccommodationSelection | null;
 }
@@ -213,6 +227,19 @@ export const tripApi = {
       destination: request.destination ?? request.region,
       startDate: request.startDate,
       when: request.when,
+      flightCondition: request.flightCondition,
+    });
+    return response.data;
+  },
+
+  searchReturnFlights: async (request: FlightReturnRequest) => {
+    const response = await apiClient.post<FlightOffer[]>("/flight/returns", {
+      region: request.region,
+      destination: request.destination,
+      startDate: request.startDate,
+      when: request.when,
+      arrivalAirportCode: request.arrivalAirportCode,
+      departureToken: request.departureToken,
       flightCondition: request.flightCondition,
     });
     return response.data;

@@ -14,14 +14,14 @@ interface Props {
 
 export default function ScheduleItemRow({ item, onOpen }: Props) {
   return (
-    <li className="border-b border-outline-variant last:border-b-0">
+    <li className="border-b border-outline-variant/50 last:border-b-0">
       <button
         type="button"
         onClick={onOpen}
-        className="w-full py-stack-md text-left flex items-center justify-between gap-stack-md rounded-xl hover:bg-surface-container-low transition-colors"
+        className="flex w-full items-center justify-between gap-stack-md rounded-xl px-stack-sm py-stack-md text-left transition-colors hover:bg-surface-container-low"
       >
         <div className="flex items-center gap-stack-md min-w-0">
-          <div className="w-12 h-12 rounded-2xl bg-primary-container text-on-primary-container flex items-center justify-center shrink-0">
+          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
             <span className="material-symbols-outlined">
               {item.itemType === "Meal" ? "restaurant" : "location_on"}
             </span>
