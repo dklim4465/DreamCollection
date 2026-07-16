@@ -22,8 +22,10 @@ const TimelineTrack = () => {
       };
     }
 
+    const lastSpot = spots[spots.length - 1];
+
     const start = new Date(spots[0].visitAt).getTime();
-    const end = new Date(spots[spots.length - 1].visitAt).getTime();
+    const end = new Date(lastSpot.leaveAt ?? lastSpot.visitAt).getTime();
 
     return {
       startTime: start,
@@ -124,35 +126,62 @@ const TimelineTrack = () => {
           top-1/2
           h-1.5
           -translate-y-1/2
-          rounded-full
+          rounded-none
           bg-outline-variant
         "
       />
 
       {/* Spot */}
       {spots.map((spot) => {
-        const position =
-          (new Date(spot.visitAt).getTime() - startTime) / duration;
+        const visit = new Date(spot.visitAt).getTime();
+        const leave = new Date(spot.leaveAt ?? spot.visitAt).getTime();
+
+        const left = ((visit - startTime) / duration) * 100;
+        const width = ((leave - visit) / duration) * 100;
+
+        const trackWidth = trackRef.current?.clientWidth ?? 0;
+        const minWidthPercent = trackWidth > 0 ? (4 / trackWidth) * 100 : 0;
+
+        const displayWidth = Math.max(width, minWidthPercent);
+        const displayLeft = left - (displayWidth - width) / 2;
 
         return (
           <div
             key={spot.sno}
             className="
-              absolute
-              top-1/2
-              z-20
-              h-3
-              w-3
-              -translate-x-1/2
-              -translate-y-1/2
-              rounded-full
-              bg-secondary
-            "
+                absolute top-1/2 z-10 h-2.5
+                -translate-y-1/2
+                rounded-none
+                bg-secondary/40
+              "
             style={{
-              left: `${position * 100}%`,
+              left: `${displayLeft}%`,
+              width: `${displayWidth}%`,
             }}
           />
         );
+        // const position =
+        //   (new Date(spot.visitAt).getTime() - startTime) / duration;
+
+        // return (
+        //   <div
+        //     key={spot.sno}
+        //     className="
+        //       absolute
+        //       top-1/2
+        //       z-20
+        //       h-3
+        //       w-3
+        //       -translate-x-1/2
+        //       -translate-y-1/2
+        //       rounded-full
+        //       bg-secondary
+        //     "
+        //     style={{
+        //       left: `${position * 100}%`,
+        //     }}
+        //   />
+        // );
       })}
 
       {/* Cursor */}

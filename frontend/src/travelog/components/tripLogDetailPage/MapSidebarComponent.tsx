@@ -1,4 +1,5 @@
 import GalleryView from "@/travelog/components/tripLogDetailPage/GalleryView";
+import MediaView from "@/travelog/components/tripLogDetailPage/MediaView";
 import SpotListView from "@/travelog/components/tripLogDetailPage/SpotListView";
 import { startUpload } from "@/travelog/service/UploadManager";
 import { useSidebarStore } from "@/travelog/store/useSidebarStore";
@@ -82,7 +83,9 @@ const MapSidebarComponent = () => {
       </div>
 
       <div className="min-h-0 flex-1 overflow-y-auto">
-        {mode === "list" ? <SpotListView /> : <GalleryView />}
+        {mode === "list" && <SpotListView />}
+        {mode === "gallery" && <GalleryView />}
+        {mode === "media" && <MediaView />}
       </div>
     </aside>
   );

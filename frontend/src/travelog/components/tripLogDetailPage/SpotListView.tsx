@@ -1,5 +1,9 @@
+import MediaThumbnail from "@/travelog/components/tripLogDetailPage/MediaThumbnail";
+import { useOpenMedia } from "@/travelog/hooks/map/useOpenMedia";
 import { useSidebarStore } from "@/travelog/store/useSidebarStore";
 import { useSpotStore } from "@/travelog/store/useSpotStore";
+import { formatZonedDateTime } from "@/travelog/utils/date";
+import { Images } from "lucide-react";
 
 const SpotListView = () => {
   const spots = useSpotStore((state) => state.spots);
@@ -8,6 +12,8 @@ const SpotListView = () => {
   const expandedSpotId = useSidebarStore((state) => state.expandedSpotId);
   const setExpandedSpot = useSidebarStore((state) => state.setExpandedSpot);
   const openGallery = useSidebarStore((state) => state.openGallery);
+
+  const openMedia = useOpenMedia();
 
   return (
     <div className="flex flex-col gap-4 p-4">
@@ -48,30 +54,37 @@ const SpotListView = () => {
 
                   {/* 시간 */}
                   <div className="mb-3 space-y-1 text-body-sm text-on-surface-variant">
-                    {spot.visitAt && <p>방문: {spot.visitAt}</p>}
+                    {spot.visitAt && (
+                      <p>
+                        방문: {formatZonedDateTime(spot.visitAt, spot.timezone)}
+                      </p>
+                    )}
 
-                    {spot.leaveAt && <p>종료: {spot.leaveAt}</p>}
+                    {spot.leaveAt && (
+                      <p>
+                        종료: {formatZonedDateTime(spot.leaveAt, spot.timezone)}
+                      </p>
+                    )}
                   </div>
 
                   {/* 썸네일 */}
                   {spot.mediaList.length > 0 && (
-                    <div className="flex gap-2">
-                      {spot.mediaList.slice(0, 3).map((media) => (
-                        <img
+                    <div className="grid grid-cols-3 gap-2">
+                      {spot.mediaList.slice(0, 5).map((media) => (
+                        <MediaThumbnail
                           key={media.mno}
-                          src={`http://localhost:8080/${media.mediaPath}/thumbnail/${media.storedFileName}`}
-                          alt=""
-                          className="h-16 w-16 rounded-lg object-cover"
+                          media={media}
+                          size="aspect-square w-full"
+                          onClick={() => openMedia(media.mno)}
                         />
                       ))}
 
-                      {spot.mediaList.length > 3 && (
-                        <button
-                          onClick={() => openGallery(spot.sno)}
-                          className="
+                      <button
+                        onClick={() => openGallery(spot.sno)}
+                        className="
                             flex
-                            h-16
-                            w-16
+                            aspect-square
+                            w-full
                             items-center
                             justify-center
                             rounded-lg
@@ -83,10 +96,13 @@ const SpotListView = () => {
                             hover:bg-outline-variant
                             active:scale-95
                           "
-                        >
-                          +{spot.mediaList.length - 3}
-                        </button>
-                      )}
+                      >
+                        {spot.mediaList.length > 5 ? (
+                          `+${spot.mediaList.length - 5}`
+                        ) : (
+                          <Images size={20} />
+                        )}
+                      </button>
                     </div>
                   )}
                 </div>

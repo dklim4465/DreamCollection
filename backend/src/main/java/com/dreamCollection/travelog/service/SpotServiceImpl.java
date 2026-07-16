@@ -7,6 +7,7 @@ import com.dreamCollection.travelog.dto.SpotDetailDTO;
 import com.dreamCollection.travelog.repository.MediaRepository;
 import com.dreamCollection.travelog.repository.SpotRepository;
 import com.dreamCollection.travelog.util.GeometryUtils;
+import com.dreamCollection.travelog.util.TimeZoneUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
@@ -26,6 +27,7 @@ public class SpotServiceImpl implements SpotService{
     private static final Duration MAX_INTERVAL = Duration.ofHours(2);
 
     private final GeometryUtils geometryUtils;
+    private final CountryResolver countryResolver;
 
     private final MediaRepository mediaRepository;
     private final SpotRepository spotRepository;
@@ -69,6 +71,10 @@ public class SpotServiceImpl implements SpotService{
                 coverImagePath = mediaPath + "/thumbnail/" + storedFileName;
             }
 
+            String timezone = TimeZoneUtils.fromPoint(cluster.getCenter(geometryUtils));
+
+            String country = countryResolver.findCountry(cluster.getCenter(geometryUtils));
+
             i++;
 
             Spot spot = Spot.builder()
@@ -80,6 +86,8 @@ public class SpotServiceImpl implements SpotService{
                     .visitAt(cluster.getVisitAt())
                     .leaveAt(cluster.getLeaveAt())
                     .coverImagePath(coverImagePath)
+                    .timezone(timezone)
+                    .country(country)
                     .build();
 
             spotRepository.save(spot);
@@ -171,6 +179,7 @@ public class SpotServiceImpl implements SpotService{
                     .visitAt(spot.getVisitAt())
                     .leaveAt(spot.getLeaveAt())
                     .coverImagePath(normalizePath(spot.getCoverImagePath()))
+                    .timezone(spot.getTimezone())
                     .mediaList(mediaSummaryList)
                     .build();
 

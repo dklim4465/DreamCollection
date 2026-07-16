@@ -28,5 +28,7 @@ public class SpotDetailDTO {
 
     private String coverImagePath;
 
+    private String timezone;
+
     private List<MediaSummaryDTO> mediaList;
 }

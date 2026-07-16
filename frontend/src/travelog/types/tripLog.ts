@@ -3,6 +3,7 @@ export interface TripLogRequestDTO {
   startDate: string | null;
   endDate: string | null;
   description: string | null;
+  thumbnailMediaMno: number | null;
 }
 
 export interface TripLogResponseDTO {
@@ -81,6 +82,8 @@ export interface SpotDetailDTO {
   leaveAt: string;
 
   coverImagePath: string | null;
+
+  timezone: string;
 
   mediaList: MediaSummaryDTO[];
 }

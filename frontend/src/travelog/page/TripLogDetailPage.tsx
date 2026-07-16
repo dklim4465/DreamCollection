@@ -8,8 +8,6 @@ import { useParams } from "react-router-dom";
 const TripLogDetailPage = () => {
   const { tno } = useParams();
 
-  console.log(tno);
-
   useEffect(() => {
     if (!tno) return;
 

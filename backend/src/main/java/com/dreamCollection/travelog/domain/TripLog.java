@@ -75,4 +75,6 @@ public class TripLog {
     }
 
     public void changeUser(User user) { this.user = user; }
+
+    public void changeThumbnail(String thumbnailPath) { this.thumbnailPath = thumbnailPath; }
 }
