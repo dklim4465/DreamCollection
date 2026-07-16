@@ -72,9 +72,15 @@ export default function TripSavedDetailPage() {
     });
   };
 
+  const handlePay = () => {
+    navigate("/payment/checkout", {
+      state: { savedTripId: trip.savedTripId },
+    });
+  };
+
   return (
     <div className="trip-page-wide space-y-stack-lg">
-      <SavedTripHeader trip={trip} onEdit={handleEdit} />
+      <SavedTripHeader trip={trip} onEdit={handleEdit} onPay={handlePay} />
 
       <SavedTripTimeline trip={trip} />
     </div>

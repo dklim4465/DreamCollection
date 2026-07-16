@@ -42,6 +42,7 @@ export interface ScheduleItem {
   imageUrl?: string;
   locked?: boolean;
   replaceable: boolean;
+  slotOrder?: number;
 }
 
 export interface DayPlan {

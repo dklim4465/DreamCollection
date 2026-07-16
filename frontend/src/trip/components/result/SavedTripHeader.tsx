@@ -3,9 +3,10 @@ import type { SavedTrip } from "@/trip/api/trip";
 interface Props {
   trip: SavedTrip;
   onEdit: () => void;
+  onPay: () => void;
 }
 
-export default function SavedTripHeader({ trip, onEdit }: Props) {
+export default function SavedTripHeader({ trip, onEdit, onPay }: Props) {
   const { conditions, recommendation } = trip;
   const destination =
     conditions.destination ?? conditions.region ?? "여행지 미정";
@@ -49,6 +50,16 @@ export default function SavedTripHeader({ trip, onEdit }: Props) {
         >
           <span className="material-symbols-outlined text-[19px]">edit</span>
           일정 수정
+        </button>
+        <button
+          type="button"
+          onClick={onPay}
+          className="btn-primary inline-flex items-center gap-2"
+        >
+          <span className="material-symbols-outlined text-[19px]">
+            payments
+          </span>
+          결제하기
         </button>
       </div>
     </header>

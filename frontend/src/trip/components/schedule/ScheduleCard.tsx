@@ -45,6 +45,16 @@ export default function ScheduleCard({
   const isAccommodation = isAccommodationItem(item);
   const isFlight = isFlightItem(item);
   const canMove = canMoveScheduleItem(item);
+
+  if (isLockedSlot) {
+    return (
+      <article
+        className="min-h-[92px] rounded-xl border border-transparent bg-surface-container-lowest/20"
+        aria-label="항공 일정으로 비워둔 시간대"
+      />
+    );
+  }
+
   const description = item.description ?? "추천 일정 설명이 없습니다.";
 
   return (

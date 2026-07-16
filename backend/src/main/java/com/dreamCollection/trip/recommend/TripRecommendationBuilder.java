@@ -4,6 +4,8 @@ import com.dreamCollection.trip.dto.*;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.IntStream;
@@ -50,14 +52,19 @@ public class TripRecommendationBuilder {
     }
 
     private List<ScheduleItemDTO> buildItems(int dayNumber) {
+        Map<String, Integer> timeSlotCounts = new HashMap<>();
+
         return ITEM_TEMPLATES.stream()
-                .map(template -> buildItem(dayNumber, template))
+                .map(template -> {
+                    int sequence = timeSlotCounts.merge(template.timeSlot(), 1, Integer::sum);
+                    return buildItem(dayNumber, template, sequence);
+                })
                 .toList();
     }
 
-    private ScheduleItemDTO buildItem(int dayNumber, ItemTemplate template) {
+    private ScheduleItemDTO buildItem(int dayNumber, ItemTemplate template, int sequence) {
         return ScheduleItemDTO.builder()
-                .itemKey("day" + dayNumber + "-" + template.timeSlot().toLowerCase())
+                .itemKey("day" + dayNumber + "-" + template.timeSlot().toLowerCase() + "-" + sequence)
                 .itemType(template.itemType())
                 .timeSlot(template.timeSlot())
                 .title(template.title())

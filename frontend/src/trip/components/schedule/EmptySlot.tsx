@@ -9,11 +9,13 @@ export interface EmptySlotTarget {
 export default function EmptySlot({
   dayIndex,
   timeSlot,
+  compact = false,
   onAddRecommendation,
   onMoveSchedule,
 }: {
   dayIndex: number;
   timeSlot: string;
+  compact?: boolean;
   onAddRecommendation: (
     target: EmptySlotTarget,
     card: RecommendationCard,
@@ -51,13 +53,17 @@ export default function EmptySlot({
           onMoveSchedule(payload, target);
         }
       }}
-      className={`flex min-h-[92px] items-center justify-center rounded-xl border border-dashed text-label-sm font-semibold transition ${
+      className={[
+        "flex items-center justify-center border border-dashed text-label-sm font-semibold transition",
+        compact ? "min-h-9 rounded-lg" : "min-h-[92px] rounded-xl",
         isDragOver
           ? "border-primary bg-primary/5 text-primary"
-          : "border-outline-variant/80 bg-surface-container-low text-on-surface-variant"
-      }`}
+          : compact
+            ? "border-outline-variant/40 bg-surface-container-lowest/30 text-on-surface-variant/45 hover:border-primary/35 hover:bg-primary/5 hover:text-primary/75"
+            : "border-outline-variant/80 bg-surface-container-low text-on-surface-variant",
+      ].join(" ")}
     >
-      비어 있음
+      {compact ? "+ 일정 추가" : "비어 있음"}
     </div>
   );
 }

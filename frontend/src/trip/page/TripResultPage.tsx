@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Navigate, useLocation, useNavigate } from "react-router-dom";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import TripConditionSummaryBar from "@/trip/components/planning/TripConditionSummaryBar";
+import TripConditionSummaryBar from "@/trip/components/result/planning/TripConditionSummaryBar";
 import { createManualPlanResult } from "@/trip/utils/manualTripRecommendation";
 import type {
   PlanRequest,
@@ -479,7 +479,7 @@ function createFlightLockedSlotItems(
     itemKey: `${AUTO_FLIGHT_LOCK_ITEM_PREFIX}${direction}-${timeSlot}`,
     itemType: "LockedSlot",
     timeSlot,
-    title: "일정 생성 불가",
+    title: "",
     description: "",
     locked: true,
     replaceable: false,

@@ -29,6 +29,7 @@ import java.util.Map;
 @Component
 public class TossPaymentClient {
 
+    private static final String BILLING_PAY_BASE_URL = "https://api.tosspayments.com/v1/billing/";
     private static final String ISSUE_BILLING_KEY_URL = "https://api.tosspayments.com/v1/billing/authorizations/issue";
 
     private final RestClient restClient = RestClient.create();
@@ -39,6 +40,13 @@ public class TossPaymentClient {
 
     public record BillingKeyResult(String billingKey, String cardCompany, String cardLast4) {
     }
+    public record BillingPayResult(
+            String paymentKey,
+            String orderId,
+            int totalAmount,
+            String status,
+            boolean mocked
+    ) {}
 
     public BillingKeyResult issueBillingKey(String authKey, String customerKey) {
         String authHeader = "Basic " + Base64.getEncoder()
@@ -73,6 +81,97 @@ public class TossPaymentClient {
             throw e;
         } catch (Exception e) {
             throw new IllegalStateException("토스페이먼츠 응답 파싱 실패", e);
+        }
+    }
+    /**
+     * 빌링키로 자동결제 승인.
+     * customerKey는 빌링키 발급 때와 동일해야 함 (지금은 "user-" + userId).
+     */
+    public BillingPayResult payWithBillingKey(
+            String billingKey,
+            String customerKey,
+            int amount,
+            String orderId,
+            String orderName
+    ) {
+        String authHeader = basicAuthHeader();
+
+        try {
+            String response = restClient.post()
+                    .uri(BILLING_PAY_BASE_URL + billingKey)
+                    .header("Authorization", authHeader)
+                    .header("Content-Type", "application/json")
+                    .body(Map.of(
+                            "customerKey", customerKey,
+                            "amount", amount,
+                            "orderId", orderId,
+                            "orderName", orderName
+                    ))
+                    .retrieve()
+                    .onStatus(status -> status.value() == 401 || status.value() == 403, (req, res) -> {
+                        throw new UnauthorizedTossException("토스 API 권한 오류: " + res.getStatusCode());
+                    })
+                    .body(String.class);
+
+            JsonNode node = objectMapper.readTree(response);
+
+            // 토스 비즈니스 에러: HTTP 200이어도 code 필드가 올 수 있음
+            if (node.has("code")) {
+                throw new IllegalStateException(
+                        "토스 결제 실패: " + node.path("code").asText() + " / " + node.path("message").asText());
+            }
+
+            return new BillingPayResult(
+                    node.path("paymentKey").asText(),
+                    node.path("orderId").asText(orderId),
+                    node.path("totalAmount").asInt(amount),
+                    node.path("status").asText("DONE"),
+                    false
+            );
+        } catch (UnauthorizedTossException e) {
+            log.warn("Toss 권한 실패 → mock 승인. orderId={}, reason={}", orderId, e.getMessage());
+            return mockPayResult(orderId, amount);
+        } catch (IllegalStateException e) {
+            throw e;
+        } catch (Exception e) {
+            // 시크릿키 비어있음 / 연결 실패 등도 mock으로 볼지 여부는 팀 선택
+            // 합의: "권한 실패 시"만 mock → 그 외는 예외
+            if (isLikelyAuthProblem(e)) {
+                log.warn("Toss 인증 관련 실패 → mock 승인. orderId={}", orderId, e);
+                return mockPayResult(orderId, amount);
+            }
+            throw new IllegalStateException("토스 결제 호출 실패: " + e.getMessage(), e);
+        }
+    }
+
+    private String basicAuthHeader() {
+        return "Basic " + Base64.getEncoder()
+                .encodeToString((secretKey + ":").getBytes(StandardCharsets.UTF_8));
+    }
+
+    private BillingPayResult mockPayResult(String orderId, int amount) {
+        return new BillingPayResult(
+                "mock_pk_" + orderId,
+                orderId,
+                amount,
+                "DONE",
+                true
+        );
+    }
+
+    private boolean isLikelyAuthProblem(Exception e) {
+        String msg = String.valueOf(e.getMessage()) + String.valueOf(e.getCause());
+        return msg.contains("401")
+                || msg.contains("403")
+                || msg.contains("Unauthorized")
+                || msg.contains("invalid api key")
+                || msg.contains("인증");
+    }
+
+    /** 401/403 전용 — mock 분기용 */
+    private static class UnauthorizedTossException extends RuntimeException {
+        UnauthorizedTossException(String message) {
+            super(message);
         }
     }
 }
