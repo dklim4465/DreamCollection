@@ -31,6 +31,11 @@ public class Notice {
     @Column(nullable = false, columnDefinition = "TEXT")
     private String content;
 
+    // NULL이면 일반 공지, 값이 있으면 "쿠폰 지급형" 공지 — 상세 페이지에 [쿠폰받기] 버튼이 붙고
+    // 클릭 시 이 코드로 CouponService#claimCoupon이 호출된다. (coupon.code 참조)
+    @Column(name = "coupon_code", length = 50)
+    private String couponCode;
+
     @Column(name = "is_pinned", nullable = false)
     private boolean pinned = false;
 
@@ -49,10 +54,11 @@ public class Notice {
     private LocalDateTime updatedAt;
 
     @Builder
-    public Notice(Long adminId, String title, String content) {
+    public Notice(Long adminId, String title, String content, String couponCode) {
         this.adminId = adminId;
         this.title = title;
         this.content = content;
+        this.couponCode = couponCode;
         this.active = true;
         this.viewCount = 0;
     }

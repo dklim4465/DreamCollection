@@ -17,10 +17,14 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
- * 2026-07 신규가입 이벤트 쿠폰 발급/조회.
- *  - WELCOME10  : 신규 가입 시 자동 지급 (10% 할인)
- *  - RETURNING5 : 기존 회원이 이벤트 배너를 클릭하면 지급 (5% 할인)
- * 두 경우 모두 1인 1매만 지급되도록 user_coupon(user_id, coupon_id) 유니크 제약으로 방지.
+ * 이벤트 쿠폰 발급/조회.
+ *
+ * 가입 시 자동 지급하던 방식에서, 공지사항 글을 열람하고 사용자가 직접
+ * [쿠폰받기] 버튼을 눌러야 지급되는 방식으로 바뀌었다.
+ *  - notice.coupon_code 컬럼에 쿠폰 코드가 걸려 있으면 그 공지는 "쿠폰 지급형" 공지로 취급되고,
+ *    상세 페이지에서 [쿠폰받기]를 누르면 claimCoupon()이 호출된다.
+ *  - 예) WELCOME10(신규가입 10%), RETURNING5(기존회원 5%) — 둘 다 동일한 방식으로 지급.
+ * 1인 1매만 지급되도록 user_coupon(user_id, coupon_id) 유니크 제약으로 방지.
  */
 @Service
 @RequiredArgsConstructor
@@ -45,32 +49,24 @@ public class CouponService {
                 .toList();
     }
 
-    /** 회원가입 시 자동 지급. 실패해도 회원가입 자체를 막지 않도록 호출부(UserService)에서 try-catch 처리. */
-    @Transactional
-    public void grantWelcomeCoupon(Long userId) {
-        grantByCode(userId, WELCOME_COUPON_CODE);
-    }
-
     /**
-     * 기존 회원이 이벤트 배너를 클릭했을 때 호출.
-     * 이미 발급받은 적이 있으면 새로 발급하지 않고 조용히 무시(중복 클릭 방지).
+     * 공지사항의 [쿠폰받기] 버튼을 눌렀을 때 호출.
+     * 이미 발급받았거나, 코드가 존재하지 않거나, 유효기간이 아니면 명확한 에러를 던져서
+     * 프론트에서 "이미 받은 쿠폰이에요" 같은 안내를 보여줄 수 있게 한다(자동 지급과 달리
+     * 사용자가 직접 누른 액션이므로 조용히 무시하지 않는다).
      */
     @Transactional
-    public void claimReturningCoupon(Long userId) {
-        grantByCode(userId, RETURNING_COUPON_CODE);
-    }
-
-    private void grantByCode(Long userId, String code) {
+    public void claimCoupon(Long userId, String code) {
         Coupon coupon = couponRepository.findByCode(code)
-                .orElseThrow(() -> new BusinessException("존재하지 않는 쿠폰 코드예요: " + code, HttpStatus.BAD_REQUEST));
+                .orElseThrow(() -> new BusinessException("존재하지 않는 쿠폰 코드예요.", HttpStatus.BAD_REQUEST));
 
         if (!coupon.isCurrentlyValid()) {
-            log.info("쿠폰 발급 스킵 - 유효기간 아님 (code={}, userId={})", code, userId);
-            return;
+            throw new BusinessException("지금은 받을 수 없는 쿠폰이에요.", HttpStatus.BAD_REQUEST);
         }
         if (userCouponRepository.existsByUserIdAndCouponId(userId, coupon.getId())) {
-            return; // 이미 발급받음 — 중복 지급하지 않고 조용히 무시
+            throw new BusinessException("이미 받은 쿠폰이에요.", HttpStatus.BAD_REQUEST);
         }
+
         userCouponRepository.save(
                 UserCoupon.builder()
                         .userId(userId)
@@ -78,5 +74,6 @@ public class CouponService {
                         .expiresAt(coupon.getValidUntil())
                         .build()
         );
+        log.info("쿠폰 지급 완료 (code={}, userId={})", code, userId);
     }
 }

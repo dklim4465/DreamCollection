@@ -16,8 +16,8 @@ interface Props {
  * 배너가 하나도 없으면 아무것도 렌더링하지 않는다 (HomePage에서 처리).
  *
  * 2026-07 신규가입 이벤트 배너(link_url = '/register')는 특별 처리:
- *  - 비로그인 상태 → 회원가입 페이지로 이동 (가입 완료 시 10% 쿠폰 자동 지급)
- *  - 로그인 상태   → 5% 쿠폰을 바로 지급하고 마이페이지 보관함으로 이동
+ *  - 비로그인 상태 → 회원가입 페이지로 이동 (가입 후 공지사항 [쿠폰받기]에서 10% 쿠폰 수령)
+ *  - 로그인 상태   → 5% 쿠폰(RETURNING5)을 바로 지급하고 마이페이지 보관함으로 이동
  */
 export default function AdBannerModal({ onClose, onHideToday }: Props) {
   const navigate = useNavigate();
@@ -48,7 +48,7 @@ export default function AdBannerModal({ onClose, onHideToday }: Props) {
         // 이미 회원인 경우: 5% 쿠폰 즉시 지급 후 보관함으로 이동
         try {
           setClaiming(true);
-          await couponApi.claimEventCoupon();
+          await couponApi.claimCoupon("RETURNING5");
           queryClient.invalidateQueries({ queryKey: ["coupons", "me"] });
         } catch {
           // 이미 발급받은 경우 등 — 조용히 무시하고 보관함으로 이동
@@ -98,12 +98,12 @@ export default function AdBannerModal({ onClose, onHideToday }: Props) {
                   7월 한 달 · 신규가입 이벤트
                 </span>
                 <h3 className="text-headline-md md:text-display-sm font-bold">
-                  {isAuthenticated ? "5% 할인 쿠폰을 드려요" : "지금 가입하면 10% 할인!"}
+                  {isAuthenticated ? "5% 할인 쿠폰을 드려요" : "가입하고 웰컴 쿠폰 받기"}
                 </h3>
                 <p className="text-body-md text-white/85">
                   {isAuthenticated
                     ? "이미 회원이시네요! 감사의 의미로 5% 할인 쿠폰을 드려요."
-                    : "회원가입만 해도 전 상품 10% 할인 쿠폰이 보관함에 쏙"}
+                    : "회원가입 후 공지사항의 [쿠폰받기]를 누르면 10% 할인 쿠폰이 보관함에 쏙"}
                 </p>
                 <span className="mt-2 inline-flex items-center gap-1 text-label-lg font-bold underline underline-offset-4">
                   {claiming ? "쿠폰 지급 중..." : isAuthenticated ? "쿠폰 받으러 가기 →" : "회원가입 하러 가기 →"}

@@ -44,6 +44,7 @@ const MateWritePage = lazy(() => import("@/mate/pages/MateWritePage"));
 const MateDetailPage = lazy(() => import("@/mate/pages/MateDetailPage"));
 const NoticeListPage = lazy(() => import("@/notice/pages/NoticeListPage"));
 const NoticeDetailPage = lazy(() => import("@/notice/pages/NoticeDetailPage"));
+const CityDetailPage = lazy(() => import("@/destination/pages/CityDetailPage"));
 
 const CartPage = lazy(() => import("./payment/pages/CartPage"));
 const RecordsPage = lazy(() => import("./records/pages/RecordsPage"));
@@ -128,6 +129,7 @@ export default function App() {
               {/* Layout 포함 라우트 */}
               <Route element={<AppLayout />}>
                 <Route path="/" element={<HomePage />} />
+                <Route path="/destinations/:cityId" element={<CityDetailPage />} />
                 <Route path="/trip">
                   <Route index element={<TravelPlanPage />} />
                   <Route path="new" element={<TravelPlanPage />} />

@@ -1,7 +1,11 @@
 package com.dreamCollection.city.service;
 
+import com.dreamCollection.city.dto.CityDetailResponse;
 import com.dreamCollection.city.dto.CityResponse;
+import com.dreamCollection.city.entity.City;
+import com.dreamCollection.global.exception.BusinessException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,5 +34,18 @@ public class CityService {
         return cityRepository.findByPopularTrueAndActiveTrueOrderById().stream()
                 .map(CityResponse::from)
                 .toList();
+    }
+
+    // 여행지 상세 페이지 — 도시 정보 + 같은 나라 다른 도시
+    @Transactional(readOnly = true)
+    public CityDetailResponse getCityDetail(Long id) {
+        City city = cityRepository.findById(id)
+                .filter(City::isActive)
+                .orElseThrow(() -> new BusinessException("여행지를 찾을 수 없습니다.", HttpStatus.NOT_FOUND));
+
+        List<City> sameCountry =
+                cityRepository.findByCountryCodeAndActiveTrueAndIdNot(city.getCountryCode(), city.getId());
+
+        return CityDetailResponse.of(city, sameCountry);
     }
 }

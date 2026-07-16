@@ -17,6 +17,8 @@ export const couponApi = {
   // 마이페이지 "보관함" — 로그인 필요
   getMyCoupons: () => apiClient.get<ApiResponse<MyCoupon[]>>("/coupons/me"),
 
-  // 7월 이벤트 배너를 클릭한 기존 회원에게 5% 쿠폰 지급 — 로그인 필요
-  claimEventCoupon: () => apiClient.post<ApiResponse<null>>("/coupons/claim-event"),
+  // 공지사항 상세의 [쿠폰받기] 버튼 클릭 시 지급 — 로그인 필요
+  // (어떤 쿠폰을 줄지는 공지의 couponCode를 그대로 넘겨받아 사용한다)
+  claimCoupon: (code: string) =>
+    apiClient.post<ApiResponse<null>>(`/coupons/claim/${code}`),
 };

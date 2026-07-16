@@ -193,6 +193,29 @@
   .chip-success {
     @apply chip bg-green-100 text-green-700;
   }
+  .chip-error {
+    @apply chip bg-error/10 text-error;
+  }
+
+  /* ── 회원가입 폼 섹션 배지 (1/2/3) ── */
+  .auth-section-badge {
+    @apply flex h-6 w-6 shrink-0 items-center justify-center rounded-full
+           bg-primary-container text-on-primary-container text-label-sm font-bold;
+  }
+
+  /* ── 비밀번호 강도 / 인증번호 남은시간 바 ── */
+  .auth-meter-track {
+    @apply h-1.5 w-full overflow-hidden rounded-full bg-surface-container-high;
+  }
+  .auth-meter-fill {
+    @apply h-full rounded-full transition-all duration-300;
+  }
+  .auth-timer-track {
+    @apply mt-1.5 h-1 w-full overflow-hidden rounded-full bg-surface-container-high;
+  }
+  .auth-timer-fill {
+    @apply h-full rounded-full transition-all duration-1000 ease-linear;
+  }
 
   /* ── 사이드바 네비 아이템 ── */
   .nav-item {
@@ -202,5 +225,62 @@
   .nav-item-active {
     @apply flex items-center gap-3 p-3 bg-primary-container text-on-primary-container
            rounded-lg font-bold transition-all active:scale-95 text-label-md;
+  }
+
+  /* ── 로그인/회원가입 스플릿 비주얼 패널 (여권 스탬프 + 탑승권 절취선) ── */
+  .auth-visual-bg {
+    background:
+      radial-gradient(circle at 18% 15%, rgb(var(--color-primary-fixed-dim) / 0.28), transparent 42%),
+      radial-gradient(circle at 85% 85%, rgb(var(--color-tertiary-fixed) / 0.16), transparent 40%),
+      linear-gradient(160deg, #2b7797 0%, #123241 55%, #0a1a21 100%);
+  }
+
+  .auth-stamp {
+    transform: rotate(var(--stamp-rotate, 0deg));
+    animation: authStampIn 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+  .auth-stamp:nth-of-type(1) { animation-delay: 0.05s; }
+  .auth-stamp:nth-of-type(2) { animation-delay: 0.16s; }
+  .auth-stamp:nth-of-type(3) { animation-delay: 0.27s; }
+  .auth-stamp:nth-of-type(4) { animation-delay: 0.38s; }
+  .auth-stamp:nth-of-type(5) { animation-delay: 0.49s; }
+
+  .auth-divider {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: 0;
+    border-right: 2px dashed rgb(255 255 255 / 0.22);
+  }
+  .auth-divider::before,
+  .auth-divider::after {
+    content: '';
+    position: absolute;
+    right: -10px;
+    width: 20px;
+    height: 20px;
+    border-radius: 9999px;
+    background: rgb(var(--color-background));
+    border: 2px dashed rgb(255 255 255 / 0.22);
+  }
+  .auth-divider::before { top: 72px; }
+  .auth-divider::after { bottom: 72px; }
+}
+
+@keyframes authStampIn {
+  from {
+    opacity: 0;
+    transform: rotate(var(--stamp-rotate, 0deg)) scale(0.82);
+  }
+  to {
+    opacity: 1;
+    transform: rotate(var(--stamp-rotate, 0deg)) scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .auth-stamp {
+    animation: none;
   }
 }

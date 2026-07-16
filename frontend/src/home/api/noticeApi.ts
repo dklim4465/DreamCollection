@@ -5,6 +5,8 @@ export interface NoticeItemPublic {
   id: number;
   title: string;
   content: string;
+  // 값이 있으면 "쿠폰 지급형" 공지 — 상세 페이지에서 이 코드로 쿠폰을 받는다.
+  couponCode: string | null;
   pinned: boolean;
   active: boolean;
   viewCount: number;

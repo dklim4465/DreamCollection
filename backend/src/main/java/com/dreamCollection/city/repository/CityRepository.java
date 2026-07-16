@@ -25,4 +25,7 @@ public interface CityRepository extends JpaRepository<City, Long> {
     // 홈 화면 통계("숫자로 보는 Dream Collection")용 — 지원하는 여행지 국가 수
     @Query("SELECT COUNT(DISTINCT c.countryCode) FROM City c")
     long countDistinctCountryCode();
+
+    // 여행지 상세 페이지 — 같은 나라의 다른 도시 추천용
+    List<City> findByCountryCodeAndActiveTrueAndIdNot(String countryCode, Long id);
 }

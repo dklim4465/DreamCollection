@@ -6,11 +6,6 @@ import { noticeApi } from "@/home/api/noticeApi";
 import { couponApi } from "@/profile/api/couponApi";
 import { useAuthStore } from "@/auth/store/authStore";
 
-/** 이 문구가 제목에 들어간 공지는 "쿠폰받기" 버튼이 붙는 이벤트 공지로 취급한다. */
-function isCouponNotice(title: string) {
-  return title.includes("쿠폰");
-}
-
 export default function NoticeDetailPage() {
   const { noticeId } = useParams<{ noticeId: string }>();
   const navigate = useNavigate();
@@ -25,22 +20,23 @@ export default function NoticeDetailPage() {
     retry: false,
   });
 
+  const notice = data?.data?.data;
+
   const claimMutation = useMutation({
-    mutationFn: () => couponApi.claimEventCoupon(),
+    mutationFn: (code: string) => couponApi.claimCoupon(code),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["coupons", "me"] });
       setShowClaimedPopup(true);
     },
   });
 
-  const notice = data?.data?.data;
-
   const handleClaimClick = () => {
+    if (!notice?.couponCode) return;
     if (!isAuthenticated) {
       navigate("/login");
       return;
     }
-    claimMutation.mutate();
+    claimMutation.mutate(notice.couponCode);
   };
 
   if (isLoading) {
@@ -81,14 +77,15 @@ export default function NoticeDetailPage() {
 
         <p className="text-body-md whitespace-pre-line leading-relaxed">{notice.content}</p>
 
-        {isCouponNotice(notice.title) && (
+        {notice.couponCode && (
           <div className="mt-stack-lg pt-stack-md border-t border-outline-variant">
             <button
               type="button"
               onClick={handleClaimClick}
               disabled={claimMutation.isPending}
-              className="btn-primary w-full sm:w-auto"
+              className="btn-primary w-full sm:w-auto flex items-center justify-center gap-2"
             >
+              <span className="material-symbols-outlined text-lg">confirmation_number</span>
               {claimMutation.isPending ? "쿠폰 받는 중..." : "쿠폰받기"}
             </button>
             {!isAuthenticated && (
@@ -98,7 +95,8 @@ export default function NoticeDetailPage() {
             )}
             {claimMutation.isError && (
               <p className="text-label-sm text-error mt-2">
-                쿠폰 지급 중 오류가 발생했어요. 잠시 후 다시 시도해주세요.
+                {(claimMutation.error as { response?: { data?: { message?: string } } })?.response?.data
+                  ?.message ?? "쿠폰 지급 중 오류가 발생했어요. 잠시 후 다시 시도해주세요."}
               </p>
             )}
           </div>
@@ -111,9 +109,7 @@ export default function NoticeDetailPage() {
             <span className="material-symbols-outlined text-5xl text-primary mb-stack-sm">
               confirmation_number
             </span>
-            <p className="text-headline-sm font-bold mb-2">
-              10%, 5% 쿠폰이 발급되었습니다
-            </p>
+            <p className="text-headline-sm font-bold mb-2">쿠폰이 발급되었어요</p>
             <p className="text-body-md text-on-surface-variant mb-stack-lg">
               보관함을 확인하세요
             </p>
