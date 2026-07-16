@@ -32,19 +32,27 @@ export default function MateRequestItem({
           onClick={() =>
             onClickRequester(
               request.requesterId,
-              `신청자 #${request.requesterId}`,
+              request.nickname,
               request.status,
             )
           }
           className="flex items-center gap-2 hover:opacity-80"
         >
-          <div className="w-8 h-8 rounded-full bg-primary-container flex items-center justify-center shrink-0">
-            <span className="material-symbols-outlined text-primary text-lg">
-              person
-            </span>
+          <div className="w-8 h-8 rounded-full bg-primary-container flex items-center justify-center shrink-0 overflow-hidden">
+            {request.profileImageUrl ? (
+              <img
+                src={request.profileImageUrl}
+                alt={request.nickname}
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <span className="material-symbols-outlined text-primary text-lg">
+                person
+              </span>
+            )}
           </div>
           <span className="text-label-md font-bold text-primary">
-            신청자 #{request.requesterId}
+            {request.nickname}
           </span>
         </button>
         {request.message && (

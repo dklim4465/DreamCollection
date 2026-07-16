@@ -15,15 +15,23 @@ public class BoardCommentResponseDTO {
     private final Long parentCommentId;
     private final String content;
     private final LocalDateTime createdAt;
+    private final String nickname;
+    private final String profileImageUrl;
 
-    public static BoardCommentResponseDTO from(com.dreamCollection.board.entity.BoardComment comment) {
+    public static BoardCommentResponseDTO from(
+            com.dreamCollection.board.entity.BoardComment comment,
+            String nickname,
+            String profileImageUrl
+    ) {
         return new BoardCommentResponseDTO(
                 comment.getId(),
                 comment.getPostId(),
                 comment.getUserId(),
                 comment.getParentCommentId(),
                 comment.getContent(),
-                comment.getCreatedAt()
+                comment.getCreatedAt(),
+                nickname,
+                profileImageUrl
         );
     }
 }

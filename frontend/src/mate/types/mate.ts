@@ -43,6 +43,10 @@ export interface MatePostListItem {
   createdAt: string;
   userId: number;
   nickname: string;
+  profileImageUrl: string | null;
+  level: number;
+  badgeName: string | null;
+  badgeIconUrl: string | null;
 }
 
 export interface MatePostDetail {
@@ -59,6 +63,8 @@ export interface MatePostDetail {
   recruitCount: number;
   status: string;
   createdAt: string;
+  nickname: string;
+  profileImageUrl: string | null;
 }
 
 export interface MatePostCreateRequest {
@@ -92,6 +98,8 @@ export interface MateRequest {
   status: string;
   message: string | null;
   createdAt: string;
+  nickname: string;
+  profileImageUrl: string | null;
 }
 
 export interface MateRequestCreateRequest {
@@ -139,4 +147,24 @@ export interface SpringPage<T> {
   first: boolean;
   last: boolean;
   empty: boolean;
+}
+
+export interface MatePostListItem {
+  id: number;
+  destination: string;
+  startDate: string;
+  endDate: string;
+  preferredAge: string | null;
+  preferredGender: string | null;
+  travelStyle: string | null;
+  recruitCount: number;
+  status: string;
+  createdAt: string;
+  userId: number;
+  nickname: string;
+  profileImageUrl: string | null;
+  level: number;
+  badgeName: string | null;
+  badgeIconUrl: string | null;
+  badgeConditionType: string | null;
 }

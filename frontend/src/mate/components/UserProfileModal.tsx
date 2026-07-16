@@ -8,8 +8,8 @@ import { useChatStore } from "@/chat/store/chatStore";
 interface Props {
   userId: number;
   label: string;
-  matePostId: number;
-  canChat: boolean;
+  matePostId?: number;
+  canChat?: boolean;
   onClose: () => void;
 }
 
@@ -17,7 +17,7 @@ export default function UserProfileModal({
   userId,
   label,
   matePostId,
-  canChat,
+  canChat = false,
   onClose,
 }: Props) {
   const [showReportForm, setShowReportForm] = useState(false);
@@ -49,6 +49,7 @@ export default function UserProfileModal({
   });
 
   const handleOpenChat = async () => {
+    if (!matePostId) return;
     setIsOpeningChat(true);
     try {
       const res = await chatApi.openRoom(matePostId);
@@ -110,7 +111,7 @@ export default function UserProfileModal({
           </button>
         </div>
 
-        {canChat && (
+        {canChat && matePostId != null && (
           <button
             onClick={handleOpenChat}
             disabled={isOpeningChat}

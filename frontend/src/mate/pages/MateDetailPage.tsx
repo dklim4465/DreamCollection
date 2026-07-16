@@ -114,6 +114,8 @@ export default function MateDetailPage() {
   const statusLabel =
     MATE_POST_STATUS_LABELS[post.status as MatePostStatus] ?? post.status;
 
+  const tripNotStarted = dayjs(post.startDate).isAfter(dayjs());
+
   return (
     <div className="w-full max-w-5xl mx-auto">
       <div className="flex items-center gap-2 mb-stack-sm">
@@ -132,19 +134,27 @@ export default function MateDetailPage() {
           onClick={() =>
             setProfileTarget({
               userId: post.userId,
-              label: `작성자 #${post.userId}`,
+              label: post.nickname,
               canChat: !isOwner && myRequest != null,
             })
           }
           className="flex items-center gap-2 hover:opacity-80"
         >
-          <div className="w-8 h-8 rounded-full bg-primary-container flex items-center justify-center shrink-0">
-            <span className="material-symbols-outlined text-primary text-lg">
-              person
-            </span>
+          <div className="w-8 h-8 rounded-full bg-primary-container flex items-center justify-center shrink-0 overflow-hidden">
+            {post.profileImageUrl ? (
+              <img
+                src={post.profileImageUrl}
+                alt={post.nickname}
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <span className="material-symbols-outlined text-primary text-lg">
+                person
+              </span>
+            )}
           </div>
           <span className="text-label-md font-bold text-primary">
-            작성자 #{post.userId}
+            {post.nickname}
           </span>
         </button>
         <span className="text-label-sm text-outline">
@@ -264,26 +274,35 @@ export default function MateDetailPage() {
         <div className="mt-stack-lg flex flex-col gap-stack-md">
           <h2 className="text-label-lg font-bold">동행 후기</h2>
 
-          {isOwner &&
-            requests
-              ?.filter((r) => r.status === "ACCEPTED")
-              .map((r) => (
+          {tripNotStarted ? (
+            <p className="text-label-md text-on-surface-variant">
+              여행 시작일({dayjs(post.startDate).format("YYYY.MM.DD")}) 이후에
+              후기를 남길 수 있어요.
+            </p>
+          ) : (
+            <>
+              {isOwner &&
+                requests
+                  ?.filter((r) => r.status === "ACCEPTED")
+                  .map((r) => (
+                    <MateReviewSection
+                      key={r.id}
+                      matePostId={id}
+                      targetUserId={r.requesterId}
+                      targetLabel={`신청자 #${r.requesterId}`}
+                      currentUserId={user.id}
+                    />
+                  ))}
+
+              {!isOwner && myRequest?.status === "ACCEPTED" && (
                 <MateReviewSection
-                  key={r.id}
                   matePostId={id}
-                  targetUserId={r.requesterId}
-                  targetLabel={`신청자 #${r.requesterId}`}
+                  targetUserId={post.userId}
+                  targetLabel="작성자"
                   currentUserId={user.id}
                 />
-              ))}
-
-          {!isOwner && myRequest?.status === "ACCEPTED" && (
-            <MateReviewSection
-              matePostId={id}
-              targetUserId={post.userId}
-              targetLabel="작성자"
-              currentUserId={user.id}
-            />
+              )}
+            </>
           )}
         </div>
       )}

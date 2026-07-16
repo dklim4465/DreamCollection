@@ -1,3 +1,4 @@
+// src/main/java/com/dreamCollection/mate/dto/MatePostListResponseDTO.java
 package com.dreamCollection.mate.dto;
 
 
@@ -25,13 +26,20 @@ public class MatePostListResponseDTO {
     private final LocalDateTime createdAt;
     private final Long userId;
     private final String nickname;
+    private final String profileImageUrl;
+    private final int level;
+    private final String badgeName;
+    private final String badgeIconUrl;
+    private final String badgeConditionType;
 
-    public static MatePostListResponseDTO from(MatePost post, String nickname) {
+    public static MatePostListResponseDTO from(MatePost post, String nickname, String profileImageUrl, AuthorLevelBadgeInfo levelBadgeInfo) {
         return new MatePostListResponseDTO(
                 post.getId(), post.getDestination(), post.getStartDate(), post.getEndDate(),
                 post.getPreferredAge(), post.getPreferredGender(), post.getTravelStyle(),
                 post.getRecruitCount(), post.getStatus(), post.getCreatedAt(),
-                post.getUserId(), nickname
+                post.getUserId(), nickname, profileImageUrl,
+                levelBadgeInfo.level(), levelBadgeInfo.badgeName(), levelBadgeInfo.badgeIconUrl(),
+                levelBadgeInfo.badgeConditionType()
         );
     }
 

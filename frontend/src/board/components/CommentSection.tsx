@@ -131,18 +131,24 @@ export default function CommentSection({
         <div className="card-base p-stack-sm">
           <div className="flex items-center justify-between mb-1">
             <button
-              onClick={() =>
-                onReportUser(comment.userId, `작성자 #${comment.userId}`)
-              }
+              onClick={() => onReportUser(comment.userId, comment.nickname)}
               className="flex items-center gap-2 hover:opacity-80"
             >
-              <div className="w-6 h-6 rounded-full bg-primary-container flex items-center justify-center shrink-0">
-                <span className="material-symbols-outlined text-primary text-sm">
-                  person
-                </span>
+              <div className="w-6 h-6 rounded-full bg-primary-container flex items-center justify-center shrink-0 overflow-hidden">
+                {comment.profileImageUrl ? (
+                  <img
+                    src={comment.profileImageUrl}
+                    alt={comment.nickname}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <span className="material-symbols-outlined text-primary text-sm">
+                    person
+                  </span>
+                )}
               </div>
               <span className="text-label-sm font-bold text-primary">
-                작성자 #{comment.userId}
+                {comment.nickname}
               </span>
             </button>
             <span className="text-label-sm text-outline">
@@ -177,7 +183,7 @@ export default function CommentSection({
             <p className="text-body-md whitespace-pre-wrap ml-8">
               {isReply && (
                 <span className="text-primary font-bold mr-1">
-                  @작성자 #{comment.userId}
+                  @{comment.nickname}
                 </span>
               )}
               {comment.content}
@@ -238,7 +244,7 @@ export default function CommentSection({
           <div className="ml-8 mt-2 flex gap-2">
             <input
               className="input-base"
-              placeholder={`작성자 #${comment.userId}님에게 답글 작성`}
+              placeholder={`${comment.nickname}님에게 답글 작성`}
               value={newContent}
               onChange={(e) => setNewContent(e.target.value)}
               onKeyDown={handleEnterKey(submitReply)}
