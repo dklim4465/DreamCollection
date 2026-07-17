@@ -14,7 +14,12 @@ export default function BoardLatestPreview() {
   return (
     <section className="card-base p-stack-lg flex flex-col gap-stack-md">
       <div className="flex items-center justify-between">
-        <h2 className="text-headline-sm font-bold">게시판 최신글</h2>
+        <div>
+          <p className="text-primary text-label-sm tracking-[0.3em] uppercase mb-1">
+            Community
+          </p>
+          <h2 className="text-headline-sm font-bold">게시판 최신글</h2>
+        </div>
         <Link to="/community" className="text-label-sm text-primary font-bold hover:underline">
           전체보기
         </Link>

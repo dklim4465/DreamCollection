@@ -4,6 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { cityApi } from "@/common/api/cityApi";
 import { proxyImage } from "@/common/utils/proxyImage";
 import { getDestinationInfo } from "@/destination/data/destinationInfo";
+import { countryInfoMap } from "@/destination/data/countryInfo";
 
 // 도시의 timezone으로 현재 현지 시각을 1분마다 갱신해서 보여준다.
 function useLocalTime(timezone: string | null) {
@@ -41,6 +42,7 @@ export default function CityDetailPage() {
   const detail = data?.data?.data;
   const city = detail?.city;
   const info = city ? getDestinationInfo(city.nameKo) : null;
+  const countryInfo = city ? countryInfoMap[city.countryCode] : null;
   const localTime = useLocalTime(city?.timezone ?? null);
 
   if (isLoading) {
@@ -86,6 +88,9 @@ export default function CityDetailPage() {
             {city.nameKo}
           </h1>
           {info?.tagline && <p className="text-body-lg opacity-90">{info.tagline}</p>}
+          {countryInfo?.tagline && (
+            <p className="text-body-sm opacity-75 mt-1">{countryInfo.tagline}</p>
+          )}
           <div className="flex gap-2 mt-stack-md">
             <Link
               to={`/trip/new?destination=${encodeURIComponent(city.nameKo)}`}
@@ -154,18 +159,45 @@ export default function CityDetailPage() {
         </section>
       )}
 
-      {/* ── 같은 나라의 다른 여행지 ── */}
+      {/* ── 같은 나라의 다른 여행지: "OO 말고 여기는 어때요?" ── */}
       {detail && detail.sameCountryCities.length > 0 && (
         <section className="mb-stack-lg">
-          <h2 className="text-headline-sm font-bold mb-stack-md">
-            {city.countryName}의 다른 여행지
+          <h2 className="text-headline-sm font-bold mb-1">
+            {city.nameKo} 말고 여기는 어때요?
           </h2>
-          <div className="flex flex-wrap gap-2">
-            {detail.sameCountryCities.map((c) => (
-              <Link key={c.id} to={`/destinations/${c.id}`} className="chip-primary hover:opacity-80 transition-opacity">
-                {c.nameKo}
-              </Link>
-            ))}
+          <p className="text-body-sm text-on-surface-variant mb-stack-md">
+            {city.countryName}의 다른 대표 도시들도 함께 살펴보세요.
+          </p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-gutter">
+            {detail.sameCountryCities.map((c) => {
+              const altInfo = getDestinationInfo(c.nameKo);
+              const altImg = altInfo?.gallery?.[0] ?? c.imageUrl;
+              const proxied = altImg ? proxyImage(altImg) : null;
+              return (
+                <Link
+                  key={c.id}
+                  to={`/destinations/${c.id}`}
+                  className="group relative h-48 rounded-xl overflow-hidden traveler-glow-hover"
+                >
+                  {proxied ? (
+                    <img
+                      src={proxied}
+                      alt={c.nameKo}
+                      className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                    />
+                  ) : (
+                    <div className="absolute inset-0 bg-surface-container-low" />
+                  )}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent" />
+                  <div className="absolute bottom-0 left-0 right-0 p-4">
+                    <p className="text-white text-headline-sm font-bold mb-1">{c.nameKo}</p>
+                    {altInfo?.tagline && (
+                      <p className="text-white/85 text-label-sm line-clamp-2">{altInfo.tagline}</p>
+                    )}
+                  </div>
+                </Link>
+              );
+            })}
           </div>
         </section>
       )}

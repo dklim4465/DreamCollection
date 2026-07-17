@@ -19,7 +19,7 @@ interface NavItem {
 
 const NAV_ITEMS: NavItem[] = [
   { to: "/trip", icon: "calendar_month", label: "일정" },
-  { to: "/triplog", icon: "photo_library", label: "나의기록" },
+  { to: "/records", icon: "photo_library", label: "나의기록" },
   { to: "/community", icon: "forum", label: "게시판" },
   { to: "/matching", icon: "group", label: "메이트찾기" },
   { to: "/notices", icon: "campaign", label: "공지사항" },
@@ -165,16 +165,6 @@ export default function Navbar() {
 
         <div className="flex items-center gap-stack-md">
           <SearchBar />
-
-          {isAuthenticated && (
-            <Link
-              to="/cart"
-              className="material-symbols-outlined text-on-surface-variant hover:opacity-80"
-              aria-label="장바구니"
-            >
-              shopping_cart
-            </Link>
-          )}
 
           {isAuthenticated && user?.role === "ADMIN" && (
             <Link

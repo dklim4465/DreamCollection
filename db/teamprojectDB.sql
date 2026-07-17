@@ -1,4 +1,26 @@
-
+-- ════════════════════════════════════════════════════════════════
+-- Dream Collection (dreamConnection) — 통합 스키마 + 시드데이터
+--
+-- 대상 DBMS : MySQL 8.x / MariaDB 10.6+ (InnoDB, utf8mb4)
+-- 실행 방법 : 이 파일 하나만 처음부터 끝까지 실행하면 됩니다.
+--
+-- ⚠ 원본 실행 이력 대비 정리한 내용
+--  - mate_request 가 두 번 정의돼 있던 것을 최신 버전(message 컬럼 포함)
+--    하나로 통합했습니다.
+--  - users.id 는 BIGINT(signed)인데 badge/user_badge/place/mate_request/
+--    friendship 이 BIGINT UNSIGNED 로 FK를 걸고 있어 생성이 실패할 수
+--    있던 문제를 BIGINT 로 통일해서 고쳤습니다.
+--  - ALTER TABLE 로 나중에 추가했던 컬럼(banner.media_type/banner_type,
+--    badge.condition_country_code, users.nickname_changed_at)은 처음
+--    CREATE TABLE 안에 포함시켰습니다.
+--  - USE traveldb / DESCRIBE / SELECT DATABASE() 등 디버그 쿼리,
+--    컬럼 수가 안 맞는 미완성 INSERT, city insert 후 바로 delete하던
+--    모순된 구문은 제거했습니다.
+--  - admin_id=1 하드코딩 대신, dudwo1410@nate.com 계정을 우선으로 하고
+--    없으면 가장 먼저 가입한 사용자를 관리자로 동적 조회하도록 통일했습니다.
+--  - 맨 아래 "관리자 권한 부여" 문의 이메일을 본인 계정으로 바꿔서
+--    실행해주세요.
+-- ════════════════════════════════════════════════════════════════
 
 CREATE DATABASE IF NOT EXISTS dreamConnection
     DEFAULT CHARACTER SET utf8mb4
@@ -9,6 +31,11 @@ USE dreamConnection;
 SET FOREIGN_KEY_CHECKS = 0;
 
 DROP TABLE IF EXISTS
+    `feedback`,
+    `chatbot_message`,
+    `payment_travelers`,
+    `payment_order_items`,
+    `payment_orders`,
     `user_coupon`,
     `coupon`,
     `mate_schedule_link`,
@@ -130,6 +157,62 @@ CREATE TABLE `saved_trips` (
 
 
 -- =========================================================
+-- payment_orders / payment_order_items / payment_travelers
+-- (토스페이먼츠 결제 기능용. 원래 BIGINT UNSIGNED로 users/saved_trips를
+--  참조하고 있었는데, users.id/saved_trips.id는 이 파일 맨 위 설명대로
+--  전부 BIGINT(signed)로 통일했기 때문에 그거에 맞춰 BIGINT로 바꿨습니다
+--  — 타입이 안 맞으면 FK 생성 자체가 실패하거나 경고가 남습니다.)
+-- =========================================================
+
+CREATE TABLE `payment_orders` (
+    `id`            BIGINT AUTO_INCREMENT PRIMARY KEY,
+    `order_id`      VARCHAR(64)  NOT NULL COMMENT '토스 주문번호',
+    `user_id`       BIGINT       NOT NULL,
+    `saved_trip_id` BIGINT       NOT NULL,
+    `adult_count`   INT UNSIGNED NOT NULL,
+    `total_amount`  INT UNSIGNED NOT NULL,
+    `status`        VARCHAR(20)  NOT NULL DEFAULT 'PENDING',
+    `created_at`    DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `updated_at`    DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+
+    UNIQUE KEY `uk_payment_orders_order_id` (`order_id`),
+    KEY `idx_payment_orders_user` (`user_id`),
+
+    CONSTRAINT `fk_payment_orders_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`),
+    CONSTRAINT `fk_payment_orders_saved_trip` FOREIGN KEY (`saved_trip_id`) REFERENCES `saved_trips` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE `payment_order_items` (
+    `id`         BIGINT AUTO_INCREMENT PRIMARY KEY,
+    `order_pk`   BIGINT       NOT NULL,
+    `item_type`  VARCHAR(20)  NOT NULL COMMENT 'FLIGHT / HOTEL',
+    `unit_price` INT UNSIGNED NULL COMMENT '항공: 1인 왕복 단가',
+    `quantity`   INT UNSIGNED NULL COMMENT '항공: 인원수',
+    `amount`     INT UNSIGNED NOT NULL COMMENT '항목 총액(스냅샷)',
+    `title`      VARCHAR(200) NULL,
+
+    KEY `idx_poi_order` (`order_pk`),
+    CONSTRAINT `fk_poi_order` FOREIGN KEY (`order_pk`) REFERENCES `payment_orders` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE `payment_travelers` (
+    `id`                BIGINT AUTO_INCREMENT PRIMARY KEY,
+    `order_pk`          BIGINT       NOT NULL,
+    `full_name`         VARCHAR(50)  NOT NULL,
+    `birth_date`        DATE         NOT NULL,
+    `gender`            CHAR(1)      NOT NULL COMMENT 'M/F',
+    `passport_number`   VARCHAR(30)  NOT NULL,
+    `passport_expiry`   DATE         NOT NULL,
+    `phone`             VARCHAR(20)  NULL,
+    `is_representative` TINYINT(1)   NOT NULL DEFAULT 0,
+    `sort_order`        INT UNSIGNED NOT NULL DEFAULT 0,
+
+    KEY `idx_pt_order` (`order_pk`),
+    CONSTRAINT `fk_pt_order` FOREIGN KEY (`order_pk`) REFERENCES `payment_orders` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+
+-- =========================================================
 -- airports
 -- =========================================================
 
@@ -208,6 +291,7 @@ CREATE TABLE `TripLog` (
     `start_date` DATE,
     `end_date` DATE,
     `thumbnail_path` VARCHAR(500),
+    `country_code` CHAR(2) COMMENT '이 여행 기록의 여행 국가 (badge.condition_country_code와 매칭, 저장 시 국가 뱃지 자동 지급용)',
     `description` TEXT,
 
     INDEX `idx_triplog_start_date` (`start_date`),
@@ -1026,6 +1110,46 @@ CREATE TABLE `user_coupon` (
 SET FOREIGN_KEY_CHECKS = 1;
 
 
+-- =========================================================
+-- 챗봇 대화 기록 (사용자별로 남겨서, 챗봇 패널을 다시 열거나 새로고침해도
+-- 이전 대화가 이어지도록 함. 마이페이지 등에서 "내 챗봇 대화 내역"으로도 활용 가능)
+-- =========================================================
+
+CREATE TABLE `chatbot_message` (
+    `id` BIGINT AUTO_INCREMENT PRIMARY KEY,
+    `user_id` BIGINT NOT NULL,
+    `role` VARCHAR(10) NOT NULL COMMENT 'user 또는 assistant',
+    `content` TEXT NOT NULL,
+    `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    INDEX `idx_chatbot_message_user_id` (`user_id`),
+    INDEX `idx_chatbot_message_created_at` (`created_at`),
+
+    CONSTRAINT `fk_chatbot_message_user`
+        FOREIGN KEY (`user_id`)
+        REFERENCES `users` (`id`)
+        ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+
+-- =========================================================
+-- 하단 "문의하기"에서 접수된 건의사항/버그신고 (관리자 페이지 "문의 내역"에서 조회)
+-- =========================================================
+
+CREATE TABLE `feedback` (
+    `id` BIGINT AUTO_INCREMENT PRIMARY KEY,
+    `name` VARCHAR(50) NOT NULL,
+    `email` VARCHAR(255) NOT NULL,
+    `category` VARCHAR(20) NOT NULL COMMENT 'BUG / SUGGESTION / ETC',
+    `message` TEXT NOT NULL,
+    `checked` BOOLEAN NOT NULL DEFAULT FALSE,
+    `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    INDEX `idx_feedback_created_at` (`created_at`),
+    INDEX `idx_feedback_checked` (`checked`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+
 -- ════════════════════════════════════════════════════════════════
 -- 시드 데이터
 -- ════════════════════════════════════════════════════════════════
@@ -1084,11 +1208,15 @@ VALUES
 INSERT INTO city
 (name_ko, name_en, country_code, country_name, latitude, longitude, timezone, image_url, is_popular, is_active, created_at)
 VALUES
-('도쿄', 'Tokyo', 'JP', '일본', 35.6762000, 139.6503000, 'Asia/Tokyo', NULL, true, true, NOW()),
-('오사카', 'Osaka', 'JP', '일본', 34.6937000, 135.5023000, 'Asia/Tokyo', NULL, true, true, NOW()),
-('후쿠오카', 'Fukuoka', 'JP', '일본', 33.5902000, 130.4017000, 'Asia/Tokyo', NULL, true, true, NOW()),
-('방콕', 'Bangkok', 'TH', '태국', 13.7563000, 100.5018000, 'Asia/Bangkok', NULL, true, true, NOW()),
-('뉴욕', 'New York', 'US', '미국', 40.7128000, -74.0060000, 'America/New_York', NULL, true, true, NOW());
+('도쿄', 'Tokyo', 'JP', '일본', 35.6762000, 139.6503000, 'Asia/Tokyo', 'https://images.unsplash.com/photo-1759970752518-b0ffa38c130b?w=800', true, true, NOW()),
+('오사카', 'Osaka', 'JP', '일본', 34.6937000, 135.5023000, 'Asia/Tokyo', 'https://images.unsplash.com/photo-1746890775648-70714f34bd0c?w=800', true, true, NOW()),
+('후쿠오카', 'Fukuoka', 'JP', '일본', 33.5902000, 130.4017000, 'Asia/Tokyo', 'https://images.unsplash.com/photo-1574678505748-99e73cc7ee41?w=800', true, true, NOW()),
+('방콕', 'Bangkok', 'TH', '태국', 13.7563000, 100.5018000, 'Asia/Bangkok', 'https://images.unsplash.com/photo-1755251042986-91270ffd76f5?w=800', true, true, NOW()),
+('치앙마이', 'Chiang Mai', 'TH', '태국', 18.7883000, 98.9853000, 'Asia/Bangkok', 'https://images.pexels.com/photos/33614599/pexels-photo-33614599.jpeg?w=800', true, true, NOW()),
+('푸켓', 'Phuket', 'TH', '태국', 7.8804000, 98.3923000, 'Asia/Bangkok', 'https://images.pexels.com/photos/17422289/pexels-photo-17422289.jpeg?w=800', true, true, NOW()),
+('뉴욕', 'New York', 'US', '미국', 40.7128000, -74.0060000, 'America/New_York', 'https://images.unsplash.com/photo-1754766621748-2a96cbf56a1f?w=800', true, true, NOW()),
+('로스앤젤레스', 'Los Angeles', 'US', '미국', 34.0522000, -118.2437000, 'America/Los_Angeles', 'https://images.pexels.com/photos/29276387/pexels-photo-29276387.jpeg?w=800', true, true, NOW()),
+('라스베가스', 'Las Vegas', 'US', '미국', 36.1699000, -115.1398000, 'America/Los_Angeles', 'https://images.pexels.com/photos/19715369/pexels-photo-19715369.jpeg?w=800', true, true, NOW());
 
 
 -- ---------------------------------------------------------
@@ -1096,191 +1224,191 @@ VALUES
 -- (재실행해도 안전하도록 WHERE NOT EXISTS 패턴 유지)
 -- ---------------------------------------------------------
 INSERT INTO badge (code, name, description, icon_url, condition_type, condition_country_code)
-SELECT * FROM (SELECT 'COUNTRY_JP' AS code,'일본 여행자' AS name,'일본으로 떠나는 여행을 계획했어요' AS description,'/badges/country_jp.svg' AS icon_url,'COUNTRY_VISIT' AS condition_type,'JP' AS condition_country_code) AS tmp
+SELECT * FROM (SELECT 'COUNTRY_JP' AS code,'일본 여행자' AS name,'일본으로 떠나는 여행을 계획했어요' AS description,'https://flagcdn.com/jp.svg' AS icon_url,'COUNTRY_VISIT' AS condition_type,'JP' AS condition_country_code) AS tmp
 WHERE NOT EXISTS (SELECT 1 FROM badge WHERE code = 'COUNTRY_JP');
 
 INSERT INTO badge (code, name, description, icon_url, condition_type, condition_country_code)
-SELECT * FROM (SELECT 'COUNTRY_TH' AS code,'태국 여행자' AS name,'태국으로 떠나는 여행을 계획했어요' AS description,'/badges/country_th.svg' AS icon_url,'COUNTRY_VISIT' AS condition_type,'TH' AS condition_country_code) AS tmp
+SELECT * FROM (SELECT 'COUNTRY_TH' AS code,'태국 여행자' AS name,'태국으로 떠나는 여행을 계획했어요' AS description,'https://flagcdn.com/th.svg' AS icon_url,'COUNTRY_VISIT' AS condition_type,'TH' AS condition_country_code) AS tmp
 WHERE NOT EXISTS (SELECT 1 FROM badge WHERE code = 'COUNTRY_TH');
 
 INSERT INTO badge (code, name, description, icon_url, condition_type, condition_country_code)
-SELECT * FROM (SELECT 'COUNTRY_VN' AS code,'베트남 여행자' AS name,'베트남으로 떠나는 여행을 계획했어요' AS description,'/badges/country_vn.svg' AS icon_url,'COUNTRY_VISIT' AS condition_type,'VN' AS condition_country_code) AS tmp
+SELECT * FROM (SELECT 'COUNTRY_VN' AS code,'베트남 여행자' AS name,'베트남으로 떠나는 여행을 계획했어요' AS description,'https://flagcdn.com/vn.svg' AS icon_url,'COUNTRY_VISIT' AS condition_type,'VN' AS condition_country_code) AS tmp
 WHERE NOT EXISTS (SELECT 1 FROM badge WHERE code = 'COUNTRY_VN');
 
 INSERT INTO badge (code, name, description, icon_url, condition_type, condition_country_code)
-SELECT * FROM (SELECT 'COUNTRY_FR' AS code,'프랑스 여행자' AS name,'프랑스로 떠나는 여행을 계획했어요' AS description,'/badges/country_fr.svg' AS icon_url,'COUNTRY_VISIT' AS condition_type,'FR' AS condition_country_code) AS tmp
+SELECT * FROM (SELECT 'COUNTRY_FR' AS code,'프랑스 여행자' AS name,'프랑스로 떠나는 여행을 계획했어요' AS description,'https://flagcdn.com/fr.svg' AS icon_url,'COUNTRY_VISIT' AS condition_type,'FR' AS condition_country_code) AS tmp
 WHERE NOT EXISTS (SELECT 1 FROM badge WHERE code = 'COUNTRY_FR');
 
 INSERT INTO badge (code, name, description, icon_url, condition_type, condition_country_code)
-SELECT * FROM (SELECT 'COUNTRY_KR' AS code,'국내 여행자' AS name,'국내(대한민국)로 떠나는 여행을 계획했어요' AS description,'/badges/country_kr.svg' AS icon_url,'COUNTRY_VISIT' AS condition_type,'KR' AS condition_country_code) AS tmp
+SELECT * FROM (SELECT 'COUNTRY_KR' AS code,'국내 여행자' AS name,'국내(대한민국)로 떠나는 여행을 계획했어요' AS description,'https://flagcdn.com/kr.svg' AS icon_url,'COUNTRY_VISIT' AS condition_type,'KR' AS condition_country_code) AS tmp
 WHERE NOT EXISTS (SELECT 1 FROM badge WHERE code = 'COUNTRY_KR');
 
 INSERT INTO badge (code, name, description, icon_url, condition_type, condition_country_code)
-SELECT * FROM (SELECT 'COUNTRY_US' AS code,'미국 여행자' AS name,'미국으로 떠나는 여행을 계획했어요' AS description,'/badges/country_us.svg' AS icon_url,'COUNTRY_VISIT' AS condition_type,'US' AS condition_country_code) AS tmp
+SELECT * FROM (SELECT 'COUNTRY_US' AS code,'미국 여행자' AS name,'미국으로 떠나는 여행을 계획했어요' AS description,'https://flagcdn.com/us.svg' AS icon_url,'COUNTRY_VISIT' AS condition_type,'US' AS condition_country_code) AS tmp
 WHERE NOT EXISTS (SELECT 1 FROM badge WHERE code = 'COUNTRY_US');
 
 INSERT INTO badge (code, name, description, icon_url, condition_type, condition_country_code)
-SELECT * FROM (SELECT 'COUNTRY_EU' AS code,'유럽 여행자' AS name,'유럽으로 떠나는 여행을 계획했어요' AS description,'/badges/country_eu.svg' AS icon_url,'COUNTRY_VISIT' AS condition_type,'EU' AS condition_country_code) AS tmp
+SELECT * FROM (SELECT 'COUNTRY_EU' AS code,'유럽 여행자' AS name,'유럽으로 떠나는 여행을 계획했어요' AS description,'https://flagcdn.com/eu.svg' AS icon_url,'COUNTRY_VISIT' AS condition_type,'EU' AS condition_country_code) AS tmp
 WHERE NOT EXISTS (SELECT 1 FROM badge WHERE code = 'COUNTRY_EU');
 
 INSERT INTO badge (code, name, description, icon_url, condition_type, condition_country_code)
-SELECT * FROM (SELECT 'COUNTRY_GB' AS code,'영국 여행자' AS name,'영국으로 떠나는 여행을 계획했어요' AS description,'/badges/country_gb.svg' AS icon_url,'COUNTRY_VISIT' AS condition_type,'GB' AS condition_country_code) AS tmp
+SELECT * FROM (SELECT 'COUNTRY_GB' AS code,'영국 여행자' AS name,'영국으로 떠나는 여행을 계획했어요' AS description,'https://flagcdn.com/gb.svg' AS icon_url,'COUNTRY_VISIT' AS condition_type,'GB' AS condition_country_code) AS tmp
 WHERE NOT EXISTS (SELECT 1 FROM badge WHERE code = 'COUNTRY_GB');
 
 INSERT INTO badge (code, name, description, icon_url, condition_type, condition_country_code)
-SELECT * FROM (SELECT 'COUNTRY_CN' AS code,'중국 여행자' AS name,'중국으로 떠나는 여행을 계획했어요' AS description,'/badges/country_cn.svg' AS icon_url,'COUNTRY_VISIT' AS condition_type,'CN' AS condition_country_code) AS tmp
+SELECT * FROM (SELECT 'COUNTRY_CN' AS code,'중국 여행자' AS name,'중국으로 떠나는 여행을 계획했어요' AS description,'https://flagcdn.com/cn.svg' AS icon_url,'COUNTRY_VISIT' AS condition_type,'CN' AS condition_country_code) AS tmp
 WHERE NOT EXISTS (SELECT 1 FROM badge WHERE code = 'COUNTRY_CN');
 
 INSERT INTO badge (code, name, description, icon_url, condition_type, condition_country_code)
-SELECT * FROM (SELECT 'COUNTRY_HK' AS code,'홍콩 여행자' AS name,'홍콩으로 떠나는 여행을 계획했어요' AS description,'/badges/country_hk.svg' AS icon_url,'COUNTRY_VISIT' AS condition_type,'HK' AS condition_country_code) AS tmp
+SELECT * FROM (SELECT 'COUNTRY_HK' AS code,'홍콩 여행자' AS name,'홍콩으로 떠나는 여행을 계획했어요' AS description,'https://flagcdn.com/hk.svg' AS icon_url,'COUNTRY_VISIT' AS condition_type,'HK' AS condition_country_code) AS tmp
 WHERE NOT EXISTS (SELECT 1 FROM badge WHERE code = 'COUNTRY_HK');
 
 INSERT INTO badge (code, name, description, icon_url, condition_type, condition_country_code)
-SELECT * FROM (SELECT 'COUNTRY_TW' AS code,'대만 여행자' AS name,'대만으로 떠나는 여행을 계획했어요' AS description,'/badges/country_tw.svg' AS icon_url,'COUNTRY_VISIT' AS condition_type,'TW' AS condition_country_code) AS tmp
+SELECT * FROM (SELECT 'COUNTRY_TW' AS code,'대만 여행자' AS name,'대만으로 떠나는 여행을 계획했어요' AS description,'https://flagcdn.com/tw.svg' AS icon_url,'COUNTRY_VISIT' AS condition_type,'TW' AS condition_country_code) AS tmp
 WHERE NOT EXISTS (SELECT 1 FROM badge WHERE code = 'COUNTRY_TW');
 
 INSERT INTO badge (code, name, description, icon_url, condition_type, condition_country_code)
-SELECT * FROM (SELECT 'COUNTRY_PH' AS code,'필리핀 여행자' AS name,'필리핀으로 떠나는 여행을 계획했어요' AS description,'/badges/country_ph.svg' AS icon_url,'COUNTRY_VISIT' AS condition_type,'PH' AS condition_country_code) AS tmp
+SELECT * FROM (SELECT 'COUNTRY_PH' AS code,'필리핀 여행자' AS name,'필리핀으로 떠나는 여행을 계획했어요' AS description,'https://flagcdn.com/ph.svg' AS icon_url,'COUNTRY_VISIT' AS condition_type,'PH' AS condition_country_code) AS tmp
 WHERE NOT EXISTS (SELECT 1 FROM badge WHERE code = 'COUNTRY_PH');
 
 INSERT INTO badge (code, name, description, icon_url, condition_type, condition_country_code)
-SELECT * FROM (SELECT 'COUNTRY_SG' AS code,'싱가포르 여행자' AS name,'싱가포르로 떠나는 여행을 계획했어요' AS description,'/badges/country_sg.svg' AS icon_url,'COUNTRY_VISIT' AS condition_type,'SG' AS condition_country_code) AS tmp
+SELECT * FROM (SELECT 'COUNTRY_SG' AS code,'싱가포르 여행자' AS name,'싱가포르로 떠나는 여행을 계획했어요' AS description,'https://flagcdn.com/sg.svg' AS icon_url,'COUNTRY_VISIT' AS condition_type,'SG' AS condition_country_code) AS tmp
 WHERE NOT EXISTS (SELECT 1 FROM badge WHERE code = 'COUNTRY_SG');
 
 INSERT INTO badge (code, name, description, icon_url, condition_type, condition_country_code)
-SELECT * FROM (SELECT 'COUNTRY_MY' AS code,'말레이시아 여행자' AS name,'말레이시아로 떠나는 여행을 계획했어요' AS description,'/badges/country_my.svg' AS icon_url,'COUNTRY_VISIT' AS condition_type,'MY' AS condition_country_code) AS tmp
+SELECT * FROM (SELECT 'COUNTRY_MY' AS code,'말레이시아 여행자' AS name,'말레이시아로 떠나는 여행을 계획했어요' AS description,'https://flagcdn.com/my.svg' AS icon_url,'COUNTRY_VISIT' AS condition_type,'MY' AS condition_country_code) AS tmp
 WHERE NOT EXISTS (SELECT 1 FROM badge WHERE code = 'COUNTRY_MY');
 
 INSERT INTO badge (code, name, description, icon_url, condition_type, condition_country_code)
-SELECT * FROM (SELECT 'COUNTRY_ID' AS code,'인도네시아 여행자' AS name,'인도네시아로 떠나는 여행을 계획했어요' AS description,'/badges/country_id.svg' AS icon_url,'COUNTRY_VISIT' AS condition_type,'ID' AS condition_country_code) AS tmp
+SELECT * FROM (SELECT 'COUNTRY_ID' AS code,'인도네시아 여행자' AS name,'인도네시아로 떠나는 여행을 계획했어요' AS description,'https://flagcdn.com/id.svg' AS icon_url,'COUNTRY_VISIT' AS condition_type,'ID' AS condition_country_code) AS tmp
 WHERE NOT EXISTS (SELECT 1 FROM badge WHERE code = 'COUNTRY_ID');
 
 INSERT INTO badge (code, name, description, icon_url, condition_type, condition_country_code)
-SELECT * FROM (SELECT 'COUNTRY_IN' AS code,'인도 여행자' AS name,'인도로 떠나는 여행을 계획했어요' AS description,'/badges/country_in.svg' AS icon_url,'COUNTRY_VISIT' AS condition_type,'IN' AS condition_country_code) AS tmp
+SELECT * FROM (SELECT 'COUNTRY_IN' AS code,'인도 여행자' AS name,'인도로 떠나는 여행을 계획했어요' AS description,'https://flagcdn.com/in.svg' AS icon_url,'COUNTRY_VISIT' AS condition_type,'IN' AS condition_country_code) AS tmp
 WHERE NOT EXISTS (SELECT 1 FROM badge WHERE code = 'COUNTRY_IN');
 
 INSERT INTO badge (code, name, description, icon_url, condition_type, condition_country_code)
-SELECT * FROM (SELECT 'COUNTRY_CA' AS code,'캐나다 여행자' AS name,'캐나다로 떠나는 여행을 계획했어요' AS description,'/badges/country_ca.svg' AS icon_url,'COUNTRY_VISIT' AS condition_type,'CA' AS condition_country_code) AS tmp
+SELECT * FROM (SELECT 'COUNTRY_CA' AS code,'캐나다 여행자' AS name,'캐나다로 떠나는 여행을 계획했어요' AS description,'https://flagcdn.com/ca.svg' AS icon_url,'COUNTRY_VISIT' AS condition_type,'CA' AS condition_country_code) AS tmp
 WHERE NOT EXISTS (SELECT 1 FROM badge WHERE code = 'COUNTRY_CA');
 
 INSERT INTO badge (code, name, description, icon_url, condition_type, condition_country_code)
-SELECT * FROM (SELECT 'COUNTRY_AU' AS code,'호주 여행자' AS name,'호주로 떠나는 여행을 계획했어요' AS description,'/badges/country_au.svg' AS icon_url,'COUNTRY_VISIT' AS condition_type,'AU' AS condition_country_code) AS tmp
+SELECT * FROM (SELECT 'COUNTRY_AU' AS code,'호주 여행자' AS name,'호주로 떠나는 여행을 계획했어요' AS description,'https://flagcdn.com/au.svg' AS icon_url,'COUNTRY_VISIT' AS condition_type,'AU' AS condition_country_code) AS tmp
 WHERE NOT EXISTS (SELECT 1 FROM badge WHERE code = 'COUNTRY_AU');
 
 INSERT INTO badge (code, name, description, icon_url, condition_type, condition_country_code)
-SELECT * FROM (SELECT 'COUNTRY_NZ' AS code,'뉴질랜드 여행자' AS name,'뉴질랜드로 떠나는 여행을 계획했어요' AS description,'/badges/country_nz.svg' AS icon_url,'COUNTRY_VISIT' AS condition_type,'NZ' AS condition_country_code) AS tmp
+SELECT * FROM (SELECT 'COUNTRY_NZ' AS code,'뉴질랜드 여행자' AS name,'뉴질랜드로 떠나는 여행을 계획했어요' AS description,'https://flagcdn.com/nz.svg' AS icon_url,'COUNTRY_VISIT' AS condition_type,'NZ' AS condition_country_code) AS tmp
 WHERE NOT EXISTS (SELECT 1 FROM badge WHERE code = 'COUNTRY_NZ');
 
 INSERT INTO badge (code, name, description, icon_url, condition_type, condition_country_code)
-SELECT * FROM (SELECT 'COUNTRY_CH' AS code,'스위스 여행자' AS name,'스위스로 떠나는 여행을 계획했어요' AS description,'/badges/country_ch.svg' AS icon_url,'COUNTRY_VISIT' AS condition_type,'CH' AS condition_country_code) AS tmp
+SELECT * FROM (SELECT 'COUNTRY_CH' AS code,'스위스 여행자' AS name,'스위스로 떠나는 여행을 계획했어요' AS description,'https://flagcdn.com/ch.svg' AS icon_url,'COUNTRY_VISIT' AS condition_type,'CH' AS condition_country_code) AS tmp
 WHERE NOT EXISTS (SELECT 1 FROM badge WHERE code = 'COUNTRY_CH');
 
 INSERT INTO badge (code, name, description, icon_url, condition_type, condition_country_code)
-SELECT * FROM (SELECT 'COUNTRY_TR' AS code,'튀르키예 여행자' AS name,'튀르키예로 떠나는 여행을 계획했어요' AS description,'/badges/country_tr.svg' AS icon_url,'COUNTRY_VISIT' AS condition_type,'TR' AS condition_country_code) AS tmp
+SELECT * FROM (SELECT 'COUNTRY_TR' AS code,'튀르키예 여행자' AS name,'튀르키예로 떠나는 여행을 계획했어요' AS description,'https://flagcdn.com/tr.svg' AS icon_url,'COUNTRY_VISIT' AS condition_type,'TR' AS condition_country_code) AS tmp
 WHERE NOT EXISTS (SELECT 1 FROM badge WHERE code = 'COUNTRY_TR');
 
 INSERT INTO badge (code, name, description, icon_url, condition_type, condition_country_code)
-SELECT * FROM (SELECT 'COUNTRY_AE' AS code,'아랍에미리트 여행자' AS name,'아랍에미리트로 떠나는 여행을 계획했어요' AS description,'/badges/country_ae.svg' AS icon_url,'COUNTRY_VISIT' AS condition_type,'AE' AS condition_country_code) AS tmp
+SELECT * FROM (SELECT 'COUNTRY_AE' AS code,'아랍에미리트 여행자' AS name,'아랍에미리트로 떠나는 여행을 계획했어요' AS description,'https://flagcdn.com/ae.svg' AS icon_url,'COUNTRY_VISIT' AS condition_type,'AE' AS condition_country_code) AS tmp
 WHERE NOT EXISTS (SELECT 1 FROM badge WHERE code = 'COUNTRY_AE');
 
 INSERT INTO badge (code, name, description, icon_url, condition_type, condition_country_code)
-SELECT * FROM (SELECT 'COUNTRY_SA' AS code,'사우디아라비아 여행자' AS name,'사우디아라비아로 떠나는 여행을 계획했어요' AS description,'/badges/country_sa.svg' AS icon_url,'COUNTRY_VISIT' AS condition_type,'SA' AS condition_country_code) AS tmp
+SELECT * FROM (SELECT 'COUNTRY_SA' AS code,'사우디아라비아 여행자' AS name,'사우디아라비아로 떠나는 여행을 계획했어요' AS description,'https://flagcdn.com/sa.svg' AS icon_url,'COUNTRY_VISIT' AS condition_type,'SA' AS condition_country_code) AS tmp
 WHERE NOT EXISTS (SELECT 1 FROM badge WHERE code = 'COUNTRY_SA');
 
 INSERT INTO badge (code, name, description, icon_url, condition_type, condition_country_code)
-SELECT * FROM (SELECT 'COUNTRY_IL' AS code,'이스라엘 여행자' AS name,'이스라엘로 떠나는 여행을 계획했어요' AS description,'/badges/country_il.svg' AS icon_url,'COUNTRY_VISIT' AS condition_type,'IL' AS condition_country_code) AS tmp
+SELECT * FROM (SELECT 'COUNTRY_IL' AS code,'이스라엘 여행자' AS name,'이스라엘로 떠나는 여행을 계획했어요' AS description,'https://flagcdn.com/il.svg' AS icon_url,'COUNTRY_VISIT' AS condition_type,'IL' AS condition_country_code) AS tmp
 WHERE NOT EXISTS (SELECT 1 FROM badge WHERE code = 'COUNTRY_IL');
 
 INSERT INTO badge (code, name, description, icon_url, condition_type, condition_country_code)
-SELECT * FROM (SELECT 'COUNTRY_QA' AS code,'카타르 여행자' AS name,'카타르로 떠나는 여행을 계획했어요' AS description,'/badges/country_qa.svg' AS icon_url,'COUNTRY_VISIT' AS condition_type,'QA' AS condition_country_code) AS tmp
+SELECT * FROM (SELECT 'COUNTRY_QA' AS code,'카타르 여행자' AS name,'카타르로 떠나는 여행을 계획했어요' AS description,'https://flagcdn.com/qa.svg' AS icon_url,'COUNTRY_VISIT' AS condition_type,'QA' AS condition_country_code) AS tmp
 WHERE NOT EXISTS (SELECT 1 FROM badge WHERE code = 'COUNTRY_QA');
 
 INSERT INTO badge (code, name, description, icon_url, condition_type, condition_country_code)
-SELECT * FROM (SELECT 'COUNTRY_GU' AS code,'괌 여행자' AS name,'괌으로 떠나는 여행을 계획했어요' AS description,'/badges/country_gu.svg' AS icon_url,'COUNTRY_VISIT' AS condition_type,'GU' AS condition_country_code) AS tmp
+SELECT * FROM (SELECT 'COUNTRY_GU' AS code,'괌 여행자' AS name,'괌으로 떠나는 여행을 계획했어요' AS description,'https://flagcdn.com/gu.svg' AS icon_url,'COUNTRY_VISIT' AS condition_type,'GU' AS condition_country_code) AS tmp
 WHERE NOT EXISTS (SELECT 1 FROM badge WHERE code = 'COUNTRY_GU');
 
 INSERT INTO badge (code, name, description, icon_url, condition_type, condition_country_code)
-SELECT * FROM (SELECT 'COUNTRY_MX' AS code,'멕시코 여행자' AS name,'멕시코로 떠나는 여행을 계획했어요' AS description,'/badges/country_mx.svg' AS icon_url,'COUNTRY_VISIT' AS condition_type,'MX' AS condition_country_code) AS tmp
+SELECT * FROM (SELECT 'COUNTRY_MX' AS code,'멕시코 여행자' AS name,'멕시코로 떠나는 여행을 계획했어요' AS description,'https://flagcdn.com/mx.svg' AS icon_url,'COUNTRY_VISIT' AS condition_type,'MX' AS condition_country_code) AS tmp
 WHERE NOT EXISTS (SELECT 1 FROM badge WHERE code = 'COUNTRY_MX');
 
 INSERT INTO badge (code, name, description, icon_url, condition_type, condition_country_code)
-SELECT * FROM (SELECT 'COUNTRY_BR' AS code,'브라질 여행자' AS name,'브라질로 떠나는 여행을 계획했어요' AS description,'/badges/country_br.svg' AS icon_url,'COUNTRY_VISIT' AS condition_type,'BR' AS condition_country_code) AS tmp
+SELECT * FROM (SELECT 'COUNTRY_BR' AS code,'브라질 여행자' AS name,'브라질로 떠나는 여행을 계획했어요' AS description,'https://flagcdn.com/br.svg' AS icon_url,'COUNTRY_VISIT' AS condition_type,'BR' AS condition_country_code) AS tmp
 WHERE NOT EXISTS (SELECT 1 FROM badge WHERE code = 'COUNTRY_BR');
 
 INSERT INTO badge (code, name, description, icon_url, condition_type, condition_country_code)
-SELECT * FROM (SELECT 'COUNTRY_AR' AS code,'아르헨티나 여행자' AS name,'아르헨티나로 떠나는 여행을 계획했어요' AS description,'/badges/country_ar.svg' AS icon_url,'COUNTRY_VISIT' AS condition_type,'AR' AS condition_country_code) AS tmp
+SELECT * FROM (SELECT 'COUNTRY_AR' AS code,'아르헨티나 여행자' AS name,'아르헨티나로 떠나는 여행을 계획했어요' AS description,'https://flagcdn.com/ar.svg' AS icon_url,'COUNTRY_VISIT' AS condition_type,'AR' AS condition_country_code) AS tmp
 WHERE NOT EXISTS (SELECT 1 FROM badge WHERE code = 'COUNTRY_AR');
 
 INSERT INTO badge (code, name, description, icon_url, condition_type, condition_country_code)
-SELECT * FROM (SELECT 'COUNTRY_RU' AS code,'러시아 여행자' AS name,'러시아로 떠나는 여행을 계획했어요' AS description,'/badges/country_ru.svg' AS icon_url,'COUNTRY_VISIT' AS condition_type,'RU' AS condition_country_code) AS tmp
+SELECT * FROM (SELECT 'COUNTRY_RU' AS code,'러시아 여행자' AS name,'러시아로 떠나는 여행을 계획했어요' AS description,'https://flagcdn.com/ru.svg' AS icon_url,'COUNTRY_VISIT' AS condition_type,'RU' AS condition_country_code) AS tmp
 WHERE NOT EXISTS (SELECT 1 FROM badge WHERE code = 'COUNTRY_RU');
 
 INSERT INTO badge (code, name, description, icon_url, condition_type, condition_country_code)
-SELECT * FROM (SELECT 'COUNTRY_SE' AS code,'스웨덴 여행자' AS name,'스웨덴으로 떠나는 여행을 계획했어요' AS description,'/badges/country_se.svg' AS icon_url,'COUNTRY_VISIT' AS condition_type,'SE' AS condition_country_code) AS tmp
+SELECT * FROM (SELECT 'COUNTRY_SE' AS code,'스웨덴 여행자' AS name,'스웨덴으로 떠나는 여행을 계획했어요' AS description,'https://flagcdn.com/se.svg' AS icon_url,'COUNTRY_VISIT' AS condition_type,'SE' AS condition_country_code) AS tmp
 WHERE NOT EXISTS (SELECT 1 FROM badge WHERE code = 'COUNTRY_SE');
 
 INSERT INTO badge (code, name, description, icon_url, condition_type, condition_country_code)
-SELECT * FROM (SELECT 'COUNTRY_NO' AS code,'노르웨이 여행자' AS name,'노르웨이로 떠나는 여행을 계획했어요' AS description,'/badges/country_no.svg' AS icon_url,'COUNTRY_VISIT' AS condition_type,'NO' AS condition_country_code) AS tmp
+SELECT * FROM (SELECT 'COUNTRY_NO' AS code,'노르웨이 여행자' AS name,'노르웨이로 떠나는 여행을 계획했어요' AS description,'https://flagcdn.com/no.svg' AS icon_url,'COUNTRY_VISIT' AS condition_type,'NO' AS condition_country_code) AS tmp
 WHERE NOT EXISTS (SELECT 1 FROM badge WHERE code = 'COUNTRY_NO');
 
 INSERT INTO badge (code, name, description, icon_url, condition_type, condition_country_code)
-SELECT * FROM (SELECT 'COUNTRY_DK' AS code,'덴마크 여행자' AS name,'덴마크로 떠나는 여행을 계획했어요' AS description,'/badges/country_dk.svg' AS icon_url,'COUNTRY_VISIT' AS condition_type,'DK' AS condition_country_code) AS tmp
+SELECT * FROM (SELECT 'COUNTRY_DK' AS code,'덴마크 여행자' AS name,'덴마크로 떠나는 여행을 계획했어요' AS description,'https://flagcdn.com/dk.svg' AS icon_url,'COUNTRY_VISIT' AS condition_type,'DK' AS condition_country_code) AS tmp
 WHERE NOT EXISTS (SELECT 1 FROM badge WHERE code = 'COUNTRY_DK');
 
 INSERT INTO badge (code, name, description, icon_url, condition_type, condition_country_code)
-SELECT * FROM (SELECT 'COUNTRY_PL' AS code,'폴란드 여행자' AS name,'폴란드로 떠나는 여행을 계획했어요' AS description,'/badges/country_pl.svg' AS icon_url,'COUNTRY_VISIT' AS condition_type,'PL' AS condition_country_code) AS tmp
+SELECT * FROM (SELECT 'COUNTRY_PL' AS code,'폴란드 여행자' AS name,'폴란드로 떠나는 여행을 계획했어요' AS description,'https://flagcdn.com/pl.svg' AS icon_url,'COUNTRY_VISIT' AS condition_type,'PL' AS condition_country_code) AS tmp
 WHERE NOT EXISTS (SELECT 1 FROM badge WHERE code = 'COUNTRY_PL');
 
 INSERT INTO badge (code, name, description, icon_url, condition_type, condition_country_code)
-SELECT * FROM (SELECT 'COUNTRY_CZ' AS code,'체코 여행자' AS name,'체코로 떠나는 여행을 계획했어요' AS description,'/badges/country_cz.svg' AS icon_url,'COUNTRY_VISIT' AS condition_type,'CZ' AS condition_country_code) AS tmp
+SELECT * FROM (SELECT 'COUNTRY_CZ' AS code,'체코 여행자' AS name,'체코로 떠나는 여행을 계획했어요' AS description,'https://flagcdn.com/cz.svg' AS icon_url,'COUNTRY_VISIT' AS condition_type,'CZ' AS condition_country_code) AS tmp
 WHERE NOT EXISTS (SELECT 1 FROM badge WHERE code = 'COUNTRY_CZ');
 
 INSERT INTO badge (code, name, description, icon_url, condition_type, condition_country_code)
-SELECT * FROM (SELECT 'COUNTRY_HU' AS code,'헝가리 여행자' AS name,'헝가리로 떠나는 여행을 계획했어요' AS description,'/badges/country_hu.svg' AS icon_url,'COUNTRY_VISIT' AS condition_type,'HU' AS condition_country_code) AS tmp
+SELECT * FROM (SELECT 'COUNTRY_HU' AS code,'헝가리 여행자' AS name,'헝가리로 떠나는 여행을 계획했어요' AS description,'https://flagcdn.com/hu.svg' AS icon_url,'COUNTRY_VISIT' AS condition_type,'HU' AS condition_country_code) AS tmp
 WHERE NOT EXISTS (SELECT 1 FROM badge WHERE code = 'COUNTRY_HU');
 
 INSERT INTO badge (code, name, description, icon_url, condition_type, condition_country_code)
-SELECT * FROM (SELECT 'COUNTRY_EG' AS code,'이집트 여행자' AS name,'이집트로 떠나는 여행을 계획했어요' AS description,'/badges/country_eg.svg' AS icon_url,'COUNTRY_VISIT' AS condition_type,'EG' AS condition_country_code) AS tmp
+SELECT * FROM (SELECT 'COUNTRY_EG' AS code,'이집트 여행자' AS name,'이집트로 떠나는 여행을 계획했어요' AS description,'https://flagcdn.com/eg.svg' AS icon_url,'COUNTRY_VISIT' AS condition_type,'EG' AS condition_country_code) AS tmp
 WHERE NOT EXISTS (SELECT 1 FROM badge WHERE code = 'COUNTRY_EG');
 
 INSERT INTO badge (code, name, description, icon_url, condition_type, condition_country_code)
-SELECT * FROM (SELECT 'COUNTRY_ZA' AS code,'남아프리카공화국 여행자' AS name,'남아프리카공화국으로 떠나는 여행을 계획했어요' AS description,'/badges/country_za.svg' AS icon_url,'COUNTRY_VISIT' AS condition_type,'ZA' AS condition_country_code) AS tmp
+SELECT * FROM (SELECT 'COUNTRY_ZA' AS code,'남아프리카공화국 여행자' AS name,'남아프리카공화국으로 떠나는 여행을 계획했어요' AS description,'https://flagcdn.com/za.svg' AS icon_url,'COUNTRY_VISIT' AS condition_type,'ZA' AS condition_country_code) AS tmp
 WHERE NOT EXISTS (SELECT 1 FROM badge WHERE code = 'COUNTRY_ZA');
 
 INSERT INTO badge (code, name, description, icon_url, condition_type, condition_country_code)
-SELECT * FROM (SELECT 'COUNTRY_MN' AS code,'몽골 여행자' AS name,'몽골로 떠나는 여행을 계획했어요' AS description,'/badges/country_mn.svg' AS icon_url,'COUNTRY_VISIT' AS condition_type,'MN' AS condition_country_code) AS tmp
+SELECT * FROM (SELECT 'COUNTRY_MN' AS code,'몽골 여행자' AS name,'몽골로 떠나는 여행을 계획했어요' AS description,'https://flagcdn.com/mn.svg' AS icon_url,'COUNTRY_VISIT' AS condition_type,'MN' AS condition_country_code) AS tmp
 WHERE NOT EXISTS (SELECT 1 FROM badge WHERE code = 'COUNTRY_MN');
 
 INSERT INTO badge (code, name, description, icon_url, condition_type, condition_country_code)
-SELECT * FROM (SELECT 'COUNTRY_NP' AS code,'네팔 여행자' AS name,'네팔로 떠나는 여행을 계획했어요' AS description,'/badges/country_np.svg' AS icon_url,'COUNTRY_VISIT' AS condition_type,'NP' AS condition_country_code) AS tmp
+SELECT * FROM (SELECT 'COUNTRY_NP' AS code,'네팔 여행자' AS name,'네팔로 떠나는 여행을 계획했어요' AS description,'https://flagcdn.com/np.svg' AS icon_url,'COUNTRY_VISIT' AS condition_type,'NP' AS condition_country_code) AS tmp
 WHERE NOT EXISTS (SELECT 1 FROM badge WHERE code = 'COUNTRY_NP');
 
 INSERT INTO badge (code, name, description, icon_url, condition_type, condition_country_code)
-SELECT * FROM (SELECT 'COUNTRY_LK' AS code,'스리랑카 여행자' AS name,'스리랑카로 떠나는 여행을 계획했어요' AS description,'/badges/country_lk.svg' AS icon_url,'COUNTRY_VISIT' AS condition_type,'LK' AS condition_country_code) AS tmp
+SELECT * FROM (SELECT 'COUNTRY_LK' AS code,'스리랑카 여행자' AS name,'스리랑카로 떠나는 여행을 계획했어요' AS description,'https://flagcdn.com/lk.svg' AS icon_url,'COUNTRY_VISIT' AS condition_type,'LK' AS condition_country_code) AS tmp
 WHERE NOT EXISTS (SELECT 1 FROM badge WHERE code = 'COUNTRY_LK');
 
 INSERT INTO badge (code, name, description, icon_url, condition_type, condition_country_code)
-SELECT * FROM (SELECT 'COUNTRY_KH' AS code,'캄보디아 여행자' AS name,'캄보디아로 떠나는 여행을 계획했어요' AS description,'/badges/country_kh.svg' AS icon_url,'COUNTRY_VISIT' AS condition_type,'KH' AS condition_country_code) AS tmp
+SELECT * FROM (SELECT 'COUNTRY_KH' AS code,'캄보디아 여행자' AS name,'캄보디아로 떠나는 여행을 계획했어요' AS description,'https://flagcdn.com/kh.svg' AS icon_url,'COUNTRY_VISIT' AS condition_type,'KH' AS condition_country_code) AS tmp
 WHERE NOT EXISTS (SELECT 1 FROM badge WHERE code = 'COUNTRY_KH');
 
 INSERT INTO badge (code, name, description, icon_url, condition_type, condition_country_code)
-SELECT * FROM (SELECT 'COUNTRY_LA' AS code,'라오스 여행자' AS name,'라오스로 떠나는 여행을 계획했어요' AS description,'/badges/country_la.svg' AS icon_url,'COUNTRY_VISIT' AS condition_type,'LA' AS condition_country_code) AS tmp
+SELECT * FROM (SELECT 'COUNTRY_LA' AS code,'라오스 여행자' AS name,'라오스로 떠나는 여행을 계획했어요' AS description,'https://flagcdn.com/la.svg' AS icon_url,'COUNTRY_VISIT' AS condition_type,'LA' AS condition_country_code) AS tmp
 WHERE NOT EXISTS (SELECT 1 FROM badge WHERE code = 'COUNTRY_LA');
 
 INSERT INTO badge (code, name, description, icon_url, condition_type, condition_country_code)
-SELECT * FROM (SELECT 'COUNTRY_FJ' AS code,'피지 여행자' AS name,'피지로 떠나는 여행을 계획했어요' AS description,'/badges/country_fj.svg' AS icon_url,'COUNTRY_VISIT' AS condition_type,'FJ' AS condition_country_code) AS tmp
+SELECT * FROM (SELECT 'COUNTRY_FJ' AS code,'피지 여행자' AS name,'피지로 떠나는 여행을 계획했어요' AS description,'https://flagcdn.com/fj.svg' AS icon_url,'COUNTRY_VISIT' AS condition_type,'FJ' AS condition_country_code) AS tmp
 WHERE NOT EXISTS (SELECT 1 FROM badge WHERE code = 'COUNTRY_FJ');
 
 INSERT INTO badge (code, name, description, icon_url, condition_type, condition_country_code)
-SELECT * FROM (SELECT 'COUNTRY_MA' AS code,'모로코 여행자' AS name,'모로코로 떠나는 여행을 계획했어요' AS description,'/badges/country_ma.svg' AS icon_url,'COUNTRY_VISIT' AS condition_type,'MA' AS condition_country_code) AS tmp
+SELECT * FROM (SELECT 'COUNTRY_MA' AS code,'모로코 여행자' AS name,'모로코로 떠나는 여행을 계획했어요' AS description,'https://flagcdn.com/ma.svg' AS icon_url,'COUNTRY_VISIT' AS condition_type,'MA' AS condition_country_code) AS tmp
 WHERE NOT EXISTS (SELECT 1 FROM badge WHERE code = 'COUNTRY_MA');
 
 INSERT INTO badge (code, name, description, icon_url, condition_type, condition_country_code)
-SELECT * FROM (SELECT 'COUNTRY_KW' AS code,'쿠웨이트 여행자' AS name,'쿠웨이트로 떠나는 여행을 계획했어요' AS description,'/badges/country_kw.svg' AS icon_url,'COUNTRY_VISIT' AS condition_type,'KW' AS condition_country_code) AS tmp
+SELECT * FROM (SELECT 'COUNTRY_KW' AS code,'쿠웨이트 여행자' AS name,'쿠웨이트로 떠나는 여행을 계획했어요' AS description,'https://flagcdn.com/kw.svg' AS icon_url,'COUNTRY_VISIT' AS condition_type,'KW' AS condition_country_code) AS tmp
 WHERE NOT EXISTS (SELECT 1 FROM badge WHERE code = 'COUNTRY_KW');
 
 INSERT INTO badge (code, name, description, icon_url, condition_type, condition_country_code)
-SELECT * FROM (SELECT 'COUNTRY_JO' AS code,'요르단 여행자' AS name,'요르단으로 떠나는 여행을 계획했어요' AS description,'/badges/country_jo.svg' AS icon_url,'COUNTRY_VISIT' AS condition_type,'JO' AS condition_country_code) AS tmp
+SELECT * FROM (SELECT 'COUNTRY_JO' AS code,'요르단 여행자' AS name,'요르단으로 떠나는 여행을 계획했어요' AS description,'https://flagcdn.com/jo.svg' AS icon_url,'COUNTRY_VISIT' AS condition_type,'JO' AS condition_country_code) AS tmp
 WHERE NOT EXISTS (SELECT 1 FROM badge WHERE code = 'COUNTRY_JO');
 
 -- 레벨업 마일스톤 뱃지 (레벨 구간: 1~10)
@@ -1311,12 +1439,24 @@ WHERE NOT EXISTS (SELECT 1 FROM badge WHERE code = 'WELCOME');
 
 
 -- ---------------------------------------------------------
--- 관리자 콘텐츠 시드 (이달의 여행지 / 배너)
--- admin_id 는 dudwo1410@nate.com 계정을 우선 사용하고,
--- 없으면 가장 먼저 가입한 사용자를 임시 관리자로 사용합니다.
+-- 관리자 콘텐츠 시드 (이달의 여행지 / 배너 / 공지)
+--
+-- ⚠ 예전 버전은 admin_id를 "이미 가입된 유저" 중에서만 찾았는데,
+--   방금 DROP&CREATE로 DB를 새로 만든 직후에는 가입자가 0명이라
+--   admin_id가 NULL이 되고, 그 아래 배너/이달의여행지/공지 INSERT가
+--   전부 "WHERE @dc_admin_id IS NOT NULL" 가드에 걸려 조용히 스킵됐다.
+--   그래서 "SQL은 에러 없이 실행됐는데 화면엔 안 나온다"는 문제가 반복됐다.
+--
+--   → 실제 유저 존재 여부와 무관하게 항상 존재하는 "시스템 관리자" 계정을
+--     먼저 보장해두고, admin_id가 없으면 이 계정을 쓰도록 바꿔서
+--     이 문제를 원천적으로 없앴다. (로그인은 안 되는 더미 계정이라 안전함)
 -- ---------------------------------------------------------
+INSERT INTO users (uuid, email, password_hash, name, nickname, travel_style, role, status)
+SELECT UUID(), 'system@dreamcollection.local', '$2a$10$disabledDisabledDisabledDisabledDisabledDis', '드림컬렉션', 'dreamcollection_system', 'RELAXED', 'ADMIN', 'ACTIVE'
+WHERE NOT EXISTS (SELECT 1 FROM users WHERE email = 'system@dreamcollection.local');
+
 SET @dc_admin_id = (SELECT id FROM users WHERE email = 'dudwo1410@nate.com' LIMIT 1);
-SET @dc_admin_id = COALESCE(@dc_admin_id, (SELECT id FROM users ORDER BY id LIMIT 1));
+SET @dc_admin_id = COALESCE(@dc_admin_id, (SELECT id FROM users WHERE email = 'system@dreamcollection.local' LIMIT 1));
 
 INSERT INTO monthly_destination
     (admin_id, display_month, destination_name, title, description, image_url, link_url, source_type, display_order, is_active, created_at, updated_at)
@@ -1337,15 +1477,14 @@ WHERE @dc_admin_id IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM monthly_destination WHERE destination_name = t.destination_name AND display_month = DATE_FORMAT(NOW(), '%Y-%m'));
 
 -- 우측 상단 코너 광고용 배너
--- ⚠ 원본은 media_type='VIDEO' + '/uploads/videos/main-banner.mp4' 였는데,
---    FileStorageService는 이미지만 저장하고(videos 폴더 자체가 없음) 그 파일이
---    실제로 존재한 적이 없어서 항상 깨진 채로 보였습니다. 실제로 존재하는
---    이미지로 바꿨습니다. 진짜 홍보 영상을 쓰고 싶으면 관리자 페이지에서
---    영상을 올린 뒤 그 URL로 UPDATE 해주세요.
+-- ⚠ 이미지 → 구글 데모 영상(BigBuckBunny, 나중에 핫링크 제한 걸려서 흰 화면으로 깨짐) →
+--    지금은 실제로 안정적으로 재생 확인된 Pexels 여행 영상(비행기 창문 너머 바다 착륙 장면)
+--    으로 최종 정리했습니다. title은 화면에 그대로 노출되는 홍보 문구로 씀
+--    (CornerAdBanner.tsx가 banner.title을 영상 위 캡션으로 렌더링).
 INSERT INTO banner (admin_id, title, media_type, banner_type, image_url, link_url, display_order, is_active, created_at, updated_at)
-SELECT @dc_admin_id, '대표 홍보 영상', 'IMAGE', 'CORNER_AD', 'https://images.unsplash.com/photo-1528127269322-539801943592?w=800', NULL, 0, 1, NOW(), NOW()
+SELECT @dc_admin_id, '당신의 다음 여행지는 어디인가요? ✈️', 'VIDEO', 'CORNER_AD', 'https://videos.pexels.com/video-files/1223362/1223362-hd_1280_720_30fps.mp4', NULL, 0, 1, NOW(), NOW()
 WHERE @dc_admin_id IS NOT NULL
-  AND NOT EXISTS (SELECT 1 FROM banner WHERE title = '대표 홍보 영상');
+  AND NOT EXISTS (SELECT 1 FROM banner WHERE banner_type = 'CORNER_AD');
 
 
 -- ---------------------------------------------------------
@@ -1386,4 +1525,94 @@ WHERE @dc_admin_id IS NOT NULL
 -- 관리자 권한 부여
 -- ⚠ 아래 이메일을 본인 계정으로 바꾼 뒤 마지막에 한 번 실행하세요.
 -- ════════════════════════════════════════════════════════════════
--- UPDATE users SET role = 'ADMIN' WHERE email = 'dudwo1410@nate.com';
+ UPDATE users SET role = 'ADMIN' WHERE email = 'dudwo1410@nate.com';
+ -- 아래 이메일을 실제 관리자로 만들 계정으로 바꾼 뒤 전체를 한 번에 실행하세요.
+-- ⚠ schema.sql을 다시 실행(DROP&CREATE)하면 users/user_badge/saved_trips가
+--   전부 초기화되므로, 이 스크립트는 반드시 "schema.sql 실행 이후, 그리고
+--   해당 계정으로 회원가입을 마친 다음"에 실행해야 합니다. 순서를 지켰는데도
+--   레벨/뱃지가 안 바뀐다면 맨 아래 확인 쿼리에서 @target_id가 NULL로 나오는지
+--   확인해보세요 (NULL이면 이메일이 실제 가입 계정과 다른 것입니다).
+USE dreamConnection;
+
+SET @target_email = 'dudwo1410@nate.com';  -- ⚠ 여기를 본인 계정 이메일로 바꿔주세요
+SET @target_id = (SELECT id FROM users WHERE email = @target_email LIMIT 1);
+
+-- 1) 관리자 권한 부여 → /admin 페이지에서 배너/이달의여행지/메인배경/공지/유저 CRUD 가능해짐
+UPDATE users SET role = 'ADMIN' WHERE id = @target_id;
+
+-- 2) 뱃지 도감 전부 지급 (이미 가진 건 건드리지 않음)
+INSERT INTO user_badge (user_id, badge_id, earned_at, is_representative)
+SELECT @target_id, b.id, NOW(), 0
+FROM badge b
+WHERE @target_id IS NOT NULL
+  AND NOT EXISTS (
+      SELECT 1 FROM user_badge ub WHERE ub.user_id = @target_id AND ub.badge_id = b.id
+  );
+
+-- 3) 레벨 최고치로 — 레벨은 saved_trips(여행 저장) 횟수로 계산되므로(LevelPolicy 기준 50회 이상 = Lv.10)
+--    더미 저장 기록 50개를 채워넣음. recommendation_json은 그냥 빈 객체로 둠(화면에 안 보임).
+--    ⚠ 이전 버전은 재귀 CTE(WITH RECURSIVE)를 썼는데 일부 환경에서 INSERT 안에 끼워 넣는
+--      위치 문제로 조용히 실패할 수 있어서, 확실하게 동작하는 UNION ALL 방식으로 바꿨습니다.
+INSERT INTO saved_trips (user_id, recommendation_json, created_date)
+SELECT * FROM (
+    SELECT @target_id, '{}', NOW() UNION ALL
+    SELECT @target_id, '{}', NOW() UNION ALL
+    SELECT @target_id, '{}', NOW() UNION ALL
+    SELECT @target_id, '{}', NOW() UNION ALL
+    SELECT @target_id, '{}', NOW() UNION ALL
+    SELECT @target_id, '{}', NOW() UNION ALL
+    SELECT @target_id, '{}', NOW() UNION ALL
+    SELECT @target_id, '{}', NOW() UNION ALL
+    SELECT @target_id, '{}', NOW() UNION ALL
+    SELECT @target_id, '{}', NOW() UNION ALL
+    SELECT @target_id, '{}', NOW() UNION ALL
+    SELECT @target_id, '{}', NOW() UNION ALL
+    SELECT @target_id, '{}', NOW() UNION ALL
+    SELECT @target_id, '{}', NOW() UNION ALL
+    SELECT @target_id, '{}', NOW() UNION ALL
+    SELECT @target_id, '{}', NOW() UNION ALL
+    SELECT @target_id, '{}', NOW() UNION ALL
+    SELECT @target_id, '{}', NOW() UNION ALL
+    SELECT @target_id, '{}', NOW() UNION ALL
+    SELECT @target_id, '{}', NOW() UNION ALL
+    SELECT @target_id, '{}', NOW() UNION ALL
+    SELECT @target_id, '{}', NOW() UNION ALL
+    SELECT @target_id, '{}', NOW() UNION ALL
+    SELECT @target_id, '{}', NOW() UNION ALL
+    SELECT @target_id, '{}', NOW() UNION ALL
+    SELECT @target_id, '{}', NOW() UNION ALL
+    SELECT @target_id, '{}', NOW() UNION ALL
+    SELECT @target_id, '{}', NOW() UNION ALL
+    SELECT @target_id, '{}', NOW() UNION ALL
+    SELECT @target_id, '{}', NOW() UNION ALL
+    SELECT @target_id, '{}', NOW() UNION ALL
+    SELECT @target_id, '{}', NOW() UNION ALL
+    SELECT @target_id, '{}', NOW() UNION ALL
+    SELECT @target_id, '{}', NOW() UNION ALL
+    SELECT @target_id, '{}', NOW() UNION ALL
+    SELECT @target_id, '{}', NOW() UNION ALL
+    SELECT @target_id, '{}', NOW() UNION ALL
+    SELECT @target_id, '{}', NOW() UNION ALL
+    SELECT @target_id, '{}', NOW() UNION ALL
+    SELECT @target_id, '{}', NOW() UNION ALL
+    SELECT @target_id, '{}', NOW() UNION ALL
+    SELECT @target_id, '{}', NOW() UNION ALL
+    SELECT @target_id, '{}', NOW() UNION ALL
+    SELECT @target_id, '{}', NOW() UNION ALL
+    SELECT @target_id, '{}', NOW() UNION ALL
+    SELECT @target_id, '{}', NOW() UNION ALL
+    SELECT @target_id, '{}', NOW() UNION ALL
+    SELECT @target_id, '{}', NOW() UNION ALL
+    SELECT @target_id, '{}', NOW() UNION ALL
+    SELECT @target_id, '{}', NOW()
+) AS dummy_trips
+WHERE @target_id IS NOT NULL;
+
+-- 확인 (여기서 @target_id가 NULL로 나오면 이메일이 실제 가입 계정과 다른 것입니다)
+SELECT @target_id AS resolved_user_id;
+SELECT id, email, role FROM users WHERE id = @target_id;
+SELECT COUNT(*) AS badge_count FROM user_badge WHERE user_id = @target_id;
+SELECT COUNT(*) AS trip_count FROM saved_trips WHERE user_id = @target_id;
+
+USE dreamConnection;
+SELECT id, email, role, created_at FROM users;

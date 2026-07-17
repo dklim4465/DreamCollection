@@ -3,7 +3,8 @@ export interface TripLogRequestDTO {
   startDate: string | null;
   endDate: string | null;
   description: string | null;
-  thumbnailMediaMno: number | null;
+  // 어느 나라 여행이었는지 (선택). 지정하면 저장 시 그 나라 도감 뱃지가 자동 지급됨
+  countryCode: string | null;
 }
 
 export interface TripLogResponseDTO {
@@ -18,6 +19,8 @@ export interface TripLogResponseDTO {
   thumbnailPath: string | null;
 
   description: string | null;
+
+  countryCode: string | null;
 
   createdAt: string;
 
@@ -82,8 +85,6 @@ export interface SpotDetailDTO {
   leaveAt: string;
 
   coverImagePath: string | null;
-
-  timezone: string;
 
   mediaList: MediaSummaryDTO[];
 }

@@ -44,6 +44,8 @@ public class SecurityConfig {
             "/uploads/**",
             "/api/board/posts/**",
             "/upload/**",
+            "/api/images/proxy",
+            "/api/feedback",
     };
 
     @Bean

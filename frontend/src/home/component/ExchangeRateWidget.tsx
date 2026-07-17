@@ -118,7 +118,7 @@ export default function ExchangeRateWidget() {
   );
 
   return (
-    <section className="card-base p-stack-lg flex flex-col gap-stack-md">
+    <section className="card-tint-primary p-stack-lg flex flex-col gap-stack-md">
       <div className="flex items-center justify-between">
         <h2 className="text-headline-sm font-bold">오늘의 환율</h2>
         <span className="text-label-sm text-on-surface-variant flex items-center gap-1">
