@@ -10,7 +10,7 @@ import {
   type FlightSegment,
   type TripFlowState,
 } from "@/trip/api/trip";
-import TripConditionSummaryBar from "@/trip/components/result/planning/TripConditionSummaryBar";
+import TripConditionSummaryBar from "@/trip/components/planning/TripConditionSummaryBar";
 
 interface LocationState extends TripFlowState {}
 

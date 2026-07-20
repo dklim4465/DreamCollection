@@ -13,7 +13,7 @@ import {
   DestinationConditionRow,
   OptionConditionRow,
   PrepareConditionRow,
-} from "@/trip/components/result/planning/TripConditionRows";
+} from "@/trip/components/planning/TripConditionRows";
 import "@/trip/styles/trip.css";
 
 type FlightPrepareType = "recommend" | "booked";
