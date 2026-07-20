@@ -14,7 +14,7 @@ import com.dreamCollection.chat.repository.ChatRoomMemberRepository;
 import com.dreamCollection.chat.repository.ChatRoomRepository;
 import com.dreamCollection.chat.repository.FriendshipRepository;
 import com.dreamCollection.mate.entity.MatePost;
-import com.dreamCollection.mate.excpetion.MatePostNotFoundException;
+import com.dreamCollection.mate.exception.MatePostNotFoundException;
 import com.dreamCollection.mate.repository.MatePostRepository;
 import com.dreamCollection.mate.repository.MateRequestRepository;
 import com.dreamCollection.social.repository.NotificationRepository;

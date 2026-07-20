@@ -11,8 +11,8 @@ import { useAuthStore } from "@/auth/store/authStore";
 import MateRequestItem from "@/mate/components/MateRequestItem";
 import MateReviewSection from "@/mate/components/MateReviewSection";
 import UserProfileModal from "@/mate/components/UserProfileModal";
-import LoadingSpinner from "@/common/component/LoadingSpinner";
-import EmptyState from "@/common/component/EmptyState";
+import LoadingSpinner from "@/common/components/LoadingSpinner";
+import EmptyState from "@/common/components/EmptyState";
 
 export default function MateDetailPage() {
   const { matePostId } = useParams<{ matePostId: string }>();

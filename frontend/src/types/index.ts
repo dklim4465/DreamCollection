@@ -116,24 +116,6 @@ export interface Payment {
   paidAt: string;
 }
 
-// ── 여행일지 / 사진 (TRAVEL_LOG / LOG_PHOTO) ─────────────
-export interface LogPhoto {
-  id: number;
-  imageUrl: string;
-  takenAt?: string;
-  latitude?: number;
-  longitude?: number;
-}
-
-export interface TravelLog {
-  id: number;
-  title: string;
-  scheduleId?: number;
-  memo: string;
-  photos: LogPhoto[];
-  createdAt: string;
-}
-
 // 동행 모집
 export interface CompanionPost {
   id: number;

@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { authApi } from "@/auth/api/authApi";
 import { useAuthStore } from "@/auth/store/authStore";
-import LoadingSpinner from "@/common/component/LoadingSpinner";
+import LoadingSpinner from "@/common/components/LoadingSpinner";
 
 /**
  * 카카오 로그인 동의 후 카카오가 리다이렉트하는 페이지.

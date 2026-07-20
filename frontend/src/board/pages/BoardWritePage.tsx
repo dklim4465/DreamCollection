@@ -18,7 +18,7 @@ import {
   type BoardCategory,
   type BoardImage,
 } from "@/board/types/board";
-import LoadingSpinner from "@/common/component/LoadingSpinner";
+import LoadingSpinner from "@/common/components/LoadingSpinner";
 
 interface PendingImage {
   id: string;

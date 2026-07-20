@@ -1,246 +1,157 @@
-import { lazy, Suspense, useEffect } from "react";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import LoadingSpinner from "./common/component/LoadingSpinner";
-import PrivateRoute from "./common/component/PrivateRoute";
-import AdminRoute from "./common/component/AdminRoute";
-import AppLayout from "./common/layout/AppLayout";
-import { authApi } from "@/auth/api/authApi";
-import { useAuthStore } from "@/auth/store/authStore";
-import { MapProvider } from "@/travelog/map/MapProvider";
-
-// ── 코드 스플리팅 (lazy import) ──────────────────────────────
-const CardRegisterPage = lazy(() => import("./payment/pages/CardRegisterPage"));
-const BillingSuccessPage = lazy(
-  () => import("./payment/pages/BillingSuccessPage"),
-);
-const BillingFailPage = lazy(() => import("./payment/pages/BillingFailPage"));
-
-const LoginPage = lazy(() => import("./auth/pages/LoginPage"));
-const RegisterPage = lazy(() => import("./auth/pages/RegisterPage"));
-const ForgotPasswordPage = lazy(
-  () => import("./auth/pages/ForgotPasswordPage"),
-);
-const KakaoCallbackPage = lazy(() => import("./auth/pages/KakaoCallbackPage"));
-
-const HomePage = lazy(() => import("./home/pages/HomePage"));
-const TravelPlanPage = lazy(() => import("@/trip/page/TravelPlanPage"));
-const TripFlightSelectPage = lazy(
-  () => import("@/trip/page/TripFlightSelectPage"),
-);
-const TripAccommodationSelectPage = lazy(
-  () => import("@/trip/page/TripAccommodationSelectPage"),
-);
-const TripResultPage = lazy(() => import("@/trip/page/TripResultPage"));
-const TripSavedListPage = lazy(() => import("@/trip/page/TripSavedListPage"));
-const TripSavedDetailPage = lazy(
-  () => import("@/trip/page/TripSavedDetailPage"),
-);
-const CommunityPage = lazy(() => import("@/board/pages/CommunityPage"));
-const BoardDetailPage = lazy(() => import("@/board/pages/BoardDetailPage"));
-const BoardWritePage = lazy(() => import("@/board/pages/BoardWritePage"));
-const MatchingPage = lazy(() => import("@/mate/pages/MatchingPage"));
-const MateWritePage = lazy(() => import("@/mate/pages/MateWritePage"));
-const MateDetailPage = lazy(() => import("@/mate/pages/MateDetailPage"));
-const NoticeListPage = lazy(() => import("@/notice/pages/NoticeListPage"));
-const NoticeDetailPage = lazy(() => import("@/notice/pages/NoticeDetailPage"));
-const FeedbackPage = lazy(() => import("@/support/pages/FeedbackPage"));
-const CityDetailPage = lazy(() => import("@/destination/pages/CityDetailPage"));
-
-const RecordsPage = lazy(() => import("./records/pages/RecordsPage"));
-const ProfilePage = lazy(() => import("./profile/pages/ProfilePage"));
-
-const AdminLayout = lazy(() => import("./admin/pages/AdminLayout"));
-const AdminBannersPage = lazy(() => import("./admin/pages/AdminBannersPage"));
-const AdminMainBackgroundsPage = lazy(
-  () => import("./admin/pages/AdminMainBackgroundsPage"),
-);
-const AdminNoticesPage = lazy(() => import("./admin/pages/AdminNoticesPage"));
-const AdminMonthlyDestinationsPage = lazy(
-  () => import("./admin/pages/AdminMonthlyDestinationsPage"),
-);
-const AdminUsersPage = lazy(() => import("./admin/pages/AdminUsersPage"));
-const AdminDashboardPage = lazy(() => import("./admin/pages/AdminDashboardPage"));
-const AdminBoardPage = lazy(() => import("./admin/pages/AdminBoardPage"));
-const AdminFeedbackPage = lazy(() => import("./admin/pages/AdminFeedbackPage"));
-
-// TODO: 아래 페이지는 각 팀원이 추가
-// const CommunityDetailPage= lazy(() => import('@/pages/CommunityDetailPage'));
-// const MatchingDetailPage = lazy(() => import('@/pages/MatchingDetailPage'));
-// ─────────────────────────────────────────────────────────────
-const TripLogMainPage = lazy(() => import("./travelog/page/TripLogMainPage"));
-const TripLogDetailPage = lazy(
-  () => import("./travelog/page/TripLogDetailPage"),
-);
-
-const queryClient = new QueryClient({
-  defaultOptions: { queries: { retry: 1, staleTime: 1000 * 60 * 5 } },
-});
+import { Suspense } from "react";
+import { Navigate, Route, Routes } from "react-router-dom";
+import AdminRoute from "@/common/components/AdminRoute";
+import LoadingSpinner from "@/common/components/LoadingSpinner";
+import NotFoundPage from "@/common/components/NotFoundPage";
+import PrivateRoute from "@/common/components/PrivateRoute";
+import AppLayout from "@/common/layout/AppLayout";
+import {
+  AdminBannersPage,
+  AdminBoardPage,
+  AdminDashboardPage,
+  AdminFeedbackPage,
+  AdminLayout,
+  AdminMainBackgroundsPage,
+  AdminMonthlyDestinationsPage,
+  AdminNoticesPage,
+  AdminUsersPage,
+  BillingFailPage,
+  BillingSuccessPage,
+  BoardDetailPage,
+  BoardWritePage,
+  CardRegisterPage,
+  CheckoutPage,
+  CityDetailPage,
+  CommunityPage,
+  FeedbackPage,
+  ForgotPasswordPage,
+  HomePage,
+  KakaoCallbackPage,
+  LoginPage,
+  MateDetailPage,
+  MateWritePage,
+  MatchingPage,
+  NoticeDetailPage,
+  NoticeListPage,
+  PaymentCompletePage,
+  ProfilePage,
+  RegisterPage,
+  TravelPlanPage,
+  TripAccommodationSelectPage,
+  TripFlightSelectPage,
+  TripLogDetailPage,
+  TripLogMainPage,
+  TripLogMapLayout,
+  TripResultPage,
+  TripSavedDetailPage,
+  TripSavedListPage,
+} from "@/lazyPages";
 
 /**
- * 새로고침 직후 대응: 토큰(isAuthenticated)은 localStorage에 남아있지만
- * user 정보는 메모리에서 날아간 상태이므로, 앱 시작 시 한 번 /api/auth/me로
- * 최신 유저 정보를 복구한다. 토큰이 만료/무효면 로그아웃 처리.
+ * Path map (실제 URL)
+ *
+ * 인증: /login /register /forgot-password /oauth/callback/kakao
+ * 공개: / /destinations/:cityId
+ * 일정: /trip /trip/new /trip/flight /trip/accommodation /trip/result
+ *       /trip/saved /trip/saved/:savedTripId /trip/edit  (로그인)
+ * 커뮤니티: /community /community/new /community/:postId /community/:postId/edit
+ * 매칭: /matching /matching/new /matching/:matePostId /matching/:matePostId/edit
+ * 기타: /notices /notices/:noticeId /feedback
+ * 회원: /payment/checkout /payment/complete /triplog /profile
+ *       /register/card /billing/success /billing/fail
+ * 관리자: /admin /admin/dashboard /admin/banners /admin/main-backgrounds
+ *         /admin/notices /admin/monthly-destinations /admin/board /admin/feedback /admin/users
+ * 레이아웃 밖: /triplog/:tno
  */
-function AuthBootstrap() {
-  useEffect(() => {
-    const { isAuthenticated, user } = useAuthStore.getState();
-    if (!isAuthenticated || user) return;
-
-    authApi
-      .getMe()
-      .then((res) => {
-        const me = res.data?.data;
-        if (me) useAuthStore.getState().hydrateUser(me);
-        else useAuthStore.getState().logout();
-      })
-      .catch(() => useAuthStore.getState().logout());
-  }, []);
-
-  return null;
-}
-
 export default function App() {
-  const { isAuthenticated, updateUser } = useAuthStore();
-
-  useEffect(() => {
-    if (!isAuthenticated) return;
-
-    authApi.getMe().then((res) => {
-      if (res.data.data) {
-        updateUser(res.data.data);
-      }
-    });
-  }, [isAuthenticated]);
-
   return (
-    <QueryClientProvider client={queryClient}>
-      <AuthBootstrap />
-      <MapProvider>
-        <BrowserRouter>
-          <Suspense fallback={<LoadingSpinner message="페이지 로딩 중..." />}>
-            <Routes>
-              {/* Public */}
-              <Route path="/login" element={<LoginPage />} />
-              <Route path="/register" element={<RegisterPage />} />
-              <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+    <Suspense fallback={<LoadingSpinner message="페이지를 불러오고 있어요." />}>
+      <Routes>
+        {/* ── 인증 (레이아웃 밖) ── */}
+        <Route path="login" element={<LoginPage />} />
+        <Route path="register" element={<RegisterPage />} />
+        <Route path="forgot-password" element={<ForgotPasswordPage />} />
+        <Route path="oauth/callback/kakao" element={<KakaoCallbackPage />} />
+
+        <Route element={<AppLayout />}>
+          {/* ── 공개 ── */}
+          <Route index element={<HomePage />} />
+          <Route path="destinations/:cityId" element={<CityDetailPage />} />
+
+          {/* ── 일정 ── */}
+          <Route path="trip" element={<TravelPlanPage />} />
+          <Route path="trip/new" element={<TravelPlanPage />} />
+          <Route path="trip/flight" element={<TripFlightSelectPage />} />
+          <Route
+            path="trip/accommodation"
+            element={<TripAccommodationSelectPage />}
+          />
+          <Route path="trip/result" element={<TripResultPage />} />
+          <Route element={<PrivateRoute />}>
+            <Route path="trip/saved" element={<TripSavedListPage />} />
+            <Route
+              path="trip/saved/:savedTripId"
+              element={<TripSavedDetailPage />}
+            />
+            <Route path="trip/edit" element={<TripResultPage />} />
+          </Route>
+
+          {/* ── 커뮤니티 · 매칭 · 공지 ── */}
+          <Route path="community" element={<CommunityPage />} />
+          <Route path="community/new" element={<BoardWritePage />} />
+          <Route path="community/:postId" element={<BoardDetailPage />} />
+          <Route path="community/:postId/edit" element={<BoardWritePage />} />
+          <Route path="matching" element={<MatchingPage />} />
+          <Route path="matching/new" element={<MateWritePage />} />
+          <Route path="matching/:matePostId" element={<MateDetailPage />} />
+          <Route path="matching/:matePostId/edit" element={<MateWritePage />} />
+          <Route path="notices" element={<NoticeListPage />} />
+          <Route path="notices/:noticeId" element={<NoticeDetailPage />} />
+          <Route path="feedback" element={<FeedbackPage />} />
+
+          {/* ── 회원 (로그인) ── */}
+          <Route element={<PrivateRoute />}>
+            <Route path="payment/checkout" element={<CheckoutPage />} />
+            <Route path="payment/complete" element={<PaymentCompletePage />} />
+            <Route path="records" element={<Navigate to="/triplog" replace />} />
+            <Route path="triplog" element={<TripLogMainPage />} />
+            <Route path="profile" element={<ProfilePage />} />
+            <Route path="register/card" element={<CardRegisterPage />} />
+            <Route path="billing/success" element={<BillingSuccessPage />} />
+            <Route path="billing/fail" element={<BillingFailPage />} />
+          </Route>
+
+          {/* ── 관리자 (Outlet용 중첩 유지) ── */}
+          <Route element={<AdminRoute />}>
+            <Route path="admin" element={<AdminLayout />}>
+              <Route index element={<Navigate to="dashboard" replace />} />
+              <Route path="dashboard" element={<AdminDashboardPage />} />
+              <Route path="banners" element={<AdminBannersPage />} />
               <Route
-                path="/oauth/callback/kakao"
-                element={<KakaoCallbackPage />}
+                path="main-backgrounds"
+                element={<AdminMainBackgroundsPage />}
               />
+              <Route path="notices" element={<AdminNoticesPage />} />
+              <Route
+                path="monthly-destinations"
+                element={<AdminMonthlyDestinationsPage />}
+              />
+              <Route path="board" element={<AdminBoardPage />} />
+              <Route path="feedback" element={<AdminFeedbackPage />} />
+              <Route path="users" element={<AdminUsersPage />} />
+            </Route>
+          </Route>
 
-              {/* Layout 포함 라우트 */}
-              <Route element={<AppLayout />}>
-                <Route path="/" element={<HomePage />} />
-                <Route path="/destinations/:cityId" element={<CityDetailPage />} />
-                <Route path="/trip">
-                  <Route index element={<TravelPlanPage />} />
-                  <Route path="new" element={<TravelPlanPage />} />
-                  <Route path="flight" element={<TripFlightSelectPage />} />
-                  <Route
-                    path="accommodation"
-                    element={<TripAccommodationSelectPage />}
-                  />
-                  <Route path="result" element={<TripResultPage />} />
+          <Route path="*" element={<NotFoundPage />} />
+        </Route>
 
-                  <Route element={<PrivateRoute />}>
-                    <Route path="saved" element={<TripSavedListPage />} />
-                    <Route
-                      path="saved/:savedTripId"
-                      element={<TripSavedDetailPage />}
-                    />
-                    <Route path="edit" element={<TripResultPage />} />
-                  </Route>
-                </Route>
-                <Route path="/community" element={<CommunityPage />} />
-                <Route path="/community/new" element={<BoardWritePage />} />
-                <Route
-                  path="/community/:postId"
-                  element={<BoardDetailPage />}
-                />
-                <Route
-                  path="/community/:postId/edit"
-                  element={<BoardWritePage />}
-                />
-
-                {/* 순서 중요: /matching/new, /matching/:id/edit이
-                    /matching/:matePostId보다 먼저 와야
-                    "new"가 파라미터로 잘못 매칭되지 않음 */}
-                <Route path="/matching" element={<MatchingPage />} />
-                <Route path="/matching/new" element={<MateWritePage />} />
-                <Route
-                  path="/matching/:matePostId/edit"
-                  element={<MateWritePage />}
-                />
-                <Route
-                  path="/matching/:matePostId"
-                  element={<MateDetailPage />}
-                />
-
-                <Route path="/notices" element={<NoticeListPage />} />
-                <Route path="/notices/:noticeId" element={<NoticeDetailPage />} />
-                <Route path="/feedback" element={<FeedbackPage />} />
-
-                {/* 로그인 필요 */}
-                <Route element={<PrivateRoute />}>
-                  {/* 여행기록 */}
-                  <Route path="/records" element={<RecordsPage />} />
-                  <Route path="/triplog" element={<TripLogMainPage />} />
-
-                  <Route path="/profile" element={<ProfilePage />} />
-                  <Route path="/register/card" element={<CardRegisterPage />} />
-                  <Route
-                    path="/billing/success"
-                    element={<BillingSuccessPage />}
-                  />
-                  <Route path="/billing/fail" element={<BillingFailPage />} />
-                  <Route path="/community" element={<CommunityPage />} />
-                  <Route path="/community/new" element={<BoardWritePage />} />
-                  <Route
-                    path="/community/:postId"
-                    element={<BoardDetailPage />}
-                  />
-                  <Route
-                    path="/community/:postId/edit"
-                    element={<BoardWritePage />}
-                  />
-                  <Route path="/matching" element={<MatchingPage />} />
-                </Route>
-
-                {/* 관리자 전용 (role=ADMIN) — AppLayout 안에 둬서 기존 홈페이지 상단 네브바가
-                    관리자 페이지에서도 그대로 유지되게 함 (로고 클릭하면 홈으로 이동 가능) */}
-                <Route element={<AdminRoute />}>
-                  <Route path="/admin" element={<AdminLayout />}>
-                    <Route
-                      index
-                      element={<Navigate to="/admin/dashboard" replace />}
-                    />
-                    <Route path="dashboard" element={<AdminDashboardPage />} />
-                    <Route path="banners" element={<AdminBannersPage />} />
-                    <Route
-                      path="main-backgrounds"
-                      element={<AdminMainBackgroundsPage />}
-                    />
-                    <Route path="notices" element={<AdminNoticesPage />} />
-                    <Route
-                      path="monthly-destinations"
-                      element={<AdminMonthlyDestinationsPage />}
-                    />
-                    <Route path="board" element={<AdminBoardPage />} />
-                    <Route path="feedback" element={<AdminFeedbackPage />} />
-                    <Route path="users" element={<AdminUsersPage />} />
-                  </Route>
-                </Route>
-              </Route>
-
-              <Route path="/triplog/:tno" element={<TripLogDetailPage />} />
-
-              {/* 404 처리 */}
-              <Route path="*" element={<Navigate to="/" replace />} />
-            </Routes>
-          </Suspense>
-        </BrowserRouter>
-      </MapProvider>
-    </QueryClientProvider>
+        {/* ── 여행기 상세 (풀맵, 레이아웃 밖) ── */}
+        <Route element={<PrivateRoute />}>
+          <Route element={<TripLogMapLayout />}>
+            <Route path="triplog/:tno" element={<TripLogDetailPage />} />
+          </Route>
+        </Route>
+      </Routes>
+    </Suspense>
   );
 }

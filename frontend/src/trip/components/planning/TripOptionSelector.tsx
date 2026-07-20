@@ -5,7 +5,7 @@ import {
   tripOptionLabels,
   type TripOptionType,
 } from "@/trip/api/trip";
-import LoadingSpinner from "@/common/component/LoadingSpinner";
+import LoadingSpinner from "@/common/components/LoadingSpinner";
 
 interface Props {
   type: TripOptionType;

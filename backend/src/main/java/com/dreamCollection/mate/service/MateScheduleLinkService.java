@@ -6,7 +6,7 @@ import com.dreamCollection.mate.dto.MateScheduleLinkResponseDTO;
 import com.dreamCollection.mate.entity.MatePost;
 import com.dreamCollection.mate.entity.MateRequest;
 import com.dreamCollection.mate.entity.MateScheduleLink;
-import com.dreamCollection.mate.excpetion.*;
+import com.dreamCollection.mate.exception.*;
 import com.dreamCollection.mate.repository.MatePostRepository;
 import com.dreamCollection.mate.repository.MateRequestRepository;
 import com.dreamCollection.mate.repository.MateScheduleLinkRepository;

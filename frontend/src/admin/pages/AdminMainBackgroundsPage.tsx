@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { adminApi, type MainBackgroundAdminForm, type MainBackgroundItem } from "@/admin/api/adminApi";
-import ImageUrlOrUploadInput from "@/admin/component/ImageUrlOrUploadInput";
+import ImageUrlOrUploadInput from "@/admin/ImageUrlOrUploadInput";
 
 const EMPTY_FORM: MainBackgroundAdminForm = { mediaType: "IMAGE", mediaUrl: "" };
 
