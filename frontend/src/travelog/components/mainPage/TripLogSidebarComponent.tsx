@@ -15,12 +15,10 @@ const TripLogSidebarComponent = ({
   tripLog,
   onClose,
 }: TripLogSidebarProps) => {
-  if (!tripLog) return;
-
-  const [title, setTitle] = useState(tripLog.title ?? "");
-  const [description, setDescription] = useState(tripLog.description ?? "");
-  const [startDate, setStartDate] = useState(tripLog.startDate ?? "");
-  const [endDate, setEndDate] = useState(tripLog.endDate ?? "");
+  const [title, setTitle] = useState(tripLog?.title ?? "");
+  const [description, setDescription] = useState(tripLog?.description ?? "");
+  const [startDate, setStartDate] = useState(tripLog?.startDate ?? "");
+  const [endDate, setEndDate] = useState(tripLog?.endDate ?? "");
 
   const debouncedTitle = useDebounce(title, 3000);
   const debouncedDescription = useDebounce(description, 3000);
@@ -56,6 +54,8 @@ const TripLogSidebarComponent = ({
     debouncedStartDate,
     debouncedEndDate,
   ]);
+
+  if (!tripLog) return;
 
   return (
     <>

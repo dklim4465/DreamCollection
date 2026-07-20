@@ -30,13 +30,8 @@ export const deleteTripLog = async (tno: number) => {
   return res.data;
 };
 
-export const getListTripLog = async (
-  keyword: string,
-  sort: string,
-): Promise<TripLogResponseDTO[]> => {
-  const res = await apiClient.get(`/triplog/list`, {
-    params: { keyword, sort },
-  });
+export const getListTripLog = async (): Promise<TripLogResponseDTO[]> => {
+  const res = await apiClient.get(`/triplog/list`);
   return res.data;
 };
 

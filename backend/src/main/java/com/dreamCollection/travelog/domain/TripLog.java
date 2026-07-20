@@ -51,7 +51,7 @@ public class TripLog {
     private List<String> tags = new ArrayList<>();
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "user_id", nullable = false, columnDefinition = "BIGINT UNSIGNED")
+    @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
     public void changeTitle(String title) { this.title = title; }

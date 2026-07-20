@@ -3,9 +3,14 @@ import { useEffect, useRef, useState } from "react";
 interface TripLogCardMenuProps {
   onDetail: () => void;
   onDelete: () => void;
+  onShare: () => void;
 }
 
-const TripLogCardMenu = ({ onDetail, onDelete }: TripLogCardMenuProps) => {
+const TripLogCardMenu = ({
+  onDetail,
+  onDelete,
+  onShare,
+}: TripLogCardMenuProps) => {
   const [open, setOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
@@ -51,6 +56,18 @@ const TripLogCardMenu = ({ onDetail, onDelete }: TripLogCardMenuProps) => {
             }}
           >
             상세 정보
+          </button>
+
+          <button
+            className="w-full px-4 py-2 text-left text-label-md text-on-surface transition hover:bg-surface-variant"
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              setOpen(false);
+              onShare();
+            }}
+          >
+            공유하기
           </button>
 
           <button

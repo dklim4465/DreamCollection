@@ -1,12 +1,14 @@
 package com.dreamCollection.travelog.service;
 
 import com.dreamCollection.travelog.domain.Media;
+import com.dreamCollection.travelog.domain.ShareLink;
 import com.dreamCollection.travelog.domain.TripLog;
 import com.dreamCollection.travelog.dto.MediaDetailDTO;
 import com.dreamCollection.travelog.dto.SpotDetailDTO;
 import com.dreamCollection.travelog.dto.TripLogOverviewDTO;
 import com.dreamCollection.travelog.dto.request.TripLogRequestDTO;
 import com.dreamCollection.travelog.dto.response.TripLogResponseDTO;
+import com.dreamCollection.travelog.repository.ShareLinkRepository;
 import com.dreamCollection.travelog.repository.TripLogRepository;
 import com.dreamCollection.user.entity.User;
 import com.dreamCollection.user.repository.UserRepository;
@@ -16,6 +18,8 @@ import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.nio.file.AccessDeniedException;
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.regex.Pattern;
@@ -29,6 +33,7 @@ public class TripLogServiceImpl implements TripLogService {
 
     private final TripLogRepository tripLogRepository;
     private final UserRepository userRepository;
+    private final ShareLinkRepository shareLinkRepository;
 
     private final MediaService mediaService;
     private final SpotService spotService;
@@ -112,15 +117,25 @@ public class TripLogServiceImpl implements TripLogService {
 
         TripLog tripLog = tripLogRepository.findByTnoAndUser_Id(tno, userId).orElseThrow();
 
-        List<SpotDetailDTO> spots = spotService.getSpotDetailDTOsByTno(tno);
+        return toOverviewDTO(tripLog);
+    }
 
-        return TripLogOverviewDTO.builder()
-                .tno(tno)
-                .title(tripLog.getTitle())
-                .startDate(tripLog.getStartDate())
-                .endDate(tripLog.getEndDate())
-                .spots(spots)
-                .build();
+    @Override
+    @Transactional
+    public TripLogOverviewDTO getSharedTripLog(String token) throws AccessDeniedException {
+
+        Optional<ShareLink> result = shareLinkRepository.findByToken(token);
+        ShareLink shareLink = result.orElseThrow();
+
+        if (!shareLink.isActive()) {
+            throw new AccessDeniedException("Share Link is inactive.");
+        }
+
+        if (shareLink.getExpiredAt() != null && shareLink.getExpiredAt().isBefore(Instant.now())) {
+            throw new AccessDeniedException("Share Link has expired.");
+        }
+
+        return toOverviewDTO(shareLink.getTripLog());
     }
 
     @Override
@@ -153,5 +168,19 @@ public class TripLogServiceImpl implements TripLogService {
         }
 
         return path.replace("\\", "/");
+    }
+
+    private TripLogOverviewDTO toOverviewDTO(TripLog tripLog) {
+        Long tno = tripLog.getTno();
+
+        List<SpotDetailDTO> spots = spotService.getSpotDetailDTOsByTno(tno);
+
+        return TripLogOverviewDTO.builder()
+                .tno(tno)
+                .title(tripLog.getTitle())
+                .startDate(tripLog.getStartDate())
+                .endDate(tripLog.getEndDate())
+                .spots(spots)
+                .build();
     }
 }

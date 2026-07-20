@@ -1,4 +1,4 @@
-import { Search, Plus } from "lucide-react";
+import { Search, Plus, ArrowUp, ArrowDown } from "lucide-react";
 import { TripLogResponseDTO } from "@/travelog/types/tripLog";
 import TripLogCardMenu from "@/travelog/components/mainPage/TripLogCardMenu";
 import { Link } from "react-router-dom";
@@ -8,23 +8,29 @@ import { getTripLogThumbnailUrl } from "@/travelog/utils/media";
 interface TripLogListProps {
   tripLogs: TripLogResponseDTO[];
   searchKeyword: string;
-  sort: "modified" | "created";
+  sort: "modified" | "created" | "startDate";
+  order: "asc" | "desc";
   onSearchChange: (keyword: string) => void;
   onSortChange: (sort: "modified" | "created") => void;
+  onOrderChange: (order: "asc" | "desc") => void;
   onDetailClick: (tripLog: TripLogResponseDTO) => void;
   onDeleteClick: (tripLog: TripLogResponseDTO) => void;
   onCreateClick: () => void;
+  onShareClick: (tripLog: TripLogResponseDTO) => void;
 }
 
 const TripLogListComponent = ({
   tripLogs,
   searchKeyword,
   sort,
+  order,
   onSearchChange,
   onSortChange,
+  onOrderChange,
   onDetailClick,
   onDeleteClick,
   onCreateClick,
+  onShareClick,
 }: TripLogListProps) => {
   return (
     <div className="flex h-full flex-col card-base">
@@ -54,7 +60,16 @@ const TripLogListComponent = ({
           >
             <option value="modified">최근 수정순</option>
             <option value="created">생성순</option>
+            <option value="startDate">여행시작일순</option>
           </select>
+
+          <button
+            type="button"
+            onClick={() => onOrderChange(order === "asc" ? "desc" : "asc")}
+            className="rounded-lg border border-outline px-3 py-2 text-sm"
+          >
+            {order === "asc" ? <ArrowUp size={18} /> : <ArrowDown size={18} />}
+          </button>
         </div>
 
         <button
@@ -115,6 +130,7 @@ const TripLogListComponent = ({
                       <TripLogCardMenu
                         onDetail={() => onDetailClick(tripLog)}
                         onDelete={() => onDeleteClick(tripLog)}
+                        onShare={() => onShareClick(tripLog)}
                       />
                     </div>
 

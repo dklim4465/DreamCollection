@@ -3,10 +3,13 @@ import { useState } from "react";
 
 interface TripLogModalProps {
   open: boolean;
-  type: "create" | "delete" | null;
+  type: "create" | "delete" | "share" | null;
   onClose: () => void;
   onCreate: (request: TripLogRequestDTO, files: File[]) => void;
   onDelete: () => void;
+
+  shareUrl?: string;
+  onShareDeactivate?: () => void;
 }
 
 const TripLogModalComponent = ({
@@ -15,6 +18,8 @@ const TripLogModalComponent = ({
   onClose,
   onCreate,
   onDelete,
+  shareUrl,
+  onShareDeactivate,
 }: TripLogModalProps) => {
   const [request, setRequest] = useState<TripLogRequestDTO>({
     title: "",
@@ -23,6 +28,8 @@ const TripLogModalComponent = ({
     description: "",
   });
   const [files, setFiles] = useState<File[]>([]);
+
+  const [copied, setCopied] = useState(false);
 
   if (!open || type === null) return null;
 
@@ -40,6 +47,18 @@ const TripLogModalComponent = ({
     onClose();
   };
 
+  const handleCopy = async () => {
+    if (!shareUrl) return;
+
+    await navigator.clipboard.writeText(shareUrl);
+
+    setCopied(true);
+
+    setTimeout(() => {
+      setCopied(false);
+    }, 2000);
+  };
+
   return (
     <>
       <div
@@ -51,7 +70,9 @@ const TripLogModalComponent = ({
         {/* Header */}
         <div className="border-b border-outline-variant p-5">
           <h2 className="text-title-md font-bold text-on-surface">
-            {type === "create" ? "새 여행 기록" : "여행 기록 삭제"}
+            {type === "create" && "새 여행 기록"}
+            {type === "delete" && "여행 기록 삭제"}
+            {type === "share" && "공유"}
           </h2>
         </div>
 
@@ -137,25 +158,65 @@ const TripLogModalComponent = ({
               </p>
             </div>
           )}
+
+          {type === "share" && (
+            <div className="space-y-4">
+              <p className="text-body-md text-on-surface">
+                아래 링크를 통해 여행을 공유할 수 있습니다.
+              </p>
+
+              <div
+                className="flex items-center gap-2 rounded-xl border border-outline-variant p-3"
+                onClick={handleCopy}
+              >
+                <input
+                  readOnly
+                  value={shareUrl ?? ""}
+                  className="flex-1 bg-transparent outline-none cursor-pointer"
+                />
+              </div>
+
+              {copied && (
+                <p className="text-body-sm text-primary">
+                  링크가 복사되었습니다.
+                </p>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Footer */}
-        <div className="flex justify-end gap-2 border-t border-outline-variant p-5">
-          <button onClick={onClose} className="btn-ghost">
-            취소
-          </button>
+        {type == "share" ? (
+          <div className="flex justify-between border-t border-outline-variant p-5">
+            <button
+              className="rounded-xl bg-error px-6 py-3 text-on-error"
+              onClick={onShareDeactivate}
+            >
+              공유 해제
+            </button>
 
-          <button
-            onClick={type === "create" ? handleCreate : onDelete}
-            className={
-              type === "create"
-                ? "btn-primary"
-                : "rounded-xl bg-error px-6 py-3 font-bold text-on-error transition-opacity hover:opacity-90 active:scale-95 text-label-md"
-            }
-          >
-            {type === "create" ? "생성" : "삭제"}
-          </button>
-        </div>
+            <button className="btn-primary" onClick={onClose}>
+              닫기
+            </button>
+          </div>
+        ) : (
+          <div className="flex justify-end gap-2 border-t border-outline-variant p-5">
+            <button onClick={onClose} className="btn-ghost">
+              취소
+            </button>
+
+            <button
+              onClick={type === "create" ? handleCreate : onDelete}
+              className={
+                type === "create"
+                  ? "btn-primary"
+                  : "rounded-xl bg-error px-6 py-3 font-bold text-on-error transition-opacity hover:opacity-90 active:scale-95 text-label-md"
+              }
+            >
+              {type === "create" ? "생성" : "삭제"}
+            </button>
+          </div>
+        )}
       </div>
     </>
   );
