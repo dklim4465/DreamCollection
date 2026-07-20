@@ -4,14 +4,16 @@ import com.dreamCollection.trip.dto.SaveTripRequestDTO;
 import com.dreamCollection.trip.dto.SaveTripResponseDTO;
 import com.dreamCollection.trip.dto.SavedTripDTO;
 import com.dreamCollection.trip.dto.TripRecommendDTO;
+import com.dreamCollection.trip.dto.page.SavedTripPageRequest;
 import com.dreamCollection.trip.entity.SavedTrip;
 import com.dreamCollection.trip.exception.SavedTripValidator;
 import com.dreamCollection.trip.exception.TripSaveException;
 import com.dreamCollection.trip.mapper.SavedTripMapper;
 import com.dreamCollection.trip.repository.SavedTripRepository;
+import com.dreamCollection.trip.repository.SavedTripSpecs;
 import com.dreamCollection.trip.util.TripScheduleSorter;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -72,6 +74,16 @@ public class SavedTripServiceImpl implements SavedTripService {
         savedTrip.changeRecommendation(savedTripMapper.toJson(sortedRecommendation));
 
         savedTripRepository.save(savedTrip);
+    }
+
+    @Override
+    public Page<SavedTripDTO> getSavedTrips(Long userId, SavedTripPageRequest request) {
+        savedTripValidator.validateUserId(userId);
+
+        return savedTripRepository
+                .findAll(SavedTripSpecs.from(userId, request), request.toPageable())
+                .map(savedTripMapper::toDTO)
+                .map(this::sortRecommendation);
     }
 
     private SavedTrip findSavedTripByUser(Long userId, Long savedTripId, String message) {

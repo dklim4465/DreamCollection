@@ -205,23 +205,35 @@ export default function TravelPlanPage() {
 
   return (
     <div className="trip-page">
-      <div className="mx-auto grid w-full max-w-[1180px] items-start gap-8 2xl:translate-x-[186px] xl:grid-cols-[minmax(0,780px)_340px]">
+      <div className="mx-auto grid w-full max-w-[1240px] items-start gap-8 xl:grid-cols-[minmax(0,760px)_320px]">
         <main className="min-w-0">
-          <div className="mb-stack-lg">
-            <h1 className="text-headline-md font-bold text-on-surface">
-              여행 조건 선택
-            </h1>
-            <p className="mt-2 text-body-md text-on-surface-variant">
-              원하는 여행 조건을 선택하면 맞춤 일정을 제안해드려요.
-            </p>
+          <div className="mb-8 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+            <div>
+              <h1 className="text-headline-md font-bold text-on-surface">
+                여행 조건 선택
+              </h1>
+              <p className="mt-2 text-body-md text-on-surface-variant">
+                원하는 여행 조건을 선택하면 맞춤 일정을 제안해드려요.
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={() => navigate("/trip/saved")}
+              className="inline-flex shrink-0 items-center gap-1 text-label-md font-bold text-primary transition-colors hover:text-primary/80"
+            >
+              내 일정 보기
+              <span className="material-symbols-outlined text-[16px]">
+                arrow_forward
+              </span>
+            </button>
           </div>
 
-          <div className="rounded-2xl border border-outline-variant/60 bg-surface-container-lowest p-stack-md">
+          <div className="rounded-[12px] border border-outline-variant/35 bg-surface-container-lowest p-4 sm:p-5">
             <section>
               <h2 className="text-title-md font-bold text-on-surface">
                 기본 조건
               </h2>
-              <div className="mt-stack-sm">
+              <div className="mt-3">
                 {(["who", "when"] as TripOptionType[]).map((type) => (
                   <OptionConditionRow
                     key={type}
@@ -268,12 +280,12 @@ export default function TravelPlanPage() {
               </div>
             </section>
 
-            <section className="mt-stack-lg">
+            <section className="mt-8">
               <h2 className="text-title-md font-bold text-on-surface">
                 예약 준비
               </h2>
 
-              <div className="mt-stack-sm">
+              <div className="mt-3">
                 <PrepareConditionRow
                   title="항공권을 추천해드릴까요?"
                   selected={flightPrepare !== null}
@@ -340,7 +352,7 @@ export default function TravelPlanPage() {
               </div>
             </section>
 
-            <div className="sticky bottom-0 z-10 mt-stack-sm bg-surface-container-lowest/95 py-stack-sm backdrop-blur">
+            <div className="sticky bottom-0 z-10 mt-6 bg-surface-container-lowest/95 py-4 backdrop-blur">
               {!isReady && (
                 <p className="mb-2 text-label-sm font-semibold text-error">
                   모든 조건을 선택해주세요
@@ -377,21 +389,10 @@ export default function TravelPlanPage() {
           </div>
         </main>
 
-        <aside className="self-stretch">
-          <button
-            type="button"
-            onClick={() => navigate("/trip/saved")}
-            className="ml-auto flex w-fit items-center gap-1 border-b border-on-surface-variant/40 pb-1 text-label-md font-bold text-on-surface-variant transition-colors hover:border-primary hover:text-primary"
-          >
-            이미 일정이 있습니다
-            <span className="material-symbols-outlined text-[16px]">
-              arrow_forward
-            </span>
-          </button>
-
-          <section className="sticky top-[calc(50vh-180px)] mt-[clamp(56px,14vh,150px)] rounded-2xl border border-outline-variant/60 bg-surface-container-lowest p-5 shadow-glow">
+        <aside className="min-w-0 self-start">
+          <section className="sticky top-24 rounded-[12px] border border-outline-variant/35 bg-surface-container-low/80 p-4 sm:p-5">
             <div className="flex items-center justify-between gap-stack-sm">
-              <h2 className="text-headline-sm font-bold text-on-surface">
+              <h2 className="text-title-md font-bold text-on-surface">
                 현재 선택한 조건
               </h2>
               <button
@@ -406,11 +407,11 @@ export default function TravelPlanPage() {
               </button>
             </div>
 
-            <div className="mt-6">
-              <h3 className="text-label-md font-bold text-on-surface-variant">
+            <div className="mt-5">
+              <h3 className="text-label-sm font-bold text-on-surface-variant">
                 기본 조건
               </h3>
-              <div className="mt-3 grid grid-cols-2 gap-2.5">
+              <div className="mt-2.5 grid grid-cols-2 gap-2.5">
                 <SummaryCard
                   label={BASIC_SUMMARY_LABELS.who}
                   value={conditions.who}
@@ -435,11 +436,11 @@ export default function TravelPlanPage() {
               </div>
             </div>
 
-            <div className="mt-6">
-              <h3 className="text-label-md font-bold text-on-surface-variant">
+            <div className="mt-5">
+              <h3 className="text-label-sm font-bold text-on-surface-variant">
                 예약 준비
               </h3>
-              <div className="mt-3 grid grid-cols-2 gap-2.5">
+              <div className="mt-2.5 grid grid-cols-2 gap-2.5">
                 <SummaryCard
                   label="항공권 준비"
                   value={
@@ -602,21 +603,21 @@ function SummaryCard({
     <div
       className={
         wide
-          ? "col-span-2 rounded-xl border border-outline-variant/50 bg-surface-container-lowest px-4 py-3.5 shadow-[0_1px_4px_rgba(15,23,42,0.04)]"
-          : "rounded-xl border border-outline-variant/50 bg-surface-container-lowest px-4 py-3.5 shadow-[0_1px_4px_rgba(15,23,42,0.04)]"
+          ? "col-span-2 rounded-[10px] border border-outline-variant/35 bg-surface-container-lowest px-4 py-3.5"
+          : "rounded-[10px] border border-outline-variant/35 bg-surface-container-lowest px-4 py-3.5"
       }
     >
-      <span className="block text-label-md font-bold text-on-surface-variant">
+      <span className="block text-[12px] font-medium leading-none text-on-surface-variant">
         {label}
       </span>
       <span
         className={
           hasValue
-            ? "mt-1.5 block truncate text-headline-sm font-bold text-on-surface"
-            : "mt-1.5 block truncate text-label-lg font-bold text-on-surface-variant"
+            ? "mt-2 block truncate text-[15px] font-semibold leading-snug text-primary"
+            : "mt-2 block truncate text-[14px] font-medium leading-snug text-on-surface-variant/70"
         }
       >
-        {hasValue ? value : "선택해주세요"}
+        {hasValue ? value : "선택 필요"}
       </span>
     </div>
   );
