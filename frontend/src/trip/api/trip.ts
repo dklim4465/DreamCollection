@@ -1,6 +1,19 @@
 import apiClient from "@/common/api/client";
+import type { ApiResponse, PageResponse } from "@/types";
 
 export type TripOptionType = "who" | "when" | "theme" | "level";
+
+/** 저장 일정 목록 조회 쿼리 (백엔드 SavedTripPageRequest와 맞춤) */
+export interface SavedTripListQuery {
+  page?: number;
+  size?: number;
+  /** desc=최신순, asc=오래된순, dday=출발 임박순 */
+  sort?: "desc" | "asc" | "dday";
+  keyword?: string;
+  types?: string[];
+  from?: string;
+  to?: string;
+}
 
 // DTO 받아온거 ts용 인식 시키기
 export interface PlanRequest {
@@ -279,15 +292,39 @@ export const tripApi = {
     return response.data;
   },
 
-  getSavedTripsByUser: async (userId: number) => {
-    void userId;
-    const response = await apiClient.get<SavedTrip[]>("/trip/saved/me");
-    return response.data;
+  /**
+   * 내 저장 일정 페이지 조회
+   * GET /api/trip/saved/me → ApiResponse<PageResponse<SavedTrip>>
+   */
+  getSavedTripsPage: async (query: SavedTripListQuery = {}) => {
+    const response = await apiClient.get<ApiResponse<PageResponse<SavedTrip>>>(
+      "/trip/saved/me",
+      {
+        params: {
+          page: query.page ?? 0,
+          size: query.size ?? 6,
+          sort: query.sort ?? "desc",
+          ...(query.keyword?.trim()
+            ? { keyword: query.keyword.trim() }
+            : {}),
+          ...(query.types?.length ? { types: query.types } : {}),
+          ...(query.from ? { from: query.from } : {}),
+          ...(query.to ? { to: query.to } : {}),
+        },
+      },
+    );
+    return response.data.data;
+  },
+
+  /** @deprecated 목록 페이지는 getSavedTripsPage 사용. 홈 미리보기용 요약 목록 */
+  getSavedTripsByUser: async (_userId: number) => {
+    const page = await tripApi.getSavedTripsPage({ page: 0, size: 50 });
+    return page.content;
   },
 
   getSavedTrips: async () => {
-    const response = await apiClient.get<SavedTrip[]>("/trip/saved/me");
-    return response.data.map(
+    const page = await tripApi.getSavedTripsPage({ page: 0, size: 20 });
+    return page.content.map(
       (trip): SavedTripSummary => ({
         id: trip.savedTripId,
         title: trip.recommendation?.title ?? null,

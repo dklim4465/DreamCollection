@@ -3,6 +3,8 @@ package com.dreamCollection.trip.service;
 import com.dreamCollection.trip.dto.SaveTripRequestDTO;
 import com.dreamCollection.trip.dto.SaveTripResponseDTO;
 import com.dreamCollection.trip.dto.SavedTripDTO;
+import com.dreamCollection.trip.dto.page.SavedTripPageRequest;
+import org.springframework.data.domain.Page;
 
 import java.util.List;
 
@@ -17,4 +19,6 @@ public interface SavedTripService {
     void deleteSavedTrip(Long userId, Long savedTripId);
 
     void modify(Long userId, Long savedTripId, SaveTripRequestDTO request);
+
+    Page<SavedTripDTO> getSavedTrips(Long userId, SavedTripPageRequest request);
 }
