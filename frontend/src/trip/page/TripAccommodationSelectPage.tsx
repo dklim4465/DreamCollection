@@ -3,7 +3,7 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import { Navigate, useLocation, useNavigate } from "react-router-dom";
 import LoadingSpinner from "@/common/component/LoadingSpinner";
 import TripAccommodationSelector from "@/trip/components/fliAndAcc/TripAccommodationSelector";
-import TripConditionSummaryBar from "@/trip/components/result/planning/TripConditionSummaryBar";
+import TripConditionSummaryBar from "@/trip/components/planning/TripConditionSummaryBar";
 import { createManualPlanResult } from "@/trip/utils/manualTripRecommendation";
 import "@/trip/styles/trip.css";
 import {

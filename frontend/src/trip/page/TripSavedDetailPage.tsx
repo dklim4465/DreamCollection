@@ -77,7 +77,6 @@ export default function TripSavedDetailPage() {
       state: { savedTripId: trip.savedTripId },
     });
   };
-
   return (
     <div className="trip-page-wide space-y-stack-lg">
       <SavedTripHeader trip={trip} onEdit={handleEdit} onPay={handlePay} />

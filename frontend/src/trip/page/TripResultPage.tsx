@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Navigate, useLocation, useNavigate } from "react-router-dom";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import TripConditionSummaryBar from "@/trip/components/result/planning/TripConditionSummaryBar";
+import TripConditionSummaryBar from "@/trip/components/planning/TripConditionSummaryBar";
 import { createManualPlanResult } from "@/trip/utils/manualTripRecommendation";
 import type {
   PlanRequest,
@@ -16,7 +16,7 @@ import type {
 } from "@/trip/api/trip";
 import { tripApi } from "@/trip/api/trip";
 import { useAuthStore } from "@/auth/store/authStore";
-import TripScheduleView from "@/trip/components/TripScheduleView";
+import TripScheduleView from "@/trip/components/result/TripScheduleView";
 import "@/trip/styles/trip.css";
 
 interface LocationState {

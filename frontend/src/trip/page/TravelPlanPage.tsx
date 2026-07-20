@@ -11,7 +11,11 @@ import {
   type TripFlowState,
   type TripOptionType,
 } from "@/trip/api/trip";
-import DestinationSelector from "@/trip/components/planning/DestinationSelector";
+import {
+  DestinationConditionRow,
+  OptionConditionRow,
+  PrepareConditionRow,
+} from "@/trip/components/planning/TripConditionRows";
 import "@/trip/styles/trip.css";
 
 type FlightPrepareType = "recommend" | "booked";

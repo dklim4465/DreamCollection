@@ -16,6 +16,10 @@ import type { EmptySlotTarget } from "@/trip/components/schedule/EmptySlot";
 import ScheduleGrid, {
   type EditingTarget,
 } from "@/trip/components/schedule/ScheduleGrid";
+import {
+  buildScheduleItemKey,
+  createItemKeyForSlot,
+} from "@/trip/utils/scheduleItemKey";
 
 interface Props {
   conditions: PlanRequest;
@@ -92,7 +96,6 @@ export default function TripScheduleView({
 
             return {
               ...item,
-              itemKey: `recommendation-${card.id}-${dayIndex}-${item.timeSlot}-${Date.now()}`,
               itemType: card.itemType,
               title: card.title,
               description: card.description,
@@ -133,6 +136,11 @@ export default function TripScheduleView({
               ...targetItem,
               timeSlot: sourceItem.timeSlot,
               slotOrder: sourceItem.slotOrder,
+              itemKey: buildScheduleItemKey(
+                day.dayNumber,
+                sourceItem.timeSlot,
+                sourceItem.slotOrder ?? 1,
+              ),
             };
           }
 
@@ -141,6 +149,11 @@ export default function TripScheduleView({
               ...sourceItem,
               timeSlot: targetItem.timeSlot,
               slotOrder: targetItem.slotOrder,
+              itemKey: buildScheduleItemKey(
+                day.dayNumber,
+                targetItem.timeSlot,
+                targetItem.slotOrder ?? 1,
+              ),
             };
           }
 
@@ -179,7 +192,7 @@ export default function TripScheduleView({
       if (dayIndex !== target.dayIndex) return day;
 
       const newItem: ScheduleItem = {
-        itemKey: `${card.id}-${target.timeSlot}-${Date.now()}`,
+        itemKey: createItemKeyForSlot(day, target.timeSlot),
         itemType: card.itemType,
         timeSlot: target.timeSlot,
         slotOrder: getNextSlotOrder(day.items, target.timeSlot),
@@ -213,9 +226,7 @@ export default function TripScheduleView({
         return {
           ...day,
           items: normalizeSlotOrders(
-            day.items.filter(
-              (_, itemIndex) => itemIndex !== source.itemIndex,
-            ),
+            day.items.filter((_, itemIndex) => itemIndex !== source.itemIndex),
           ),
         };
       }
@@ -230,6 +241,10 @@ export default function TripScheduleView({
         {
           ...sourceItem,
           timeSlot: target.timeSlot,
+          itemKey: createItemKeyForSlot(
+            nextDays[target.dayIndex],
+            target.timeSlot,
+          ),
           slotOrder: getNextSlotOrder(
             nextDays[target.dayIndex].items,
             target.timeSlot,
