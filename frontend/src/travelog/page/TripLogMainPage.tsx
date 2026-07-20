@@ -12,14 +12,21 @@ import TripLogModalComponent from "@/travelog/components/mainPage/TripLogModalCo
 import { useCreateTripLog } from "@/travelog/hooks/useCreateTripLog";
 import { useDeleteTripLog } from "@/travelog/hooks/useDeleteTripLog";
 import { startUpload } from "@/travelog/service/UploadManager";
+import useFilteringTripLogs from "@/travelog/hooks/useFilteringTripLogs";
+import { createShareLink, deactiveShareLink } from "@/travelog/api/shareApi";
 
 const TripLogMainPage = () => {
   const [searchKeyword, setSearchKeyword] = useState("");
-  const [sort, setSort] = useState<"modified" | "created">("modified");
+  const [sort, setSort] = useState<"modified" | "created" | "startDate">(
+    "modified",
+  );
+  const [order, setOrder] = useState<"asc" | "desc">("desc");
 
   const [selectedTripLog, setSelectedTripLog] =
     useState<TripLogResponseDTO | null>(null);
-  const [modalType, setModalType] = useState<"create" | "delete" | null>(null);
+  const [modalType, setModalType] = useState<
+    "create" | "delete" | "share" | null
+  >(null);
 
   const debouncedKeyword = useDebounce(searchKeyword, 300);
 
@@ -28,11 +35,9 @@ const TripLogMainPage = () => {
 
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  const {
-    data: tripLogs = [],
-    isLoading,
-    error,
-  } = useTripLogList(debouncedKeyword, sort);
+  const { data: tripLogs = [], isLoading, error } = useTripLogList();
+
+  const [shareUrl, setShareUrl] = useState("");
 
   const handleDetailClick = (tripLog: TripLogResponseDTO) => {
     setSelectedTripLog(tripLog);
@@ -42,6 +47,14 @@ const TripLogMainPage = () => {
   const handleDeleteClick = (tripLog: TripLogResponseDTO) => {
     setSelectedTripLog(tripLog);
     setModalType("delete");
+  };
+
+  const handleShareClick = async (tripLog: TripLogResponseDTO) => {
+    const { shareUrl } = await createShareLink(tripLog.tno);
+
+    setShareUrl(shareUrl);
+    setSelectedTripLog(tripLog);
+    setModalType("share");
   };
 
   const handleCreate = async (request: TripLogRequestDTO, files: File[]) => {
@@ -71,6 +84,27 @@ const TripLogMainPage = () => {
     }
   };
 
+  const handleDeactivateShare = async () => {
+    if (!selectedTripLog) return;
+
+    try {
+      await deactiveShareLink(selectedTripLog.tno);
+
+      setShareUrl("");
+      setSelectedTripLog(null);
+      setModalType(null);
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const filteredTripLogs = useFilteringTripLogs({
+    tripLogs,
+    keyword: debouncedKeyword,
+    sort,
+    order,
+  });
+
   if (isLoading) {
     return (
       <div className="flex flex-1 items-center justify-center text-body-md text-on-surface-variant">
@@ -87,14 +121,17 @@ const TripLogMainPage = () => {
     <div className="relative flex flex-1 min-h-0 bg-background">
       <div className="flex-1 min-w-0 overflow-hidden">
         <TripLogListComponent
-          tripLogs={tripLogs}
+          tripLogs={filteredTripLogs}
           searchKeyword={searchKeyword}
           sort={sort}
+          order={order}
           onSearchChange={setSearchKeyword}
           onSortChange={setSort}
+          onOrderChange={setOrder}
           onDetailClick={handleDetailClick}
           onDeleteClick={handleDeleteClick}
           onCreateClick={() => setModalType("create")}
+          onShareClick={handleShareClick}
         />
       </div>
 
@@ -113,6 +150,8 @@ const TripLogMainPage = () => {
         onClose={() => setModalType(null)}
         onCreate={handleCreate}
         onDelete={handleDelete}
+        shareUrl={shareUrl}
+        onShareDeactivate={handleDeactivateShare}
       />
     </div>
   );

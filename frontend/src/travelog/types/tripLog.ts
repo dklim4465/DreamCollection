@@ -3,8 +3,7 @@ export interface TripLogRequestDTO {
   startDate: string | null;
   endDate: string | null;
   description: string | null;
-  thumbnailMediaMno: number | null;
-  countryCode: string | null;
+  thumbnailMediaMno?: number | null;
 }
 
 export interface TripLogResponseDTO {
@@ -19,8 +18,6 @@ export interface TripLogResponseDTO {
   thumbnailPath: string | null;
 
   description: string | null;
-
-  countryCode: string | null;
 
   createdAt: string;
 
@@ -101,4 +98,8 @@ export interface MediaSummaryDTO {
   location: GeoJsonPointDTO | null;
 
   takenAt: string | null;
+}
+
+export interface ShareLinkResponseDTO {
+  shareUrl: string;
 }

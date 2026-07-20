@@ -38,7 +38,7 @@ import java.util.UUID;
 @Log4j2
 public class MediaServiceImpl implements MediaService {
 
-    @Value("${upload.dir}")
+    @Value("${com.upload.path}")
     private String uploadPath;
 
     private final TripLogRepository tripLogRepository;

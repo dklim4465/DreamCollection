@@ -42,10 +42,6 @@ public class TripLog {
 
     private String thumbnailPath;
 
-    // 이 여행이 어느 나라였는지. 값이 있으면 저장/수정 시 badge.COUNTRY_VISIT 뱃지를 자동 지급한다.
-    @Column(name = "country_code", length = 2)
-    private String countryCode;
-
     @Lob
     @Column(columnDefinition = "TEXT")
     private String description;
@@ -68,10 +64,6 @@ public class TripLog {
 
     public void changeDesc(String description) {
         this.description = description;
-    }
-
-    public void changeCountryCode(String countryCode) {
-        this.countryCode = countryCode;
     }
 
     public void changeThumbnail(String thumbnailPath) {

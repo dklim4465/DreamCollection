@@ -27,8 +27,6 @@ public class TripLogResponseDTO {
 
     private String description;
 
-    private String countryCode;
-
     private Instant createdAt;
 
     private Instant modifiedAt;

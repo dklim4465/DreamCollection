@@ -5,6 +5,7 @@ import com.dreamCollection.travelog.dto.request.TripLogRequestDTO;
 import com.dreamCollection.travelog.dto.response.TripLogResponseDTO;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.nio.file.AccessDeniedException;
 import java.util.List;
 
 @Transactional
@@ -15,6 +16,7 @@ public interface TripLogService {
     void updateTrip(Long userId, Long tno, TripLogRequestDTO tripLogRequestDTO);
     void removeTrip(Long userId, Long tno);
     TripLogOverviewDTO getOverview(Long userId, Long tno);
+    TripLogOverviewDTO getSharedTripLog(String token) throws AccessDeniedException;
     List<TripLogResponseDTO> getList(Long userId);
 
 }
