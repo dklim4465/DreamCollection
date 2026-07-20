@@ -3,12 +3,16 @@ import SpotGallerySection from "@/travelog/components/tripLogDetailPage/SpotGall
 import { useOpenMedia } from "@/travelog/hooks/map/useOpenMedia";
 import { useSidebarStore } from "@/travelog/store/useSidebarStore";
 import { useSpotStore } from "@/travelog/store/useSpotStore";
-import { refreshTripLogOverview } from "@/travelog/utils/refreshTripLogOverview";
+import { refreshTripLogOverview } from "@/travelog/utils/refreshOverview";
 import { ArrowLeft, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { useParams } from "react-router-dom";
 
-const GalleryView = () => {
+interface GalleryViewProps {
+  readOnly: boolean;
+}
+
+const GalleryView = ({ readOnly }: GalleryViewProps) => {
   const closeGallery = useSidebarStore((state) => state.closeGallery);
 
   const spots = useSpotStore((state) => state.spots);
@@ -80,9 +84,10 @@ const GalleryView = () => {
             </h2>
 
             {/* Right */}
-            <button
-              onClick={() => setDeleteMode(true)}
-              className="
+            {!readOnly && (
+              <button
+                onClick={() => setDeleteMode(true)}
+                className="
                 justify-self-end
                 rounded-lg
                 p-2
@@ -91,9 +96,10 @@ const GalleryView = () => {
                 hover:bg-error-container
                 hover:text-error
               "
-            >
-              <Trash2 size={20} />
-            </button>
+              >
+                <Trash2 size={20} />
+              </button>
+            )}
           </div>
         ) : (
           <div className="grid grid-cols-3 items-center">

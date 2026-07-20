@@ -1,22 +1,29 @@
 import MapComponent from "@/travelog/components/tripLogDetailPage/MapComponent";
 import MapSidebarComponent from "@/travelog/components/tripLogDetailPage/MapSidebarComponent";
 import TimelineBar from "@/travelog/components/tripLogDetailPage/TimelineBar";
-import { refreshTripLogOverview } from "@/travelog/utils/refreshTripLogOverview";
+import {
+  refreshSharedTripLog,
+  refreshTripLogOverview,
+} from "@/travelog/utils/refreshOverview";
 import { useEffect } from "react";
 import { useParams } from "react-router-dom";
 
 const TripLogDetailPage = () => {
-  const { tno } = useParams();
+  const { tno, token } = useParams();
+
+  const isReadOnly = !!token;
 
   useEffect(() => {
-    if (!tno) return;
-
     const load = async () => {
-      await refreshTripLogOverview(Number(tno));
+      if (tno) {
+        await refreshTripLogOverview(Number(tno));
+      } else if (token) {
+        await refreshSharedTripLog(token);
+      }
     };
 
     load();
-  }, [tno]);
+  }, [tno, token]);
 
   return (
     <div className="relative h-screen w-full overflow-hidden bg-background">
@@ -26,7 +33,7 @@ const TripLogDetailPage = () => {
       </div>
 
       {/* 사이드바 */}
-      <MapSidebarComponent />
+      <MapSidebarComponent readOnly={isReadOnly} />
 
       {/* 타임라인 */}
       <div

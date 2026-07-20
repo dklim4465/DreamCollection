@@ -30,6 +30,15 @@ const TripLogSidebarComponent = ({
   useEffect(() => {
     if (!tripLog) return;
 
+    setTitle(tripLog.title ?? "");
+    setDescription(tripLog.description ?? "");
+    setStartDate(tripLog.startDate ?? "");
+    setEndDate(tripLog.endDate ?? "");
+  }, [tripLog]);
+
+  useEffect(() => {
+    if (!tripLog) return;
+
     if (
       debouncedTitle === tripLog.title &&
       debouncedDescription === (tripLog.description ?? "") &&

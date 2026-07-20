@@ -21,7 +21,7 @@ export const updateTripLog = async (
   tno: number,
   request: TripLogRequestDTO,
 ) => {
-  const res = await apiClient.put(`/triplog/${tno}`, request);
+  const res = await apiClient.patch(`/triplog/${tno}`, request);
   return res.data;
 };
 
