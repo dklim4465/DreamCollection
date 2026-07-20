@@ -7,7 +7,11 @@ import { Plus } from "lucide-react";
 import React, { useRef } from "react";
 import { useParams } from "react-router-dom";
 
-const MapSidebarComponent = () => {
+interface MapSidebarComponentProps {
+  readOnly: boolean;
+}
+
+const MapSidebarComponent = ({ readOnly }: MapSidebarComponentProps) => {
   const mode = useSidebarStore((state) => state.mode);
 
   const { tno } = useParams();
@@ -57,9 +61,11 @@ const MapSidebarComponent = () => {
       >
         <h3 className="text-title-md font-bold">여행</h3>
 
-        <button
-          onClick={openFileDialog}
-          className="
+        {!readOnly && (
+          <>
+            <button
+              onClick={openFileDialog}
+              className="
             flex h-9 w-9 items-center justify-center
             rounded-full
             bg-primary
@@ -68,24 +74,26 @@ const MapSidebarComponent = () => {
             hover:opacity-90
             active:scale-95
           "
-        >
-          <Plus size={20} strokeWidth={2.5} />
-        </button>
+            >
+              <Plus size={20} strokeWidth={2.5} />
+            </button>
 
-        <input
-          ref={inputRef}
-          hidden
-          multiple
-          type="file"
-          accept="image/*,video/*"
-          onChange={handleUpload}
-        />
+            <input
+              ref={inputRef}
+              hidden
+              multiple
+              type="file"
+              accept="image/*,video/*"
+              onChange={handleUpload}
+            />
+          </>
+        )}
       </div>
 
-      <div className="min-h-0 flex-1 overflow-y-auto">
+      <div className="min-h-0 flex-1 overflow-y-auto hide-scrollbar">
         {mode === "list" && <SpotListView />}
-        {mode === "gallery" && <GalleryView />}
-        {mode === "media" && <MediaView />}
+        {mode === "gallery" && <GalleryView readOnly={readOnly} />}
+        {mode === "media" && <MediaView readOnly={readOnly} />}
       </div>
     </aside>
   );

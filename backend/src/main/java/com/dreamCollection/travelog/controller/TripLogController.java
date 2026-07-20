@@ -38,7 +38,7 @@ public class TripLogController {
         return tripLogService.readTrip(userId, tno);
     }
 
-    @PutMapping("/{tno}")
+    @PatchMapping("/{tno}")
     public Map<String, String> modify(@AuthenticationPrincipal Long userId, @PathVariable(name = "tno") Long tno,@RequestBody TripLogRequestDTO tripLogRequestDTO) {
 
         log.info("modify: " + tno);

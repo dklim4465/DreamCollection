@@ -1,5 +1,5 @@
 import { useUploadStore } from "@/travelog/store/useUploadStore";
-import { refreshTripLogOverview } from "@/travelog/utils/refreshTripLogOverview";
+import { refreshTripLogOverview } from "@/travelog/utils/refreshOverview";
 import { uploadMediaInChunks } from "@/travelog/utils/uploadMediaInChunks";
 
 export const startUpload = async (tno: number, files: File[]) => {

@@ -1,8 +1,8 @@
 export interface TripLogRequestDTO {
-  title: string | null;
-  startDate: string | null;
-  endDate: string | null;
-  description: string | null;
+  title?: string | null;
+  startDate?: string | null;
+  endDate?: string | null;
+  description?: string | null;
   thumbnailMediaMno?: number | null;
 }
 
@@ -66,6 +66,8 @@ export interface TripLogOverviewDTO {
   endDate: string | null;
 
   spots: SpotDetailDTO[];
+
+  thumbnailPath?: string | null;
 }
 
 export interface SpotDetailDTO {

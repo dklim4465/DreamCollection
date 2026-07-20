@@ -14,6 +14,7 @@ import { useDeleteTripLog } from "@/travelog/hooks/useDeleteTripLog";
 import { startUpload } from "@/travelog/service/UploadManager";
 import useFilteringTripLogs from "@/travelog/hooks/useFilteringTripLogs";
 import { createShareLink, deactiveShareLink } from "@/travelog/api/shareApi";
+import { queryClient } from "@/common/config/queryClient";
 
 const TripLogMainPage = () => {
   const [searchKeyword, setSearchKeyword] = useState("");
@@ -64,6 +65,10 @@ const TripLogMainPage = () => {
       if (files.length > 0) {
         await startUpload(tno, files);
       }
+
+      await queryClient.invalidateQueries({
+        queryKey: ["tripLogList"],
+      });
 
       setModalType(null);
     } catch (e) {

@@ -1,21 +1,44 @@
+import { useUpdateTripLog } from "@/travelog/hooks/useUpdateTripLog";
 import { useMediaStore } from "@/travelog/store/useMediaStore";
 import { useSidebarStore } from "@/travelog/store/useSidebarStore";
 import { useSpotStore } from "@/travelog/store/useSpotStore";
+import { useTripLogStore } from "@/travelog/store/useTripLogStore";
 import { formatZonedDateTime } from "@/travelog/utils/date";
 import { getMediaUrl } from "@/travelog/utils/media";
 import { ArrowLeft, Image } from "lucide-react";
+import { useParams } from "react-router-dom";
 
-const MediaView = () => {
+interface MediaViewProps {
+  readOnly: boolean;
+}
+
+const MediaView = ({ readOnly }: MediaViewProps) => {
   const media = useMediaStore((state) => state.selectedMedia);
   const closeMedia = useSidebarStore((state) => state.closeMedia);
 
   const spots = useSpotStore((state) => state.spots);
 
+  const { tno } = useParams();
+
+  const updateMutation = useUpdateTripLog();
+
+  const tripLog = useTripLogStore((state) => state.tripLog);
+  const changeThumbnail = useTripLogStore((state) => state.changeThumbnail);
+
   const timezone = spots.find((spot) =>
     spot.mediaList.some((m) => m.mno === media?.mno),
   )?.timezone;
 
+  const getFileName = (path: string | null | undefined) => {
+    if (!path) return "";
+
+    return path.replace(/\\/g, "/").split("/").pop() ?? "";
+  };
+
   if (!media) return null;
+
+  const isThumbnail =
+    getFileName(tripLog?.thumbnailPath) === getFileName(getMediaUrl(media));
 
   return (
     <div className="flex h-full flex-col">
@@ -55,8 +78,18 @@ const MediaView = () => {
           draggable={false}
         />
 
-        <button
-          className="
+        {!readOnly && (
+          <button
+            onClick={() => {
+              updateMutation.mutate({
+                tno: Number(tno),
+                request: {
+                  thumbnailMediaMno: media.mno,
+                },
+              });
+              changeThumbnail(media.storedFileName);
+            }}
+            className="
             flex
             mt-4
             w-full
@@ -71,10 +104,11 @@ const MediaView = () => {
             text-on-primary
             hover:opacity-90
           "
-        >
-          <Image size={18} />
-          대표 이미지로 설정
-        </button>
+          >
+            <Image size={18} />
+            {isThumbnail ? "현재 대표 이미지" : "대표 이미지로 설정"}
+          </button>
+        )}
 
         <div className="mt-4 space-y-3">
           {media.takenAt && (

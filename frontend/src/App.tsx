@@ -113,7 +113,10 @@ export default function App() {
           <Route element={<PrivateRoute />}>
             <Route path="payment/checkout" element={<CheckoutPage />} />
             <Route path="payment/complete" element={<PaymentCompletePage />} />
-            <Route path="records" element={<Navigate to="/triplog" replace />} />
+            <Route
+              path="records"
+              element={<Navigate to="/triplog" replace />}
+            />
             <Route path="triplog" element={<TripLogMainPage />} />
             <Route path="profile" element={<ProfilePage />} />
             <Route path="register/card" element={<CardRegisterPage />} />
@@ -150,6 +153,11 @@ export default function App() {
           <Route element={<TripLogMapLayout />}>
             <Route path="triplog/:tno" element={<TripLogDetailPage />} />
           </Route>
+        </Route>
+
+        {/* 여행기록 공유 링크 */}
+        <Route element={<TripLogMapLayout />}>
+          <Route path="triplog/share/:token" element={<TripLogDetailPage />} />
         </Route>
       </Routes>
     </Suspense>

@@ -76,10 +76,25 @@ public class TripLogServiceImpl implements TripLogService {
 
         TripLog tripLog = tripLogRepository.findByTnoAndUser_Id(tno, userId).orElseThrow();
 
-        tripLog.changeTitle(tripLogRequestDTO.getTitle());
-        tripLog.changeStartDate(tripLogRequestDTO.getStartDate());
-        tripLog.changeEndDate(tripLogRequestDTO.getEndDate());
-        tripLog.changeDesc(tripLogRequestDTO.getDescription());
+        if (tripLogRequestDTO.getTitle() != null) {
+            tripLog.changeTitle(tripLogRequestDTO.getTitle());
+        }
+
+        if (tripLogRequestDTO.getStartDate() != null) {
+            tripLog.changeStartDate(tripLogRequestDTO.getStartDate());
+        }
+
+        if (tripLogRequestDTO.getEndDate() != null) {
+            tripLog.changeEndDate(tripLogRequestDTO.getEndDate());
+        }
+
+        if (tripLogRequestDTO.getDescription() != null) {
+            tripLog.changeDesc(tripLogRequestDTO.getDescription());
+
+            tripLog.clearTags();
+            List<String> tags = extract(tripLog.getDescription());
+            tags.forEach(tripLog::addTag);
+        }
 
         if (tripLogRequestDTO.getThumbnailMediaMno() != null) {
             MediaDetailDTO thumbnailMedia = mediaService.getMediaDetail(tripLogRequestDTO.getThumbnailMediaMno());
@@ -88,12 +103,6 @@ public class TripLogServiceImpl implements TripLogService {
 
             tripLog.changeThumbnail(thumbnailPath);
         }
-
-        tripLog.clearTags();
-
-        List<String> tags = extract(tripLog.getDescription());
-
-        tags.forEach(tripLog::addTag);
 
         tripLogRepository.save(tripLog);
     }
@@ -105,7 +114,7 @@ public class TripLogServiceImpl implements TripLogService {
         TripLog tripLog = tripLogRepository.findByTnoAndUser_Id(tno, userId).orElseThrow();
 
         shareLinkRepository.deleteByTripLog_Tno(tno);
-        
+
         mediaService.deleteAllByTrip(tno);
 
         spotService.deleteAllByTrip(tno);
@@ -183,6 +192,7 @@ public class TripLogServiceImpl implements TripLogService {
                 .startDate(tripLog.getStartDate())
                 .endDate(tripLog.getEndDate())
                 .spots(spots)
+                .thumbnailPath(tripLog.getThumbnailPath())
                 .build();
     }
 }

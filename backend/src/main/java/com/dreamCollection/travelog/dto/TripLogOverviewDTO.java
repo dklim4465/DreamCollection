@@ -24,4 +24,6 @@ public class TripLogOverviewDTO {
 
     private List<SpotDetailDTO> spots;
 
+    private String thumbnailPath;
+
 }
