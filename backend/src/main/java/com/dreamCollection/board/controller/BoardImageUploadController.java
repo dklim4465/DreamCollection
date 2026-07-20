@@ -24,7 +24,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class BoardImageUploadController {
 
-    @Value("${com.upload.path}")
+    @Value("${upload.dir}")
     private String uploadDir;
 
     private static final List<String> ALLOWED_EXTENSIONS =

@@ -48,6 +48,8 @@ const TripLogSidebarComponent = ({
         description: debouncedDescription,
         startDate: debouncedStartDate,
         endDate: debouncedEndDate,
+        thumbnailMediaMno: null,
+        countryCode: tripLog.countryCode,
       },
     });
   }, [

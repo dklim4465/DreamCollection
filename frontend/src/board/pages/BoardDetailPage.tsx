@@ -12,8 +12,8 @@ import {
 import { useAuthStore } from "@/auth/store/authStore";
 import CommentSection from "@/board/components/CommentSection";
 import UserProfileModal from "@/mate/components/UserProfileModal";
-import LoadingSpinner from "@/common/component/LoadingSpinner";
-import EmptyState from "@/common/component/EmptyState";
+import LoadingSpinner from "@/common/components/LoadingSpinner";
+import EmptyState from "@/common/components/EmptyState";
 
 export default function BoardDetailPage() {
   const { postId } = useParams<{ postId: string }>();

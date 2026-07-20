@@ -2,6 +2,7 @@ package com.dreamCollection.travelog.service;
 
 import com.dreamCollection.badge.service.BadgeService;
 import com.dreamCollection.travelog.domain.TripLog;
+import com.dreamCollection.travelog.dto.MediaDetailDTO;
 import com.dreamCollection.travelog.dto.SpotDetailDTO;
 import com.dreamCollection.travelog.dto.TripLogOverviewDTO;
 import com.dreamCollection.travelog.dto.request.TripLogRequestDTO;
@@ -78,6 +79,15 @@ public class TripLogServiceImpl implements TripLogService {
         tripLog.changeStartDate(tripLogRequestDTO.getStartDate());
         tripLog.changeEndDate(tripLogRequestDTO.getEndDate());
         tripLog.changeDesc(tripLogRequestDTO.getDescription());
+
+        if (tripLogRequestDTO.getThumbnailMediaMno() != null) {
+            MediaDetailDTO thumbnailMedia = mediaService.getMediaDetail(tripLogRequestDTO.getThumbnailMediaMno());
+
+            String thumbnailPath = thumbnailMedia.getMediaPath() + "/thumbnail/" + thumbnailMedia.getStoredFileName();
+
+            tripLog.changeThumbnail(thumbnailPath);
+        }
+
         tripLog.changeCountryCode(tripLogRequestDTO.getCountryCode());
 
         tripLog.clearTags();

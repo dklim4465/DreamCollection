@@ -1,5 +1,6 @@
 package com.dreamCollection.user.service;
 
+import com.dreamCollection.payment.client.TossPaymentClient;
 import com.dreamCollection.user.dto.PaymentCardResponse;
 import com.dreamCollection.global.exception.BusinessException;
 import com.dreamCollection.global.exception.PaymentCardNotFoundException;

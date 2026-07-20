@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { adminApi, type MonthlyDestinationAdminForm } from "@/admin/api/adminApi";
 import type { MonthlyDestinationItem } from "@/home/api/monthlyDestinationApi";
-import ImageUrlOrUploadInput from "@/admin/component/ImageUrlOrUploadInput";
+import ImageUrlOrUploadInput from "@/admin/ImageUrlOrUploadInput";
 
 function currentMonthString() {
   const now = new Date();

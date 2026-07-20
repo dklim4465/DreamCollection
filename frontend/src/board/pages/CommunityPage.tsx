@@ -7,8 +7,8 @@ import type { BoardCategory } from "@/board/types/board";
 import CategoryTabs from "@/board/components/CategoryTabs";
 import BoardListItem from "@/board/components/BoardListItem";
 import Pagination from "@/board/components/Pagination";
-import EmptyState from "@/components/common/EmptyState";
-import LoadingSpinner from "@/components/common/LoadingSpinner";
+import EmptyState from "@/common/components/EmptyState";
+import LoadingSpinner from "@/common/components/LoadingSpinner";
 
 /**
  * 게시판 페이지

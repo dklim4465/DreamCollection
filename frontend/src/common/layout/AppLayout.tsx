@@ -1,7 +1,7 @@
 import { Outlet } from "react-router-dom";
 import Navbar from "./Navbar";
 import Footer from "./Footer";
-import ScrollToTopButton from "@/common/component/ScrollToTopButton";
+import ScrollToTopButton from "@/common/components/ScrollToTopButton";
 import ChatWidget from "@/chat/components/ChatWidget";
 
 export default function AppLayout() {

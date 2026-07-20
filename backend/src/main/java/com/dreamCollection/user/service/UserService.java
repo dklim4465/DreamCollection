@@ -1,6 +1,6 @@
 package com.dreamCollection.user.service;
 
-import com.dreamCollection.auth.service.KakaoOauthClient;
+import com.dreamCollection.user.service.KakaoOauthClient;
 import com.dreamCollection.badge.service.BadgeService;
 import com.dreamCollection.global.exception.BusinessException;
 import com.dreamCollection.global.exception.NicknameChangeCooldownException;

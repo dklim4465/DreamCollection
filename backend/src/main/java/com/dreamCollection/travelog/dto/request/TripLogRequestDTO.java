@@ -21,6 +21,8 @@ public class TripLogRequestDTO {
 
     private String description;
 
+    private Long thumbnailMediaMno;
+
     // 어느 나라 여행이었는지 (선택). 있으면 나의기록 저장 시 국가 뱃지가 자동으로 지급된다.
     private String countryCode;
 

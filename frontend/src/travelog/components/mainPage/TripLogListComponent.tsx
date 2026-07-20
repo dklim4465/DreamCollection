@@ -2,7 +2,7 @@ import { Search, Plus } from "lucide-react";
 import { TripLogResponseDTO } from "@/travelog/types/tripLog";
 import TripLogCardMenu from "@/travelog/components/mainPage/TripLogCardMenu";
 import { Link } from "react-router-dom";
-import EmptyState from "@/common/component/EmptyState";
+import EmptyState from "@/common/components/EmptyState";
 import { getTripLogThumbnailUrl } from "@/travelog/utils/media";
 
 interface TripLogListProps {

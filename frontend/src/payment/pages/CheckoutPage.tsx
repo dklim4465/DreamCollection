@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import LoadingSpinner from "@/common/component/LoadingSpinner";
+import LoadingSpinner from "@/common/components/LoadingSpinner";
 import { paymentCardApi } from "@/payment/api/paymentCardApi";
 import {
   paymentOrderApi,

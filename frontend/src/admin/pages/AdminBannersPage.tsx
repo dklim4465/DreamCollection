@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { adminApi, type BannerAdminForm } from "@/admin/api/adminApi";
 import type { Banner } from "@/home/api/bannerApi";
-import ImageUrlOrUploadInput from "@/admin/component/ImageUrlOrUploadInput";
+import ImageUrlOrUploadInput from "@/admin/ImageUrlOrUploadInput";
 
 const EMPTY_FORM: BannerAdminForm = {
   title: "",

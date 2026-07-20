@@ -1,14 +1,14 @@
 package com.dreamCollection.mate.service;
 
-import com.dreamCollection.mate.excpetion.DuplicateMateRequestException;
+import com.dreamCollection.mate.exception.DuplicateMateRequestException;
 import com.dreamCollection.mate.dto.MateRequestDecisionRequestDTO;
 import com.dreamCollection.mate.dto.MateRequestResponseDTO;
 import com.dreamCollection.mate.entity.MatePost;
 import com.dreamCollection.mate.entity.MateRequest;
-import com.dreamCollection.mate.excpetion.MatePostAccessDeniedException;
-import com.dreamCollection.mate.excpetion.MatePostNotFoundException;
-import com.dreamCollection.mate.excpetion.MateRecruitmentClosedException;
-import com.dreamCollection.mate.excpetion.MateRequestNotFoundException;
+import com.dreamCollection.mate.exception.MatePostAccessDeniedException;
+import com.dreamCollection.mate.exception.MatePostNotFoundException;
+import com.dreamCollection.mate.exception.MateRecruitmentClosedException;
+import com.dreamCollection.mate.exception.MateRequestNotFoundException;
 import com.dreamCollection.mate.repository.MatePostRepository;
 import com.dreamCollection.mate.repository.MateRequestRepository;
 import com.dreamCollection.social.entity.Notification;

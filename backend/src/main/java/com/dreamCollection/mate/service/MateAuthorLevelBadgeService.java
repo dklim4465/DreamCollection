@@ -5,7 +5,7 @@ import com.dreamCollection.badge.entity.Badge;
 import com.dreamCollection.badge.entity.UserBadge;
 import com.dreamCollection.badge.repository.BadgeRepository;
 import com.dreamCollection.badge.repository.UserBadgeRepository;
-import com.dreamCollection.level.LevelPolicy;
+import com.dreamCollection.user.level.LevelPolicy;
 import com.dreamCollection.mate.dto.AuthorLevelBadgeInfo;
 import com.dreamCollection.trip.repository.SavedTripRepository;
 import lombok.RequiredArgsConstructor;

@@ -13,7 +13,7 @@ import com.dreamCollection.trip.entity.SavedTrip;
 import com.dreamCollection.trip.repository.SavedTripRepository;
 import com.dreamCollection.user.entity.UserPaymentCard;
 import com.dreamCollection.user.repository.UserPaymentCardRepository;
-import com.dreamCollection.user.service.TossPaymentClient;
+import com.dreamCollection.payment.client.TossPaymentClient;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;

@@ -1,7 +1,7 @@
 import { Link, Navigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import EmptyState from "@/common/component/EmptyState";
-import LoadingSpinner from "@/common/component/LoadingSpinner";
+import EmptyState from "@/common/components/EmptyState";
+import LoadingSpinner from "@/common/components/LoadingSpinner";
 import SavedTripList from "@/trip/components/result/SavedTripList";
 import { tripApi } from "@/trip/api/trip";
 import { useAuthStore } from "@/auth/store/authStore";

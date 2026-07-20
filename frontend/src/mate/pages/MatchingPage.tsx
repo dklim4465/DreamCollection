@@ -6,8 +6,8 @@ import { type MatePostStatus } from "@/mate/types/mate";
 import MateCard from "@/mate/components/MateCard";
 import MateStatusTabs from "@/mate/components/MateStatusTabs";
 import Pagination from "@/board/components/Pagination";
-import LoadingSpinner from "@/common/component/LoadingSpinner";
-import EmptyState from "@/common/component/EmptyState";
+import LoadingSpinner from "@/common/components/LoadingSpinner";
+import EmptyState from "@/common/components/EmptyState";
 
 export default function MatchingPage() {
   const [status, setStatus] = useState<MatePostStatus>("RECRUITING");
