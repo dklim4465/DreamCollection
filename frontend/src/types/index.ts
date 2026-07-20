@@ -102,16 +102,6 @@ export interface TravelPlan {
   createdAt: string;
 }
 
-// ── 장바구니 (CART / CART_ITEM) ───────────────────────────
-export interface CartItem {
-  id: number;
-  scheduleId: number;
-  scheduleTitle: string;
-  destination: string;
-  price: number;
-  addedAt: string;
-}
-
 // ── 결제 (PAYMENT) ────────────────────────────────────────
 export type PaymentStatus = "PAID" | "CANCELLED" | "REFUNDED";
 export type PaymentMethod = "CARD" | "EASY_PAY";

@@ -20,12 +20,26 @@ public class GeminiChatClient {
     private static final String API_URL_TEMPLATE =
             "https://generativelanguage.googleapis.com/v1beta/models/%s:generateContent";
 
-    private static final String SYSTEM_PROMPT = """
+    private static final String SYSTEM_PROMPT_BASE = """
             너는 여행 플래닝 서비스 'Dream Collection'의 AI 여행 상담 챗봇이야.
             여행지 추천, 일정 짜는 법, 준비물, 현지 정보 등 여행 관련 질문에 친절하고
-            간결한 한국어로 답해줘. 여행과 무관한 질문에도 자연스럽게 답해도 되지만,
-            너무 길게 늘어놓지 말고 핵심 위주로 3~5문장 이내로 답해.
+            구체적으로 한국어로 답해줘. 성의 없이 뭉뚱그리지 말고, 실제로 도움이 되도록
+            핵심 정보(예: 준비물 목록, 추천 이유, 구체적인 지명 등)를 담아서 답해.
+            보통 3~6문장 정도가 적당하지만, 목록이 필요한 질문(준비물, 일정 등)이면
+            항목별로 나눠 조금 더 길게 답해도 괜찮아. 단, 절대 문장을 중간에 끊지 말고
+            항상 완결된 문장으로 마무리해.
+            마크다운 문법(**굵게**, - 목록, # 제목 등)은 쓰지 마. 화면에 별표나 기호가
+            그대로 노출되니, 목록이 필요하면 "1) ", "2) " 처럼 숫자와 괄호로, 강조하고
+            싶으면 그냥 자연스러운 문장으로 표현해.
+            아래는 이 사이트의 실제 최신 정보야 — 사용자가 "이 사이트", "여기", "인기 여행지",
+            "회원 수", "몇 개국" 처럼 사이트 자체에 대해 물어보면 반드시 이 정보를 근거로 답해.
+            네가 모르는 사이트 기능을 지어내지 말고, 아래에 없는 내용은 "정확한 정보는 고객센터나
+            공지사항을 확인해주세요" 정도로 답해.
             """;
+
+    // 답변이 중간에 끊기는 문제가 있어서(400은 한국어 기준 너무 짧음) 넉넉하게 올림.
+    // 그래도 시스템 프롬프트에서 "3~6문장"으로 길이 자체를 유도하기 때문에 응답 속도는 크게 안 늦어짐.
+    private static final int MAX_OUTPUT_TOKENS = 1024;
 
     private final RestClient restClient = RestClient.builder()
             .requestFactory(timeoutRequestFactory())
@@ -44,14 +58,24 @@ public class GeminiChatClient {
     @Value("${gemini.api-key:}")
     private String apiKey;
 
-    @Value("${gemini.model:gemini-2.5-flash}")
+    @Value("${gemini.model:gemini-3.5-flash}")
     private String model;
 
-    public String chat(List<ChatMessageDto> history) {
+    /**
+     * @param history     지금까지의 대화 (user/assistant 턴)
+     * @param siteContext SiteContextService가 조립한 "사이트 실제 현황" 문자열.
+     *                    시스템 프롬프트 뒤에 덧붙여서, 모델이 이 사이트에 대한 질문에
+     *                    실제 DB 값 기준으로 답할 수 있게 한다. (없으면 기본 프롬프트만 사용)
+     */
+    public String chat(List<ChatMessageDto> history, String siteContext) {
         if (apiKey == null || apiKey.isBlank()) {
             return "챗봇 기능을 사용하려면 관리자가 Gemini API 키를 설정해야 해요. "
                     + "(백엔드 환경변수 GEMINI_API_KEY)";
         }
+
+        String systemPrompt = (siteContext == null || siteContext.isBlank())
+                ? SYSTEM_PROMPT_BASE
+                : SYSTEM_PROMPT_BASE + "\n\n" + siteContext;
 
         // Gemini는 "user"/"model" 두 role만 씀 → 프론트/DTO의 "assistant"를 "model"로 변환
         List<Map<String, Object>> contents = history.stream()
@@ -62,8 +86,9 @@ public class GeminiChatClient {
                 .toList();
 
         Map<String, Object> requestBody = Map.of(
-                "systemInstruction", Map.of("parts", List.of(Map.of("text", SYSTEM_PROMPT))),
-                "contents", contents
+                "systemInstruction", Map.of("parts", List.of(Map.of("text", systemPrompt))),
+                "contents", contents,
+                "generationConfig", Map.of("maxOutputTokens", MAX_OUTPUT_TOKENS)
         );
 
         String url = API_URL_TEMPLATE.formatted(model);

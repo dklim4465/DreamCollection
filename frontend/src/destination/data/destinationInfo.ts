@@ -27,10 +27,7 @@ export interface DestinationInfo {
 
 export const destinationInfoMap: Record<string, DestinationInfo> = {
   도쿄: {
-    gallery: [
-      "https://images.unsplash.com/photo-vGx8LuMJtNo?w=1200",
-      "https://images.unsplash.com/photo-1lTr__BS770?w=1200",
-    ],
+    gallery: ["https://images.unsplash.com/photo-1759970752518-b0ffa38c130b?w=1200"],
     tagline: "전통과 최첨단이 공존하는 일본의 심장",
     currency: "일본 엔(JPY)",
     language: "일본어",
@@ -46,8 +43,8 @@ export const destinationInfoMap: Record<string, DestinationInfo> = {
   },
   오사카: {
     gallery: [
-      "https://images.unsplash.com/photo-1BYv3EShzwE?w=1200",
-      "https://images.unsplash.com/photo-s6VthJb4lAc?w=1200",
+      "https://images.unsplash.com/photo-1746890775648-70714f34bd0c?w=1200",
+      "https://images.unsplash.com/photo-1590559899731-a382839e5549?w=1200",
     ],
     tagline: "먹거리와 밤거리가 매력적인 간사이의 중심",
     currency: "일본 엔(JPY)",
@@ -63,12 +60,7 @@ export const destinationInfoMap: Record<string, DestinationInfo> = {
     ],
   },
   후쿠오카: {
-    gallery: [
-      "https://images.unsplash.com/photo-RmTzKdQQvwk?w=1200",
-      "https://images.unsplash.com/photo-60LrgcVi5zQ?w=1200",
-      "https://images.unsplash.com/photo-mLj-3CrsEC4?w=1200",
-      "https://images.unsplash.com/photo-busmtYFDR70?w=1200",
-    ],
+    gallery: ["https://images.unsplash.com/photo-1574678505748-99e73cc7ee41?w=1200"],
     tagline: "한국에서 가장 가까운 일본, 1박2일도 가능한 미식 도시",
     currency: "일본 엔(JPY)",
     language: "일본어",
@@ -84,10 +76,8 @@ export const destinationInfoMap: Record<string, DestinationInfo> = {
   },
   방콕: {
     gallery: [
-      "https://images.unsplash.com/photo-MKVGJ4d3E6c?w=1200",
-      "https://images.unsplash.com/photo-dPJom964jjc?w=1200",
-      "https://images.unsplash.com/photo-wd3tQvk0WXA?w=1200",
-      "https://images.unsplash.com/photo-7vWO8Rl7KvQ?w=1200",
+      "https://images.unsplash.com/photo-1755251042986-91270ffd76f5?w=1200",
+      "https://images.unsplash.com/photo-1508009603885-50cf7c579365?w=1200",
     ],
     tagline: "사원과 야시장, 옥상 바가 어우러진 활기찬 도시",
     currency: "태국 바트(THB)",
@@ -103,11 +93,7 @@ export const destinationInfoMap: Record<string, DestinationInfo> = {
     ],
   },
   뉴욕: {
-    gallery: [
-      "https://images.unsplash.com/photo-ZwkXw21-uYA?w=1200",
-      "https://images.unsplash.com/photo-v90EtB6l8Po?w=1200",
-      "https://images.unsplash.com/photo-AFf8O1EgaMI?w=1200",
-    ],
+    gallery: ["https://images.unsplash.com/photo-1754766621748-2a96cbf56a1f?w=1200"],
     tagline: "브로드웨이부터 센트럴파크까지, 잠들지 않는 도시",
     currency: "미국 달러(USD)",
     language: "영어",

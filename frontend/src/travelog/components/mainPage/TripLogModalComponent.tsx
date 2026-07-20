@@ -1,4 +1,5 @@
 import { TripLogRequestDTO } from "@/travelog/types/tripLog";
+import { TRIPLOG_COUNTRIES } from "@/common/data/countries";
 import { useState } from "react";
 
 interface TripLogModalProps {
@@ -21,6 +22,7 @@ const TripLogModalComponent = ({
     startDate: "",
     endDate: "",
     description: "",
+    countryCode: "",
   });
   const [files, setFiles] = useState<File[]>([]);
 
@@ -34,6 +36,7 @@ const TripLogModalComponent = ({
       startDate: "",
       endDate: "",
       description: "",
+      countryCode: "",
     });
     setFiles([]);
 
@@ -42,15 +45,12 @@ const TripLogModalComponent = ({
 
   return (
     <>
-      <div
-        className="fixed inset-0 z-40 bg-black/40 backdrop-blur-sm"
-        onClick={onClose}
-      />
+      <div className="fixed inset-0 z-40 bg-black/40" onClick={onClose} />
 
-      <div className="traveler-glow fixed left-1/2 top-1/2 z-50 w-[calc(100%-2rem)] max-w-[520px] -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-2xl bg-surface-container-lowest">
+      <div className="fixed left-1/2 top-1/2 z-50 w-[520px] -translate-x-1/2 -translate-y-1/2 rounded-xl bg-white shadow-xl">
         {/* Header */}
-        <div className="border-b border-outline-variant p-5">
-          <h2 className="text-title-md font-bold text-on-surface">
+        <div className="border-b p-5">
+          <h2 className="text-xl font-semibold">
             {type === "create" ? "새 여행 기록" : "여행 기록 삭제"}
           </h2>
         </div>
@@ -60,7 +60,7 @@ const TripLogModalComponent = ({
           {type === "create" && (
             <div className="space-y-4">
               <input
-                className="input-base"
+                className="w-full rounded-lg border p-2"
                 placeholder="여행 제목"
                 value={request.title ?? ""}
                 onChange={(e) =>
@@ -72,7 +72,7 @@ const TripLogModalComponent = ({
               />
 
               <textarea
-                className="input-base min-h-28 resize-none"
+                className="min-h-28 w-full rounded-lg border p-2"
                 placeholder="설명"
                 value={request.description ?? ""}
                 onChange={(e) =>
@@ -83,10 +83,28 @@ const TripLogModalComponent = ({
                 }
               />
 
+              <select
+                className="w-full rounded-lg border p-2 text-gray-700"
+                value={request.countryCode ?? ""}
+                onChange={(e) =>
+                  setRequest((prev) => ({
+                    ...prev,
+                    countryCode: e.target.value,
+                  }))
+                }
+              >
+                <option value="">어느 나라 여행이었나요? (선택, 뱃지 지급용)</option>
+                {TRIPLOG_COUNTRIES.map((c) => (
+                  <option key={c.code} value={c.code}>
+                    {c.label}
+                  </option>
+                ))}
+              </select>
+
               <div className="grid grid-cols-2 gap-3">
                 <input
                   type="date"
-                  className="input-base"
+                  className="rounded-lg border p-2"
                   value={request.startDate ?? ""}
                   onChange={(e) =>
                     setRequest((prev) => ({
@@ -98,7 +116,7 @@ const TripLogModalComponent = ({
 
                 <input
                   type="date"
-                  className="input-base"
+                  className="rounded-lg border p-2"
                   value={request.endDate ?? ""}
                   onChange={(e) =>
                     setRequest((prev) => ({
@@ -120,7 +138,7 @@ const TripLogModalComponent = ({
                 }}
               />
 
-              <p className="text-body-sm text-on-surface-variant">
+              <p className="text-sm text-gray-500">
                 선택된 파일 {files.length}개
               </p>
             </div>
@@ -128,11 +146,9 @@ const TripLogModalComponent = ({
 
           {type === "delete" && (
             <div className="space-y-2">
-              <p className="text-body-md text-on-surface">
-                정말 삭제하시겠습니까?
-              </p>
+              <p>정말 삭제하시겠습니까?</p>
 
-              <p className="text-body-sm text-error">
+              <p className="text-sm text-red-500">
                 삭제된 여행 기록은 복구할 수 없습니다.
               </p>
             </div>
@@ -140,18 +156,21 @@ const TripLogModalComponent = ({
         </div>
 
         {/* Footer */}
-        <div className="flex justify-end gap-2 border-t border-outline-variant p-5">
-          <button onClick={onClose} className="btn-ghost">
+        <div className="flex justify-end gap-2 border-t p-5">
+          <button
+            onClick={onClose}
+            className="rounded-lg border px-4 py-2 hover:bg-gray-100"
+          >
             취소
           </button>
 
           <button
             onClick={type === "create" ? handleCreate : onDelete}
-            className={
+            className={`rounded-lg px-4 py-2 text-white ${
               type === "create"
-                ? "btn-primary"
-                : "rounded-xl bg-error px-6 py-3 font-bold text-on-error transition-opacity hover:opacity-90 active:scale-95 text-label-md"
-            }
+                ? "bg-blue-600 hover:bg-blue-700"
+                : "bg-red-600 hover:bg-red-700"
+            }`}
           >
             {type === "create" ? "생성" : "삭제"}
           </button>

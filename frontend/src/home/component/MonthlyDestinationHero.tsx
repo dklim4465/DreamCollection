@@ -83,7 +83,13 @@ export default function MonthlyDestinationHero() {
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent" />
 
-                    <span className="absolute top-3 left-3 w-8 h-8 rounded-full bg-white/90 text-on-surface font-black text-sm flex items-center justify-center">
+                    <span
+                      className={
+                        rank === 1
+                          ? "absolute top-3 left-3 w-8 h-8 rounded-full bg-tertiary text-on-tertiary font-black text-sm flex items-center justify-center"
+                          : "absolute top-3 left-3 w-8 h-8 rounded-full bg-white/90 text-on-surface font-black text-sm flex items-center justify-center"
+                      }
+                    >
                       {rank}
                     </span>
 

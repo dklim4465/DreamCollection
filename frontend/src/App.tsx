@@ -36,9 +36,6 @@ const TripSavedListPage = lazy(() => import("@/trip/page/TripSavedListPage"));
 const TripSavedDetailPage = lazy(
   () => import("@/trip/page/TripSavedDetailPage"),
 );
-
-const CheckoutPage = lazy(() => import("./payment/pages/CheckoutPage"));
-
 const CommunityPage = lazy(() => import("@/board/pages/CommunityPage"));
 const BoardDetailPage = lazy(() => import("@/board/pages/BoardDetailPage"));
 const BoardWritePage = lazy(() => import("@/board/pages/BoardWritePage"));
@@ -47,12 +44,9 @@ const MateWritePage = lazy(() => import("@/mate/pages/MateWritePage"));
 const MateDetailPage = lazy(() => import("@/mate/pages/MateDetailPage"));
 const NoticeListPage = lazy(() => import("@/notice/pages/NoticeListPage"));
 const NoticeDetailPage = lazy(() => import("@/notice/pages/NoticeDetailPage"));
+const FeedbackPage = lazy(() => import("@/support/pages/FeedbackPage"));
 const CityDetailPage = lazy(() => import("@/destination/pages/CityDetailPage"));
 
-const CartPage = lazy(() => import("./payment/pages/CartPage"));
-const PaymentCompletePage = lazy(
-  () => import("./payment/pages/PaymentCompletePage"),
-);
 const RecordsPage = lazy(() => import("./records/pages/RecordsPage"));
 const ProfilePage = lazy(() => import("./profile/pages/ProfilePage"));
 
@@ -66,6 +60,9 @@ const AdminMonthlyDestinationsPage = lazy(
   () => import("./admin/pages/AdminMonthlyDestinationsPage"),
 );
 const AdminUsersPage = lazy(() => import("./admin/pages/AdminUsersPage"));
+const AdminDashboardPage = lazy(() => import("./admin/pages/AdminDashboardPage"));
+const AdminBoardPage = lazy(() => import("./admin/pages/AdminBoardPage"));
+const AdminFeedbackPage = lazy(() => import("./admin/pages/AdminFeedbackPage"));
 
 // TODO: 아래 페이지는 각 팀원이 추가
 // const CommunityDetailPage= lazy(() => import('@/pages/CommunityDetailPage'));
@@ -181,21 +178,11 @@ export default function App() {
                 />
 
                 <Route path="/notices" element={<NoticeListPage />} />
-                <Route
-                  path="/notices/:noticeId"
-                  element={<NoticeDetailPage />}
-                />
+                <Route path="/notices/:noticeId" element={<NoticeDetailPage />} />
+                <Route path="/feedback" element={<FeedbackPage />} />
 
                 {/* 로그인 필요 */}
                 <Route element={<PrivateRoute />}>
-                  <Route path="/cart" element={<CartPage />} />
-
-                  {/* 결제 */}
-                  <Route path="/payment/checkout" element={<CheckoutPage />} />
-                  <Route
-                    path="/payment/complete"
-                    element={<PaymentCompletePage />}
-                  />
                   {/* 여행기록 */}
                   <Route path="/records" element={<RecordsPage />} />
                   <Route path="/triplog" element={<TripLogMainPage />} />
@@ -219,25 +206,30 @@ export default function App() {
                   />
                   <Route path="/matching" element={<MatchingPage />} />
                 </Route>
-              </Route>
-              {/* 관리자 전용 (role=ADMIN) */}
-              <Route element={<AdminRoute />}>
-                <Route path="/admin" element={<AdminLayout />}>
-                  <Route
-                    index
-                    element={<Navigate to="/admin/banners" replace />}
-                  />
-                  <Route path="banners" element={<AdminBannersPage />} />
-                  <Route
-                    path="main-backgrounds"
-                    element={<AdminMainBackgroundsPage />}
-                  />
-                  <Route path="notices" element={<AdminNoticesPage />} />
-                  <Route
-                    path="monthly-destinations"
-                    element={<AdminMonthlyDestinationsPage />}
-                  />
-                  <Route path="users" element={<AdminUsersPage />} />
+
+                {/* 관리자 전용 (role=ADMIN) — AppLayout 안에 둬서 기존 홈페이지 상단 네브바가
+                    관리자 페이지에서도 그대로 유지되게 함 (로고 클릭하면 홈으로 이동 가능) */}
+                <Route element={<AdminRoute />}>
+                  <Route path="/admin" element={<AdminLayout />}>
+                    <Route
+                      index
+                      element={<Navigate to="/admin/dashboard" replace />}
+                    />
+                    <Route path="dashboard" element={<AdminDashboardPage />} />
+                    <Route path="banners" element={<AdminBannersPage />} />
+                    <Route
+                      path="main-backgrounds"
+                      element={<AdminMainBackgroundsPage />}
+                    />
+                    <Route path="notices" element={<AdminNoticesPage />} />
+                    <Route
+                      path="monthly-destinations"
+                      element={<AdminMonthlyDestinationsPage />}
+                    />
+                    <Route path="board" element={<AdminBoardPage />} />
+                    <Route path="feedback" element={<AdminFeedbackPage />} />
+                    <Route path="users" element={<AdminUsersPage />} />
+                  </Route>
                 </Route>
               </Route>
 

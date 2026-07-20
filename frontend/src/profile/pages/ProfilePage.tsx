@@ -287,7 +287,7 @@ export default function ProfilePage() {
         {/* 우측 컨텐츠 */}
         <div className="flex-1 w-full flex flex-col gap-stack-lg">
           {activeTab === "profile" && (
-      <div className="card-base p-stack-lg flex flex-col gap-stack-md">
+      <div className="card-tint-primary p-stack-lg flex flex-col gap-stack-md">
         <div className="flex items-center gap-stack-md">
           <div className="relative shrink-0">
             <button
@@ -319,7 +319,7 @@ export default function ProfilePage() {
                   src={representativeBadge.iconUrl}
                   alt={representativeBadge.name}
                   title={representativeBadge.name}
-                  className="w-6 h-6"
+                  className="w-6 h-6 rounded-full object-cover border border-outline-variant"
                 />
               )}
               {levelLoading ? (
@@ -440,7 +440,7 @@ export default function ProfilePage() {
           )}
 
           {activeTab === "badges" && (
-      <div className="card-base p-stack-lg">
+      <div className="card-tint-tertiary p-stack-lg">
         <div className="flex items-center justify-between mb-stack-sm gap-stack-md flex-wrap">
           <h2 className="text-headline-sm font-bold">뱃지 도감</h2>
           {representativeBadge && (
@@ -503,7 +503,11 @@ export default function ProfilePage() {
                     b.earned ? "opacity-100 hover:bg-surface-container-low" : "opacity-30 grayscale cursor-default"
                   } ${b.representative ? "ring-2 ring-primary" : ""}`}
                 >
-                  <img src={b.iconUrl} alt={b.name} className="w-12 h-12" />
+                  <img
+                    src={b.iconUrl}
+                    alt={b.name}
+                    className="w-12 h-12 rounded-full object-cover border border-outline-variant"
+                  />
                   <span className="text-label-sm text-center line-clamp-1">{b.name}</span>
                 </button>
               ))}
@@ -528,13 +532,13 @@ export default function ProfilePage() {
           )}
 
           {activeTab === "coupons" && (
-      <div className="card-base p-stack-lg">
+      <div className="card-tint-secondary p-stack-lg">
         <h2 className="text-headline-sm font-bold mb-stack-sm">보관함</h2>
         {couponsLoading ? (
           <p className="text-body-sm text-on-surface-variant py-4">불러오는 중...</p>
         ) : coupons.length === 0 ? (
           <p className="text-body-md text-on-surface-variant py-4">
-            아직 보관 중인 쿠폰이 없어요. 홈 화면의 7월 이벤트 배너를 확인해보세요!
+            아직 보관 중인 쿠폰이 없어요. 공지사항의 웰컴 쿠폰이나 홈 화면 이벤트 배너를 확인해보세요!
           </p>
         ) : (
           <div className="flex flex-col gap-stack-sm">

@@ -33,9 +33,14 @@ export default function TravelChecklist() {
   const doneCount = checked.size;
 
   return (
-    <section className="card-base p-stack-lg flex flex-col gap-stack-md">
+    <section className="card-tint-secondary p-stack-lg flex flex-col gap-stack-md">
       <div className="flex items-center justify-between">
-        <h2 className="text-headline-sm font-bold">여행 준비 체크리스트</h2>
+        <div>
+          <p className="text-primary text-label-sm tracking-[0.3em] uppercase mb-1">
+            Pre-Trip
+          </p>
+          <h2 className="text-headline-sm font-bold">여행 준비 체크리스트</h2>
+        </div>
         <span className="chip-primary">
           {doneCount}/{DEFAULT_ITEMS.length}
         </span>

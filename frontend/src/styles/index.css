@@ -170,6 +170,19 @@
     @apply card-base traveler-glow-hover cursor-pointer;
   }
 
+  /* ── 홈페이지 색감 다양화용 은은한 틴트 카드 ──
+     (전부 같은 surface-container-lowest만 쓰면 단조로워 보여서, 섹션마다
+     primary/secondary/tertiary 중 하나로 살짝 색을 입혀 리듬감을 줌) */
+  .card-tint-primary {
+    @apply bg-primary-container/15 rounded-2xl overflow-hidden traveler-glow border border-primary/10;
+  }
+  .card-tint-secondary {
+    @apply bg-secondary-container/40 rounded-2xl overflow-hidden traveler-glow border border-secondary/10;
+  }
+  .card-tint-tertiary {
+    @apply bg-tertiary-container/20 rounded-2xl overflow-hidden traveler-glow border border-tertiary/15;
+  }
+
   /* ── 입력 ── */
   .input-base {
     @apply bg-surface-container-low border-none rounded-lg px-4 py-3 text-body-md

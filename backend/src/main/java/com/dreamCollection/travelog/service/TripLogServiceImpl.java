@@ -1,8 +1,7 @@
 package com.dreamCollection.travelog.service;
 
-import com.dreamCollection.travelog.domain.Media;
+import com.dreamCollection.badge.service.BadgeService;
 import com.dreamCollection.travelog.domain.TripLog;
-import com.dreamCollection.travelog.dto.MediaDetailDTO;
 import com.dreamCollection.travelog.dto.SpotDetailDTO;
 import com.dreamCollection.travelog.dto.TripLogOverviewDTO;
 import com.dreamCollection.travelog.dto.request.TripLogRequestDTO;
@@ -32,6 +31,7 @@ public class TripLogServiceImpl implements TripLogService {
 
     private final MediaService mediaService;
     private final SpotService spotService;
+    private final BadgeService badgeService;
 
     @Override
     @Transactional
@@ -48,6 +48,9 @@ public class TripLogServiceImpl implements TripLogService {
         tags.forEach(tripLog::addTag);
 
         TripLog result = tripLogRepository.save(tripLog);
+
+        // 여행 국가를 지정했으면 그 나라의 도감 뱃지를 자동 지급 (이미 있으면 조용히 무시)
+        badgeService.grantCountryBadgeIfEligible(userId, tripLogRequestDTO.getCountryCode());
 
         return result.getTno();
     }
@@ -75,14 +78,7 @@ public class TripLogServiceImpl implements TripLogService {
         tripLog.changeStartDate(tripLogRequestDTO.getStartDate());
         tripLog.changeEndDate(tripLogRequestDTO.getEndDate());
         tripLog.changeDesc(tripLogRequestDTO.getDescription());
-
-        if (tripLogRequestDTO.getThumbnailMediaMno() != null) {
-            MediaDetailDTO thumbnailMedia = mediaService.getMediaDetail(tripLogRequestDTO.getThumbnailMediaMno());
-
-            String thumbnailPath = thumbnailMedia.getMediaPath() + "/thumbnail/" + thumbnailMedia.getStoredFileName();
-
-            tripLog.changeThumbnail(thumbnailPath);
-        }
+        tripLog.changeCountryCode(tripLogRequestDTO.getCountryCode());
 
         tripLog.clearTags();
 
@@ -90,7 +86,10 @@ public class TripLogServiceImpl implements TripLogService {
 
         tags.forEach(tripLog::addTag);
 
+
         tripLogRepository.save(tripLog);
+
+        badgeService.grantCountryBadgeIfEligible(userId, tripLogRequestDTO.getCountryCode());
     }
 
     @Override
