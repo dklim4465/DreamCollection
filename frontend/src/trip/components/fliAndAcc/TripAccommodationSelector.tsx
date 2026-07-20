@@ -1,4 +1,4 @@
-import LoadingSpinner from "@/common/component/LoadingSpinner";
+import LoadingSpinner from "@/common/components/LoadingSpinner";
 import type {
   AccommodationOption,
   AccommodationSelection,

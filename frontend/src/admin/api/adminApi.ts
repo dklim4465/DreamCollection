@@ -34,6 +34,29 @@ export interface AdminUser {
   createdAt: string;
 }
 
+export interface BoardPostAdminItem {
+  id: number;
+  category: string;
+  title: string;
+  price: number | null;
+  viewCount: number;
+  likeCount: number;
+  tradeStatus: string | null;
+  createdAt: string;
+  userId: number;
+  nickname: string;
+}
+
+export interface FeedbackAdminItem {
+  id: number;
+  name: string;
+  email: string;
+  category: "BUG" | "SUGGESTION" | "ETC";
+  message: string;
+  checked: boolean;
+  createdAt: string;
+}
+
 export interface BannerAdminForm {
   title: string;
   mediaType: "IMAGE" | "VIDEO";
@@ -122,4 +145,20 @@ export const adminApi = {
     }),
   changeUserStatus: (id: number, status: AdminUser["status"]) =>
     apiClient.patch<ApiResponse<AdminUser>>(`/admin/users/${id}/status`, { status }),
+
+  // ── 게시판 관리 ──────────────────────────────────
+  getBoardPosts: (page = 0, size = 20) =>
+    apiClient.get<ApiResponse<PageResponse<BoardPostAdminItem>>>("/admin/board/posts", {
+      params: { page, size },
+    }),
+  deleteBoardPost: (id: number) =>
+    apiClient.delete<ApiResponse<void>>(`/admin/board/posts/${id}`),
+
+  // ── 문의 내역 (하단 "문의하기"에서 접수된 것) ──────
+  getFeedback: (page = 0, size = 20) =>
+    apiClient.get<ApiResponse<PageResponse<FeedbackAdminItem>>>("/admin/feedback", {
+      params: { page, size },
+    }),
+  markFeedbackChecked: (id: number) =>
+    apiClient.patch<ApiResponse<void>>(`/admin/feedback/${id}/check`),
 };

@@ -104,6 +104,8 @@ public class TripLogServiceImpl implements TripLogService {
 
         TripLog tripLog = tripLogRepository.findByTnoAndUser_Id(tno, userId).orElseThrow();
 
+        shareLinkRepository.deleteByTripLog_Tno(tno);
+        
         mediaService.deleteAllByTrip(tno);
 
         spotService.deleteAllByTrip(tno);

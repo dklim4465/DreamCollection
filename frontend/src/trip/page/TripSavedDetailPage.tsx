@@ -2,7 +2,7 @@ import { Navigate, useNavigate, useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import type { PlanResponse } from "@/trip/api/trip";
 import { tripApi } from "@/trip/api/trip";
-import LoadingSpinner from "@/common/component/LoadingSpinner";
+import LoadingSpinner from "@/common/components/LoadingSpinner";
 import SavedTripHeader from "@/trip/components/result/SavedTripHeader";
 import SavedTripTimeline from "@/trip/components/result/SavedTripTimeline";
 import "@/trip/styles/trip.css";
@@ -77,7 +77,6 @@ export default function TripSavedDetailPage() {
       state: { savedTripId: trip.savedTripId },
     });
   };
-
   return (
     <div className="trip-page-wide space-y-stack-lg">
       <SavedTripHeader trip={trip} onEdit={handleEdit} onPay={handlePay} />

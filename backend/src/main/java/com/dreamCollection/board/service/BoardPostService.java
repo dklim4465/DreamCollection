@@ -1,4 +1,3 @@
-// src/main/java/com/dreamCollection/board/service/BoardPostService.java
 package com.dreamCollection.board.service;
 
 import com.dreamCollection.board.dto.AuthorLevelBadgeInfo;
@@ -27,9 +26,9 @@ public class BoardPostService {
 
     private final BoardPostRepository boardPostRepository;
     private final UserRepository userRepository;
-    private final BoardLikeRepository boardLikeRepository;
     private final BoardCommentRepository boardCommentRepository;
-    private final BoardAuthorLevelBadgeService authorLevelBadgeService;
+    private final BoardLikeRepository boardLikeRepository;
+    private final BoardAuthorLevelBadgeService boardAuthorLevelBadgeService;
 
     @Transactional
     public BoardPostDetailResponseDTO createPost(Long userId, BoardPostCreateRequestDTO requestDTO){
@@ -42,13 +41,13 @@ public class BoardPostService {
                 .build();
 
         BoardPost saved = boardPostRepository.save(post);
-        User user = userRepository.findById(userId).orElse(null);
-        return BoardPostDetailResponseDTO.from(
-                saved,
-                user != null ? user.getNickname() : "알 수 없음",
-                user != null ? user.getProfileImageUrl() : null,
-                false
-        );
+
+        User author = userRepository.findById(userId).orElse(null);
+        String nickname = author != null ? author.getNickname() : "알 수 없음";
+        String profileImageUrl = author != null ? author.getProfileImageUrl() : null;
+
+        // 방금 작성한 글이라 좋아요는 항상 false
+        return BoardPostDetailResponseDTO.from(saved, nickname, profileImageUrl, false);
     }
 
     @Transactional(readOnly = true)
@@ -57,27 +56,26 @@ public class BoardPostService {
                 ? boardPostRepository.findAllByOrderByCreatedAtDesc(pageable)
                 : boardPostRepository.findByCategoryOrderByCreatedAtDesc(category, pageable);
         return posts.map(post -> {
-            User user = userRepository.findById(post.getUserId()).orElse(null);
-            String nickname = user != null ? user.getNickname() : "알 수 없음";
-            String profileImageUrl = user != null ? user.getProfileImageUrl() : null;
+            User author = userRepository.findById(post.getUserId()).orElse(null);
+            String nickname = author != null ? author.getNickname() : "알 수 없음";
+            String profileImageUrl = author != null ? author.getProfileImageUrl() : null;
             long commentCount = boardCommentRepository.countByPostId(post.getId());
-            AuthorLevelBadgeInfo levelBadgeInfo = authorLevelBadgeService.resolve(post.getUserId());
+            AuthorLevelBadgeInfo levelBadgeInfo = boardAuthorLevelBadgeService.resolve(post.getUserId());
             return BoardPostListResponseDTO.from(post, nickname, profileImageUrl, commentCount, levelBadgeInfo);
         });
     }
 
     @Transactional
-    public BoardPostDetailResponseDTO getPostDetail(Long postId, Long viewerId){
+    public BoardPostDetailResponseDTO getPostDetail(Long postId, Long userId){
         BoardPost post = findPostOrThrow(postId);
         post.increaseViewCount();
-        User user = userRepository.findById(post.getUserId()).orElse(null);
-        boolean liked = viewerId != null && boardLikeRepository.existsByPostIdAndUserId(postId, viewerId);
-        return BoardPostDetailResponseDTO.from(
-                post,
-                user != null ? user.getNickname() : "알 수 없음",
-                user != null ? user.getProfileImageUrl() : null,
-                liked
-        );
+
+        User author = userRepository.findById(post.getUserId()).orElse(null);
+        String nickname = author != null ? author.getNickname() : "알 수 없음";
+        String profileImageUrl = author != null ? author.getProfileImageUrl() : null;
+        boolean liked = userId != null && boardLikeRepository.existsByPostIdAndUserId(postId, userId);
+
+        return BoardPostDetailResponseDTO.from(post, nickname, profileImageUrl, liked);
     }
 
     @Transactional
@@ -92,20 +90,25 @@ public class BoardPostService {
             post.setTradeStatus(requestDTO.getTradeStatus());
         }
 
-        User user = userRepository.findById(post.getUserId()).orElse(null);
+        User author = userRepository.findById(post.getUserId()).orElse(null);
+        String nickname = author != null ? author.getNickname() : "알 수 없음";
+        String profileImageUrl = author != null ? author.getProfileImageUrl() : null;
         boolean liked = boardLikeRepository.existsByPostIdAndUserId(postId, userId);
-        return BoardPostDetailResponseDTO.from(
-                post,
-                user != null ? user.getNickname() : "알 수 없음",
-                user != null ? user.getProfileImageUrl() : null,
-                liked
-        );
+
+        return BoardPostDetailResponseDTO.from(post, nickname, profileImageUrl, liked);
     }
 
     @Transactional
     public void deletePost(long userId, Long postId){
         BoardPost post = findPostOrThrow(postId);
         validateOwner(post,userId);
+        boardPostRepository.delete(post);
+    }
+
+    // 관리자 전용 삭제 — 작성자 검증 없이 어떤 게시글이든 지울 수 있다 (신고 처리 등)
+    @Transactional
+    public void adminDeletePost(Long postId){
+        BoardPost post = findPostOrThrow(postId);
         boardPostRepository.delete(post);
     }
 

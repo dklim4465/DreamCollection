@@ -66,6 +66,10 @@ public class TripLog {
         this.description = description;
     }
 
+    public void changeThumbnail(String thumbnailPath) {
+        this.thumbnailPath = thumbnailPath;
+    }
+
     public void addTag(String tag) {
         tags.add(tag);
     }
@@ -75,6 +79,4 @@ public class TripLog {
     }
 
     public void changeUser(User user) { this.user = user; }
-
-    public void changeThumbnail(String thumbnailPath) { this.thumbnailPath = thumbnailPath; }
 }

@@ -3,7 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { matePostApi } from "@/mate/api/mate";
 import { PREFERRED_GENDERS, TRAVEL_STYLES } from "@/mate/types/mate";
-import LoadingSpinner from "@/common/component/LoadingSpinner";
+import LoadingSpinner from "@/common/components/LoadingSpinner";
 import DateSelect from "@/mate/components/DateSelect";
 
 function getTodayString() {

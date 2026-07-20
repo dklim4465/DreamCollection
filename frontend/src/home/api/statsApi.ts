@@ -6,6 +6,7 @@ export interface StatsData {
   userCount: number;
   travelLogCount: number;
   countryCount: number;
+  badgeEarnedCount: number;
 }
 
 export const statsApi = {

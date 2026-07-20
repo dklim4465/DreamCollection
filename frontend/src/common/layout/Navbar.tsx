@@ -166,16 +166,6 @@ export default function Navbar() {
         <div className="flex items-center gap-stack-md">
           <SearchBar />
 
-          {isAuthenticated && (
-            <Link
-              to="/cart"
-              className="material-symbols-outlined text-on-surface-variant hover:opacity-80"
-              aria-label="장바구니"
-            >
-              shopping_cart
-            </Link>
-          )}
-
           {isAuthenticated && user?.role === "ADMIN" && (
             <Link
               to="/admin"

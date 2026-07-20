@@ -26,7 +26,5 @@ export function nextId<T extends { id: number }>(items: T[]): number {
 
 export const MOCK_KEYS = {
   SCHEDULES: "dream_collection_schedules",
-  CART: "dream_collection_cart",
   PAYMENTS: "dream_collection_payments",
-  RECORDS: "dream_collection_records",
 } as const;
