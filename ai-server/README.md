@@ -1,19 +1,18 @@
-# AI Server
+## 실행 방법
 
-## Setup
+### 1. 가상환경 생성
 
-```powershell
-python -m venv .venv
-.\.venv\Scripts\Activate.ps1
+python -m venv venv
+
+### 2. 활성화
+
+Windows:
+.venv\Scripts\activate
+
+### 3. 패키지 설치
+
 pip install -r requirements.txt
-```
 
-Create `.env` from `.env.example`, then set `GEMINI_API_KEY`.
+### 4. 서버 실행
 
-## Run
-
-```powershell
-python app.py
-```
-
-The server runs on `http://localhost:5000`. Check it with `GET /health`.
+uvicorn main:app --reload --host 0.0.0.0 --port 5000
