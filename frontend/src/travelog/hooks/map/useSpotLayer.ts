@@ -4,6 +4,7 @@ import { useEffect, useRef } from "react";
 import mapboxgl from "mapbox-gl";
 import { useMarkerResize } from "@/travelog/hooks/map/useMarkerResize";
 import { getSpotThumbnailUrl } from "@/travelog/utils/media";
+import "@/travelog/styles/marker.css";
 
 type Props = {
   visible: boolean;
@@ -26,9 +27,11 @@ export const useSpotLayer = ({ visible }: Props) => {
       element.className = "spot-marker";
 
       element.innerHTML = `
-      <div class="spot-marker">
-        <img src=${getSpotThumbnailUrl(spot)} />
-        <div class="spot-pin"></div>
+      <div class="marker marker-spot">
+        <div class="marker-photo">
+          <img src=${getSpotThumbnailUrl(spot)} />
+        </div>
+        <div class="marker-pin"></div>
       </div>
       `;
 

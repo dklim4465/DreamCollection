@@ -4,6 +4,7 @@ import mapboxgl from "mapbox-gl";
 import { useMediaStore } from "@/travelog/store/useMediaStore";
 import { useMarkerResize } from "@/travelog/hooks/map/useMarkerResize";
 import { getMediaThumbnailUrl } from "@/travelog/utils/media";
+import "@/travelog/styles/marker.css";
 
 type Props = {
   visible: boolean;
@@ -26,8 +27,11 @@ export const useMediaLayer = ({ visible }: Props) => {
       element.className = "spot-marker";
 
       element.innerHTML = `
-      <div class="spot-marker">
-        <img src=${getMediaThumbnailUrl(item)} />
+      <div class="marker marker-media">
+        <div class="marker-photo">
+            <img src=${getMediaThumbnailUrl(item)} />
+        </div>
+        <div class="marker-pin"></div>
       </div>
       `;
 
