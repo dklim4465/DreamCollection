@@ -4,6 +4,7 @@ interface Props {
   conditions: PlanRequest;
   startDate: string;
   expanded: boolean;
+  disabled?: boolean;
   onStartDateChange: (startDate: string) => void;
   onToggleConditions: () => void;
 }
@@ -12,6 +13,7 @@ export default function TripConditionSummaryBar({
   conditions,
   startDate,
   expanded,
+  disabled = false,
   onStartDateChange,
   onToggleConditions,
 }: Props) {
@@ -27,8 +29,9 @@ export default function TripConditionSummaryBar({
             <input
               type="date"
               value={startDate}
+              disabled={disabled}
               onChange={(event) => onStartDateChange(event.target.value)}
-              className="w-full rounded-xl border border-outline-variant/70 bg-surface-container-low px-4 py-3 text-label-md font-bold text-on-surface outline-none transition focus:border-primary focus:bg-surface-container-lowest focus:ring-2 focus:ring-primary/10"
+              className="w-full rounded-xl border border-outline-variant/70 bg-surface-container-low px-4 py-3 text-label-md font-bold text-on-surface outline-none transition focus:border-primary focus:bg-surface-container-lowest focus:ring-2 focus:ring-primary/10 disabled:cursor-not-allowed disabled:opacity-60"
             />
           </span>
         </label>
@@ -53,7 +56,8 @@ export default function TripConditionSummaryBar({
         <button
           type="button"
           onClick={onToggleConditions}
-          className="btn-ghost whitespace-nowrap"
+          disabled={disabled}
+          className="btn-ghost whitespace-nowrap disabled:cursor-not-allowed disabled:opacity-50"
           aria-expanded={expanded}
         >
           <span className="material-symbols-outlined mr-2 align-[-5px] text-[18px]">

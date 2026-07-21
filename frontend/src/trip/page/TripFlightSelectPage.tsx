@@ -95,11 +95,18 @@ export default function TripFlightSelectPage() {
       skipped: true,
     };
 
-    navigate("/trip/accommodation", {
+    const skipAccommodation =
+      flowStateWithDate.conditions.accommodationCondition?.skip;
+    const nextPath = skipAccommodation
+      ? "/trip/result"
+      : "/trip/accommodation";
+
+    navigate(nextPath, {
       replace: true,
       state: {
         ...flowStateWithDate,
         flightSelection,
+        ...(skipAccommodation ? { pendingBuild: true } : {}),
       },
     });
   }, [flowStateWithDate, hasStartDate, navigate, skipFlight]);
@@ -153,10 +160,17 @@ export default function TripFlightSelectPage() {
       externalUrl: selectedReturnFlight.externalUrl,
     };
 
-    navigate("/trip/accommodation", {
+    const nextFlowState: TripFlowState = {
+      ...flowStateWithDate,
+      flightSelection,
+    };
+    const skipAccommodation =
+      nextFlowState.conditions.accommodationCondition?.skip;
+
+    navigate(skipAccommodation ? "/trip/result" : "/trip/accommodation", {
       state: {
-        ...flowStateWithDate,
-        flightSelection,
+        ...nextFlowState,
+        ...(skipAccommodation ? { pendingBuild: true } : {}),
       },
     });
   };

@@ -93,6 +93,7 @@ public class    PaymentOrderFactory {
                 .gender(traveler.gender())
                 .passportNumber(traveler.passportNumber())
                 .passportExpiry(traveler.passportExpiry())
+                .nationality(traveler.nationality())
                 .phone(traveler.phone())
                 .representative(traveler.representative())
                 .sortOrder(sortOrder)

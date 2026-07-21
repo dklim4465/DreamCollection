@@ -10,6 +10,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/payments/orders")
 @RequiredArgsConstructor
@@ -21,6 +23,12 @@ public class PaymentOrderController {
     public ApiResponse<PaymentOrderResponseDTO> create(@Valid @RequestBody CreatePaymentOrderRequestDTO request, Authentication authentication){
         Long userId = (Long) authentication.getPrincipal();
         return ApiResponse.ok(paymentOrderService.createOrder(userId, request), "주문이 생성되었습니다.");
+    }
+
+    @GetMapping("/me")
+    public ApiResponse<List<PaymentOrderResponseDTO>> myOrders(Authentication authentication) {
+        Long userId = (Long) authentication.getPrincipal();
+        return ApiResponse.ok(paymentOrderService.getMyOrders(userId));
     }
 
     @GetMapping("/{orderId}")

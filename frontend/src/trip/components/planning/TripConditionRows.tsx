@@ -51,6 +51,39 @@ export function OptionConditionRow({
   );
 }
 
+/** 여행지 권역 표시 순서 (countryName = 권역명) */
+const DESTINATION_REGION_ORDER = [
+  "일본",
+  "한국",
+  "동남아시아",
+  "중국·대만·홍콩",
+  "유럽",
+  "미주·대양주",
+] as const;
+
+function groupCitiesByRegion(cities: CityOption[]) {
+  const map = new Map<string, CityOption[]>();
+  for (const city of cities) {
+    const region = city.countryName || "기타";
+    const list = map.get(region) ?? [];
+    list.push(city);
+    map.set(region, list);
+  }
+
+  const ordered: Array<{ region: string; cities: CityOption[] }> = [];
+  for (const region of DESTINATION_REGION_ORDER) {
+    const list = map.get(region);
+    if (list?.length) {
+      ordered.push({ region, cities: list });
+      map.delete(region);
+    }
+  }
+  for (const [region, list] of map) {
+    ordered.push({ region, cities: list });
+  }
+  return ordered;
+}
+
 export function DestinationConditionRow({
   value,
   region,
@@ -68,18 +101,7 @@ export function DestinationConditionRow({
     queryKey: ["popularCities"],
     queryFn: tripApi.getPopularCities,
   });
-  const cityGroups = cities.reduce<
-    Array<{ countryName: string; cities: CityOption[] }>
-  >((groups, city) => {
-    const group = groups.find((item) => item.countryName === city.countryName);
-
-    if (group) {
-      group.cities.push(city);
-      return groups;
-    }
-
-    return [...groups, { countryName: city.countryName, cities: [city] }];
-  }, []);
+  const cityGroups = groupCitiesByRegion(cities);
 
   return (
     <AccordionShell
@@ -99,9 +121,9 @@ export function DestinationConditionRow({
       ) : (
         <div className="space-y-stack-md">
           {cityGroups.map((group) => (
-            <section key={group.countryName}>
+            <section key={group.region}>
               <h3 className="mb-2 text-label-md font-bold text-on-surface">
-                {group.countryName}
+                {group.region}
               </h3>
               <div className="flex flex-wrap gap-2">
                 {group.cities.map((city) => {

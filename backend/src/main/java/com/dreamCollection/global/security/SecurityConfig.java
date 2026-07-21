@@ -42,6 +42,8 @@ public class SecurityConfig {
             "/api/places/**",
             "/ws-stomp/**",
             "/uploads/**",
+            "/api/mate/posts",
+            "/api/mate/posts/**",
             "/api/board/posts/**",
             "/upload/**",
             "/api/images/proxy",

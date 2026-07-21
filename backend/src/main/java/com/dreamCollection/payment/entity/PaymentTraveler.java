@@ -37,6 +37,9 @@ public class PaymentTraveler {
     @Column(name = "passport_expiry", nullable = false)
     private LocalDate passportExpiry;
 
+    @Column(length = 50)
+    private String nationality;
+
     @Column(length = 20)
     private String phone;
 
@@ -49,12 +52,13 @@ public class PaymentTraveler {
     @Builder
     public PaymentTraveler(String fullName, LocalDate birthDate, String gender,
                            String passportNumber, LocalDate passportExpiry,
-                           String phone, boolean representative, int sortOrder) {
+                           String nationality, String phone, boolean representative, int sortOrder) {
         this.fullName = fullName;
         this.birthDate = birthDate;
         this.gender = gender;
         this.passportNumber = passportNumber;
         this.passportExpiry = passportExpiry;
+        this.nationality = nationality;
         this.phone = phone;
         this.representative = representative;
         this.sortOrder = sortOrder;

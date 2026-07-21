@@ -19,6 +19,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class PaymentOrderServiceImpl implements PaymentOrderService {
@@ -48,6 +50,16 @@ public class PaymentOrderServiceImpl implements PaymentOrderService {
         PaymentOrder order = paymentOrderRepository.findByOrderIdAndUserId(orderId, userId)
                 .orElseThrow(() -> new BusinessException("주문을 찾을 수 없습니다.", HttpStatus.NOT_FOUND));
         return PaymentOrderResponseDTO.from(order);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<PaymentOrderResponseDTO> getMyOrders(Long userId) {
+        return paymentOrderRepository
+                .findByUserIdAndStatusOrderByPaidAtDesc(userId, PaymentOrderStatus.PAID)
+                .stream()
+                .map(PaymentOrderResponseDTO::from)
+                .toList();
     }
 
     @Override

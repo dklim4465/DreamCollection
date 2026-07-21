@@ -50,7 +50,7 @@ public record PaymentOrderResponseDTO(
     public record TravelerResponseDTO(
             String fullName, String birthDate, String gender,
             String passportNumber, String passportExpiry,
-            String phone, boolean representative
+            String nationality, String phone, boolean representative
     ) {
         static TravelerResponseDTO from(PaymentTraveler t) {
             return new TravelerResponseDTO(
@@ -59,6 +59,7 @@ public record PaymentOrderResponseDTO(
                     t.getGender(),
                     t.getPassportNumber(),
                     t.getPassportExpiry().toString(),
+                    t.getNationality(),
                     t.getPhone(),
                     t.isRepresentative()
             );

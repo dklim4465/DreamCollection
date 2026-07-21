@@ -231,6 +231,7 @@ export const tripApi = {
     const response = await apiClient.post<PlanResponse>(
       "/trip/recommend",
       request,
+      { timeout: 60_000 },
     );
     return response.data;
   },
@@ -314,12 +315,6 @@ export const tripApi = {
       },
     );
     return response.data.data;
-  },
-
-  /** @deprecated 목록 페이지는 getSavedTripsPage 사용. 홈 미리보기용 요약 목록 */
-  getSavedTripsByUser: async (_userId: number) => {
-    const page = await tripApi.getSavedTripsPage({ page: 0, size: 50 });
-    return page.content;
   },
 
   getSavedTrips: async () => {

@@ -160,11 +160,3 @@ export function collectTripThumbnailCandidates(
 
   return urls;
 }
-
-/** 첫 후보 (하위 호환). 깨질 수 있으니 UI에서는 candidates + onError 권장 */
-export function pickTripThumbnailUrl(
-  trip: SavedTrip,
-  places: PlaceOption[],
-): string | undefined {
-  return collectTripThumbnailCandidates(trip, places)[0];
-}
