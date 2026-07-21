@@ -12,6 +12,7 @@ public record TravelerRequestDTO(
         @NotBlank @Pattern(regexp = "[MF]") String gender,
         @NotBlank String passportNumber,
         @NotNull LocalDate passportExpiry,
+        String nationality,
         String phone,
         boolean representative
 ) {}

@@ -39,7 +39,7 @@ def generate():
         "contents": [
             {"role": "user", "parts": [{"text": prompt}]}
         ],
-        "generationConfig": {"maxOutputTokens": 2048},
+        "generationConfig": {"maxOutputTokens": 8192},
     }
     if system:
         body["systemInstruction"] = {"parts": [{"text": system}]}

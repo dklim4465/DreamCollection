@@ -12,6 +12,7 @@ public interface CityRepository extends JpaRepository<City, Long> {
     // 목적지 자동완성 검색 (도시명은 기존 방식대로 유지 — 하위 호환용, 현재는 안 씀)
     List<City> findByNameKoContainingAndActiveTrue(String keyword);
     List<City> findByPopularTrueAndActiveTrueOrderById();
+    boolean existsByNameKo(String nameKo);
 
     // 도시명(한글/영문) 또는 국가명으로 검색 — "일본"처럼 국가명을 검색해도
     // 그 나라의 도시들이 전부 나오도록 함

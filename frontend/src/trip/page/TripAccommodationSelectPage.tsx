@@ -1,10 +1,8 @@
-import { useEffect, useMemo, useRef, useState } from "react";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMemo, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { Navigate, useLocation, useNavigate } from "react-router-dom";
-import LoadingSpinner from "@/common/components/LoadingSpinner";
 import TripAccommodationSelector from "@/trip/components/fliAndAcc/TripAccommodationSelector";
 import TripConditionSummaryBar from "@/trip/components/planning/TripConditionSummaryBar";
-import { createManualPlanResult } from "@/trip/utils/manualTripRecommendation";
 import "@/trip/styles/trip.css";
 import {
   tripApi,
@@ -19,7 +17,6 @@ export default function TripAccommodationSelectPage() {
   const location = useLocation();
   const navigate = useNavigate();
   const state = location.state as LocationState | null;
-  const autoFinalized = useRef(false);
   const [selectedAccommodation, setSelectedAccommodation] =
     useState<AccommodationSelection | null>(
       state?.accommodationSelection ?? null,
@@ -47,76 +44,15 @@ export default function TripAccommodationSelectPage() {
     enabled: !!flowStateWithDate && !skipAccommodation && hasStartDate,
   });
 
-  const resultMutation = useMutation({
-    mutationFn: async (flowState: TripFlowState) => {
-      const planResult = await tripApi.recommend(flowState.conditions);
-      return { flowState, planResult };
-    },
-    onSuccess: ({ flowState, planResult }) => {
-      const recommendation = planResult.recommendations[0];
-
-      if (!recommendation) {
-        window.alert("추천 일정을 불러오지 못했습니다.");
-        return;
-      }
-
-      navigate("/trip/result", {
-        state: {
-          conditions: flowState.conditions,
-          planResult,
-          recommendation,
-          flightSelection: flowState.flightSelection,
-          accommodationSelection: flowState.accommodationSelection,
-        },
-      });
-    },
-  });
-  const navigateToManualResult = (flowState: TripFlowState) => {
-    const planResult = createManualPlanResult(flowState.conditions);
-    const recommendation = planResult.recommendations[0];
-
+  const finishFlow = (flowState: TripFlowState, replace = false) => {
     navigate("/trip/result", {
+      replace,
       state: {
-        conditions: flowState.conditions,
-        planResult,
-        recommendation,
-        saveLabel: "개인 일정 저장",
-        flightSelection: flowState.flightSelection,
-        accommodationSelection: flowState.accommodationSelection,
+        ...flowState,
+        pendingBuild: true,
       },
     });
   };
-
-  const finishFlow = (flowState: TripFlowState) => {
-    if (flowState.planningMode === "manual") {
-      navigateToManualResult(flowState);
-      return;
-    }
-
-    resultMutation.mutate(flowState);
-  };
-
-  useEffect(() => {
-    if (
-      !flowStateWithDate ||
-      !skipAccommodation ||
-      !hasStartDate ||
-      autoFinalized.current
-    ) {
-      return;
-    }
-
-    const accommodationSelection: AccommodationSelection = {
-      skipped: true,
-    };
-
-    autoFinalized.current = true;
-
-    finishFlow({
-      ...flowStateWithDate,
-      accommodationSelection,
-    });
-  }, [flowStateWithDate, hasStartDate, resultMutation, skipAccommodation]);
 
   if (!state) {
     return <Navigate to="/trip/new" replace />;
@@ -127,6 +63,11 @@ export default function TripAccommodationSelectPage() {
   const accommodations = (accommodationQuery.data ?? []).slice(0, 5);
 
   const handleBack = () => {
+    if (state.conditions.flightCondition?.skip) {
+      navigate("/trip/new");
+      return;
+    }
+
     navigate("/trip/flight", {
       state: flowStateWithDate ?? state,
     });
@@ -148,6 +89,24 @@ export default function TripAccommodationSelectPage() {
     });
   };
 
+  if (skipAccommodation && flowStateWithDate && hasStartDate) {
+    const accommodationSelection: AccommodationSelection = {
+      skipped: true,
+    };
+
+    return (
+      <Navigate
+        to="/trip/result"
+        replace
+        state={{
+          ...flowStateWithDate,
+          accommodationSelection,
+          pendingBuild: true,
+        }}
+      />
+    );
+  }
+
   if (skipAccommodation) {
     return (
       <div className="trip-page">
@@ -160,13 +119,9 @@ export default function TripAccommodationSelectPage() {
         />
 
         <div className="trip-surface p-stack-lg">
-          {hasStartDate ? (
-            <LoadingSpinner message="결과 생성 중..." />
-          ) : (
-            <p className="text-center text-body-md text-on-surface-variant">
-              출발일을 선택해 주세요.
-            </p>
-          )}
+          <p className="text-center text-body-md text-on-surface-variant">
+            출발일을 선택해 주세요.
+          </p>
         </div>
       </div>
     );
@@ -215,21 +170,16 @@ export default function TripAccommodationSelectPage() {
         <button
           type="button"
           onClick={handleCreateResult}
-          disabled={!selectedAccommodation || resultMutation.isPending}
+          disabled={!selectedAccommodation}
           className="btn-primary min-w-[180px] disabled:opacity-50"
         >
-          {resultMutation.isPending ? "결과 생성 중..." : "결과 보기"}
+          결과 보기
           <span className="material-symbols-outlined ml-2 align-[-5px] text-[18px]">
             arrow_forward
           </span>
         </button>
       </div>
 
-      {resultMutation.isError && (
-        <p className="text-center text-label-md text-error">
-          결과 생성에 실패했습니다.
-        </p>
-      )}
     </div>
   );
 }

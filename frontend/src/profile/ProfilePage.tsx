@@ -3,7 +3,7 @@ import { useSearchParams } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import dayjs from "dayjs";
 import { useAuthStore } from "@/auth/store/authStore";
-import { paymentApi } from "@/payment/api/paymentApi";
+import { paymentOrderApi } from "@/payment/api/paymentOrderApi";
 import { paymentCardApi, TOSS_CLIENT_KEY } from "@/payment/api/paymentCardApi";
 import { requestCardBillingAuth } from "@/payment/api/tossPayments";
 import { levelApi } from "@/profile/api/levelApi";
@@ -75,8 +75,8 @@ export default function ProfilePage() {
   const [cardRegisterError, setCardRegisterError] = useState<string | null>(null);
 
   const { data: paymentsRes } = useQuery({
-    queryKey: ["payments", "history"],
-    queryFn: paymentApi.getHistory,
+    queryKey: ["payments", "orders", "me"],
+    queryFn: paymentOrderApi.getMyOrders,
     enabled: !!user,
   });
 
@@ -585,21 +585,29 @@ export default function ProfilePage() {
         {payments.length === 0 ? (
           <p className="text-body-md text-on-surface-variant py-4">아직 결제 내역이 없어요</p>
         ) : (
-          payments.map((p) => (
-            <div
-              key={p.id}
-              className="flex items-center justify-between py-2.5 border-b border-outline-variant last:border-none"
-            >
-              <div>
-                <p className="text-body-md font-semibold">{p.scheduleTitle}</p>
-                <p className="text-label-sm text-on-surface-variant">
-                  {dayjs(p.paidAt).format("YYYY.MM.DD HH:mm")} ·{" "}
-                  {p.method === "CARD" ? "카드결제" : "간편결제"}
-                </p>
+          payments.map((p) => {
+            const title =
+              p.items.find((item) => item.title)?.title ?? `일정 #${p.savedTripId}`;
+            return (
+              <div
+                key={p.orderId}
+                className="flex items-center justify-between py-2.5 border-b border-outline-variant last:border-none"
+              >
+                <div>
+                  <p className="text-body-md font-semibold">{title}</p>
+                  <p className="text-label-sm text-on-surface-variant">
+                    {p.paidAt
+                      ? dayjs(p.paidAt).format("YYYY.MM.DD HH:mm")
+                      : "-"}{" "}
+                    · {p.cardId ? "카드결제" : "결제"}
+                  </p>
+                </div>
+                <span className="text-body-md font-bold">
+                  {p.totalAmount.toLocaleString("ko-KR")}원
+                </span>
               </div>
-              <span className="text-body-md font-bold">{p.amount.toLocaleString("ko-KR")}원</span>
-            </div>
-          ))
+            );
+          })
         )}
       </div>
           )}

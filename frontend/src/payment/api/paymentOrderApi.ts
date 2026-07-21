@@ -9,6 +9,7 @@ export interface TravelerRequest {
   gender: "M" | "F";
   passportNumber: string;
   passportExpiry: string;
+  nationality?: string;
   phone?: string;
   representative: boolean;
 }
@@ -33,6 +34,7 @@ export interface PaymentTravelerResponse {
   gender: string;
   passportNumber: string;
   passportExpiry: string;
+  nationality: string | null;
   phone: string | null;
   representative: boolean;
 }
@@ -58,6 +60,9 @@ export interface ConfirmPaymentRequest {
 export const paymentOrderApi = {
   createOrder: (body: CreatePaymentOrderRequest) =>
     apiClient.post<ApiResponse<PaymentOrderResponse>>("/payments/orders", body),
+
+  getMyOrders: () =>
+    apiClient.get<ApiResponse<PaymentOrderResponse[]>>("/payments/orders/me"),
 
   getOrder: (orderId: string) =>
     apiClient.get<ApiResponse<PaymentOrderResponse>>(

@@ -10,6 +10,7 @@ import com.dreamCollection.trip.recommend.TripRecommendationBuilder;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
+import com.dreamCollection.trip.exception.TripRecommendFailedException;
 
 import java.util.List;
 
@@ -27,51 +28,58 @@ public class TripServiceImpl implements TripService {
     @Override
     public PlanResponseDTO recommend(PlanRequestDTO request) {
         String city = resolveCity(request);
-        List<PlaceResponse> places = List.of();
-
         if (city == null) {
             log.warn("recommend: city를 결정할 수 없음 (destination/region 비어 있음)");
-        } else {
-            places = placeService.getPlaces(city, null);
-            log.info("recommend place candidates city={}, count={}", city, places.size());
-
-            // 확인용: 앞에서 몇 개만 이름 찍기 (나중에 지워도 됨)
-            places.stream()
-                    .limit(5)
-                    .forEach(p -> log.info("  - id={}, name={}, category={}",
-                            p.id(), p.name(), p.category()));
+            throw new TripRecommendFailedException();
         }
 
-        String prompt = buildPrompt(request);
+        List<PlaceResponse> places = placeService.getPlaces(city, null);
+        log.info("recommend place candidates city={}, count={}", city, places.size());
+        if (places.isEmpty()) {
+            log.warn("recommend: Place 후보 없음 city={}", city);
+            throw new TripRecommendFailedException();
+        }
+
+        String prompt = tripPromptBuilder.build(request, places);
         String aiResult = tripAiClient.recommend(prompt);
-
-        return buildResponse(request, prompt, aiResult);
+        List<TripRecommendDTO> recommendations =
+                tripRecommendationBuilder.build(request, aiResult, places);
+        if (isAiFailed(aiResult) || recommendations.isEmpty()) {
+            log.warn("recommend 1차 실패 → 1회 재시도");
+            aiResult = tripAiClient.recommend(prompt);
+            recommendations = tripRecommendationBuilder.build(request, aiResult, places);
+        }
+        if (isAiFailed(aiResult) || recommendations.isEmpty()) {
+            throw new TripRecommendFailedException();
+        }
+        return buildResponse(request, prompt, aiResult, recommendations);
     }
-
 
     @Override
     public List<String> getOptions(String type) {
         return tripOptionProvider.getOptions(type);
     }
 
-
-
     private String resolveCity(PlanRequestDTO request) {
         if (request.getDestination() != null && !request.getDestination().isBlank()) {
             return request.getDestination().trim();
         }
-        // 혹시 destination이 비어 있을 때만 fallback (Step 0에서 맞춘 규칙 그대로)
         if (request.getRegion() != null && !request.getRegion().isBlank()) {
             return request.getRegion().trim();
         }
         return null;
     }
 
-
+    private boolean isAiFailed(String aiResult) {
+        return aiResult == null
+                || aiResult.isBlank()
+                || aiResult.startsWith("AI_");
+    }
     private PlanResponseDTO buildResponse(
             PlanRequestDTO request,
             String prompt,
-            String aiResult
+            String aiResult,
+            List<TripRecommendDTO> recommendations
     ) {
         return PlanResponseDTO.builder()
                 .who(request.getWho())
@@ -85,12 +93,7 @@ public class TripServiceImpl implements TripService {
                 .accommodationCondition(request.getAccommodationCondition())
                 .prompt(prompt)
                 .aiResult(aiResult)
-                .recommendations(tripRecommendationBuilder.build(request, aiResult))
+                .recommendations(recommendations)
                 .build();
     }
-
-    private String buildPrompt(PlanRequestDTO request) {
-        return tripPromptBuilder.build(request);
-    }
-
 }

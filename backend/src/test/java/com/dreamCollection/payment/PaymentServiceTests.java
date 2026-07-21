@@ -37,6 +37,7 @@ public class PaymentServiceTests {
                                 "M",
                                 "M12345678",
                                 LocalDate.of(2030, 12, 31),
+                                "KR",
                                 "01012345678",
                                 true
                         ),
@@ -46,6 +47,7 @@ public class PaymentServiceTests {
                                 "F",
                                 "M87654321",
                                 LocalDate.of(2031, 1, 15),
+                                "KR",
                                 null,
                                 false
                         )
@@ -81,6 +83,7 @@ public class PaymentServiceTests {
                                 "M",
                                 "M12345678",
                                 LocalDate.of(2030, 12, 31),
+                                null,
                                 "01012345678",
                                 true
                         )
@@ -106,6 +109,7 @@ public class PaymentServiceTests {
                                 "M",
                                 "M12345678",
                                 LocalDate.of(2030, 12, 31),
+                                null,
                                 "01012345678",
                                 true
                         )

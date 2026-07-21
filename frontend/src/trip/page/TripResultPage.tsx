@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Navigate, useLocation, useNavigate } from "react-router-dom";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import LoadingSpinner from "@/common/components/LoadingSpinner";
 import TripConditionSummaryBar from "@/trip/components/planning/TripConditionSummaryBar";
 import { createManualPlanResult } from "@/trip/utils/manualTripRecommendation";
 import type {
@@ -60,6 +61,7 @@ export default function TripResultPage() {
   const [titleDraft, setTitleDraft] = useState("");
 
   const autoSaveTriggered = useRef(false);
+  const autoBuildTriggered = useRef(false);
 
   const saveMutation = useMutation<
     SaveTripResponse | void,
@@ -103,14 +105,17 @@ export default function TripResultPage() {
   });
 
   const buildMutation = useMutation({
-    mutationFn: tripApi.recommend,
+    mutationFn: async (request: PlanRequest) => {
+      const nextPlanResult = await tripApi.recommend(request);
+
+      if (!nextPlanResult.recommendations[0]) {
+        throw new Error("추천 일정을 불러오지 못했습니다.");
+      }
+
+      return nextPlanResult;
+    },
     onSuccess: (nextPlanResult: PlanResponse) => {
       const nextRecommendation = nextPlanResult.recommendations[0];
-
-      if (!nextRecommendation) {
-        window.alert("추천 일정을 불러오지 못했습니다.");
-        return;
-      }
 
       setPlanResult(nextPlanResult);
       setRecommendation(
@@ -121,6 +126,35 @@ export default function TripResultPage() {
       );
     },
   });
+
+  useEffect(() => {
+    if (
+      !state?.pendingBuild ||
+      !conditions.startDate ||
+      recommendation ||
+      autoBuildTriggered.current
+    ) {
+      return;
+    }
+
+    autoBuildTriggered.current = true;
+
+    if (state.planningMode === "manual") {
+      const nextPlanResult = createManualPlanResult(conditions);
+      const nextRecommendation = nextPlanResult.recommendations[0];
+
+      setPlanResult(nextPlanResult);
+      setRecommendation(
+        applyFlightSelectionToRecommendation(
+          nextRecommendation,
+          state.flightSelection,
+        ),
+      );
+      return;
+    }
+
+    buildMutation.mutate(conditions);
+  }, [conditions, recommendation, state]);
 
   // 로그인 후 shouldSave로 돌아왔을 때 자동 저장 (1회만)
   useEffect(() => {
@@ -154,7 +188,10 @@ export default function TripResultPage() {
   }
 
   const recommendationTitle = recommendation?.title?.trim() || "추천 일정";
-  const saveLabel = state.isSavedView ? "일정 수정" : state.saveLabel;
+  const saveLabel = state.isSavedView
+    ? "일정 수정"
+    : (state.saveLabel ??
+      (state.planningMode === "manual" ? "개인 일정 저장" : undefined));
 
   const handleStartDateChange = (startDate: string) => {
     const nextConditions: PlanRequest = {
@@ -162,22 +199,21 @@ export default function TripResultPage() {
       startDate: startDate.trim().length > 0 ? startDate : undefined,
     };
 
+    if (state?.pendingBuild) {
+      autoBuildTriggered.current = false;
+      buildMutation.reset();
+      setPlanResult(null);
+      setRecommendation(null);
+    }
+
     setConditions(nextConditions);
+  };
 
-    if (!state?.pendingBuild || !nextConditions.startDate) {
-      return;
-    }
+  const handleRetryBuild = () => {
+    if (!conditions.startDate) return;
 
-    if (state.planningMode === "manual") {
-      const nextPlanResult = createManualPlanResult(nextConditions);
-      const nextRecommendation = nextPlanResult.recommendations[0];
-
-      setPlanResult(nextPlanResult);
-      setRecommendation(nextRecommendation);
-      return;
-    }
-
-    buildMutation.mutate(nextConditions);
+    autoBuildTriggered.current = true;
+    buildMutation.mutate(conditions);
   };
 
   const handleBack = () => {
@@ -320,6 +356,7 @@ export default function TripResultPage() {
         conditions={conditions}
         startDate={conditions.startDate ?? ""}
         expanded={false}
+        disabled={buildMutation.isPending}
         onStartDateChange={handleStartDateChange}
         onToggleConditions={() => navigate("/trip/new")}
       />
@@ -337,6 +374,33 @@ export default function TripResultPage() {
           isDeleting={deleteMutation.isPending}
           saveLabel={saveLabel}
         />
+      ) : buildMutation.isPending ? (
+        <section
+          className="trip-surface p-stack-lg text-center"
+          aria-live="polite"
+          aria-busy="true"
+        >
+          <LoadingSpinner message="AI가 여행 일정을 만들고 있어요." />
+          <p className="-mt-12 text-label-md text-on-surface-variant">
+            선택한 조건을 바탕으로 장소와 이동 동선을 구성하고 있습니다.
+          </p>
+        </section>
+      ) : buildMutation.isError ? (
+        <section className="trip-surface p-stack-lg text-center">
+          <p className="text-body-md font-bold text-error">
+            일정 생성에 실패했습니다.
+          </p>
+          <p className="mt-1 text-label-md text-on-surface-variant">
+            잠시 후 다시 시도해 주세요.
+          </p>
+          <button
+            type="button"
+            onClick={handleRetryBuild}
+            className="btn-primary mt-5"
+          >
+            다시 시도
+          </button>
+        </section>
       ) : (
         <section className="trip-surface p-stack-lg text-center">
           <p className="text-body-md font-bold text-on-surface">
