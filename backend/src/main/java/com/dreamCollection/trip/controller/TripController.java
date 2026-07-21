@@ -1,10 +1,17 @@
 package com.dreamCollection.trip.controller;
 
+import com.dreamCollection.global.response.ApiResponse;
+import com.dreamCollection.global.response.PageResponse;
 import com.dreamCollection.trip.dto.*;
+import com.dreamCollection.trip.dto.page.SavedTripPageRequest;
 import com.dreamCollection.trip.service.SavedTripService;
 import com.dreamCollection.trip.service.TripService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -43,8 +50,12 @@ public class TripController {
     }
 
     @GetMapping("/saved/me")
-    public List<SavedTripDTO> getSavedTrips(@AuthenticationPrincipal Long userId) {
-        return savedTripService.getSavedTrips(userId);
+    public ApiResponse<PageResponse<SavedTripDTO>> getSavedTrips(
+            @AuthenticationPrincipal Long userId,
+            @ModelAttribute SavedTripPageRequest request
+    ) {
+        Page<SavedTripDTO> result = savedTripService.getSavedTrips(userId, request);
+        return ApiResponse.ok(PageResponse.from(result));
     }
 
     @GetMapping("/saved/{savedTripId}")
@@ -64,5 +75,7 @@ public class TripController {
     ) {
         savedTripService.modify(userId, savedTripId, request);
     }
+
+
 
 }

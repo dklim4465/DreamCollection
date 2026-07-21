@@ -146,28 +146,42 @@ export function PrepareConditionRow({
   children: ReactNode;
 }) {
   return (
-    <div className="border-b border-outline-variant/50 last:border-b-0">
+    <div
+      className={
+        active
+          ? "border-b border-outline-variant/35 bg-primary/[0.03] last:border-b-0"
+          : "border-b border-outline-variant/35 last:border-b-0"
+      }
+    >
       <button
         type="button"
         onClick={onToggle}
-        className="grid w-full grid-cols-[32px_minmax(0,1fr)_24px] items-center gap-stack-sm px-stack-md py-4 text-left"
+        className="grid min-h-[54px] w-full grid-cols-[24px_minmax(0,1fr)_24px] items-center gap-3 px-2 py-3.5 text-left transition-colors hover:bg-primary/[0.04]"
       >
         <StateBox selected={selected} active={active} />
         <span
           className={
             active
-              ? "text-body-md font-bold text-on-surface"
-              : "text-body-md font-semibold text-on-surface"
+              ? "text-body-md font-bold text-primary"
+              : selected
+                ? "text-body-md font-bold text-on-surface"
+                : "text-body-md font-semibold text-on-surface"
           }
         >
           {title}
         </span>
-        <span className="material-symbols-outlined text-[20px] text-on-surface-variant">
+        <span
+          className={
+            active
+              ? "material-symbols-outlined text-[20px] text-primary"
+              : "material-symbols-outlined text-[20px] text-on-surface-variant"
+          }
+        >
           {active ? "expand_less" : "expand_more"}
         </span>
       </button>
 
-      {active && <div className="px-[64px] pb-stack-md">{children}</div>}
+      {active && <div className="px-2 pb-4 pl-[36px]">{children}</div>}
     </div>
   );
 }
@@ -186,29 +200,43 @@ function AccordionShell({
   children: ReactNode;
 }) {
   return (
-    <div className="border-b border-outline-variant/50 last:border-b-0">
+    <div
+      className={
+        active
+          ? "border-b border-outline-variant/35 bg-primary/[0.03] last:border-b-0"
+          : "border-b border-outline-variant/35 last:border-b-0"
+      }
+    >
       <button
         type="button"
         onClick={onToggle}
-        className="grid w-full grid-cols-[32px_minmax(0,1fr)_24px] items-center gap-stack-sm px-stack-md py-4 text-left"
+        className="grid min-h-[54px] w-full grid-cols-[24px_minmax(0,1fr)_24px] items-center gap-3 px-2 py-3.5 text-left transition-colors hover:bg-primary/[0.04]"
       >
         <StateBox selected={selected} active={active} />
         <span
           className={
-            active || selected
-              ? "min-w-0 text-body-md font-bold text-on-surface"
-              : "min-w-0 text-body-md font-semibold text-on-surface"
+            active
+              ? "min-w-0 text-body-md font-bold text-primary"
+              : selected
+                ? "min-w-0 text-body-md font-bold text-on-surface"
+                : "min-w-0 text-body-md font-semibold text-on-surface"
           }
         >
           {question}
         </span>
 
-        <span className="material-symbols-outlined text-[20px] text-on-surface-variant">
+        <span
+          className={
+            active
+              ? "material-symbols-outlined text-[20px] text-primary"
+              : "material-symbols-outlined text-[20px] text-on-surface-variant"
+          }
+        >
           {active ? "expand_less" : "expand_more"}
         </span>
       </button>
 
-      {active && <div className="px-[64px] pb-stack-md">{children}</div>}
+      {active && <div className="px-2 pb-4 pl-[36px]">{children}</div>}
     </div>
   );
 }
@@ -222,18 +250,24 @@ function StateBox({
 }) {
   if (selected) {
     return (
-      <span className="flex h-5 w-5 items-center justify-center rounded-[4px] bg-primary text-on-primary">
-        <span className="material-symbols-outlined text-[16px]">check</span>
+      <span
+        aria-hidden
+        className="pointer-events-none flex h-[18px] w-[18px] items-center justify-center rounded-[4px] bg-primary text-on-primary"
+      >
+        <span className="material-symbols-outlined text-[14px] font-bold leading-none">
+          check
+        </span>
       </span>
     );
   }
 
   return (
     <span
+      aria-hidden
       className={
         active
-          ? "block h-[22px] w-[22px] rounded-[4px] border-2 border-primary"
-          : "block h-[18px] w-[18px] rounded-[3px] border border-outline"
+          ? "pointer-events-none block h-[18px] w-[18px] rounded-[4px] border-2 border-primary bg-surface-container-lowest"
+          : "pointer-events-none block h-[18px] w-[18px] rounded-[4px] border border-outline-variant bg-surface-container-lowest"
       }
     />
   );
