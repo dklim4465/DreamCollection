@@ -105,3 +105,17 @@ export interface MediaSummaryDTO {
 export interface ShareLinkResponseDTO {
   shareUrl: string;
 }
+
+export interface TripLogStatisticsDTO {
+  tno: number;
+
+  spotCount: number;
+
+  mediaCount: number;
+
+  totalAmount: number;
+
+  countries: string[];
+
+  totalDistance: number;
+}

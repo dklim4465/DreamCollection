@@ -3,6 +3,7 @@ import { TripLogResponseDTO } from "@/travelog/types/tripLog";
 import { useEffect, useState } from "react";
 import useDebounce from "@/travelog/hooks/useDebounce";
 import { useUpdateTripLog } from "@/travelog/hooks/useUpdateTripLog";
+import StatisticsView from "@/travelog/components/common/StatisticsView";
 
 interface TripLogSidebarProps {
   open: boolean;
@@ -101,7 +102,7 @@ const TripLogSidebarComponent = ({
           </div>
 
           {tripLog && (
-            <div className="flex-1 overflow-y-auto space-y-6 p-5">
+            <div className="flex-1 overflow-y-auto space-y-6 p-5 hide-scrollbar">
               {/* 썸네일 */}
               {tripLog.thumbnailPath && (
                 <img
@@ -202,6 +203,8 @@ const TripLogSidebarComponent = ({
                   {tripLog.modifiedAt}
                 </p>
               </div>
+
+              <StatisticsView tno={tripLog.tno} />
             </div>
           )}
         </aside>

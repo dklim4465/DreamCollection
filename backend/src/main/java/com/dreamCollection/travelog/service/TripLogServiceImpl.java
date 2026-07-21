@@ -2,18 +2,24 @@ package com.dreamCollection.travelog.service;
 
 import com.dreamCollection.travelog.domain.Media;
 import com.dreamCollection.travelog.domain.ShareLink;
+import com.dreamCollection.travelog.domain.Spot;
 import com.dreamCollection.travelog.domain.TripLog;
 import com.dreamCollection.travelog.dto.MediaDetailDTO;
 import com.dreamCollection.travelog.dto.SpotDetailDTO;
 import com.dreamCollection.travelog.dto.TripLogOverviewDTO;
+import com.dreamCollection.travelog.dto.TripLogStatisticsDTO;
 import com.dreamCollection.travelog.dto.request.TripLogRequestDTO;
 import com.dreamCollection.travelog.dto.response.TripLogResponseDTO;
+import com.dreamCollection.travelog.repository.MediaRepository;
 import com.dreamCollection.travelog.repository.ShareLinkRepository;
+import com.dreamCollection.travelog.repository.SpotRepository;
 import com.dreamCollection.travelog.repository.TripLogRepository;
+import com.dreamCollection.travelog.util.GeometryUtils;
 import com.dreamCollection.user.entity.User;
 import com.dreamCollection.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.locationtech.jts.geom.Point;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,6 +27,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.nio.file.AccessDeniedException;
 import java.time.Instant;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.regex.Pattern;
 
@@ -31,9 +38,13 @@ public class TripLogServiceImpl implements TripLogService {
 
     private final ModelMapper modelMapper;
 
+    private final GeometryUtils geometryUtils;
+
     private final TripLogRepository tripLogRepository;
     private final UserRepository userRepository;
     private final ShareLinkRepository shareLinkRepository;
+    private final SpotRepository spotRepository;
+    private final MediaRepository mediaRepository;
 
     private final MediaService mediaService;
     private final SpotService spotService;
@@ -164,6 +175,34 @@ public class TripLogServiceImpl implements TripLogService {
                 .toList();
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public TripLogStatisticsDTO getStatistics(Long tno) {
+
+        List<Spot> spots = spotRepository.findByTripLog_TnoOrderByVisitAtAsc(tno);
+
+        int mediaCount = mediaRepository.countByTripLog_Tno(tno);
+
+        int spotCount = spots.size();
+
+        List<String> countries = spots.stream()
+                .map(Spot::getCountry)
+                .filter(Objects::nonNull)
+                .distinct()
+                .toList();
+
+        Long totalDistance = calculateDistance(spots);
+
+        return TripLogStatisticsDTO.builder()
+                .tno(tno)
+                .spotCount(spotCount)
+                .mediaCount(mediaCount)
+                .countries(countries)
+                .totalDistance(totalDistance)
+                .totalAmount(0L)
+                .build();
+    }
+
     private static final Pattern PATTERN = Pattern.compile("#[a-zA-Z0-9_가-힣]+");
 
     private List<String> extract(String text) {
@@ -194,5 +233,28 @@ public class TripLogServiceImpl implements TripLogService {
                 .spots(spots)
                 .thumbnailPath(tripLog.getThumbnailPath())
                 .build();
+    }
+
+    private Long calculateDistance(List<Spot> spots) {
+
+        if (spots.size() < 2) {
+            return 0L;
+        }
+
+        double total = 0;
+
+        for (int i = 1; i < spots.size(); i++) {
+
+            Point prev = spots.get(i - 1).getCenterLocation();
+            Point curr = spots.get(i).getCenterLocation();
+
+            if (prev == null || curr == null) {
+                continue;
+            }
+
+            total += geometryUtils.distanceMeter(prev, curr);
+        }
+
+        return Math.round(total);
     }
 }

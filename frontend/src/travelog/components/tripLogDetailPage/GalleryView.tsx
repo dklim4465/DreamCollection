@@ -5,7 +5,7 @@ import { useSidebarStore } from "@/travelog/store/useSidebarStore";
 import { useSpotStore } from "@/travelog/store/useSpotStore";
 import { refreshTripLogOverview } from "@/travelog/utils/refreshOverview";
 import { ArrowLeft, Trash2 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
 
 interface GalleryViewProps {
@@ -13,7 +13,7 @@ interface GalleryViewProps {
 }
 
 const GalleryView = ({ readOnly }: GalleryViewProps) => {
-  const closeGallery = useSidebarStore((state) => state.closeGallery);
+  const setMode = useSidebarStore((state) => state.setMode);
 
   const spots = useSpotStore((state) => state.spots);
 
@@ -33,6 +33,10 @@ const GalleryView = ({ readOnly }: GalleryViewProps) => {
 
   const { tno } = useParams();
 
+  const sectionRefs = useRef<Record<number, HTMLDivElement | null>>({});
+
+  const gallerySpotId = useSidebarStore((state) => state.gallerySpotId);
+
   const handleDelete = async () => {
     if (selectedMediaList.length === 0) return;
 
@@ -44,12 +48,23 @@ const GalleryView = ({ readOnly }: GalleryViewProps) => {
       setSelectedMediaList([]);
       setDeleteMode(false);
 
-      closeGallery();
+      setMode("list");
     } catch (error) {
       console.error(error);
       alert("미디어 삭제에 실패했습니다.");
     }
   };
+
+  useEffect(() => {
+    if (!gallerySpotId) return;
+
+    requestAnimationFrame(() => {
+      sectionRefs.current[gallerySpotId]?.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+    });
+  }, [gallerySpotId]);
 
   const openMedia = useOpenMedia();
 
@@ -61,7 +76,7 @@ const GalleryView = ({ readOnly }: GalleryViewProps) => {
           <div className="grid grid-cols-3 items-center">
             {/* Left */}
             <button
-              onClick={closeGallery}
+              onClick={() => setMode("list")}
               className="
                 flex
                 items-center
@@ -156,6 +171,9 @@ const GalleryView = ({ readOnly }: GalleryViewProps) => {
         {spots.map((spot) => (
           <SpotGallerySection
             key={spot.sno}
+            ref={(el) => {
+              sectionRefs.current[spot.sno] = el;
+            }}
             spot={spot}
             deleteMode={deleteMode}
             selectedMediaList={selectedMediaList}

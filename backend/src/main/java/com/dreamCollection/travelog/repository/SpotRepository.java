@@ -18,4 +18,6 @@ public interface SpotRepository extends JpaRepository<Spot, Long> {
 
     @Query("select distinct s from Spot s left join fetch s.medias m where s.tripLog.tno = :tno")
     List<Spot> findWithMediasByTripLog_Tno(Long tno);
+
+    List<Spot> findByTripLog_TnoOrderByVisitAtAsc(Long tno);
 }

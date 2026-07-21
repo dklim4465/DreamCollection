@@ -1,20 +1,44 @@
+import StatisticsView from "@/travelog/components/common/StatisticsView";
 import GalleryView from "@/travelog/components/tripLogDetailPage/GalleryView";
 import MediaView from "@/travelog/components/tripLogDetailPage/MediaView";
 import SpotListView from "@/travelog/components/tripLogDetailPage/SpotListView";
 import { startUpload } from "@/travelog/service/UploadManager";
-import { useSidebarStore } from "@/travelog/store/useSidebarStore";
+import { SidebarMode, useSidebarStore } from "@/travelog/store/useSidebarStore";
+import { useTripLogStore } from "@/travelog/store/useTripLogStore";
 import { Plus } from "lucide-react";
 import React, { useRef } from "react";
-import { useParams } from "react-router-dom";
+import { BarChart3, Images, MapPinned } from "lucide-react";
 
 interface MapSidebarComponentProps {
   readOnly: boolean;
 }
 
 const MapSidebarComponent = ({ readOnly }: MapSidebarComponentProps) => {
-  const mode = useSidebarStore((state) => state.mode);
+  const { mode, setMode } = useSidebarStore();
 
-  const { tno } = useParams();
+  const tabs: {
+    key: Exclude<SidebarMode, "media">;
+    label: string;
+    icon: React.ElementType;
+  }[] = [
+    {
+      key: "list",
+      label: "Spot",
+      icon: MapPinned,
+    },
+    {
+      key: "gallery",
+      label: "Gallery",
+      icon: Images,
+    },
+    {
+      key: "stats",
+      label: "Statistics",
+      icon: BarChart3,
+    },
+  ];
+
+  const tripLog = useTripLogStore((state) => state.tripLog);
 
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -23,7 +47,9 @@ const MapSidebarComponent = ({ readOnly }: MapSidebarComponentProps) => {
   };
 
   const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (!tno) return;
+    if (!tripLog) return;
+
+    const tno = tripLog.tno;
 
     const files = e.target.files;
 
@@ -66,14 +92,14 @@ const MapSidebarComponent = ({ readOnly }: MapSidebarComponentProps) => {
             <button
               onClick={openFileDialog}
               className="
-            flex h-9 w-9 items-center justify-center
-            rounded-full
-            bg-primary
-            text-on-primary
-            transition
-            hover:opacity-90
-            active:scale-95
-          "
+                flex h-9 w-9 items-center justify-center
+                rounded-full
+                bg-primary
+                text-on-primary
+                transition
+                hover:opacity-90
+                active:scale-95
+              "
             >
               <Plus size={20} strokeWidth={2.5} />
             </button>
@@ -90,9 +116,33 @@ const MapSidebarComponent = ({ readOnly }: MapSidebarComponentProps) => {
         )}
       </div>
 
+      <div className="flex border-b border-outline-variant bg-surface-container">
+        {tabs.map((tab) => {
+          const Icon = tab.icon;
+
+          return (
+            <button
+              key={tab.key}
+              onClick={() => setMode(tab.key)}
+              className={`flex flex-1 items-center justify-center gap-2 border-b-2 px-3 py-3 text-sm transition ${
+                mode === tab.key
+                  ? "border-primary text-primary"
+                  : "border-transparent text-on-surface-variant hover:text-on-surface"
+              }`}
+            >
+              <Icon size={16} />
+              <span>{tab.label}</span>
+            </button>
+          );
+        })}
+      </div>
+
       <div className="min-h-0 flex-1 overflow-y-auto hide-scrollbar">
         {mode === "list" && <SpotListView />}
         {mode === "gallery" && <GalleryView readOnly={readOnly} />}
+        {mode === "stats" && tripLog != null && (
+          <StatisticsView tno={tripLog.tno} />
+        )}
         {mode === "media" && <MediaView readOnly={readOnly} />}
       </div>
     </aside>
