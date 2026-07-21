@@ -1,6 +1,7 @@
 package com.dreamCollection.travelog.service;
 
 import com.dreamCollection.travelog.dto.TripLogOverviewDTO;
+import com.dreamCollection.travelog.dto.TripLogStatisticsDTO;
 import com.dreamCollection.travelog.dto.request.TripLogRequestDTO;
 import com.dreamCollection.travelog.dto.response.TripLogResponseDTO;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,5 +19,6 @@ public interface TripLogService {
     TripLogOverviewDTO getOverview(Long userId, Long tno);
     TripLogOverviewDTO getSharedTripLog(String token) throws AccessDeniedException;
     List<TripLogResponseDTO> getList(Long userId);
+    TripLogStatisticsDTO getStatistics(Long tno);
 
 }

@@ -11,7 +11,8 @@ const SpotListView = () => {
 
   const expandedSpotId = useSidebarStore((state) => state.expandedSpotId);
   const setExpandedSpot = useSidebarStore((state) => state.setExpandedSpot);
-  const openGallery = useSidebarStore((state) => state.openGallery);
+  const setGallerySpotId = useSidebarStore((state) => state.setGallerySpotId);
+  const setMode = useSidebarStore((state) => state.setMode);
 
   const openMedia = useOpenMedia();
 
@@ -80,7 +81,10 @@ const SpotListView = () => {
                       ))}
 
                       <button
-                        onClick={() => openGallery(spot.sno)}
+                        onClick={() => {
+                          setGallerySpotId(spot.sno);
+                          setMode("gallery");
+                        }}
                         className="
                             flex
                             aspect-square

@@ -1,0 +1,41 @@
+.marker {
+  @apply flex flex-col items-center select-none;
+}
+
+.marker-photo {
+  @apply overflow-hidden rounded-xl border-[3px] border-background bg-background shadow-lg transition-all duration-200;
+}
+
+.marker-photo img {
+  @apply block h-full w-full object-cover;
+}
+
+.marker-pin {
+  @apply -mt-px h-0 w-0
+         border-x-[7px] border-x-transparent
+         border-t-[10px] border-t-background;
+}
+
+.marker:hover .marker-photo {
+  @apply -translate-y-0.5;
+}
+
+.marker.active {
+  @apply z-10;
+}
+
+.marker.active .marker-photo {
+  @apply scale-110 border-primary ring-4 ring-primary/20;
+}
+
+/* ---------- Spot ---------- */
+
+.marker-spot .marker-photo {
+  @apply h-14 w-14;
+}
+
+/* ---------- Media ---------- */
+
+.marker-media .marker-photo {
+  @apply h-10 w-10;
+}

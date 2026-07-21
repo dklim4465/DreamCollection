@@ -3,6 +3,7 @@ import {
   TripLogOverviewDTO,
   TripLogRequestDTO,
   TripLogResponseDTO,
+  TripLogStatisticsDTO,
 } from "@/travelog/types/tripLog";
 
 export const registerTripLog = async (
@@ -39,5 +40,12 @@ export const getTripLogOverview = async (
   tno: number,
 ): Promise<TripLogOverviewDTO> => {
   const res = await apiClient.get(`/triplog/overview/${tno}`);
+  return res.data;
+};
+
+export const getTripLogStatistics = async (
+  tno: number,
+): Promise<TripLogStatisticsDTO> => {
+  const res = await apiClient.get(`/triplog/statistics/${tno}`);
   return res.data;
 };

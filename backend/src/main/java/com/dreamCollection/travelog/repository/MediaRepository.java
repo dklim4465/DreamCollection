@@ -25,4 +25,6 @@ public interface MediaRepository extends JpaRepository<Media, Long> {
             "and m.spot.spotSource = com.dreamCollection.travelog.domain.SpotSource.AUTO")
     void detachAutoSpot(Long tno);
 
+    int countByTripLog_Tno(Long tno);
+
 }

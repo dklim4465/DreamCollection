@@ -1,6 +1,7 @@
 package com.dreamCollection.travelog.controller;
 
 import com.dreamCollection.travelog.dto.TripLogOverviewDTO;
+import com.dreamCollection.travelog.dto.TripLogStatisticsDTO;
 import com.dreamCollection.travelog.dto.request.TripLogRequestDTO;
 import com.dreamCollection.travelog.dto.response.TripLogResponseDTO;
 import com.dreamCollection.travelog.service.TripLogService;
@@ -73,6 +74,14 @@ public class TripLogController {
 
         return tripLogService.getOverview(userId, tno);
 
+    }
+
+    @GetMapping("/statistics/{tno}")
+    public TripLogStatisticsDTO tripLogStatistics(@PathVariable(name = "tno") Long tno) {
+
+        log.info("tripLog Statistics: " + tno);
+
+        return tripLogService.getStatistics(tno);
     }
 
 }
