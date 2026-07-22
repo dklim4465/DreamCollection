@@ -18,8 +18,12 @@ export const useMarkerResize = ({ map, markersRef }: Props) => {
       markersRef.current.forEach((marker) => {
         const element = marker.getElement();
 
-        element.style.width = `${size}px`;
-        element.style.height = `${size}px`;
+        const photo = element.querySelector(".marker-photo") as HTMLElement;
+
+        if (photo) {
+          photo.style.width = `${size}px`;
+          photo.style.height = `${size}px`;
+        }
       });
     };
 

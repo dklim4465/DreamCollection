@@ -32,4 +32,17 @@ export const useLineLayer = ({ visible }: Props) => {
       properties: {},
     });
   }, [map, spots]);
+
+  useEffect(() => {
+    if (!map) return;
+
+    const layer = map.getLayer("spot-line");
+    if (!layer) return;
+
+    map.setLayoutProperty(
+      "spot-line",
+      "visibility",
+      visible ? "visible" : "none",
+    );
+  }, [map, visible]);
 };

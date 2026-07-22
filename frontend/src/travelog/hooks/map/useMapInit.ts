@@ -84,7 +84,7 @@ export const useMapInit = (mapContainer: RefObject<HTMLDivElement | null>) => {
         source: "spots",
         filter: ["!", ["has", "point_count"]],
         paint: {
-          "circle-radius": 8,
+          "circle-radius": 0,
           "circle-color": "#3b82f6",
         },
       });
@@ -96,7 +96,7 @@ export const useMapInit = (mapContainer: RefObject<HTMLDivElement | null>) => {
         filter: ["has", "point_count"],
         paint: {
           "circle-radius": 20,
-          "circle-color": "#10b981",
+          "circle-color": "#00BFFF",
         },
       });
 

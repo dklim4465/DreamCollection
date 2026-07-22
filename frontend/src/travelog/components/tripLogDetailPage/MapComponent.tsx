@@ -13,12 +13,13 @@ const MapComponent = () => {
   const mapContainer = useRef<HTMLDivElement | null>(null);
   const { map } = useMap();
 
-  const { showCluster, showSpot, showMedia } = useZoomLayerController();
+  const { showCluster, showSpot, showMedia, showLine } =
+    useZoomLayerController();
 
   useMapInit(mapContainer);
   useClusterLayer({ visible: showCluster });
   useSpotLayer({ visible: showSpot });
-  useLineLayer({ visible: showSpot });
+  useLineLayer({ visible: showLine });
   useMediaLayer({ visible: showMedia });
 
   useInitialCamera();
