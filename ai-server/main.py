@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.routers import trip_generate
+from app.routers import receipt_analysis
 
 
 app = FastAPI(
@@ -25,4 +26,10 @@ app.include_router(
     trip_generate.router,
     prefix="/api/v1",
     tags=["generate"]
+)
+
+app.include_router(
+    receipt_analysis.router,
+    prefix="/api/v1/receipt",
+    tags=["receipt"]
 )

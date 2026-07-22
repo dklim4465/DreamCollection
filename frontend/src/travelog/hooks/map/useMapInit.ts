@@ -72,7 +72,7 @@ export const useMapInit = (mapContainer: RefObject<HTMLDivElement | null>) => {
           "line-join": "round",
         },
         paint: {
-          "line-color": "#E6FF4D",
+          "line-color": "#00BFFF",
           "line-width": 4,
           "line-opacity": 1,
         },
