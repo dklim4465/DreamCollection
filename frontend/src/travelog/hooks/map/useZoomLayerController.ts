@@ -26,5 +26,6 @@ export const useZoomLayerController = () => {
     showCluster: zoom < 10,
     showSpot: zoom >= 10 && zoom < 14,
     showMedia: zoom >= 14,
+    showLine: zoom > 9,
   };
 };

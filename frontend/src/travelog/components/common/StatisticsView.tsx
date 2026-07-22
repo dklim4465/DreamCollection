@@ -43,7 +43,7 @@ const StatisticsView = ({ tno }: StatisticsViewProps) => {
         <div className="rounded-lg border border-border bg-card p-3">
           <div className="flex items-center gap-2 text-muted-foreground">
             <MapPinned size={16} />
-            <span className="text-sm">Spot</span>
+            <span className="text-sm">스팟 수</span>
           </div>
           <p className="mt-2 text-2xl font-semibold">{data.spotCount}</p>
         </div>
@@ -51,7 +51,7 @@ const StatisticsView = ({ tno }: StatisticsViewProps) => {
         <div className="rounded-lg border border-border bg-card p-3">
           <div className="flex items-center gap-2 text-muted-foreground">
             <Images size={16} />
-            <span className="text-sm">Media</span>
+            <span className="text-sm">사진 수</span>
           </div>
           <p className="mt-2 text-2xl font-semibold">{data.mediaCount}</p>
         </div>
@@ -59,7 +59,7 @@ const StatisticsView = ({ tno }: StatisticsViewProps) => {
         <div className="rounded-lg border border-border bg-card p-3">
           <div className="flex items-center gap-2 text-muted-foreground">
             <Route size={16} />
-            <span className="text-sm">Distance</span>
+            <span className="text-sm">총 이동거리</span>
           </div>
           <p className="mt-2 text-lg font-semibold">
             {formatDistance(data.totalDistance)}
@@ -69,7 +69,7 @@ const StatisticsView = ({ tno }: StatisticsViewProps) => {
         <div className="rounded-lg border border-border bg-card p-3">
           <div className="flex items-center gap-2 text-muted-foreground">
             <Receipt size={16} />
-            <span className="text-sm">Expense</span>
+            <span className="text-sm">총 지출</span>
           </div>
           <p className="mt-2 text-lg font-semibold">
             {data.totalAmount.toLocaleString()}원
@@ -80,7 +80,7 @@ const StatisticsView = ({ tno }: StatisticsViewProps) => {
       <div className="rounded-lg border border-border bg-card p-3">
         <div className="mb-3 flex items-center gap-2 text-muted-foreground">
           <Globe size={16} />
-          <span className="text-sm">Countries</span>
+          <span className="text-sm">방문 국가</span>
         </div>
 
         {data.countries.length === 0 ? (

@@ -23,17 +23,17 @@ const MapSidebarComponent = ({ readOnly }: MapSidebarComponentProps) => {
   }[] = [
     {
       key: "list",
-      label: "Spot",
+      label: "스팟",
       icon: MapPinned,
     },
     {
       key: "gallery",
-      label: "Gallery",
+      label: "갤러리",
       icon: Images,
     },
     {
       key: "stats",
-      label: "Statistics",
+      label: "여행통계",
       icon: BarChart3,
     },
   ];
