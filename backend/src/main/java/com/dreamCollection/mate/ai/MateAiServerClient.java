@@ -1,3 +1,4 @@
+// backend/src/main/java/com/dreamCollection/mate/ai/MateAiServerClient.java
 package com.dreamCollection.mate.ai;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -7,6 +8,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
+import org.springframework.web.client.RestClientException;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -37,10 +39,28 @@ public class MateAiServerClient {
     }
 
     /**
+     * ai-server 호출이 실패했을 때, 원인을 구분해서 상위 계층(Service/Controller)에
+     * 전달하기 위한 예외. rateLimited=true면 Gemini 쪽 429(쿼터 초과)로 인한 실패임을 의미한다.
+     */
+    public static class AiUnavailableException extends RuntimeException {
+        private final boolean rateLimited;
+
+        public AiUnavailableException(String message, boolean rateLimited, Throwable cause) {
+            super(message, cause);
+            this.rateLimited = rateLimited;
+        }
+
+        public boolean isRateLimited() {
+            return rateLimited;
+        }
+    }
+
+    /**
      * @param prompt 필수 프롬프트
      * @param system 선택 시스템 프롬프트 (없으면 null)
      * @param task   선택 태스크 식별자 (없으면 null)
-     * @return AI가 생성한 텍스트. 호출 실패/응답 이상 시 null.
+     * @return AI가 생성한 텍스트.
+     * @throws AiUnavailableException 호출 실패/응답 이상 시. rateLimited 여부로 원인을 구분한다.
      */
     public String generate(String prompt, String system, String task) {
         Map<String, Object> body = new HashMap<>();
@@ -48,24 +68,42 @@ public class MateAiServerClient {
         if (system != null) body.put("system", system);
         if (task != null) body.put("task", task);
 
+        String response;
         try {
-            String response = restClient.post()
+            response = restClient.post()
                     .uri(baseUrl + "/v1/generate")
                     .header("Content-Type", "application/json")
                     .body(body)
                     .retrieve()
                     .body(String.class);
+        } catch (RestClientException e) {
+            boolean rateLimited = isRateLimited(e);
+            log.error("ai-server 호출 실패 (rateLimited={})", rateLimited, e);
+            throw new AiUnavailableException("ai-server 호출 실패", rateLimited, e);
+        }
 
+        try {
             JsonNode node = objectMapper.readTree(response);
             JsonNode text = node.path("text");
             if (!text.isMissingNode() && !text.asText("").isBlank()) {
                 return text.asText();
             }
             log.warn("ai-server 응답에 text가 없음: {}", response);
-            return null;
-        } catch (Exception e) {
-            log.error("ai-server 호출 실패", e);
-            return null;
+            throw new AiUnavailableException("ai-server 응답에 text 없음", false, null);
+        } catch (com.fasterxml.jackson.core.JsonProcessingException e) {
+            log.error("ai-server 응답 파싱 실패: {}", response, e);
+            throw new AiUnavailableException("ai-server 응답 파싱 실패", false, e);
         }
+    }
+
+    /**
+     * 예외 메시지(응답 바디 포함)에 "429" 또는 "Too Many Requests"가 있으면
+     * Gemini 쿼터 초과로 인한 실패로 판단한다.
+     * ai-server가 Gemini의 429를 502로 감싸서 내려보내는 구조라 상태 코드만으로는 구분이 안 됨.
+     */
+    private boolean isRateLimited(Throwable e) {
+        String message = e.getMessage();
+        if (message == null) return false;
+        return message.contains("429") || message.toLowerCase().contains("too many requests");
     }
 }

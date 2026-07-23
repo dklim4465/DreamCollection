@@ -23,7 +23,19 @@ export interface MateRecommendItemDTO {
   postId: number;
   destination: string;
   travelStyle: string;
+  content: string;
   reason: string;
+}
+
+export type MateRecommendAiStatus =
+  | "AI_OK"
+  | "AI_FALLBACK"
+  | "AI_RATE_LIMITED"
+  | "AI_ERROR";
+
+export interface MateRecommendResponseDTO {
+  items: MateRecommendItemDTO[];
+  aiStatus: MateRecommendAiStatus;
 }
 
 export const matePostApi = {
@@ -118,5 +130,5 @@ export const mateCountryApi = {
 
 export const mateRecommendApi = {
   getRecommendations: () =>
-    apiClient.get<ApiResponse<MateRecommendItemDTO[]>>("/mate/recommend"),
+    apiClient.get<ApiResponse<MateRecommendResponseDTO>>("/mate/recommend"),
 };

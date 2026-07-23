@@ -11,6 +11,8 @@ export default function MateRecommendPage() {
       mateRecommendApi.getRecommendations().then((res) => res.data.data),
   });
 
+  const items = data?.items ?? [];
+
   return (
     <div>
       <div className="mb-stack-lg">
@@ -33,7 +35,7 @@ export default function MateRecommendPage() {
         />
       )}
 
-      {!isLoading && data && data.length === 0 && (
+      {!isLoading && data && items.length === 0 && (
         <EmptyState
           icon="🤖"
           title="추천할 모집글이 없어요"
@@ -41,9 +43,9 @@ export default function MateRecommendPage() {
         />
       )}
 
-      {!isLoading && data && data.length > 0 && (
+      {!isLoading && data && items.length > 0 && (
         <div className="flex flex-col gap-3">
-          {data.map((item) => (
+          {items.map((item) => (
             <Link
               key={item.postId}
               to={`/matching/${item.postId}`}
@@ -59,6 +61,19 @@ export default function MateRecommendPage() {
                   </span>
                 )}
               </div>
+              {item.content && (
+                <p
+                  className="text-body-md text-on-surface"
+                  style={{
+                    display: "-webkit-box",
+                    WebkitLineClamp: 2,
+                    WebkitBoxOrient: "vertical",
+                    overflow: "hidden",
+                  }}
+                >
+                  {item.content}
+                </p>
+              )}
               <p className="text-label-md text-on-surface-variant">
                 {item.reason}
               </p>

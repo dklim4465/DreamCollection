@@ -2,6 +2,7 @@ package com.dreamCollection.mate.service;
 
 import com.dreamCollection.mate.ai.MateAiServerClient;
 import com.dreamCollection.mate.dto.MateRecommendItemDTO;
+import com.dreamCollection.mate.dto.MateRecommendResponseDTO;
 import com.dreamCollection.mate.entity.MatePost;
 import com.dreamCollection.mate.repository.MatePostRepository;
 import com.dreamCollection.user.entity.User;
@@ -29,7 +30,7 @@ public class MateAiRecommendService {
     private final MateAiServerClient mateAiServerClient;
     private final ObjectMapper objectMapper = new ObjectMapper();
 
-    public List<MateRecommendItemDTO> recommend(Long userId) {
+    public MateRecommendResponseDTO recommend(Long userId) {
         User me = userRepository.findById(userId).orElse(null);
         String myStyle = (me != null && me.getTravelStyle() != null)
                 ? me.getTravelStyle().name()
@@ -42,7 +43,7 @@ public class MateAiRecommendService {
                 .toList();
 
         if (candidates.isEmpty()) {
-            return List.of();
+            return MateRecommendResponseDTO.of(List.of(), "AI_OK");
         }
 
         String prompt = buildPrompt(myStyle, candidates);
@@ -53,13 +54,20 @@ public class MateAiRecommendService {
                 [{"postId": 숫자, "reason": "한 문장 추천 이유"}]
                 """.formatted(RECOMMEND_LIMIT);
 
-        String aiText = mateAiServerClient.generate(prompt, system, "mate_recommend");
-        if (aiText == null) {
-            return fallbackRecommend(myStyle, candidates);
+        String aiText;
+        try {
+            aiText = mateAiServerClient.generate(prompt, system, "mate_recommend");
+        } catch (MateAiServerClient.AiUnavailableException e) {
+            String status = e.isRateLimited() ? "AI_RATE_LIMITED" : "AI_ERROR";
+            log.warn("AI 추천 실패(status={}), 폴백으로 전환", status);
+            return MateRecommendResponseDTO.of(fallbackRecommend(myStyle, candidates), status);
         }
 
         List<MateRecommendItemDTO> parsed = parseAiResponse(aiText, candidates);
-        return parsed.isEmpty() ? fallbackRecommend(myStyle, candidates) : parsed;
+        if (parsed.isEmpty()) {
+            return MateRecommendResponseDTO.of(fallbackRecommend(myStyle, candidates), "AI_FALLBACK");
+        }
+        return MateRecommendResponseDTO.of(parsed, "AI_OK");
     }
 
     private String buildPrompt(String myStyle, List<MatePost> candidates) {
@@ -100,10 +108,21 @@ public class MateAiRecommendService {
 
     // ai-server가 죽어있거나 응답 파싱에 실패했을 때 쓰는 단순 규칙 기반 폴백
     private List<MateRecommendItemDTO> fallbackRecommend(String myStyle, List<MatePost> candidates) {
-        return candidates.stream()
+        List<MateRecommendItemDTO> sameStyle = candidates.stream()
                 .filter(post -> myStyle.equalsIgnoreCase(post.getTravelStyle()))
                 .limit(RECOMMEND_LIMIT)
                 .map(post -> MateRecommendItemDTO.from(post, "나와 같은 여행 성향의 모집글이에요."))
+                .toList();
+
+        if (!sameStyle.isEmpty()) {
+            return sameStyle;
+        }
+
+        // 성향이 정확히 일치하는 글이 없으면, 최소한 최신 모집글이라도 보여준다
+        // (AI가 죽은 상황에서까지 빈 화면을 보여주지 않기 위한 최후 폴백)
+        return candidates.stream()
+                .limit(RECOMMEND_LIMIT)
+                .map(post -> MateRecommendItemDTO.from(post, "최근 등록된 모집글이에요."))
                 .toList();
     }
 }
