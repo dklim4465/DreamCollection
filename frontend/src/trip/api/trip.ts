@@ -46,6 +46,8 @@ export interface AccommodationCondition {
 export interface ScheduleItem {
   itemKey: string;
   itemType: string;
+  /** PlaceCategory enum name; legacy saved trips may omit this */
+  placeCategory?: string;
   timeSlot: string;
   title: string;
   description?: string;
@@ -265,7 +267,7 @@ export const tripApi = {
       "/accommodation/search",
       {
         region: request.region,
-        destination: request.destination ?? request.region,
+        destination: request.destination,
         startDate: request.startDate,
         when: request.when,
         accommodationCondition: request.accommodationCondition,

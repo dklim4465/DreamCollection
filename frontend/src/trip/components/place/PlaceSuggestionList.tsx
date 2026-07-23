@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { placeApi, type PlaceCategory } from "@/trip/api/place";
+import { PLACE_CATEGORY_LABELS } from "@/trip/utils/placeCategoryLabels";
 
 export type PlaceSuggestionTab = "schedule" | "meal" | "experience";
 
@@ -20,18 +21,6 @@ const TAB_CATEGORIES: Record<PlaceSuggestionTab, PlaceCategory[]> = {
   ],
   meal: ["RESTAURANT", "CAFE"],
   experience: ["ACTIVITY"],
-};
-
-const LABELS: Record<PlaceCategory, string> = {
-  ATTRACTION: "관광",
-  RESTAURANT: "맛집",
-  CAFE: "카페",
-  SHOPPING: "쇼핑",
-  NATURE: "자연",
-  CULTURE: "문화",
-  ACTIVITY: "체험",
-  TRANSPORT: "교통",
-  HOTEL: "숙소",
 };
 
 const getItemType = (category: PlaceCategory) => {
@@ -74,7 +63,8 @@ export default function PlaceSuggestionList({ city, tab, onDragEnd }: Props) {
         const card = {
           id: `place-${place.id}`,
           itemType: getItemType(place.category),
-          badge: LABELS[place.category],
+          placeCategory: place.category,
+          badge: PLACE_CATEGORY_LABELS[place.category],
           title: place.name,
           description:
             place.description ?? place.address ?? "장소 정보가 없습니다.",

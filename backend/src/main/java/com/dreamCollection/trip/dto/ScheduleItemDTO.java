@@ -15,6 +15,8 @@ public class ScheduleItemDTO {
 
     private String itemKey;
     private String itemType;
+    /** PlaceCategory enum name (RESTAURANT, CAFE, ATTRACTION, …). null on legacy saved trips. */
+    private String placeCategory;
     private String timeSlot;
     private String title;
     private String description;

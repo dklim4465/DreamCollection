@@ -1,4 +1,8 @@
 import type { PlanRequest } from "@/trip/api/trip";
+import {
+  isStartDateAllowed,
+  minStartDate,
+} from "@/trip/utils/dateConstraints";
 
 interface Props {
   conditions: PlanRequest;
@@ -17,6 +21,15 @@ export default function TripConditionSummaryBar({
   onStartDateChange,
   onToggleConditions,
 }: Props) {
+  const handleStartDateChange = (value: string) => {
+    if (!value || isStartDateAllowed(value)) {
+      onStartDateChange(value);
+      return;
+    }
+    // 오늘/과거는 HTML min을 우회해 입력될 수 있음 → 비움
+    onStartDateChange("");
+  };
+
   return (
     <section className="trip-surface p-stack-md">
       <div className="grid gap-stack-md lg:grid-cols-[240px_1fr_auto] lg:items-center">
@@ -29,8 +42,9 @@ export default function TripConditionSummaryBar({
             <input
               type="date"
               value={startDate}
+              min={minStartDate()}
               disabled={disabled}
-              onChange={(event) => onStartDateChange(event.target.value)}
+              onChange={(event) => handleStartDateChange(event.target.value)}
               className="w-full rounded-xl border border-outline-variant/70 bg-surface-container-low px-4 py-3 text-label-md font-bold text-on-surface outline-none transition focus:border-primary focus:bg-surface-container-lowest focus:ring-2 focus:ring-primary/10 disabled:cursor-not-allowed disabled:opacity-60"
             />
           </span>

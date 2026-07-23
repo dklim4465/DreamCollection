@@ -97,6 +97,7 @@ export default function TripScheduleView({
             return {
               ...item,
               itemType: card.itemType,
+              placeCategory: card.placeCategory,
               title: card.title,
               description: card.description,
               imageUrl: card.imageUrl,
@@ -194,6 +195,7 @@ export default function TripScheduleView({
       const newItem: ScheduleItem = {
         itemKey: createItemKeyForSlot(day, target.timeSlot),
         itemType: card.itemType,
+        placeCategory: card.placeCategory,
         timeSlot: target.timeSlot,
         slotOrder: getNextSlotOrder(day.items, target.timeSlot),
         title: card.title,

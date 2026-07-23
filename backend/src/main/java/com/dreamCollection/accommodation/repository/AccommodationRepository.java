@@ -8,4 +8,6 @@ import java.util.List;
 public interface AccommodationRepository extends JpaRepository<Accommodation, Long> {
 
     List<Accommodation> findByRegionAndCityNameOrderByDisplayOrderAsc(String region, String cityName);
+
+    List<Accommodation> findByCityNameOrderByDisplayOrderAsc(String cityName);
 }

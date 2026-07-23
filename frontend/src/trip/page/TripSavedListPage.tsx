@@ -66,7 +66,9 @@ function UpcomingHeroCard({
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2">
             <span className="inline-flex items-center gap-1 rounded-full bg-surface-container-lowest px-2.5 py-0.5 text-label-sm font-bold text-tertiary">
-              <span className="material-symbols-outlined text-[14px]">star</span>
+              <span className="material-symbols-outlined text-[14px]">
+                star
+              </span>
               다가오는 일정
             </span>
             {dday !== null && dday >= 0 && (
@@ -103,7 +105,7 @@ function UpcomingHeroCard({
 
         <button
           type="button"
-          className="btn-primary shrink-0 inline-flex items-center justify-center gap-1 self-stretch sm:self-center"
+          className="border-t-on-secondary-container shrink-0 inline-flex items-center justify-center gap-1 self-stretch sm:self-center"
           onClick={() => navigate(`/trip/saved/${trip.savedTripId}`)}
         >
           일정 확인
@@ -240,8 +242,8 @@ export default function TripSavedListPage() {
           to="/trip/new"
           className="btn-primary inline-flex items-center gap-2 text-sm"
         >
-          <span className="material-symbols-outlined text-[18px]">add</span>
-          새 일정 만들기
+          <span className="material-symbols-outlined text-[18px]">add</span>새
+          일정 만들기
         </Link>
       </div>
 

@@ -1,4 +1,5 @@
 import type { ScheduleItem } from "@/trip/api/trip";
+import { placeCategoryBadge } from "@/trip/utils/placeCategoryLabels";
 
 export const TIME_GROUPS = [
   {
@@ -64,6 +65,13 @@ export const ITEM_BADGE: Record<string, { label: string; className: string }> =
       className: "bg-emerald-50 text-emerald-600",
     },
   };
+
+/** placeCategory 우선, 없으면 itemType(ITEM_BADGE)로 폴백 */
+export const resolveScheduleBadge = (item: ScheduleItem) => {
+  const fromPlace = placeCategoryBadge(item.placeCategory);
+  if (fromPlace) return fromPlace;
+  return ITEM_BADGE[item.itemType] ?? ITEM_BADGE.Activity;
+};
 
 export const isAccommodationItem = (item: ScheduleItem) => {
   const type = item.itemType.toLowerCase();

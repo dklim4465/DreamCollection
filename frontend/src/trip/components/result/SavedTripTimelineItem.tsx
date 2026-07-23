@@ -1,3 +1,5 @@
+import { useState, type KeyboardEvent, type MouseEvent } from "react";
+
 export interface TimelineItem {
   id: string;
   timeLabel: string;
@@ -25,11 +27,32 @@ export default function SavedTripTimelineItem({
   expanded,
   onToggle,
 }: Props) {
+  const [copied, setCopied] = useState(false);
+  const address = item.address?.trim() || "";
+
+  const handleCopyAddress = async (event: MouseEvent<HTMLButtonElement>) => {
+    event.stopPropagation();
+    if (!address) return;
+
+    await navigator.clipboard.writeText(address);
+    setCopied(true);
+    window.setTimeout(() => setCopied(false), 1800);
+  };
+
+  const handleExpandKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
+    if (event.key === "Enter" || event.key === " ") {
+      if (event.key === " ") event.preventDefault();
+      onToggle();
+    }
+  };
+
   return (
     <article className="border-b border-outline-variant/50 last:border-b-0">
-      <button
-        type="button"
+      <div
+        role="button"
+        tabIndex={0}
         onClick={onToggle}
+        onKeyDown={handleExpandKeyDown}
         aria-expanded={expanded}
         className="grid w-full grid-cols-[72px_80px_minmax(0,1fr)_32px] items-center gap-stack-md px-stack-md py-stack-sm text-left transition-colors hover:bg-surface-container-low"
       >
@@ -63,8 +86,23 @@ export default function SavedTripTimelineItem({
             </span>
           </span>
 
-          <span className="mt-1 block truncate text-label-md text-on-surface-variant">
-            {item.address ?? item.description ?? "상세 정보를 확인해보세요."}
+          <span className="mt-1 flex min-w-0 items-center gap-1">
+            <span className="min-w-0 truncate text-label-md text-on-surface-variant">
+              {address || item.description || "상세 정보를 확인해보세요."}
+            </span>
+            {address ? (
+              <button
+                type="button"
+                onClick={handleCopyAddress}
+                aria-label="주소 복사"
+                title={copied ? "복사됨" : "주소 복사"}
+                className="inline-flex shrink-0 items-center justify-center rounded p-0.5 text-on-surface-variant transition-colors hover:bg-surface-container hover:text-on-surface"
+              >
+                <span className="material-symbols-outlined text-[16px]">
+                  {copied ? "check" : "content_copy"}
+                </span>
+              </button>
+            ) : null}
           </span>
         </span>
 
@@ -75,7 +113,7 @@ export default function SavedTripTimelineItem({
         >
           expand_more
         </span>
-      </button>
+      </div>
 
       {expanded && (
         <div className="border-t border-outline-variant/40 bg-surface-container-low px-[184px] py-stack-md">
