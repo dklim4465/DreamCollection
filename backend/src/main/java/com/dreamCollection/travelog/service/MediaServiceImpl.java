@@ -9,6 +9,7 @@ import com.dreamCollection.travelog.dto.MetadataInfoDTO;
 import com.dreamCollection.travelog.dto.StoredFileDTO;
 import com.dreamCollection.travelog.dto.upload.UploadResultDTO;
 import com.dreamCollection.travelog.repository.MediaRepository;
+import com.dreamCollection.travelog.repository.ReceiptRepository;
 import com.dreamCollection.travelog.repository.TripLogRepository;
 import com.dreamCollection.travelog.service.extractor.MetadataService;
 import com.dreamCollection.travelog.util.GeometryUtils;
@@ -43,6 +44,7 @@ public class MediaServiceImpl implements MediaService {
 
     private final TripLogRepository tripLogRepository;
     private final MediaRepository mediaRepository;
+    private final ReceiptRepository receiptRepository;
 
     private final MetadataService metadataService;
     private final SpotService spotService;
@@ -112,6 +114,8 @@ public class MediaServiceImpl implements MediaService {
             registerFileDelete(media);
         }
 
+        receiptRepository.deleteByMediaIn(mediaList);
+
         mediaRepository.deleteAllInBatch(mediaList);
 
         spotService.clusteringSpot(tno);
@@ -125,6 +129,8 @@ public class MediaServiceImpl implements MediaService {
         List<Media> mediaList = mediaRepository.findByTripLog_Tno(tno);
 
         mediaList.forEach(this::registerFileDelete);
+
+        receiptRepository.deleteByTripLog(tno);
 
         mediaRepository.deleteByTripLog_Tno(tno);
     }

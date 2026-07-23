@@ -27,4 +27,10 @@ public interface MediaRepository extends JpaRepository<Media, Long> {
 
     int countByTripLog_Tno(Long tno);
 
+    @Query("""
+        select m from Media m join fetch m.spot left join Receipt r on r.media = m
+        where m.tripLog.tno = :tno and m.mediaType = com.dreamCollection.travelog.domain.MediaType.IMAGE
+        and r is null""")
+    List<Media> findReceiptTargetMedia(@Param("tno") Long tno);
+
 }
