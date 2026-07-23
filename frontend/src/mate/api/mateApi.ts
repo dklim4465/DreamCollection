@@ -27,9 +27,15 @@ export interface MateRecommendItemDTO {
 }
 
 export const matePostApi = {
-  getList: (status: string, page = 0, size = 9) =>
+  getList: (status: string, countryCode: string | null, page = 0, size = 9) =>
     apiClient.get<ApiResponse<SpringPage<MatePostListItem>>>("/mate/posts", {
-      params: { status, page, size, sort: "createdAt,desc" },
+      params: {
+        status,
+        countryCode: countryCode ?? undefined,
+        page,
+        size,
+        sort: "createdAt,desc",
+      },
     }),
 
   getDetail: (matePostId: number) =>

@@ -1,3 +1,4 @@
+// src/chat/components/ChatWidget.tsx
 import { useEffect, useRef, useState } from "react";
 import { useAuthStore } from "@/auth/store/authStore";
 import { useChatStore } from "@/chat/store/chatStore";
@@ -182,6 +183,12 @@ export default function ChatWidget() {
 
   if (!isAuthenticated) return null;
 
+  const sortedRooms = [...rooms].sort((a, b) => {
+    const timeA = a.lastMessageAt ? new Date(a.lastMessageAt).getTime() : 0;
+    const timeB = b.lastMessageAt ? new Date(b.lastMessageAt).getTime() : 0;
+    return timeB - timeA;
+  });
+
   const totalUnread = rooms.reduce((sum, r) => sum + r.unreadCount, 0);
   const activeMessages = activeRoomId ? (messages[activeRoomId] ?? []) : [];
   const activeRoom = rooms.find((r) => r.roomId === activeRoomId);
@@ -260,7 +267,9 @@ export default function ChatWidget() {
                 </button>
               </div>
             ) : (
-              <strong className="text-sm flex-1">채팅</strong>
+              <strong className="text-sm flex-1">
+                {activeRoom?.matePostTitle ?? "채팅"}
+              </strong>
             )}
             {activeRoomId && otherUserId != null && (
               <button
@@ -275,12 +284,12 @@ export default function ChatWidget() {
 
           {!activeRoomId && tab === "chat" && (
             <div className="flex-1 overflow-y-auto">
-              {rooms.length === 0 && (
+              {sortedRooms.length === 0 && (
                 <p className="text-center text-on-surface-variant text-sm mt-6">
                   참여 중인 채팅방이 없어요
                 </p>
               )}
-              {rooms.map((room) => (
+              {sortedRooms.map((room) => (
                 <div
                   key={room.roomId}
                   onClick={() => openRoom(room.roomId)}

@@ -6,6 +6,8 @@ interface Props {
   alwaysShow?: boolean;
 }
 
+const PAGES_PER_GROUP = 10;
+
 export default function Pagination({
   page,
   totalPages,
@@ -15,46 +17,59 @@ export default function Pagination({
   const pagesCount = Math.max(1, totalPages);
   if (!alwaysShow && pagesCount <= 1) return null;
 
-  const pages = Array.from({ length: pagesCount }, (_, i) => i);
+  const groupStart = Math.floor(page / PAGES_PER_GROUP) * PAGES_PER_GROUP;
+  const groupEnd = Math.min(groupStart + PAGES_PER_GROUP, pagesCount);
+  const pages = Array.from(
+    { length: groupEnd - groupStart },
+    (_, i) => groupStart + i,
+  );
 
-  const inactiveBtn =
-    "w-9 h-9 rounded-lg border border-outline-variant/70 bg-surface-container-lowest text-on-surface flex items-center justify-center text-label-md hover:bg-surface-container disabled:opacity-30";
-  const activeBtn =
-    "w-9 h-9 rounded-lg bg-primary text-on-primary font-bold text-label-md flex items-center justify-center";
+  const hasPrevGroup = groupStart > 0;
+  const hasNextGroup = groupEnd < pagesCount;
 
   return (
-    <div className="mt-stack-md flex items-center justify-center gap-1.5">
-      <button
-        type="button"
-        onClick={() => onChange(page - 1)}
-        disabled={page <= 0}
-        className={inactiveBtn}
-        aria-label="이전 페이지"
-      >
-        <span className="material-symbols-outlined text-lg">chevron_left</span>
-      </button>
+    <div className="mt-stack-md flex items-center justify-center gap-3 text-label-lg">
+      {hasPrevGroup && (
+        <button
+          type="button"
+          onClick={() => onChange(groupStart - 1)}
+          className="flex items-center gap-0.5 text-primary hover:underline"
+        >
+          <span className="material-symbols-outlined text-base">
+            chevron_left
+          </span>
+          이전
+        </button>
+      )}
 
       {pages.map((p) => (
         <button
           key={p}
           type="button"
           onClick={() => onChange(p)}
-          className={p === page ? activeBtn : inactiveBtn}
           aria-current={p === page ? "page" : undefined}
+          className={
+            p === page
+              ? "font-bold text-primary underline underline-offset-4"
+              : "text-primary hover:underline"
+          }
         >
           {p + 1}
         </button>
       ))}
 
-      <button
-        type="button"
-        onClick={() => onChange(page + 1)}
-        disabled={page >= pagesCount - 1}
-        className={inactiveBtn}
-        aria-label="다음 페이지"
-      >
-        <span className="material-symbols-outlined text-lg">chevron_right</span>
-      </button>
+      {hasNextGroup && (
+        <button
+          type="button"
+          onClick={() => onChange(groupEnd)}
+          className="flex items-center gap-0.5 text-primary hover:underline"
+        >
+          다음
+          <span className="material-symbols-outlined text-base">
+            chevron_right
+          </span>
+        </button>
+      )}
     </div>
   );
 }

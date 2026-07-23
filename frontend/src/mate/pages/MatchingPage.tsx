@@ -4,23 +4,30 @@ import { useQuery } from "@tanstack/react-query";
 import { matePostApi } from "@/mate/api/mateApi";
 import { type MatePostStatus } from "@/mate/types/mate";
 import MateCard from "@/mate/components/MateCard";
-import MateStatusTabs from "@/mate/components/MateStatusTabs";
+import MateStatusCountryMenu from "@/mate/components/MateStatusCountryMenu";
 import Pagination from "@/board/components/Pagination";
 import LoadingSpinner from "@/common/components/LoadingSpinner";
 import EmptyState from "@/common/components/EmptyState";
 
 export default function MatchingPage() {
-  const [status, setStatus] = useState<MatePostStatus>("RECRUITING");
+  const [status, setStatus] = useState<MatePostStatus>("ALL");
+  const [countryCode, setCountryCode] = useState<string | null>(null);
   const [page, setPage] = useState(0);
 
   const { data, isLoading } = useQuery({
-    queryKey: ["mate-posts", status, page],
+    queryKey: ["mate-posts", status, countryCode, page],
     queryFn: () =>
-      matePostApi.getList(status, page).then((res) => res.data.data),
+      matePostApi
+        .getList(status, countryCode, page)
+        .then((res) => res.data.data),
   });
 
-  const handleStatusChange = (next: MatePostStatus) => {
-    setStatus(next);
+  const handleStatusCountryChange = (
+    nextStatus: MatePostStatus,
+    nextCountryCode: string | null,
+  ) => {
+    setStatus(nextStatus);
+    setCountryCode(nextCountryCode);
     setPage(0);
   };
 
@@ -34,22 +41,20 @@ export default function MatchingPage() {
           </p>
         </div>
         <div className="flex gap-2">
-          <Link
-            to="/matching/recommend"
-            className="btn-primary inline-flex items-center justify-center gap-1"
-          >
-            <span className="leading-none">🤖</span> AI 추천
+          <Link to="/matching/recommend" className="btn-primary">
+            🤖 AI 추천
           </Link>
-          <Link
-            to="/matching/new"
-            className="btn-primary inline-flex items-center justify-center"
-          >
+          <Link to="/matching/new" className="btn-primary">
             + 동행 구하기
           </Link>
         </div>
       </div>
 
-      <MateStatusTabs value={status} onChange={handleStatusChange} />
+      <MateStatusCountryMenu
+        status={status}
+        countryCode={countryCode}
+        onChange={handleStatusCountryChange}
+      />
 
       {isLoading && <LoadingSpinner message="불러오는 중..." />}
 

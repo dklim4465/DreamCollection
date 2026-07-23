@@ -1,4 +1,3 @@
-// src/main/java/com/dreamCollection/mate/repository/MatePostRepository.java
 package com.dreamCollection.mate.repository;
 
 import com.dreamCollection.mate.entity.MatePost;
@@ -17,4 +16,9 @@ public interface MatePostRepository extends JpaRepository<MatePost, Long> {
     Page<MatePost> findByDestinationContaining(String keyword, Pageable pageable);
     Page<MatePost> findByUserId(Long userId, Pageable pageable);
     List<MatePost> findByStatusAndEndDateBefore(String status, LocalDate date);
+
+    Page<MatePost> findByStatusAndCountryCodeOrderByCreatedAtDesc(
+            String status, String countryCode, Pageable pageable);
+    Page<MatePost> findByStatusNotInAndCountryCodeOrderByCreatedAtDesc(
+            Collection<String> excludedStatuses, String countryCode, Pageable pageable);
 }

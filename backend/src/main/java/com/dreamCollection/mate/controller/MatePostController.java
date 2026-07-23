@@ -37,9 +37,10 @@ public class MatePostController {
     @GetMapping
     public ApiResponse<Page<MatePostListResponseDTO>> getPostList(
             @RequestParam(defaultValue = "RECRUITING") String status,
+            @RequestParam(required = false) String countryCode,
             Pageable pageable
     ){
-        return ApiResponse.ok(matePostService.getPostList(status, pageable));
+        return ApiResponse.ok(matePostService.getPostList(status, countryCode, pageable));
     }
 
     @GetMapping("/{matePostId}")

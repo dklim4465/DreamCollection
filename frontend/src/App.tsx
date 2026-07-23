@@ -1,3 +1,4 @@
+// src/App.tsx
 import { Suspense } from "react";
 import { Navigate, Route, Routes } from "react-router-dom";
 import AdminRoute from "@/common/components/AdminRoute";
@@ -29,6 +30,7 @@ import {
   KakaoCallbackPage,
   LoginPage,
   MateDetailPage,
+  MateRecommendPage,
   MateWritePage,
   MatchingPage,
   NoticeDetailPage,
@@ -55,7 +57,7 @@ import {
  * 일정: /trip /trip/new /trip/flight /trip/accommodation /trip/result
  *       /trip/saved /trip/saved/:savedTripId /trip/edit  (로그인)
  * 커뮤니티: /community /community/new /community/:postId /community/:postId/edit
- * 매칭: /matching /matching/new /matching/:matePostId /matching/:matePostId/edit
+ * 매칭: /matching /matching/new /matching/recommend /matching/:matePostId /matching/:matePostId/edit
  * 기타: /notices /notices/:noticeId /feedback
  * 회원: /payment/checkout /payment/complete /triplog /profile
  *       /register/card /billing/success /billing/fail
@@ -103,6 +105,7 @@ export default function App() {
           <Route path="community/:postId/edit" element={<BoardWritePage />} />
           <Route path="matching" element={<MatchingPage />} />
           <Route path="matching/new" element={<MateWritePage />} />
+          <Route path="matching/recommend" element={<MateRecommendPage />} />
           <Route path="matching/:matePostId" element={<MateDetailPage />} />
           <Route path="matching/:matePostId/edit" element={<MateWritePage />} />
           <Route path="notices" element={<NoticeListPage />} />
