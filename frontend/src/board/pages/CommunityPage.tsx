@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { boardPostApi } from "@/board/api/board";
+import { boardPostApi } from "@/board/api/boardApi";
 import { useAuthStore } from "@/auth/store/authStore";
 import type { BoardCategory } from "@/board/types/board";
 import CategoryTabs from "@/board/components/CategoryTabs";

@@ -4,7 +4,7 @@ import { useChatStore } from "@/chat/store/chatStore";
 import { useFriendStore } from "@/chat/store/friendStore";
 import { chatApi } from "@/chat/api/chatApi";
 import { friendApi } from "@/chat/api/friendApi";
-import { reportApi } from "@/board/api/board";
+import { reportApi } from "@/board/api/boardApi";
 import type { UserSearchResult } from "@/chat/types/friends";
 import type { ChatMessage } from "@/chat/types/chat";
 import {

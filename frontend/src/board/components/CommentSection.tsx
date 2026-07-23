@@ -1,10 +1,10 @@
 import { useState, type KeyboardEvent } from "react";
 import dayjs from "dayjs";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { boardCommentApi } from "@/board/api/board";
+import { boardCommentApi } from "@/board/api/boardApi";
 import type { BoardComment } from "@/board/types/board";
 import ReportModal from "./ReportModal";
-import { reportApi } from "@/board/api/board";
+import { reportApi } from "@/board/api/boardApi";
 
 interface Props {
   postId: number;

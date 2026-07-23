@@ -8,8 +8,8 @@ import {
 } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { boardPostApi, boardImageApi } from "@/board/api/board";
-import { uploadApi } from "@/board/api/upload";
+import { boardPostApi, boardImageApi } from "@/board/api/boardApi";
+import { uploadApi } from "@/board/api/uploadApi";
 import {
   BOARD_WRITE_CATEGORIES,
   BOARD_CATEGORY_LABELS,

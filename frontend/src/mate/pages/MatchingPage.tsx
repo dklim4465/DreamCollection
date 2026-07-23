@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { matePostApi } from "@/mate/api/mate";
+import { matePostApi } from "@/mate/api/mateApi";
 import { type MatePostStatus } from "@/mate/types/mate";
 import MateCard from "@/mate/components/MateCard";
 import MateStatusTabs from "@/mate/components/MateStatusTabs";
@@ -33,9 +33,20 @@ export default function MatchingPage() {
             비슷한 스타일의 여행 친구를 만나보세요
           </p>
         </div>
-        <Link to="/matching/new" className="btn-primary">
-          + 동행 구하기
-        </Link>
+        <div className="flex gap-2">
+          <Link
+            to="/matching/recommend"
+            className="btn-primary inline-flex items-center justify-center gap-1"
+          >
+            <span className="leading-none">🤖</span> AI 추천
+          </Link>
+          <Link
+            to="/matching/new"
+            className="btn-primary inline-flex items-center justify-center"
+          >
+            + 동행 구하기
+          </Link>
+        </div>
       </div>
 
       <MateStatusTabs value={status} onChange={handleStatusChange} />

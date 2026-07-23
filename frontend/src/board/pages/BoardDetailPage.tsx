@@ -8,7 +8,7 @@ import {
   boardImageApi,
   boardLikeApi,
   reportApi,
-} from "@/board/api/board";
+} from "@/board/api/boardApi";
 import { useAuthStore } from "@/auth/store/authStore";
 import CommentSection from "@/board/components/CommentSection";
 import UserProfileModal from "@/mate/components/UserProfileModal";

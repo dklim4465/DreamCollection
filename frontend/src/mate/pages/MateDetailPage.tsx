@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import dayjs from "dayjs";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { matePostApi, mateRequestApi } from "@/mate/api/mate";
+import { matePostApi, mateRequestApi } from "@/mate/api/mateApi";
 import {
   MATE_POST_STATUS_LABELS,
   type MatePostStatus,

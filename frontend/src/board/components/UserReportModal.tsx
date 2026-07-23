@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useMutation } from "@tanstack/react-query";
-import { reportApi } from "@/board/api/board";
+import { reportApi } from "@/board/api/boardApi";
 
 interface Props {
   userId: number;

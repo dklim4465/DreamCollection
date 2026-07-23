@@ -14,6 +14,18 @@ import type {
   SpringPage,
 } from "@/mate/types/mate";
 
+export interface CountryResponseDTO {
+  countryCode: string;
+  countryName: string;
+}
+
+export interface MateRecommendItemDTO {
+  postId: number;
+  destination: string;
+  travelStyle: string;
+  reason: string;
+}
+
 export const matePostApi = {
   getList: (status: string, page = 0, size = 9) =>
     apiClient.get<ApiResponse<SpringPage<MatePostListItem>>>("/mate/posts", {
@@ -91,4 +103,14 @@ export const mateScheduleLinkApi = {
     apiClient.delete<ApiResponse<void>>(
       `/mate/posts/${matePostId}/schedule-links/${linkId}`,
     ),
+};
+
+export const mateCountryApi = {
+  getCountries: () =>
+    apiClient.get<ApiResponse<CountryResponseDTO[]>>("/mate/countries"),
+};
+
+export const mateRecommendApi = {
+  getRecommendations: () =>
+    apiClient.get<ApiResponse<MateRecommendItemDTO[]>>("/mate/recommend"),
 };
