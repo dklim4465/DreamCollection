@@ -1,7 +1,7 @@
 import type { ScheduleItem } from "@/trip/api/trip";
 import type { RecommendationCard } from "./types";
 import {
-  ITEM_BADGE,
+  resolveScheduleBadge,
   isAccommodationItem,
   isFlightItem,
   isLockedSlotItem,
@@ -40,8 +40,11 @@ export default function ScheduleCard({
         label: "잠금",
         className: "bg-surface-container-highest text-on-surface-variant",
       }
-    : (ITEM_BADGE[item.itemType] ?? ITEM_BADGE.Activity);
-  const isMeal = item.itemType === "Meal";
+    : resolveScheduleBadge(item);
+  const isMeal =
+    item.itemType === "Meal" ||
+    item.placeCategory === "RESTAURANT" ||
+    item.placeCategory === "CAFE";
   const isAccommodation = isAccommodationItem(item);
   const isFlight = isFlightItem(item);
   const canMove = canMoveScheduleItem(item);

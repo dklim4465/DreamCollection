@@ -1,23 +1,32 @@
 from fastapi import APIRouter, HTTPException
 
-from app.schemas.trip_generate_schema import GenerateRequest
-from app.services.trip_generate_service import generate_text
+from app.schemas.trip_generate_schema import GenerateRequest, GenerateResponse
+from app.services.trip_generate_service import TripGenerateService
 
 router = APIRouter()
+trip_generate_service = TripGenerateService()
 
-@router.post("/generate")
+# Hybrid trip AI: placeIds only from prompt pools; slots Morning/Lunch/Afternoon/Dinner
+DEFAULT_TRIP_SYSTEM = (
+    "Use only placeIds from the provided mealPlaces and activityPlaces. "
+    "Output JSON with timeSlot and placeId only. "
+    "Allowed timeSlots: Morning, Lunch, Afternoon, Dinner. No Cafe slot."
+)
+
+@router.post("/generate", response_model=GenerateResponse)
 def generate(req: GenerateRequest):
 
     try:
-        text = generate_text(
+        system = req.system or DEFAULT_TRIP_SYSTEM
+        data = trip_generate_service.generate(
             prompt=req.prompt,
-            system=req.system
+            system=system
         )
 
-        return {
-            "text": text,
-            "task": req.task
-        }
+        return GenerateResponse(
+            task=req.task,
+            data=data,
+        )
     
     except Exception as e:
         raise HTTPException(status_code=502, detail=str(e))

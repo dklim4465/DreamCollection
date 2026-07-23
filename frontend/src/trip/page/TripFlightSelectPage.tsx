@@ -11,6 +11,10 @@ import {
   type TripFlowState,
 } from "@/trip/api/trip";
 import TripConditionSummaryBar from "@/trip/components/planning/TripConditionSummaryBar";
+import {
+  isStartDateAllowed,
+  sanitizeStartDate,
+} from "@/trip/utils/dateConstraints";
 
 interface LocationState extends TripFlowState {}
 
@@ -18,14 +22,16 @@ export default function TripFlightSelectPage() {
   const location = useLocation();
   const navigate = useNavigate();
   const state = location.state as LocationState | null;
-  const [startDate, setStartDate] = useState(state?.conditions.startDate ?? "");
+  const [startDate, setStartDate] = useState(() =>
+    sanitizeStartDate(state?.conditions.startDate),
+  );
   const [selectedOutboundFlight, setSelectedOutboundFlight] =
     useState<FlightOffer | null>(null);
   const [selectedReturnFlight, setSelectedReturnFlight] =
     useState<FlightOffer | null>(null);
 
   const skipFlight = state?.conditions.flightCondition?.skip;
-  const hasStartDate = startDate.trim().length > 0;
+  const hasStartDate = isStartDateAllowed(startDate);
 
   const flowStateWithDate = useMemo<TripFlowState | null>(() => {
     if (!state) return null;
@@ -127,7 +133,7 @@ export default function TripFlightSelectPage() {
     selectedReturnFlight?.currency ?? selectedOutboundFlight?.currency;
 
   const handleDateChange = (value: string) => {
-    setStartDate(value);
+    setStartDate(sanitizeStartDate(value));
     setSelectedOutboundFlight(null);
     setSelectedReturnFlight(null);
   };

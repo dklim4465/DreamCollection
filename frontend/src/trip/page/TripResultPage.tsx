@@ -18,6 +18,10 @@ import type {
 import { tripApi } from "@/trip/api/trip";
 import { useAuthStore } from "@/auth/store/authStore";
 import TripScheduleView from "@/trip/components/result/TripScheduleView";
+import {
+  isStartDateAllowed,
+  sanitizeStartDate,
+} from "@/trip/utils/dateConstraints";
 import "@/trip/styles/trip.css";
 
 interface LocationState {
@@ -34,15 +38,26 @@ interface LocationState {
   pendingBuild?: boolean;
 }
 
+function sanitizeConditions(conditions: PlanRequest): PlanRequest {
+  const startDate = sanitizeStartDate(conditions.startDate);
+  return {
+    ...conditions,
+    startDate: startDate || undefined,
+  };
+}
+
 export default function TripResultPage() {
   const location = useLocation();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { user } = useAuthStore();
   const state = location.state as LocationState | null;
-  const [conditions, setConditions] = useState<PlanRequest>(
-    () => state?.conditions ?? ({} as PlanRequest),
-  );
+  const [conditions, setConditions] = useState<PlanRequest>(() => {
+    const base = state?.conditions ?? ({} as PlanRequest);
+    // 저장된 일정 조회는 과거 출발일도 유지 (표시용)
+    if (state?.isSavedView) return base;
+    return sanitizeConditions(base);
+  });
 
   const [planResult, setPlanResult] = useState<PlanResponse | null>(
     () => state?.planResult ?? null,
@@ -131,6 +146,7 @@ export default function TripResultPage() {
     if (
       !state?.pendingBuild ||
       !conditions.startDate ||
+      !isStartDateAllowed(conditions.startDate) ||
       recommendation ||
       autoBuildTriggered.current
     ) {
@@ -162,6 +178,8 @@ export default function TripResultPage() {
     if (!state?.shouldSave || !user?.id || !conditions || !recommendation)
       return;
     if (state.isSavedView) return;
+    if (!conditions.startDate || !isStartDateAllowed(conditions.startDate))
+      return;
 
     autoSaveTriggered.current = true;
 
@@ -194,9 +212,10 @@ export default function TripResultPage() {
       (state.planningMode === "manual" ? "개인 일정 저장" : undefined));
 
   const handleStartDateChange = (startDate: string) => {
+    const sanitized = sanitizeStartDate(startDate);
     const nextConditions: PlanRequest = {
       ...conditions,
-      startDate: startDate.trim().length > 0 ? startDate : undefined,
+      startDate: sanitized || undefined,
     };
 
     if (state?.pendingBuild) {
@@ -210,7 +229,8 @@ export default function TripResultPage() {
   };
 
   const handleRetryBuild = () => {
-    if (!conditions.startDate) return;
+    if (!conditions.startDate || !isStartDateAllowed(conditions.startDate))
+      return;
 
     autoBuildTriggered.current = true;
     buildMutation.mutate(conditions);

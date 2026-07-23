@@ -24,10 +24,18 @@ public class AccommodationServiceImpl implements AccommodationService{
 
         accommodationValidator.validateSearch(requestDTO);
 
-        return accommodationRepository.findByRegionAndCityNameOrderByDisplayOrderAsc(
+        List<Accommodation> accommodations = accommodationRepository.findByRegionAndCityNameOrderByDisplayOrderAsc(
                         requestDTO.getRegion(),
                         requestDTO.getDestination()
-                )
+                );
+
+        if (accommodations.isEmpty()) {
+            accommodations = accommodationRepository.findByCityNameOrderByDisplayOrderAsc(
+                    requestDTO.getDestination()
+            );
+        }
+
+        return accommodations
                 .stream()
                 .map(this::toResponseDTO)
                 .toList();
