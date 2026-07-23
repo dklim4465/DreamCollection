@@ -1,19 +1,13 @@
 package com.dreamCollection.travelog.service;
 
-import com.dreamCollection.travelog.domain.Media;
-import com.dreamCollection.travelog.domain.ShareLink;
-import com.dreamCollection.travelog.domain.Spot;
-import com.dreamCollection.travelog.domain.TripLog;
+import com.dreamCollection.travelog.domain.*;
 import com.dreamCollection.travelog.dto.MediaDetailDTO;
 import com.dreamCollection.travelog.dto.SpotDetailDTO;
 import com.dreamCollection.travelog.dto.TripLogOverviewDTO;
 import com.dreamCollection.travelog.dto.TripLogStatisticsDTO;
 import com.dreamCollection.travelog.dto.request.TripLogRequestDTO;
 import com.dreamCollection.travelog.dto.response.TripLogResponseDTO;
-import com.dreamCollection.travelog.repository.MediaRepository;
-import com.dreamCollection.travelog.repository.ShareLinkRepository;
-import com.dreamCollection.travelog.repository.SpotRepository;
-import com.dreamCollection.travelog.repository.TripLogRepository;
+import com.dreamCollection.travelog.repository.*;
 import com.dreamCollection.travelog.util.GeometryUtils;
 import com.dreamCollection.user.entity.User;
 import com.dreamCollection.user.repository.UserRepository;
@@ -45,6 +39,7 @@ public class TripLogServiceImpl implements TripLogService {
     private final ShareLinkRepository shareLinkRepository;
     private final SpotRepository spotRepository;
     private final MediaRepository mediaRepository;
+    private final ReceiptRepository receiptRepository;
 
     private final MediaService mediaService;
     private final SpotService spotService;
@@ -193,13 +188,19 @@ public class TripLogServiceImpl implements TripLogService {
 
         Long totalDistance = calculateDistance(spots);
 
+        List<Receipt> receipts = receiptRepository.findByTripLog(tno);
+
+        Long totalAmount = receipts.stream()
+                .mapToLong(Receipt::getAmountKrw)
+                .sum();
+
         return TripLogStatisticsDTO.builder()
                 .tno(tno)
                 .spotCount(spotCount)
                 .mediaCount(mediaCount)
                 .countries(countries)
                 .totalDistance(totalDistance)
-                .totalAmount(0L)
+                .totalAmount(totalAmount)
                 .build();
     }
 

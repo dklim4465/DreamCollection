@@ -14,4 +14,4 @@ receipt_service = ReceiptService(ocr_service, ai_receipt_service)
 @router.post("/analyze")
 def analyze_receipt(request: ReceiptAnalyzeRequest):
 
-    return receipt_service.analyze(request.medias)
+    return receipt_service.analyze(request.medias).model_dump(by_alias=True)

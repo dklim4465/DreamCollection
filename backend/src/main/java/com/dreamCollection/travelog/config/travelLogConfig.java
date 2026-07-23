@@ -4,6 +4,7 @@ import com.dreamCollection.travelog.dto.geo.CountryPolygon;
 import com.dreamCollection.travelog.dto.geo.GeoJsonFeatureCollection;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.Value;
 import lombok.extern.log4j.Log4j2;
 import org.locationtech.jts.geom.*;
 import org.modelmapper.ModelMapper;
@@ -12,12 +13,15 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
+import org.springframework.scheduling.annotation.EnableAsync;
+import org.springframework.web.client.RestClient;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @Configuration
 @EnableJpaAuditing
+@EnableAsync
 @Log4j2
 public class travelLogConfig {
 
@@ -42,6 +46,20 @@ public class travelLogConfig {
     @Bean
     public List<CountryPolygon> countryPolygons() {
         return loadGeoJson();
+    }
+
+    @Bean
+    public RestClient aiRestClient() {
+        return RestClient.builder()
+                .baseUrl("http://127.0.0.1:5000")
+                .build();
+    }
+
+    @Bean
+    public RestClient exchangeRateClient() {
+        return RestClient.builder()
+                .baseUrl("https://api.frankfurter.dev")
+                .build();
     }
 
     private List<CountryPolygon> loadGeoJson() {
