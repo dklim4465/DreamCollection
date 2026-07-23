@@ -10,6 +10,10 @@ import {
   type AccommodationSelection,
   type TripFlowState,
 } from "@/trip/api/trip";
+import {
+  isStartDateAllowed,
+  sanitizeStartDate,
+} from "@/trip/utils/dateConstraints";
 
 interface LocationState extends TripFlowState {}
 
@@ -22,9 +26,11 @@ export default function TripAccommodationSelectPage() {
       state?.accommodationSelection ?? null,
     );
 
-  const [startDate, setStartDate] = useState(state?.conditions.startDate ?? "");
+  const [startDate, setStartDate] = useState(() =>
+    sanitizeStartDate(state?.conditions.startDate),
+  );
 
-  const hasStartDate = startDate.trim().length > 0;
+  const hasStartDate = isStartDateAllowed(startDate);
 
   const flowStateWithDate = useMemo<TripFlowState | null>(() => {
     if (!state) return null;
@@ -44,6 +50,13 @@ export default function TripAccommodationSelectPage() {
     enabled: !!flowStateWithDate && !skipAccommodation && hasStartDate,
   });
 
+  // 데모: 항상 display_order 앞 5개만 보이지 않도록, 조회 결과마다 가볍게 섞은 뒤 최대 9개
+  const accommodations = useMemo(() => {
+    const list = accommodationQuery.data ?? [];
+    if (list.length === 0) return list;
+    return shuffleCopy(list).slice(0, 9);
+  }, [accommodationQuery.data]);
+
   const finishFlow = (flowState: TripFlowState, replace = false) => {
     navigate("/trip/result", {
       replace,
@@ -59,8 +72,6 @@ export default function TripAccommodationSelectPage() {
   }
 
   const conditions = flowStateWithDate?.conditions ?? state.conditions;
-
-  const accommodations = (accommodationQuery.data ?? []).slice(0, 5);
 
   const handleBack = () => {
     if (state.conditions.flightCondition?.skip) {
@@ -114,7 +125,9 @@ export default function TripAccommodationSelectPage() {
           conditions={conditions}
           startDate={startDate}
           expanded={false}
-          onStartDateChange={setStartDate}
+          onStartDateChange={(nextStartDate) => {
+            setStartDate(sanitizeStartDate(nextStartDate));
+          }}
           onToggleConditions={() => navigate("/trip/new")}
         />
 
@@ -134,7 +147,7 @@ export default function TripAccommodationSelectPage() {
         startDate={startDate}
         expanded={false}
         onStartDateChange={(nextStartDate) => {
-          setStartDate(nextStartDate);
+          setStartDate(sanitizeStartDate(nextStartDate));
           setSelectedAccommodation(null);
         }}
         onToggleConditions={() => navigate("/trip/new")}
@@ -182,4 +195,15 @@ export default function TripAccommodationSelectPage() {
 
     </div>
   );
+}
+
+function shuffleCopy<T>(items: T[]): T[] {
+  const arr = [...items];
+  for (let i = arr.length - 1; i > 0; i -= 1) {
+    const j = Math.floor(Math.random() * (i + 1));
+    const tmp = arr[i];
+    arr[i] = arr[j];
+    arr[j] = tmp;
+  }
+  return arr;
 }

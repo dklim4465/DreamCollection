@@ -105,12 +105,6 @@ export default function TripOptionModal({ day, item, onClose }: Props) {
                 {item.address && (
                   <DetailRow label="주소" value={item.address} />
                 )}
-                {item.durationMinutes !== undefined && (
-                  <DetailRow
-                    label="소요 시간"
-                    value={`${item.durationMinutes}분`}
-                  />
-                )}
                 {cost && <DetailRow label="예상 비용" value={cost} />}
               </dl>
             </div>

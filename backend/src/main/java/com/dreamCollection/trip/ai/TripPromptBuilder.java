@@ -1,20 +1,22 @@
 package com.dreamCollection.trip.ai;
 
 import com.dreamCollection.place.dto.PlaceResponse;
+import com.dreamCollection.trip.TripPlacePools;
 import com.dreamCollection.trip.dto.PlanRequestDTO;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Component
 public class TripPromptBuilder {
 
-    private static final int MAX_PLACES_IN_PROMPT = 20;
-
     public String build(PlanRequestDTO request, List<PlaceResponse> places) {
-        String placeBlock = formatPlaces(places);
+        return build(request, TripPlacePools.from(places));
+    }
+
+    public String build(PlanRequestDTO request, TripPlacePools pools) {
+        String placeBlock = formatPools(pools);
 
         return """
                 아래 여행 조건과 장소 후보로 일정을 만들어라.
@@ -28,17 +30,21 @@ public class TripPromptBuilder {
                 여행 테마: %s
                 여행 강도: %s
 
-                [장소 후보] (이 목록의 placeId만 사용할 것)
                 %s
 
                 [출력 규칙]
                 - 마크다운/설명 없이 JSON만 출력
-                - placeId는 위 후보에 있는 숫자만 사용 (없으면 일정 실패)
+                - placeId는 위 후보 객체의 id만 사용 (없으면 일정 실패)
                 - 여행 기간에 맞는 dayNumber를 채울 것
+                - 매일 Morning, Lunch, Afternoon, Dinner만 사용 (Cafe/Night 등 별도 timeSlot 금지)
                 - 각 day의 items는 Morning → Lunch → Afternoon → Dinner 순. 각 timeSlot은 1~2개(기본 1개, 테마/강도/페이스에 맞을 때만 2개). 같은 timeSlot은 연속으로 나열
-                - title 필드는 넣지 말 것. 서버가 placeId로 장소명을 채움
-                - Lunch/Dinner는 RESTAURANT 또는 CAFE placeId만 사용 (필수)
-                - Morning/Afternoon는 ATTRACTION, ACTIVITY, NATURE, CULTURE, SHOPPING 등 관광/체험 위주 (RESTAURANT/CAFE를 주 일정으로 넣지 말 것)
+                - title 필드는 넣지 말 것. 서버가 placeId로 장소명·PlaceCategory를 채움
+                - category는 Place 카테고리 enum이다 (표시: RESTAURANT=맛집, CAFE=카페, ATTRACTION=관광, ACTIVITY=체험, SHOPPING=쇼핑, NATURE=자연, CULTURE=문화)
+                - Cafe 전용 timeSlot은 만들지 말 것. CAFE도 Lunch/Dinner에만 넣는다
+                - Lunch/Dinner: 첫 항목은 RESTAURANT(맛집) 우선, 없을 때만 CAFE(카페). mealPlaces에서만 고른다. 관광지를 식사 슬롯 첫 항목에 넣지 말 것
+                - CAFE는 같은 Lunch/Dinner 슬롯의 두 번째 항목으로 가능
+                - Morning/Afternoon: activityPlaces의 id만 사용. RESTAURANT/CAFE를 넣지 말 것
+                - mealPlaces가 비어 있으면 Lunch/Dinner에 장소를 지어내지 말 것 (빈 일정으로 둘 것)
                 - 같은 placeId를 반복하지 말 것
                 - 후보에 없는 장소를 지어내지 말 것
 
@@ -69,21 +75,45 @@ public class TripPromptBuilder {
         );
     }
 
-    private static String formatPlaces(List<PlaceResponse> places) {
+    private static String formatPools(TripPlacePools pools) {
+        List<PlaceResponse> mealPlaces = pools != null ? pools.mealPlaces() : List.of();
+        List<PlaceResponse> activityPlaces = pools != null ? pools.activityPlaces() : List.of();
+
+        return """
+                [mealPlaces] (Lunch/Dinner 전용 — PlaceCategory RESTAURANT·CAFE, Cafe timeSlot 없음)
+                %s
+
+                [activityPlaces] (Morning/Afternoon 전용 — ATTRACTION·SHOPPING·NATURE·CULTURE·ACTIVITY)
+                %s""".formatted(
+                formatPlaceObjects(mealPlaces),
+                formatPlaceObjects(activityPlaces)
+        );
+    }
+
+    private static String formatPlaceObjects(List<PlaceResponse> places) {
         if (places == null || places.isEmpty()) {
             return "(후보 없음)";
         }
-
         return places.stream()
-                .filter(Objects::nonNull)
-                .limit(MAX_PLACES_IN_PROMPT)
-                .map(p -> "- placeId=%d | name=%s | category=%s | address=%s".formatted(
-                        p.id(),
-                        nullToEmpty(p.name()),
-                        p.category() != null ? p.category().name() : "",
-                        nullToEmpty(p.address())
-                ))
+                .map(TripPromptBuilder::formatPlaceObject)
                 .collect(Collectors.joining("\n"));
+    }
+
+    private static String formatPlaceObject(PlaceResponse p) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("{ id: ").append(p.id());
+        sb.append(", name: \"").append(escape(nullToEmpty(p.name()))).append('"');
+        sb.append(", category: \"").append(p.category() != null ? p.category().name() : "").append('"');
+        sb.append(", address: \"").append(escape(nullToEmpty(p.address()))).append('"');
+        if (p.imageUrl() != null && !p.imageUrl().isBlank()) {
+            sb.append(", imageUrl: \"").append(escape(p.imageUrl())).append('"');
+        }
+        sb.append(" }");
+        return sb.toString();
+    }
+
+    private static String escape(String value) {
+        return value.replace("\\", "\\\\").replace("\"", "\\\"");
     }
 
     private static String nullToEmpty(String value) {

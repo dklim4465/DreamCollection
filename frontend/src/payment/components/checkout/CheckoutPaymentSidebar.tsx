@@ -13,6 +13,8 @@ export default function CheckoutPaymentSidebar({
   isPaying,
   onPay,
 }: Props) {
+  const hasAmount = estimatedTotal != null && estimatedTotal > 0;
+
   return (
     <aside className="card-base p-5 flex flex-col gap-4 lg:sticky lg:top-6">
       <h2 className="text-title-md font-semibold">결제 요약</h2>
@@ -32,8 +34,8 @@ export default function CheckoutPaymentSidebar({
       </dl>
       <button
         type="button"
-        className="btn-primary w-full disabled:opacity-50"
-        disabled={!canSubmit || isPaying}
+        className="btn-primary w-full disabled:cursor-not-allowed disabled:bg-surface-container-highest disabled:text-on-surface-variant disabled:hover:opacity-100 disabled:active:scale-100"
+        disabled={!canSubmit || isPaying || !hasAmount}
         onClick={onPay}
       >
         {isPaying ? "결제 중..." : "결제하기"}

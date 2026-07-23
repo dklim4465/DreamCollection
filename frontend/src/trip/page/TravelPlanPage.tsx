@@ -389,8 +389,8 @@ export default function TravelPlanPage() {
           </div>
         </main>
 
-        <aside className="min-w-0 self-start">
-          <section className="sticky top-24 rounded-[12px] border border-outline-variant/35 bg-surface-container-low/80 p-4 sm:p-5">
+        <aside className="min-w-0 self-start xl:mt-40">
+          <section className="rounded-[12px] border border-outline-variant/35 bg-surface-container-low/80 p-4 sm:p-5">
             <div className="flex items-center justify-between gap-stack-sm">
               <h2 className="text-title-md font-bold text-on-surface">
                 현재 선택한 조건
