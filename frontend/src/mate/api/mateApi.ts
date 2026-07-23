@@ -14,10 +14,40 @@ import type {
   SpringPage,
 } from "@/mate/types/mate";
 
+export interface CountryResponseDTO {
+  countryCode: string;
+  countryName: string;
+}
+
+export interface MateRecommendItemDTO {
+  postId: number;
+  destination: string;
+  travelStyle: string;
+  content: string;
+  reason: string;
+}
+
+export type MateRecommendAiStatus =
+  | "AI_OK"
+  | "AI_FALLBACK"
+  | "AI_RATE_LIMITED"
+  | "AI_ERROR";
+
+export interface MateRecommendResponseDTO {
+  items: MateRecommendItemDTO[];
+  aiStatus: MateRecommendAiStatus;
+}
+
 export const matePostApi = {
-  getList: (status: string, page = 0, size = 9) =>
+  getList: (status: string, countryCode: string | null, page = 0, size = 9) =>
     apiClient.get<ApiResponse<SpringPage<MatePostListItem>>>("/mate/posts", {
-      params: { status, page, size, sort: "createdAt,desc" },
+      params: {
+        status,
+        countryCode: countryCode ?? undefined,
+        page,
+        size,
+        sort: "createdAt,desc",
+      },
     }),
 
   getDetail: (matePostId: number) =>
@@ -91,4 +121,14 @@ export const mateScheduleLinkApi = {
     apiClient.delete<ApiResponse<void>>(
       `/mate/posts/${matePostId}/schedule-links/${linkId}`,
     ),
+};
+
+export const mateCountryApi = {
+  getCountries: () =>
+    apiClient.get<ApiResponse<CountryResponseDTO[]>>("/mate/countries"),
+};
+
+export const mateRecommendApi = {
+  getRecommendations: () =>
+    apiClient.get<ApiResponse<MateRecommendResponseDTO>>("/mate/recommend"),
 };

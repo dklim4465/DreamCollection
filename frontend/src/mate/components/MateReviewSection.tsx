@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import dayjs from "dayjs";
-import { mateReviewApi } from "@/mate/api/mate";
+import { mateReviewApi } from "@/mate/api/mateApi";
 import MateReviewForm from "./MateReviewForm";
 
 interface Props {

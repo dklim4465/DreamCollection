@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { mateReviewApi } from "@/mate/api/mate";
-import { reportApi } from "@/board/api/board";
+import { mateReviewApi } from "@/mate/api/mateApi";
+import { reportApi } from "@/board/api/boardApi";
 import { chatApi } from "@/chat/api/chatApi";
 import { useChatStore } from "@/chat/store/chatStore";
 

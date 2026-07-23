@@ -35,11 +35,16 @@ export const CommunityPage = lazy(() => import("@/board/pages/CommunityPage"));
 export const BoardDetailPage = lazy(
   () => import("@/board/pages/BoardDetailPage"),
 );
-export const BoardWritePage = lazy(() => import("@/board/pages/BoardWritePage"));
+export const BoardWritePage = lazy(
+  () => import("@/board/pages/BoardWritePage"),
+);
 
 export const MatchingPage = lazy(() => import("@/mate/pages/MatchingPage"));
 export const MateWritePage = lazy(() => import("@/mate/pages/MateWritePage"));
 export const MateDetailPage = lazy(() => import("@/mate/pages/MateDetailPage"));
+export const MateRecommendPage = lazy(
+  () => import("@/mate/pages/MateRecommendPage"),
+);
 
 export const NoticeListPage = lazy(() => import("@/home/NoticeListPage"));
 export const NoticeDetailPage = lazy(() => import("@/home/NoticeDetailPage"));
@@ -83,11 +88,15 @@ export const AdminNoticesPage = lazy(
 export const AdminMonthlyDestinationsPage = lazy(
   () => import("@/admin/pages/AdminMonthlyDestinationsPage"),
 );
-export const AdminUsersPage = lazy(() => import("@/admin/pages/AdminUsersPage"));
+export const AdminUsersPage = lazy(
+  () => import("@/admin/pages/AdminUsersPage"),
+);
 export const AdminDashboardPage = lazy(
   () => import("@/admin/pages/AdminDashboardPage"),
 );
-export const AdminBoardPage = lazy(() => import("@/admin/pages/AdminBoardPage"));
+export const AdminBoardPage = lazy(
+  () => import("@/admin/pages/AdminBoardPage"),
+);
 export const AdminFeedbackPage = lazy(
   () => import("@/admin/pages/AdminFeedbackPage"),
 );

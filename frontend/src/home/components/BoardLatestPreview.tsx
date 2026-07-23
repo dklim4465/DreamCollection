@@ -1,7 +1,6 @@
 import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { boardPostApi } from "@/board/api/board";
-
+import { boardPostApi } from "@/board/api/boardApi";
 
 export default function BoardLatestPreview() {
   const { data, isLoading } = useQuery({
@@ -20,7 +19,10 @@ export default function BoardLatestPreview() {
           </p>
           <h2 className="text-headline-sm font-bold">게시판 최신글</h2>
         </div>
-        <Link to="/community" className="text-label-sm text-primary font-bold hover:underline">
+        <Link
+          to="/community"
+          className="text-label-sm text-primary font-bold hover:underline"
+        >
           전체보기
         </Link>
       </div>
@@ -28,7 +30,10 @@ export default function BoardLatestPreview() {
       {isLoading ? (
         <div className="flex flex-col gap-2">
           {Array.from({ length: 5 }).map((_, i) => (
-            <div key={i} className="h-10 rounded-lg bg-surface-container-low animate-pulse" />
+            <div
+              key={i}
+              className="h-10 rounded-lg bg-surface-container-low animate-pulse"
+            />
           ))}
         </div>
       ) : posts.length === 0 ? (
@@ -43,9 +48,13 @@ export default function BoardLatestPreview() {
                 to={`/community/${p.id}`}
                 className="flex items-center gap-2 hover:text-primary transition-colors"
               >
-                <span className="text-body-sm font-semibold truncate flex-1">{p.title}</span>
+                <span className="text-body-sm font-semibold truncate flex-1">
+                  {p.title}
+                </span>
                 <span className="text-label-sm text-on-surface-variant shrink-0 flex items-center gap-1">
-                  <span className="material-symbols-outlined text-sm">visibility</span>
+                  <span className="material-symbols-outlined text-sm">
+                    visibility
+                  </span>
                   {p.viewCount}
                 </span>
                 <span className="material-symbols-outlined text-base text-on-surface-variant shrink-0">

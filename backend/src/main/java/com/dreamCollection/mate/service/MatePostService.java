@@ -1,4 +1,3 @@
-// src/main/java/com/dreamCollection/mate/service/MatePostService.java
 package com.dreamCollection.mate.service;
 
 import com.dreamCollection.mate.dto.AuthorLevelBadgeInfo;
@@ -56,12 +55,18 @@ public class MatePostService {
     }
 
     @Transactional(readOnly = true)
-    public Page<MatePostListResponseDTO> getPostList(String status, Pageable pageable){
+    public Page<MatePostListResponseDTO> getPostList(String status, String countryCode, Pageable pageable){
         Page<MatePost> posts;
+        boolean hasCountry = countryCode != null && !countryCode.isBlank();
+
         if ("ALL".equals(status)) {
-            posts = matePostRepository.findByStatusNotInOrderByCreatedAtDesc(HIDDEN_STATUSES, pageable);
+            posts = hasCountry
+                    ? matePostRepository.findByStatusNotInAndCountryCodeOrderByCreatedAtDesc(HIDDEN_STATUSES, countryCode, pageable)
+                    : matePostRepository.findByStatusNotInOrderByCreatedAtDesc(HIDDEN_STATUSES, pageable);
         } else {
-            posts = matePostRepository.findByStatusOrderByCreatedAtDesc(status, pageable);
+            posts = hasCountry
+                    ? matePostRepository.findByStatusAndCountryCodeOrderByCreatedAtDesc(status, countryCode, pageable)
+                    : matePostRepository.findByStatusOrderByCreatedAtDesc(status, pageable);
         }
         return posts.map(post -> {
             User user = userRepository.findById(post.getUserId()).orElse(null);

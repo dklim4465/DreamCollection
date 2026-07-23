@@ -150,7 +150,24 @@ public class ChatService {
                     .map(User::getNickname)
                     .orElse("1:1 채팅");
         }
-        return matePost.getDestination();
+
+        List<Long> otherIds = memberIds.stream()
+                .filter(id -> !id.equals(myUserId))
+                .toList();
+
+        if (otherIds.isEmpty()) {
+            return matePost.getDestination();
+        }
+
+        String firstNickname = userRepository.findById(otherIds.get(0))
+                .map(User::getNickname)
+                .orElse("알 수 없음");
+
+        String suffix = otherIds.size() > 1
+                ? firstNickname + " 외 " + (otherIds.size() - 1) + "명"
+                : firstNickname;
+
+        return matePost.getDestination() + " · " + suffix;
     }
 
     @Transactional(readOnly = true)

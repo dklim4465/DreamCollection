@@ -1,4 +1,3 @@
-// src/main/java/com/dreamCollection/mate/entity/MatePost.java
 package com.dreamCollection.mate.entity;
 
 import jakarta.persistence.*;
@@ -28,6 +27,12 @@ public class MatePost {
 
     @Column(nullable = false, length = 100)
     private String destination;
+
+    @Column(name = "country_code", length = 10)
+    private String countryCode;
+
+    @Column(name = "country_name", length = 50)
+    private String countryName;
 
     @Column(name = "start_date", nullable = false)
     private LocalDate startDate;
