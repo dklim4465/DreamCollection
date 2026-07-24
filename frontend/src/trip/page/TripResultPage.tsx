@@ -38,6 +38,7 @@ interface LocationState {
   pendingBuild?: boolean;
 }
 
+// 이전 날짜 불가능하게
 function sanitizeConditions(conditions: PlanRequest): PlanRequest {
   const startDate = sanitizeStartDate(conditions.startDate);
   return {
@@ -54,7 +55,7 @@ export default function TripResultPage() {
   const state = location.state as LocationState | null;
   const [conditions, setConditions] = useState<PlanRequest>(() => {
     const base = state?.conditions ?? ({} as PlanRequest);
-    // 저장된 일정 조회는 과거 출발일도 유지 (표시용)
+    // 저장된 일정 조회는 과거 출발일도 유지 (조회용)
     if (state?.isSavedView) return base;
     return sanitizeConditions(base);
   });
@@ -75,21 +76,25 @@ export default function TripResultPage() {
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [titleDraft, setTitleDraft] = useState("");
 
-  const autoSaveTriggered = useRef(false);
   const autoBuildTriggered = useRef(false);
 
+  // 저장 로직
   const saveMutation = useMutation<
     SaveTripResponse | void,
     Error,
     SaveTripRequest
   >({
     mutationFn: (request: SaveTripRequest) => {
+      // 만약 이게 수정하는거라면(이미 저장되어있는거)
       if (state?.isSavedView && state.savedTripId) {
+        // 업데이트 요청으로 진행
         return tripApi.updateSavedTrip(state.savedTripId, request);
       }
 
+      // 그게 아니면 저장으로
       return tripApi.save(request);
     },
+    // 비동기 처리
     onSuccess: async (result) => {
       await queryClient.invalidateQueries({ queryKey: ["savedTrips"] });
 
@@ -111,6 +116,7 @@ export default function TripResultPage() {
     },
   });
 
+  // 삭제
   const deleteMutation = useMutation<void, Error, number>({
     mutationFn: tripApi.deleteSavedTrip,
     onSuccess: async () => {
@@ -119,8 +125,10 @@ export default function TripResultPage() {
     },
   });
 
+  // ai 생성 매서드 던지기
   const buildMutation = useMutation({
     mutationFn: async (request: PlanRequest) => {
+      //recommend()는 ai와 연결된 메서드
       const nextPlanResult = await tripApi.recommend(request);
 
       if (!nextPlanResult.recommendations[0]) {
@@ -132,7 +140,9 @@ export default function TripResultPage() {
     onSuccess: (nextPlanResult: PlanResponse) => {
       const nextRecommendation = nextPlanResult.recommendations[0];
 
+      // ai 응답 저장
       setPlanResult(nextPlanResult);
+      // 항공 블럭이랑 일정 블럭을 전부 반영
       setRecommendation(
         applyFlightSelectionToRecommendation(
           nextRecommendation,
@@ -155,10 +165,12 @@ export default function TripResultPage() {
 
     autoBuildTriggered.current = true;
 
+    // ai가 아닌 다른 선택으로 들어오면 조건만 받고 내부는 비워주기
     if (state.planningMode === "manual") {
       const nextPlanResult = createManualPlanResult(conditions);
       const nextRecommendation = nextPlanResult.recommendations[0];
 
+      // 이 아래도 항공 블럭 적용하기
       setPlanResult(nextPlanResult);
       setRecommendation(
         applyFlightSelectionToRecommendation(
@@ -166,51 +178,31 @@ export default function TripResultPage() {
           state.flightSelection,
         ),
       );
+      // ai추천 아니면 여기서 끝
       return;
     }
 
+    // 조건 받아서 ai 실행시키는 메서드
     buildMutation.mutate(conditions);
   }, [conditions, recommendation, state]);
 
-  // 로그인 후 shouldSave로 돌아왔을 때 자동 저장 (1회만)
-  useEffect(() => {
-    if (autoSaveTriggered.current) return;
-    if (!state?.shouldSave || !user?.id || !conditions || !recommendation)
-      return;
-    if (state.isSavedView) return;
-    if (!conditions.startDate || !isStartDateAllowed(conditions.startDate))
-      return;
-
-    autoSaveTriggered.current = true;
-
-    saveMutation.mutate({
-      conditions,
-      recommendation,
-      flightSelection: state.flightSelection,
-      accommodationSelection: state.accommodationSelection,
-    });
-  }, [
-    state?.shouldSave,
-    user?.id,
-    conditions,
-    recommendation,
-    state?.isSavedView,
-  ]);
-
+  // 주소 문제있으면 일정 생성 화면으로 돌아가기
   if (!state) {
-    return <Navigate to="/trip" replace />;
+    return <Navigate to="/trip/new" replace />;
   }
 
   if (!state.recommendation && !state.pendingBuild) {
-    return <Navigate to="/trip" replace />;
+    return <Navigate to="/trip/new" replace />;
   }
-
+  // 추천 일정 타이틀
   const recommendationTitle = recommendation?.title?.trim() || "추천 일정";
+  // 일정 저장과 수정 버튼
   const saveLabel = state.isSavedView
     ? "일정 수정"
     : (state.saveLabel ??
       (state.planningMode === "manual" ? "개인 일정 저장" : undefined));
 
+  // 시작일 변경 버튼
   const handleStartDateChange = (startDate: string) => {
     const sanitized = sanitizeStartDate(startDate);
     const nextConditions: PlanRequest = {
@@ -228,6 +220,7 @@ export default function TripResultPage() {
     setConditions(nextConditions);
   };
 
+  // ai 문제 생겼을때 다시 요청
   const handleRetryBuild = () => {
     if (!conditions.startDate || !isStartDateAllowed(conditions.startDate))
       return;
@@ -236,10 +229,12 @@ export default function TripResultPage() {
     buildMutation.mutate(conditions);
   };
 
+  // 조건 다시 선택
   const handleBack = () => {
-    navigate("/trip");
+    navigate("/trip/new");
   };
 
+  //
   const handleStartTitleEdit = () => {
     setTitleDraft(recommendationTitle);
     setIsEditingTitle(true);
@@ -264,12 +259,14 @@ export default function TripResultPage() {
     setIsEditingTitle(false);
   };
 
+  // 일정 저장
   const handleSave = () => {
     if (!recommendation) {
       window.alert("저장할 일정이 없습니다.");
       return;
     }
     if (!user?.id) {
+      // 여기서 만약 로그인 안했으면 이때 요청하게
       navigate("/login", {
         state: {
           redirectState: {

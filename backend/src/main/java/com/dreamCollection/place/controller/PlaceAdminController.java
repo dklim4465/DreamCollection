@@ -17,6 +17,6 @@ public class PlaceAdminController {
     public ApiResponse<PlaceSyncResponse> syncSerpPlaces(
             @RequestParam(defaultValue = "도쿄") String city
     ) {
-        return ApiResponse.ok(placeSyncService.syncTokyoPlaces(city));
+        return ApiResponse.ok(placeSyncService.syncSerpPlaces(city));
     }
 }

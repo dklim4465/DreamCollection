@@ -11,7 +11,6 @@ import com.dreamCollection.trip.dto.PlanRequestDTO;
 import com.dreamCollection.trip.dto.PlanResponseDTO;
 import com.dreamCollection.trip.dto.TripRecommendDTO;
 import com.dreamCollection.trip.exception.TripRecommendFailedException;
-import com.dreamCollection.trip.option.TripOptionProvider;
 import com.dreamCollection.trip.recommend.TripRecommendationBuilder;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -31,7 +30,6 @@ public class TripServiceImpl implements TripService {
     private final TripAiClient tripAiClient;
     private final TripPromptBuilder tripPromptBuilder;
     private final TripRecommendationBuilder tripRecommendationBuilder;
-    private final TripOptionProvider tripOptionProvider;
     private final PlaceService placeService;
     private final ObjectMapper objectMapper = new ObjectMapper();
 
@@ -85,11 +83,6 @@ public class TripServiceImpl implements TripService {
         }
 
         return buildResponse(request, prompt, aiResult, recommendations);
-    }
-
-    @Override
-    public List<String> getOptions(String type) {
-        return tripOptionProvider.getOptions(type);
     }
 
     private String resolveCity(PlanRequestDTO request) {

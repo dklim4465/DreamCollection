@@ -44,31 +44,33 @@ export default function SearchBar() {
   });
   const searchCities = searchData?.data?.data ?? [];
 
-  // 인기 여행지를 나라별로 묶음 (도쿄/오사카/후쿠오카처럼 나라가 같은 도시들을 하나로)
-  const groupedByCountry = useMemo(() => {
-    const groups = new Map<string, { countryCode: string; countryName: string; cities: CityItem[] }>();
+  // 인기 여행지를 권역(countryName)별로 묶음.
+  // countryName은 동남아시아/유럽 같은 권역 라벨이라, ISO countryCode로 묶으면
+  // 같은 라벨이 여러 줄로 중복 표시된다.
+  const groupedByRegion = useMemo(() => {
+    const groups = new Map<string, { countryName: string; cities: CityItem[] }>();
     for (const city of popularCities) {
-      const group = groups.get(city.countryCode);
+      const regionKey = city.countryName || "기타";
+      const group = groups.get(regionKey);
       if (group) {
         group.cities.push(city);
       } else {
-        groups.set(city.countryCode, {
-          countryCode: city.countryCode,
-          countryName: city.countryName,
+        groups.set(regionKey, {
+          countryName: regionKey,
           cities: [city],
         });
       }
     }
+    // Map 삽입 순서 = API에서 처음 등장한 권역 순서
     return Array.from(groups.values());
   }, [popularCities]);
 
-  // 나라를 클릭(또는 나라 이름 입력 후 엔터)하면, 그 나라의 대표 도시(가장 먼저 등록된
-  // 도시) 상세페이지로 바로 이동한다. 거기서 "OO 말고 여기는 어때요?" 섹션으로
-  // 같은 나라의 다른 도시들도 자연스럽게 보여준다.
-  const goToCountryPage = (countryCode: string) => {
+  // 권역을 클릭(또는 권역 이름 입력 후 엔터)하면, 그 권역의 대표 도시(가장 먼저 등록된
+  // 도시) 상세페이지로 바로 이동한다.
+  const goToCountryPage = (countryName: string) => {
     setOpen(false);
     setValue("");
-    const group = groupedByCountry.find((g) => g.countryCode === countryCode);
+    const group = groupedByRegion.find((g) => g.countryName === countryName);
     const representative = group?.cities[0];
     if (representative) {
       navigate(`/destinations/${representative.id}`);
@@ -78,12 +80,12 @@ export default function SearchBar() {
   const matchCountryFromText = (text: string) => {
     const trimmed = text.trim();
     if (!trimmed) return null;
-    return groupedByCountry.find((g) => g.countryName.includes(trimmed)) ?? null;
+    return groupedByRegion.find((g) => g.countryName.includes(trimmed)) ?? null;
   };
 
   const handleEnter = () => {
     const matched = matchCountryFromText(value);
-    if (matched) goToCountryPage(matched.countryCode);
+    if (matched) goToCountryPage(matched.countryName);
   };
 
   // 검색 결과에서 도시를 클릭하면, 그 도시가 미리 채워진 상태로
@@ -128,7 +130,7 @@ export default function SearchBar() {
       setValue(transcript);
       setOpen(true);
 
-      // 도시 이름과 매칭되면 그 도시로, 나라 이름과 매칭되면 그 나라 대표 도시로 자동 이동
+      // 도시 이름과 매칭되면 그 도시로, 권역 이름과 매칭되면 그 권역 대표 도시로 자동 이동
       const matchedCity = popularCities.find(
         (c) => transcript.includes(c.nameKo) || c.nameKo.includes(transcript)
       );
@@ -139,9 +141,9 @@ export default function SearchBar() {
         return;
       }
 
-      const matchedCountry = matchCountryFromText(transcript);
-      if (matchedCountry) {
-        goToCountryPage(matchedCountry.countryCode);
+      const matchedRegion = matchCountryFromText(transcript);
+      if (matchedRegion) {
+        goToCountryPage(matchedRegion.countryName);
       }
     };
 
@@ -203,18 +205,18 @@ export default function SearchBar() {
               )}
             </>
           ) : (
-            // 나라 목록만 (일본 / 태국 / 미국) — 클릭하면 그 나라 전용 페이지로 이동
+            // 권역 목록 (일본 / 동남아시아 / 유럽 …) — 클릭하면 해당 권역 대표 도시로 이동
             <>
               <p className="text-label-sm text-on-surface-variant mb-2">인기 여행지</p>
-              {groupedByCountry.length === 0 ? (
+              {groupedByRegion.length === 0 ? (
                 <p className="text-body-sm text-on-surface-variant py-2">불러오는 중...</p>
               ) : (
                 <div className="flex flex-col gap-1.5">
-                  {groupedByCountry.map((group) => (
+                  {groupedByRegion.map((group) => (
                     <button
-                      key={group.countryCode}
+                      key={group.countryName}
                       type="button"
-                      onClick={() => goToCountryPage(group.countryCode)}
+                      onClick={() => goToCountryPage(group.countryName)}
                       className="flex items-center justify-between px-3 py-2.5 rounded-lg hover:bg-surface-container-high transition-colors text-left"
                     >
                       <span className="text-body-md font-bold">{group.countryName}</span>

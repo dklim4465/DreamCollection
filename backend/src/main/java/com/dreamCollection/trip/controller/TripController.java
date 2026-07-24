@@ -4,6 +4,7 @@ import com.dreamCollection.global.response.ApiResponse;
 import com.dreamCollection.global.response.PageResponse;
 import com.dreamCollection.trip.dto.*;
 import com.dreamCollection.trip.dto.page.SavedTripPageRequest;
+import com.dreamCollection.trip.option.TripOptionProvider;
 import com.dreamCollection.trip.service.SavedTripService;
 import com.dreamCollection.trip.service.TripService;
 import lombok.RequiredArgsConstructor;
@@ -28,12 +29,13 @@ import java.util.List;
 public class TripController {
 
     private final TripService tripService;
+    private final TripOptionProvider tripOptionProvider;
     private final SavedTripService savedTripService;
 
     // 사용자가 선택 할 수 있도록 보여주는 곳
     @GetMapping("/options/{type}")
     public List<String> getOptions(@PathVariable String type) {
-        return tripService.getOptions(type);
+        return tripOptionProvider.getOptions(type);
     }
 
 

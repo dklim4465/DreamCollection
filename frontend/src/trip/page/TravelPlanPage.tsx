@@ -23,6 +23,7 @@ type AccommodationPriority = NonNullable<AccommodationCondition["priority"]>;
 type BasicConditionType = TripOptionType | "destination";
 type PrepareConditionType = "flight" | "accommodation";
 
+// 기본 질문 리스트(도시는 따로)
 const BASIC_QUESTIONS: Record<TripOptionType, string> = {
   who: "누구와 함께 여행하시나요?",
   when: "여행 기간은 어떻게 되나요?",
@@ -30,6 +31,7 @@ const BASIC_QUESTIONS: Record<TripOptionType, string> = {
   level: "어떤 여행 스타일을 선호하시나요?",
 };
 
+// 기본 질문 리스트 라벨
 const BASIC_SUMMARY_LABELS: Record<BasicConditionType, string> = {
   who: "여행 동행",
   when: "여행 기간",
@@ -38,6 +40,7 @@ const BASIC_SUMMARY_LABELS: Record<BasicConditionType, string> = {
   level: "여행 스타일",
 };
 
+// 기본 질문 타입
 const CONDITION_ORDER: BasicConditionType[] = [
   "who",
   "when",
@@ -46,6 +49,7 @@ const CONDITION_ORDER: BasicConditionType[] = [
   "level",
 ];
 
+// 항공 선택 옵션
 const FLIGHT_PRIORITY_OPTIONS: Array<{
   value: FlightPriority;
   label: string;
@@ -54,6 +58,7 @@ const FLIGHT_PRIORITY_OPTIONS: Array<{
   { value: "TIME", label: "최단 여행 시간 우선" },
 ];
 
+// 숙소 선택 옵션
 const ACCOMMODATION_PRIORITY_OPTIONS: Array<{
   value: AccommodationPriority;
   label: string;
@@ -65,8 +70,10 @@ const ACCOMMODATION_PRIORITY_OPTIONS: Array<{
 
 export default function TravelPlanPage() {
   const navigate = useNavigate();
+  // 기본조건들 합친거
   const [activeBasicType, setActiveBasicType] =
     useState<BasicConditionType | null>(null);
+  // 항공 숙소 조건들 합친거
   const [activePrepareType, setActivePrepareType] =
     useState<PrepareConditionType | null>(null);
   const [conditions, setConditions] = useState<Partial<PlanRequest>>({});
@@ -79,6 +86,7 @@ export default function TravelPlanPage() {
   const [accommodationPriority, setAccommodationPriority] =
     useState<AccommodationPriority>("PRICE");
 
+  // 준비 안되면 버튼을 막아야해서
   const isReady =
     tripOptionTypes.every((type) => conditions[type]) &&
     !!conditions.region &&
@@ -86,6 +94,7 @@ export default function TravelPlanPage() {
     flightPrepare !== null &&
     accommodationPrepare !== null;
 
+  // 선택한거 변경되게
   const handleSelect = (type: TripOptionType, selected: string) => {
     setConditions((prev) => ({ ...prev, [type]: selected }));
 
@@ -103,6 +112,7 @@ export default function TravelPlanPage() {
     }
   };
 
+  // 도시는 따로 빼서 생성(city 패키지 가져옴)
   const handleSelectDestination = (city: CityOption) => {
     setConditions((prev) => ({
       ...prev,
@@ -112,6 +122,7 @@ export default function TravelPlanPage() {
     setActiveBasicType("theme");
   };
 
+  // 항공 추천 안받음 -> 바로 숙소로 선택으로 넘어가게
   const handleSelectFlightPrepare = (prepare: FlightPrepareType) => {
     setFlightPrepare(prepare);
 
@@ -120,11 +131,13 @@ export default function TravelPlanPage() {
     }
   };
 
+  // 항공 추천 받음 -> 아래 조건을 선택 후에 숙소로 넘어가게
   const handleSelectFlightPriority = (priority: FlightPriority) => {
     setFlightPriority(priority);
     setActivePrepareType("accommodation");
   };
 
+  // 숙소도 항공이랑 동일 숙소 추천 x -> 다음
   const handleSelectAccommodationPrepare = (
     prepare: AccommodationPrepareType,
   ) => {
@@ -135,6 +148,7 @@ export default function TravelPlanPage() {
     }
   };
 
+  // 숙소 추천 o -> 조건 저장후 넘어가게
   const handleSelectAccommodationPriority = (
     priority: AccommodationPriority,
   ) => {
@@ -142,6 +156,7 @@ export default function TravelPlanPage() {
     setActivePrepareType(null);
   };
 
+  // 선택 초기화 버튼
   const handleReset = () => {
     setConditions({});
     setFlightPrepare(null);
@@ -152,6 +167,7 @@ export default function TravelPlanPage() {
     setActivePrepareType(null);
   };
 
+  // 위에서 받아온 값들을 여기서 조립 함 (기본 조건 + 항공 + 숙소)
   const createPlanRequest = (): PlanRequest => ({
     ...(conditions as PlanRequest),
     flightCondition:
@@ -176,16 +192,19 @@ export default function TravelPlanPage() {
           },
   });
 
+  // 여기서 이제 ai추천 할지 개인이 일정 만들지 선택하는 버튼
   const handleStartPlanning = (planningMode: "ai" | "manual") => {
     if (!isReady) return;
 
     const request = createPlanRequest();
 
+    // 여기에 추천 받을지 안받을지 선택한거 넘기기
     const flowState: TripFlowState = {
       conditions: request,
       planningMode,
     };
 
+    // 다음 넘어가는 주소 선택
     const entryPath = getTripFlowEntryPath(request);
 
     navigate(entryPath, {
@@ -199,8 +218,10 @@ export default function TravelPlanPage() {
     });
   };
 
+  // 아래 두개는 다음 넘어가는 버튼 두개 얘가 추천받는거
   const handleAiSubmit = () => handleStartPlanning("ai");
 
+  // 여기는 추천 안받고 만드는거
   const handleManualSubmit = () => handleStartPlanning("manual");
 
   return (
@@ -470,6 +491,7 @@ export default function TravelPlanPage() {
   );
 }
 
+// 항공, 숙소 선택 기본 틀
 function PrepareMethodSelector({
   firstLabel,
   firstDescription,
@@ -506,7 +528,7 @@ function PrepareMethodSelector({
     </div>
   );
 }
-
+// 항공 숙소 추천 선택지 버튼
 function PrepareOption({
   selected,
   title,
@@ -544,6 +566,7 @@ function PrepareOption({
   );
 }
 
+// 항공 숙소 우선 선택지 (최저가, 가까운순 등)
 function PrioritySelector<T extends string>({
   title,
   disabled,
@@ -588,6 +611,7 @@ function PrioritySelector<T extends string>({
   );
 }
 
+// 선택한거 보여주는 카드
 function SummaryCard({
   label,
   value,
@@ -623,6 +647,7 @@ function SummaryCard({
   );
 }
 
+// 항공 숙소 추천x 선택시에 따른 넘어가는 주소 선택하기
 function getTripFlowEntryPath(request: PlanRequest) {
   if (!request.flightCondition?.skip) {
     return "/trip/flight";
