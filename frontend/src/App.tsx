@@ -54,7 +54,7 @@ import {
  *
  * 인증: /login /register /forgot-password /oauth/callback/kakao
  * 공개: / /destinations/:cityId
- * 일정: /trip /trip/new /trip/flight /trip/accommodation /trip/result
+ * 일정: /trip/new /trip/flight /trip/accommodation /trip/result
  *       /trip/saved /trip/saved/:savedTripId /trip/edit  (로그인)
  * 커뮤니티: /community /community/new /community/:postId /community/:postId/edit
  * 매칭: /matching /matching/new /matching/recommend /matching/:matePostId /matching/:matePostId/edit
@@ -81,7 +81,6 @@ export default function App() {
           <Route path="destinations/:cityId" element={<CityDetailPage />} />
 
           {/* ── 일정 ── */}
-          <Route path="trip" element={<TravelPlanPage />} />
           <Route path="trip/new" element={<TravelPlanPage />} />
           <Route path="trip/flight" element={<TripFlightSelectPage />} />
           <Route

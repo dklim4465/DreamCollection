@@ -30,7 +30,7 @@ public class SerpPlaceMapper {
                 .latitude(decimalOrNull(gps.path("latitude")))
                 .longitude(decimalOrNull(gps.path("longitude")))
                 .city(city)
-                .region("도쿄도")
+                .region(city)
                 .country("일본")
                 .countryCode("JP")
                 .rating(decimalOrNull(node.path("rating")))

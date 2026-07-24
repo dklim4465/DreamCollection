@@ -222,7 +222,7 @@ export const tripOptionIcons: Record<TripOptionType, string> = {
   level: "hiking",
 };
 
-// 백엔드랑 프론트 주소 연결하기
+// 백엔드랑 프론트 주소 연결하기 아래로 쭉
 export const tripApi = {
   getOptions: async (type: TripOptionType) => {
     const response = await apiClient.get<string[]>(`/trip/options/${type}`);
@@ -307,9 +307,7 @@ export const tripApi = {
           page: query.page ?? 0,
           size: query.size ?? 6,
           sort: query.sort ?? "desc",
-          ...(query.keyword?.trim()
-            ? { keyword: query.keyword.trim() }
-            : {}),
+          ...(query.keyword?.trim() ? { keyword: query.keyword.trim() } : {}),
           ...(query.types?.length ? { types: query.types } : {}),
           ...(query.from ? { from: query.from } : {}),
           ...(query.to ? { to: query.to } : {}),

@@ -18,4 +18,5 @@ public class SerpTravelClassMapper {
             default -> "1";
         };
     }
+
 }

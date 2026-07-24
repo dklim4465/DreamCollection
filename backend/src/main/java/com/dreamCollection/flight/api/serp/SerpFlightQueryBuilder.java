@@ -18,6 +18,7 @@ public class SerpFlightQueryBuilder {
     private final SerpFlightDateCalculator dateCalculator;
     private final SerpTravelClassMapper travelClassMapper;
 
+    // 가는편 조회
     public Map<String, String> build(
             FlightRequestDTO requestDTO,
             String arrivalAirportCode,
@@ -32,6 +33,7 @@ public class SerpFlightQueryBuilder {
         );
     }
 
+    // 오는편 조회
     public Map<String, String> build(FlightReturnRequestDTO requestDTO) {
         return buildCommonParams(
                 requestDTO.getStartDate(),

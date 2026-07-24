@@ -2,6 +2,7 @@ package com.dreamCollection.trip;
 
 import com.dreamCollection.trip.dto.PlanRequestDTO;
 import com.dreamCollection.trip.dto.PlanResponseDTO;
+import com.dreamCollection.trip.option.TripOptionProvider;
 import com.dreamCollection.trip.service.TripService;
 import lombok.extern.log4j.Log4j2;
 import org.junit.jupiter.api.Test;
@@ -19,12 +20,15 @@ public class TripServiceTests {
     @Autowired
     private TripService tripService;
 
+    @Autowired
+    private TripOptionProvider tripOptionProvider;
+
     @Test
     void choiceOptions() {
-        List<String> whoOptions = tripService.getOptions("who");
-        List<String> regionOptions = tripService.getOptions("region");
+        List<String> whoOptions = tripOptionProvider.getOptions("who");
+        List<String> regionOptions = tripOptionProvider.getOptions("region");
 
-        assertEquals(List.of("혼자", "친구와", "가족과", "연인과"), whoOptions);
+        assertEquals(List.of("혼자", "연인과", "친구와", "가족과"), whoOptions);
         assertEquals(List.of("일본", "중국", "미국", "아시아"), regionOptions);
 
         log.info(whoOptions);

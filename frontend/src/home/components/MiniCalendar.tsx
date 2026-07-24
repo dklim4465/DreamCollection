@@ -121,7 +121,7 @@ export default function MiniCalendar() {
         })}
       </div>
 
-      <Link to="/trip" className="btn-ghost text-sm text-center mt-1">
+      <Link to="/trip/new" className="btn-ghost text-sm text-center mt-1">
         + 여행 계획하러 가기
       </Link>
     </section>

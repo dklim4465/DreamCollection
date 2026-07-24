@@ -4,5 +4,5 @@ import com.dreamCollection.place.dto.PlaceSyncResponse;
 
 public interface PlaceSyncService {
 
-    PlaceSyncResponse syncTokyoPlaces(String city);
+    PlaceSyncResponse syncSerpPlaces(String city);
 }

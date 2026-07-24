@@ -27,8 +27,8 @@ public class PlaceSyncServiceImpl implements PlaceSyncService {
 
     @Override
     @Transactional
-    public PlaceSyncResponse syncTokyoPlaces(String city) {
-        Map<PlaceCategory, String> keywords = tokyoKeywords();
+    public PlaceSyncResponse syncSerpPlaces(String city) {
+        Map<PlaceCategory, String> keywords = categoryKeywords(city);
 
         int inserted = 0;
         int skipped = 0;
@@ -72,17 +72,17 @@ public class PlaceSyncServiceImpl implements PlaceSyncService {
         return new PlaceSyncResponse(city, keywords.size(), inserted, skipped);
     }
 
-    private Map<PlaceCategory, String> tokyoKeywords() {
+    private Map<PlaceCategory, String> categoryKeywords(String city) {
         Map<PlaceCategory, String> keywords = new EnumMap<>(PlaceCategory.class);
 
-        keywords.put(PlaceCategory.ATTRACTION, "도쿄 관광명소");
-        keywords.put(PlaceCategory.RESTAURANT, "도쿄 맛집");
-        keywords.put(PlaceCategory.CAFE, "도쿄 카페");
-        keywords.put(PlaceCategory.SHOPPING, "도쿄 쇼핑");
-        keywords.put(PlaceCategory.NATURE, "도쿄 공원");
-        keywords.put(PlaceCategory.CULTURE, "도쿄 박물관 미술관");
-        keywords.put(PlaceCategory.ACTIVITY, "도쿄 체험 액티비티");
-        keywords.put(PlaceCategory.HOTEL, "도쿄 호텔");
+        keywords.put(PlaceCategory.ATTRACTION, city + " 관광명소");
+        keywords.put(PlaceCategory.RESTAURANT, city + " 맛집");
+        keywords.put(PlaceCategory.CAFE, city + " 카페");
+        keywords.put(PlaceCategory.SHOPPING, city + " 쇼핑");
+        keywords.put(PlaceCategory.NATURE, city + " 공원");
+        keywords.put(PlaceCategory.CULTURE, city + " 박물관 미술관");
+        keywords.put(PlaceCategory.ACTIVITY, city + " 체험 액티비티");
+        keywords.put(PlaceCategory.HOTEL, city + " 호텔");
 
         return keywords;
     }

@@ -47,12 +47,14 @@ export default function TripFlightSelectPage() {
 
   const priority = state?.conditions.flightCondition?.priority ?? "PRICE";
 
+  // 출발 비행기 조회 api
   const outboundFlightQuery = useQuery({
     queryKey: ["outboundFlightSearch", flowStateWithDate?.conditions],
     queryFn: () => tripApi.searchFlights(flowStateWithDate!.conditions),
     enabled: !!flowStateWithDate && !skipFlight && hasStartDate,
   });
 
+  // 돌아오는 비행기 조회 api
   const returnFlightQuery = useQuery({
     queryKey: [
       "returnFlightSearch",
@@ -103,9 +105,7 @@ export default function TripFlightSelectPage() {
 
     const skipAccommodation =
       flowStateWithDate.conditions.accommodationCondition?.skip;
-    const nextPath = skipAccommodation
-      ? "/trip/result"
-      : "/trip/accommodation";
+    const nextPath = skipAccommodation ? "/trip/result" : "/trip/accommodation";
 
     navigate(nextPath, {
       replace: true,
