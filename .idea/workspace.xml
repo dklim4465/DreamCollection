@@ -4,7 +4,21 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="aecad7e1-c079-406b-bb71-fe5bb93e6729" name="변경" comment="" />
+    <list default="true" id="aecad7e1-c079-406b-bb71-fe5bb93e6729" name="변경" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/dreamCollection/admin/controller/AdminFeedbackController.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/dreamCollection/admin/controller/AdminFeedbackController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/dreamCollection/feedback/controller/FeedbackController.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/dreamCollection/feedback/controller/FeedbackController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/dreamCollection/feedback/dto/FeedbackAdminResponse.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/dreamCollection/feedback/dto/FeedbackAdminResponse.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/dreamCollection/feedback/entity/Feedback.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/dreamCollection/feedback/entity/Feedback.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/dreamCollection/feedback/service/FeedbackService.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/dreamCollection/feedback/service/FeedbackService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/admin/api/adminApi.ts" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/admin/api/adminApi.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/admin/pages/AdminFeedbackPage.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/admin/pages/AdminFeedbackPage.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/home/components/MonthlyDestinationHero.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/home/components/MonthlyDestinationHero.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/home/components/RecentSavedTripsPreview.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/home/components/RecentSavedTripsPreview.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/profile/ProfilePage.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/profile/ProfilePage.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/trip/page/TravelPlanPage.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/trip/page/TravelPlanPage.tsx" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -23,39 +37,47 @@
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
-  <component name="GitHubPullRequestSearchHistory"><![CDATA[{
-  "lastFilter": {
-    "state": "OPEN",
-    "assignee": "bokyoungjae"
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;,
+    &quot;assignee&quot;: &quot;bokyoungjae&quot;
   }
-}]]></component>
-  <component name="GithubPullRequestsUISettings"><![CDATA[{
-  "selectedUrlAndAccountId": {
-    "url": "https://github.com/dklim4465/DreamCollection.git",
-    "accountId": "b396707f-d6d2-4762-b06e-c3a69e16ac95"
+}</component>
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/dklim4465/DreamCollection.git&quot;,
+    &quot;accountId&quot;: &quot;b396707f-d6d2-4762-b06e-c3a69e16ac95&quot;
   }
-}]]></component>
-  <component name="ProjectColorInfo"><![CDATA[{
-  "associatedIndex": 4,
-  "fromUser": false
-}]]></component>
+}</component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 4,
+  &quot;fromUser&quot;: false
+}</component>
   <component name="ProjectId" id="3GWlWjf8YyWPOviih59OzHuIE8d" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "RunOnceActivity.typescript.service.memoryLimit.init": "true",
-    "codeWithMe.voiceChat.enabledByDefault": "false",
-    "git-widget-placeholder": "yj",
-    "ignore.virus.scanning.warn.message": "true",
-    "kotlin-language-version-configured": "true",
-    "nodejs_package_manager_path": "npm"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;Gradle.backend 빌드.executor&quot;: &quot;Run&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.typescript.service.memoryLimit.init&quot;: &quot;true&quot;,
+    &quot;Spring Boot.BackendApplication.executor&quot;: &quot;Run&quot;,
+    &quot;codeWithMe.voiceChat.enabledByDefault&quot;: &quot;false&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
+    &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
+    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;C:/Users/EZEN/OneDrive/Desktop/DreamCollection&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;
   }
-}]]></component>
+}</component>
   <component name="TaskManager">
     <task active="true" id="Default" summary="디폴트 작업">
       <changelist id="aecad7e1-c079-406b-bb71-fe5bb93e6729" name="변경" comment="" />

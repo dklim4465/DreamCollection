@@ -1,6 +1,7 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import {
+  tripApi,
   tripOptionTypes,
   type AccommodationCondition,
   type CityOption,
@@ -122,6 +123,45 @@ export default function TravelPlanPage() {
     setActiveBasicType("theme");
   };
 
+  // 홈 화면 "이 여행지로 계획 세우기" / 도시 상세 페이지에서 넘어온 경우
+  // ?destination=도시명 (레거시 링크는 ?region=도시명) 쿼리를 읽어 자동으로 지역을 채워준다.
+  const [searchParams] = useSearchParams();
+  const [prefillNotice, setPrefillNotice] = useState<string | null>(null);
+
+  useEffect(() => {
+    const keyword =
+      searchParams.get("destination") ?? searchParams.get("region");
+    if (!keyword) return;
+
+    let cancelled = false;
+
+    tripApi
+      .searchCities(keyword)
+      .then((cities) => {
+        if (cancelled || cities.length === 0) return;
+        const match =
+          cities.find((c) => c.nameKo === keyword) ??
+          cities.find((c) => c.nameKo.includes(keyword)) ??
+          cities[0];
+
+        setConditions((prev) => ({
+          ...prev,
+          region: match.countryName,
+          destination: match.nameKo,
+        }));
+        setPrefillNotice(`${match.nameKo}(으)로 여행지를 미리 채워뒀어요`);
+        setActiveBasicType((prev) => prev ?? "who");
+      })
+      .catch(() => {
+        // 검색 실패해도 페이지는 정상 동작해야 하므로 조용히 무시
+      });
+
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   // 항공 추천 안받음 -> 바로 숙소로 선택으로 넘어가게
   const handleSelectFlightPrepare = (prepare: FlightPrepareType) => {
     setFlightPrepare(prepare);
@@ -236,6 +276,14 @@ export default function TravelPlanPage() {
               <p className="mt-2 text-body-md text-on-surface-variant">
                 원하는 여행 조건을 선택하면 맞춤 일정을 제안해드려요.
               </p>
+              {prefillNotice && (
+                <p className="mt-2 inline-flex items-center gap-1 text-label-md font-semibold text-primary">
+                  <span className="material-symbols-outlined text-[16px]">
+                    check_circle
+                  </span>
+                  {prefillNotice}
+                </p>
+              )}
             </div>
             <button
               type="button"

@@ -69,9 +69,10 @@ export default function MonthlyDestinationHero() {
               {pageItems.map((item, i) => {
                 const rank = page * PAGE_SIZE + i + 1;
                 return (
-                  <div
+                  <Link
                     key={item.id}
-                    className="group relative rounded-2xl overflow-hidden h-72 bg-surface-container-high"
+                    to={`/trip/new?destination=${encodeURIComponent(item.destinationName)}`}
+                    className="group relative rounded-2xl overflow-hidden h-72 bg-surface-container-high block"
                   >
                     <img
                       src={item.imageUrl}
@@ -100,15 +101,12 @@ export default function MonthlyDestinationHero() {
                         </p>
                         <p className="text-white/75 text-label-sm truncate">{item.title}</p>
                       </div>
-                      <Link
-                        to={`/trip/new?region=${encodeURIComponent(item.destinationName)}`}
-                        className="inline-flex items-center gap-1 bg-white text-neutral-900 text-label-sm font-bold py-2 px-3.5 rounded-full hover:scale-105 transition-transform"
-                      >
+                      <span className="inline-flex items-center gap-1 bg-white text-neutral-900 text-label-sm font-bold py-2 px-3.5 rounded-full group-hover:scale-105 transition-transform">
                         이 여행지로 계획 세우기
                         <span className="material-symbols-outlined text-sm">arrow_forward</span>
-                      </Link>
+                      </span>
                     </div>
-                  </div>
+                  </Link>
                 );
               })}
             </div>

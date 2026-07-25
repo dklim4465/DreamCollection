@@ -97,7 +97,7 @@ export default function RecentSavedTripsPreview() {
               {trips.map((trip) => (
                 <Link
                   key={trip.id}
-                  to="/trip/saved"
+                  to={isAuthenticated ? `/trip/saved/${trip.id}` : "/trip/saved"}
                   className="card-interactive p-stack-md flex flex-col gap-2"
                   tabIndex={!isAuthenticated ? -1 : undefined}
                 >

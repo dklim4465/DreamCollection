@@ -11,6 +11,7 @@ import { profileApi } from "@/profile/api/profileApi";
 import { deviceApi } from "@/profile/api/deviceApi";
 import { badgeApi } from "@/profile/api/badgeApi";
 import { couponApi } from "@/profile/api/couponApi";
+import { letterApi, type Letter } from "@/profile/api/letterApi";
 import { matchesKoreanSearch } from "@/common/utils/hangul";
 import type { TravelStyle } from "@/types";
 
@@ -62,11 +63,11 @@ export default function ProfilePage() {
   const [badgeQuery, setBadgeQuery] = useState("");
   const badgeScrollRef = useRef<HTMLDivElement>(null);
 
-  type ProfileTab = "profile" | "badges" | "coupons" | "payments" | "account";
+  type ProfileTab = "profile" | "badges" | "coupons" | "letters" | "payments" | "account";
   const [searchParams] = useSearchParams();
   const initialTab = (searchParams.get("tab") as ProfileTab) || "profile";
   const [activeTab, setActiveTab] = useState<ProfileTab>(
-    ["profile", "badges", "coupons", "payments", "account"].includes(initialTab)
+    ["profile", "badges", "coupons", "letters", "payments", "account"].includes(initialTab)
       ? initialTab
       : "profile",
   );
@@ -98,6 +99,30 @@ export default function ProfilePage() {
     queryKey: ["coupons", "me"],
     queryFn: couponApi.getMyCoupons,
     enabled: !!user && activeTab === "coupons",
+  });
+
+  // 편지함 — 편지함 탭을 열었을 때 조회 (관리자 문의 답변 등)
+  const { data: lettersRes, isLoading: lettersLoading } = useQuery({
+    queryKey: ["letters", "me"],
+    queryFn: () => letterApi.getMyLetters(0, 50),
+    enabled: !!user && activeTab === "letters",
+  });
+  const [selectedLetter, setSelectedLetter] = useState<Letter | null>(null);
+
+  const openLetterMutation = useMutation({
+    mutationFn: (id: number) => letterApi.getOne(id),
+    onSuccess: (res) => {
+      setSelectedLetter(res.data.data);
+      queryClient.invalidateQueries({ queryKey: ["letters", "me"] });
+    },
+  });
+
+  const deleteLetterMutation = useMutation({
+    mutationFn: (id: number) => letterApi.delete(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["letters", "me"] });
+      setSelectedLetter(null);
+    },
   });
 
   const setRepresentativeMutation = useMutation({
@@ -210,6 +235,7 @@ export default function ProfilePage() {
   const badges = badgesRes?.data?.data ?? [];
   const filteredBadges = badges.filter((b) => matchesKoreanSearch(badgeQuery, b.name));
   const coupons = couponsRes?.data?.data ?? [];
+  const letters = lettersRes?.data?.data?.content ?? [];
   const representativeBadge = badges.find((b) => b.representative);
   const cards = cardsRes?.data?.data ?? [];
   const loginHistory = loginHistoryRes?.data?.data ?? [];
@@ -258,6 +284,7 @@ export default function ProfilePage() {
     { key: "profile", label: "프로필", icon: "person" },
     { key: "badges", label: "뱃지 도감", icon: "military_tech" },
     { key: "coupons", label: "보관함", icon: "confirmation_number" },
+    { key: "letters", label: "편지함", icon: "mail" },
     { key: "payments", label: "결제내역", icon: "receipt_long" },
     { key: "account", label: "계정 관리", icon: "manage_accounts" },
   ];
@@ -579,6 +606,46 @@ export default function ProfilePage() {
       </div>
           )}
 
+          {activeTab === "letters" && (
+      <div className="card-tint-secondary p-stack-lg">
+        <h2 className="text-headline-sm font-bold mb-stack-sm">편지함</h2>
+        {lettersLoading ? (
+          <p className="text-body-sm text-on-surface-variant py-4">불러오는 중...</p>
+        ) : letters.length === 0 ? (
+          <p className="text-body-md text-on-surface-variant py-4">
+            아직 도착한 편지가 없어요. 문의를 남기면 관리자 답변이 여기로 도착해요!
+          </p>
+        ) : (
+          <div className="flex flex-col gap-2">
+            {letters.map((letter) => (
+              <button
+                key={letter.id}
+                type="button"
+                onClick={() => openLetterMutation.mutate(letter.id)}
+                className="w-full flex items-center gap-3 p-3 rounded-lg border border-outline-variant hover:bg-surface-container-low transition-colors text-left"
+              >
+                {!letter.read && <span className="w-2 h-2 rounded-full bg-error shrink-0" />}
+                <span className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary shrink-0">
+                  <span className="material-symbols-outlined">
+                    {letter.read ? "drafts" : "mail"}
+                  </span>
+                </span>
+                <span className="min-w-0 flex-1">
+                  <p className="text-body-sm font-semibold truncate">{letter.title}</p>
+                  <p className="text-label-sm text-on-surface-variant truncate">
+                    {letter.content}
+                  </p>
+                </span>
+                <span className="text-label-sm text-on-surface-variant shrink-0">
+                  {dayjs(letter.createdAt).format("YYYY.MM.DD")}
+                </span>
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
+          )}
+
           {activeTab === "payments" && (
       <div className="card-base p-stack-lg flex flex-col gap-stack-sm">
         <h2 className="text-headline-sm font-bold mb-1">결제내역</h2>
@@ -824,6 +891,42 @@ export default function ProfilePage() {
             className="max-w-[90vw] max-h-[85vh] rounded-2xl object-contain"
             onClick={(e) => e.stopPropagation()}
           />
+        </div>
+      )}
+
+      {/* 편지 상세 — 배경 클릭 또는 X로 닫힘 */}
+      {selectedLetter && (
+        <div
+          className="fixed inset-0 bg-black/50 z-[200] flex items-center justify-center p-4"
+          onClick={() => setSelectedLetter(null)}
+        >
+          <div
+            className="card-base p-stack-lg max-w-lg w-full max-h-[80vh] overflow-y-auto"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between mb-stack-sm">
+              <span className="chip-tertiary">편지</span>
+              <button type="button" onClick={() => setSelectedLetter(null)} aria-label="닫기">
+                <span className="material-symbols-outlined">close</span>
+              </button>
+            </div>
+            <p className="text-headline-sm font-bold">{selectedLetter.title}</p>
+            <p className="text-label-sm text-on-surface-variant mb-stack-sm">
+              {dayjs(selectedLetter.createdAt).format("YYYY.MM.DD HH:mm")}
+            </p>
+            <p className="text-body-sm whitespace-pre-wrap">{selectedLetter.content}</p>
+
+            <div className="flex justify-end mt-stack-md pt-stack-sm border-t border-outline-variant">
+              <button
+                type="button"
+                onClick={() => deleteLetterMutation.mutate(selectedLetter.id)}
+                disabled={deleteLetterMutation.isPending}
+                className="btn-ghost text-sm py-2 px-4 text-error disabled:opacity-40"
+              >
+                삭제
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>

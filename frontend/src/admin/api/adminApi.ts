@@ -54,6 +54,9 @@ export interface FeedbackAdminItem {
   category: "BUG" | "SUGGESTION" | "ETC";
   message: string;
   checked: boolean;
+  userId: number | null;
+  answer: string | null;
+  answeredAt: string | null;
   createdAt: string;
 }
 
@@ -161,4 +164,8 @@ export const adminApi = {
     }),
   markFeedbackChecked: (id: number) =>
     apiClient.patch<ApiResponse<void>>(`/admin/feedback/${id}/check`),
+  answerFeedback: (id: number, answer: string) =>
+    apiClient.patch<ApiResponse<void>>(`/admin/feedback/${id}/answer`, { answer }),
+  deleteFeedback: (id: number) =>
+    apiClient.delete<ApiResponse<void>>(`/admin/feedback/${id}`),
 };
