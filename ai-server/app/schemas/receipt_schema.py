@@ -8,8 +8,9 @@ class ReceiptTarget(BaseModel):
     media_path: str = Field(alias="mediaPath")
     stored_file_name: str = Field(alias="storedFileName")
 
-    class Config:
-        populate_by_name: True
+    model_config = ConfigDict(
+        populate_by_name=True
+    )
 
 # 서버가 받을 객체
 class ReceiptAnalyzeRequest(BaseModel):

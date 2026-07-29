@@ -76,6 +76,16 @@ public class BadgeService {
         grantIfNotOwned(userId, badge);
     }
 
+    @Transactional
+    public boolean grantBadgeIfExists(Long userId, String badgeCode) {
+        return badgeRepository.findByCode(badgeCode)
+                .map(badge -> {
+                    grantIfNotOwned(userId, badge);
+                    return true;
+                })
+                .orElse(false);
+    }
+
     /**
      * 국가별 도감 뱃지 지급 — 여행 일정을 그 국가로 저장/요청했을 때 호출.
      * 해당 국가 뱃지가 없거나(도감에 없는 국가) 이미 갖고 있으면 조용히 무시.

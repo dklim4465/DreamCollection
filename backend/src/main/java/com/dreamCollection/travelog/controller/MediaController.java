@@ -30,6 +30,11 @@ public class MediaController {
         return result;
     }
 
+    @PostMapping("/triplog/{tno}/receipt/reanalyze")
+    public void reanalyzeReceipt(@PathVariable Long tno) {
+        receiptService.reanalyze(tno);
+    }
+
     @DeleteMapping
     public void deleteMedia(@RequestBody List<Long> mediaMnos) {
         mediaService.deleteMedia(mediaMnos);

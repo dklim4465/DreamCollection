@@ -19,13 +19,15 @@ export const useClusterLayer = ({ visible }: Props) => {
 
     if (!source) return;
 
+    const mappableSpots = spots.filter((spot) => spot.centerLocation);
+
     source.setData({
       type: "FeatureCollection",
-      features: spots.map((spot) => ({
+      features: mappableSpots.map((spot) => ({
         type: "Feature",
         geometry: {
           type: "Point",
-          coordinates: spot.centerLocation.coordinates,
+          coordinates: spot.centerLocation!.coordinates,
         },
         properties: {
           sno: spot.sno,

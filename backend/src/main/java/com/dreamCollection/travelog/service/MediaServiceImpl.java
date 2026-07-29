@@ -78,6 +78,15 @@ public class MediaServiceImpl implements MediaService {
             }
         }
 
+        if (mediaList.isEmpty()) {
+            return UploadResultDTO.builder()
+                    .totalCount(files.size())
+                    .successCount(successCount)
+                    .failCount(failedFiles.size())
+                    .failedFiles(failedFiles)
+                    .build();
+        }
+
         mediaRepository.saveAll(mediaList);
 
         spotService.clusteringSpot(tno);

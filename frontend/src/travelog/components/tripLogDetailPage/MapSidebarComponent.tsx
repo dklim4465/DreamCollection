@@ -1,4 +1,4 @@
-import StatisticsView from "@/travelog/components/common/StatisticsView";
+﻿import StatisticsView from "@/travelog/components/common/StatisticsView";
 import GalleryView from "@/travelog/components/tripLogDetailPage/GalleryView";
 import MediaView from "@/travelog/components/tripLogDetailPage/MediaView";
 import SpotListView from "@/travelog/components/tripLogDetailPage/SpotListView";

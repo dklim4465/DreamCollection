@@ -17,11 +17,12 @@ export const useLineLayer = ({ visible }: Props) => {
     const source = map.getSource("spot-line") as mapboxgl.GeoJSONSource;
     if (!source) return;
 
-    const coordinates = [...spots]
+    const coordinates = spots
+      .filter((spot) => spot.centerLocation && spot.visitAt)
       .sort(
-        (a, b) => new Date(a.visitAt).getTime() - new Date(b.visitAt).getTime(),
+        (a, b) => new Date(a.visitAt!).getTime() - new Date(b.visitAt!).getTime(),
       )
-      .map((spot) => spot.centerLocation.coordinates);
+      .map((spot) => spot.centerLocation!.coordinates);
 
     source.setData({
       type: "Feature",

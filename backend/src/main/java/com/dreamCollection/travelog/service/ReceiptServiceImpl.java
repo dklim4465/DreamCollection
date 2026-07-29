@@ -41,6 +41,13 @@ public class ReceiptServiceImpl implements  ReceiptService{
 
     private final ExchangeRateService exchangeRateService;
 
+    @Override
+    @Transactional
+    public void reanalyze(Long tno) {
+        receiptRepository.deleteByTripLog(tno);
+        analyze(tno);
+    }
+
     @Async
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void analyze(Long tno) {
@@ -76,47 +83,68 @@ public class ReceiptServiceImpl implements  ReceiptService{
         List<Receipt> receipts = new ArrayList<>();
 
         for (ReceiptResultDTO result : response.results()) {
-            Media media = mediaMap.get(result.mno());
+            try {
+                Media media = mediaMap.get(result.mno());
 
-            if (media == null) {
-                continue;
-            }
+                if (media == null) {
+                    continue;
+                }
 
-            Instant paidAt = null;
-            BigDecimal exchangeRate = null;
-            Long amountKrw = null;
+                Instant paidAt = null;
+                BigDecimal exchangeRate = null;
+                Long amountKrw = null;
+                String currency = result.currency();
 
-            if (result.paidAt() != null) {
+                if (currency == null || currency.isBlank()) {
+                    currency = "KRW";
+                }
 
-                LocalDateTime localDateTime = LocalDateTime.parse(result.paidAt());
+                if (result.paidAt() != null) {
 
-                ZoneId zoneId = ZoneId.of(media.getSpot().getTimezone());
+                    LocalDateTime localDateTime = LocalDateTime.parse(result.paidAt());
 
-                paidAt = localDateTime.atZone(zoneId).toInstant();
+                    String timezone = media.getSpot() != null
+                            ? media.getSpot().getTimezone()
+                            : null;
 
-                exchangeRate = exchangeRateService.getRate(result.currency(), paidAt);
+                    ZoneId zoneId = timezone != null && !timezone.isBlank()
+                            ? ZoneId.of(timezone)
+                            : ZoneId.systemDefault();
+
+                    paidAt = localDateTime.atZone(zoneId).toInstant();
+
+                    if (!"KRW".equalsIgnoreCase(currency)) {
+                        exchangeRate = exchangeRateService.getRate(currency, paidAt);
+                    }
+                }
 
                 if (result.totalAmount() != null) {
-                    amountKrw = exchangeRate
-                            .multiply(BigDecimal.valueOf(result.totalAmount()))
-                            .setScale(0, RoundingMode.HALF_UP)
-                            .longValue();
+                    if ("KRW".equalsIgnoreCase(currency)) {
+                        amountKrw = result.totalAmount();
+                    } else if (exchangeRate != null) {
+                        amountKrw = exchangeRate
+                                .multiply(BigDecimal.valueOf(result.totalAmount()))
+                                .setScale(0, RoundingMode.HALF_UP)
+                                .longValue();
+                    }
                 }
+
+                Receipt receipt = Receipt.builder()
+                        .media(media)
+                        .merchant(result.merchant())
+                        .paidAt(paidAt)
+                        .amount(result.totalAmount())
+                        .currency(currency)
+                        .exchangeRate(exchangeRate)
+                        .amountKrw(amountKrw)
+                        .ocrText(result.ocrText())
+                        .confidence(result.confidence())
+                        .build();
+
+                receipts.add(receipt);
+            } catch (Exception e) {
+                log.warn("receipt result save skipped: {}", result, e);
             }
-
-            Receipt receipt = Receipt.builder()
-                    .media(media)
-                    .merchant(result.merchant())
-                    .paidAt(paidAt)
-                    .amount(result.totalAmount())
-                    .currency(result.currency())
-                    .exchangeRate(exchangeRate)
-                    .amountKrw(amountKrw)
-                    .ocrText(result.ocrText())
-                    .confidence(result.confidence())
-                    .build();
-
-            receipts.add(receipt);
         }
 
         receiptRepository.saveAll(receipts);

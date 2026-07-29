@@ -6,7 +6,9 @@ import { useEffect } from "react";
 export const useTimelineFollow = () => {
   const { map } = useMap();
 
-  const spots = useSpotStore((state) => state.spots);
+  const spots = useSpotStore((state) =>
+    state.spots.filter((spot) => spot.centerLocation && spot.visitAt),
+  );
 
   const progress = useTimelineStore((state) => state.progress);
   const playing = useTimelineStore((state) => state.playing);
@@ -17,15 +19,15 @@ export const useTimelineFollow = () => {
 
     if (spots.length === 1) {
       map.jumpTo({
-        center: spots[0].centerLocation.coordinates,
+        center: spots[0].centerLocation!.coordinates,
       });
       return;
     }
 
     const lastSpot = spots[spots.length - 1];
 
-    const startTime = new Date(spots[0].visitAt).getTime();
-    const endTime = new Date(lastSpot.leaveAt ?? lastSpot.visitAt).getTime();
+    const startTime = new Date(spots[0].visitAt!).getTime();
+    const endTime = new Date(lastSpot.leaveAt ?? lastSpot.visitAt!).getTime();
 
     const currentTime = startTime + progress * (endTime - startTime);
 
@@ -33,13 +35,13 @@ export const useTimelineFollow = () => {
       const current = spots[i];
       const next = spots[i + 1];
 
-      const visit = new Date(current.visitAt).getTime();
-      const leave = new Date(current.leaveAt ?? current.visitAt).getTime();
-      const nextVisit = new Date(next.visitAt).getTime();
+      const visit = new Date(current.visitAt!).getTime();
+      const leave = new Date(current.leaveAt ?? current.visitAt!).getTime();
+      const nextVisit = new Date(next.visitAt!).getTime();
 
       if (currentTime >= visit && currentTime <= leave) {
         map.jumpTo({
-          center: current.centerLocation.coordinates,
+        center: current.centerLocation!.coordinates,
           zoom: Math.max(map.getZoom(), 14),
         });
         return;
@@ -48,8 +50,8 @@ export const useTimelineFollow = () => {
       if (currentTime > leave && currentTime <= nextVisit) {
         const t = (currentTime - leave) / (nextVisit - leave);
 
-        const fromCoord = current.centerLocation.coordinates;
-        const toCoord = next.centerLocation.coordinates;
+        const fromCoord = current.centerLocation!.coordinates;
+        const toCoord = next.centerLocation!.coordinates;
 
         const lng = fromCoord[0] + (toCoord[0] - fromCoord[0]) * t;
         const lat = fromCoord[1] + (toCoord[1] - fromCoord[1]) * t;
@@ -61,12 +63,12 @@ export const useTimelineFollow = () => {
       }
     }
 
-    const lastVisit = new Date(lastSpot.visitAt).getTime();
-    const lastLeave = new Date(lastSpot.leaveAt ?? lastSpot.visitAt).getTime();
+    const lastVisit = new Date(lastSpot.visitAt!).getTime();
+    const lastLeave = new Date(lastSpot.leaveAt ?? lastSpot.visitAt!).getTime();
 
     if (currentTime >= lastVisit && currentTime <= lastLeave) {
       map.jumpTo({
-        center: lastSpot.centerLocation.coordinates,
+        center: lastSpot.centerLocation!.coordinates,
         zoom: Math.max(map.getZoom(), 14),
       });
 
