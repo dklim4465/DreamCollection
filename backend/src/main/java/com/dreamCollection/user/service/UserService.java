@@ -162,7 +162,7 @@ public class UserService {
         // 가입 축하 기본 뱃지 지급 (모든 신규 유저 공통). 뱃지 지급이 실패해도
         // 회원가입 자체는 막지 않기 위해 예외를 잡아서 로그만 남긴다.
         try {
-            badgeService.grantBadge(saved.getId(), WELCOME_BADGE_CODE);
+            badgeService.grantBadgeIfExists(saved.getId(), WELCOME_BADGE_CODE);
         } catch (Exception e) {
             log.warn("가입 축하 뱃지 지급 실패 (userId={})", saved.getId(), e);
         }
@@ -246,7 +246,7 @@ public class UserService {
         }
         // 가입 축하 기본 뱃지 지급 (이메일 가입과 동일하게 신규 유저 전원 대상)
         try {
-            badgeService.grantBadge(saved.getId(), WELCOME_BADGE_CODE);
+            badgeService.grantBadgeIfExists(saved.getId(), WELCOME_BADGE_CODE);
         } catch (Exception e) {
             log.warn("가입 축하 뱃지 지급 실패 (userId={})", saved.getId(), e);
         }

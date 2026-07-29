@@ -191,7 +191,7 @@ public class TripLogServiceImpl implements TripLogService {
         List<Receipt> receipts = receiptRepository.findByTripLog(tno);
 
         Long totalAmount = receipts.stream()
-                .mapToLong(Receipt::getAmountKrw)
+                .mapToLong(this::resolveReceiptAmountKrw)
                 .sum();
 
         return TripLogStatisticsDTO.builder()
@@ -204,7 +204,20 @@ public class TripLogServiceImpl implements TripLogService {
                 .build();
     }
 
-    private static final Pattern PATTERN = Pattern.compile("#[a-zA-Z0-9_가-힣]+");
+    private long resolveReceiptAmountKrw(Receipt receipt) {
+        if (receipt.getAmountKrw() != null) {
+            return receipt.getAmountKrw();
+        }
+
+        if (receipt.getAmount() != null
+                && (receipt.getCurrency() == null || "KRW".equalsIgnoreCase(receipt.getCurrency()))) {
+            return receipt.getAmount();
+        }
+
+        return 0L;
+    }
+
+    private static final Pattern PATTERN = Pattern.compile("#[\\p{L}\\p{N}_]+");
 
     private List<String> extract(String text) {
         return PATTERN.matcher(text)

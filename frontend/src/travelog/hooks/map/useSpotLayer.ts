@@ -20,7 +20,9 @@ export const useSpotLayer = ({ visible }: Props) => {
   useEffect(() => {
     if (!map) return;
 
-    spots.forEach((spot) => {
+    const mappableSpots = spots.filter((spot) => spot.centerLocation);
+
+    mappableSpots.forEach((spot) => {
       if (markersRef.current.has(spot.sno)) return;
 
       const element = document.createElement("div");
@@ -38,7 +40,7 @@ export const useSpotLayer = ({ visible }: Props) => {
       const marker = new mapboxgl.Marker({
         element: element,
         anchor: "bottom",
-      }).setLngLat(spot.centerLocation.coordinates);
+      }).setLngLat(spot.centerLocation!.coordinates);
 
       markersRef.current.set(spot.sno, marker);
 
@@ -48,7 +50,7 @@ export const useSpotLayer = ({ visible }: Props) => {
     });
 
     markersRef.current.forEach((marker, sno) => {
-      const exists = spots.some((spot) => spot.sno === sno);
+      const exists = mappableSpots.some((spot) => spot.sno === sno);
 
       if (!exists) {
         marker.remove();

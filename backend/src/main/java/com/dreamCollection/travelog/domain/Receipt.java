@@ -35,6 +35,7 @@ public class Receipt {
 
     private Long amountKrw;
 
+    @Column(columnDefinition = "TEXT")
     private String ocrText;
 
     private float confidence;

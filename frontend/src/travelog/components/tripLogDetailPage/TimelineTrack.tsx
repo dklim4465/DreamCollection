@@ -3,7 +3,9 @@ import { useTimelineStore } from "@/travelog/store/useTimelineStore";
 import { useEffect, useMemo, useRef } from "react";
 
 const TimelineTrack = () => {
-  const spots = useSpotStore((state) => state.spots);
+  const spots = useSpotStore((state) =>
+    state.spots.filter((spot) => spot.centerLocation && spot.visitAt),
+  );
 
   const playing = useTimelineStore((state) => state.playing);
   const setPlaying = useTimelineStore((state) => state.setPlaying);
@@ -24,8 +26,8 @@ const TimelineTrack = () => {
 
     const lastSpot = spots[spots.length - 1];
 
-    const start = new Date(spots[0].visitAt).getTime();
-    const end = new Date(lastSpot.leaveAt ?? lastSpot.visitAt).getTime();
+    const start = new Date(spots[0].visitAt!).getTime();
+    const end = new Date(lastSpot.leaveAt ?? lastSpot.visitAt!).getTime();
 
     return {
       startTime: start,
@@ -133,8 +135,8 @@ const TimelineTrack = () => {
 
       {/* Spot */}
       {spots.map((spot) => {
-        const visit = new Date(spot.visitAt).getTime();
-        const leave = new Date(spot.leaveAt ?? spot.visitAt).getTime();
+        const visit = new Date(spot.visitAt!).getTime();
+        const leave = new Date(spot.leaveAt ?? spot.visitAt!).getTime();
 
         const left = ((visit - startTime) / duration) * 100;
         const width = ((leave - visit) / duration) * 100;

@@ -11,17 +11,18 @@ export const useInitialCamera = () => {
 
   useEffect(() => {
     if (!map) return;
-    if (spots.length === 0) return;
+    const mappableSpots = spots.filter((spot) => spot.centerLocation);
+    if (mappableSpots.length === 0) return;
     if (initialized.current) return;
 
     initialized.current = true;
 
     const bounds = new mapboxgl.LngLatBounds();
 
-    spots.forEach((spot) => {
+    mappableSpots.forEach((spot) => {
       bounds.extend([
-        spot.centerLocation.coordinates[0],
-        spot.centerLocation.coordinates[1],
+        spot.centerLocation!.coordinates[0],
+        spot.centerLocation!.coordinates[1],
       ]);
     });
 

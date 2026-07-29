@@ -55,13 +55,13 @@ const SpotListView = () => {
 
                   {/* 시간 */}
                   <div className="mb-3 space-y-1 text-body-sm text-on-surface-variant">
-                    {spot.visitAt && (
+                    {spot.visitAt && spot.timezone && (
                       <p>
                         방문: {formatZonedDateTime(spot.visitAt, spot.timezone)}
                       </p>
                     )}
 
-                    {spot.leaveAt && (
+                    {spot.leaveAt && spot.timezone && (
                       <p>
                         종료: {formatZonedDateTime(spot.leaveAt, spot.timezone)}
                       </p>

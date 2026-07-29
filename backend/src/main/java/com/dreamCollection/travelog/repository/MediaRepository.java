@@ -17,8 +17,13 @@ public interface MediaRepository extends JpaRepository<Media, Long> {
     int deleteByTripLog_Tno(Long tno);
 
     @Query("select m from Media m where m.tripLog.tno = :tno " +
-            "and m.spot IS NULL order by m.takenAt asc")
+            "and m.spot IS NULL and m.takenAt IS NOT NULL " +
+            "and m.location IS NOT NULL order by m.takenAt asc")
     List<Media> findClusterTargetMedia(@Param("tno") Long tno);
+
+    @Query("select m from Media m where m.tripLog.tno = :tno " +
+            "and m.spot IS NULL order by m.mno asc")
+    List<Media> findNonSpotMedia(@Param("tno") Long tno);
 
     @Modifying
     @Query("update Media m set m.spot = null where m.tripLog.tno = :tno " +
@@ -28,7 +33,7 @@ public interface MediaRepository extends JpaRepository<Media, Long> {
     int countByTripLog_Tno(Long tno);
 
     @Query("""
-        select m from Media m join fetch m.spot left join Receipt r on r.media = m
+        select m from Media m left join fetch m.spot left join Receipt r on r.media = m
         where m.tripLog.tno = :tno and m.mediaType = com.dreamCollection.travelog.domain.MediaType.IMAGE
         and r is null""")
     List<Media> findReceiptTargetMedia(@Param("tno") Long tno);

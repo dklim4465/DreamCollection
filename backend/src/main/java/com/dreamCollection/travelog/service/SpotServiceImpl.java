@@ -186,6 +186,27 @@ public class SpotServiceImpl implements SpotService{
             spotDetailDTOList.add(spotDetail);
         });
 
+        List<MediaSummaryDTO> nonSpotMediaList =
+                mediaRepository.findNonSpotMedia(tno).stream()
+                        .map(media -> MediaSummaryDTO.builder()
+                                .mno(media.getMno())
+                                .mediaPath(normalizePath(media.getMediaPath()))
+                                .storedFileName(media.getStoredFileName())
+                                .location(geometryUtils.toGeoJson(media.getLocation()))
+                                .takenAt(media.getTakenAt())
+                                .build())
+                        .toList();
+
+        if (!nonSpotMediaList.isEmpty()) {
+            spotDetailDTOList.add(
+                    SpotDetailDTO.builder()
+                            .sno(-1L)
+                            .name("Non-spot")
+                            .mediaList(nonSpotMediaList)
+                            .build()
+            );
+        }
+
         return spotDetailDTOList;
     }
 

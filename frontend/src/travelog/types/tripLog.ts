@@ -77,15 +77,15 @@ export interface SpotDetailDTO {
 
   description: string | null;
 
-  centerLocation: GeoJsonPointDTO;
+  centerLocation: GeoJsonPointDTO | null;
 
-  visitAt: string;
+  visitAt: string | null;
 
-  leaveAt: string;
+  leaveAt: string | null;
 
   coverImagePath: string | null;
 
-  timezone: string;
+  timezone: string | null;
 
   mediaList: MediaSummaryDTO[];
 }
