@@ -33,7 +33,7 @@ public class MateAiRecommendService {
     public MateRecommendResponseDTO recommend(Long userId) {
         User me = userRepository.findById(userId).orElse(null);
         String myStyle = (me != null && me.getTravelStyle() != null)
-                ? me.getTravelStyle().name()
+                ? me.getTravelStyle().getLabel()
                 : "UNKNOWN";
 
         List<MatePost> candidates = matePostRepository

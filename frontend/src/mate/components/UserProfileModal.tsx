@@ -52,7 +52,7 @@ export default function UserProfileModal({
     if (!matePostId) return;
     setIsOpeningChat(true);
     try {
-      const res = await chatApi.openRoom(matePostId);
+      const res = await chatApi.openRoom(matePostId, userId);
       const roomId = res.data.data;
 
       const roomsRes = await chatApi.getMyRooms();

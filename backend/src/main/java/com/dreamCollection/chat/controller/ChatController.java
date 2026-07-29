@@ -20,9 +20,10 @@ public class ChatController {
     @PostMapping("/mate-posts/{matePostId}/room")
     public ApiResponse<Long> openRoom(
             @AuthenticationPrincipal Long userId,
-            @PathVariable Long matePostId
+            @PathVariable Long matePostId,
+            @RequestParam Long targetUserId
     ) {
-        Long roomId = chatService.getOrCreateRoom(matePostId, userId);
+        Long roomId = chatService.getOrCreateRoom(matePostId, userId, targetUserId);
         return ApiResponse.ok(roomId, "채팅방이 준비되었습니다.");
     }
 
