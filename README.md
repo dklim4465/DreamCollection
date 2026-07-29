@@ -151,61 +151,37 @@ STOMP CONNECT 시점에 `ChannelInterceptor`가 JWT를 검증하고 인증 정�
 
 > 이메일 또는 카카오 소셜 로그인 → JWT 발급 → 로그인 
 
-![회원가입/로그인](docs/gifs/auth.gif)
+<img src="./asset/회원가입.gif" width="600" alt="회원가입/로그인">
 
 ### Test Case 2 — AI 여행 일정 생성
 
 > 여행 조건 입력 → AI가 관광지·숙소 포함 일정 자동 생성
 
-![AI 일정 생성](docs/gifs/ai-trip.gif)
+<img src="./asset/일정생성.gif" width="600" alt="AI 일정 생성">
 
-### Test Case 3 — 여행 사진 자동 정리
+### Test Case 3 — 여행 기록 및 영수증 정산
 
-> 사진 업로드 → 위치·시간 기준으로 자동 그룹핑되어 여행 기록 생성
+> 사진 업로드 → 위치·시간 기준으로 자동 그룹핑되어 여행 기록 생성 / 영수증 사진 업로드 → 날짜/금액 자동 인식 → 여행 경비 정산
 
-![여행 기록 자동 정리](docs/gifs/travelog.gif)
-
-### Test Case 4 — 영수증 OCR 정산
-
-> 영수증 사진 업로드 → 날짜/금액 자동 인식 → 여행 경비 정산
-
-![영수증 OCR](docs/gifs/ocr.gif)
+<img src="./asset/기록기능.gif" width="600" alt="여행 기록 및 정산">
 
 ### Test Case 5 — 게시판 CRUD
 
 > 글 작성/수정/삭제, 댓글·좋아요, 카테고리 조회
 
-![게시판](docs/gifs/board.gif)
+<img src="./asset/게시판.gif" width="600" alt="게시판">
 
-### Test Case 6 — 메이트 매칭 신청 / 수락
+### Test Case 6 — 메이트 매칭 및 실시간 채팅
 
-> 동행 모집 글에 신청 → 방장이 수락 → 채팅방 생성
+> 동행 모집 글 조회 → 신청/수락 → 채팅방 생성 → WebSocket(STOMP) 기반 실시간 메시지 송수신
 
-![메이트 매칭](docs/gifs/mate.gif)
+<img src="./asset/메이트%20전체.gif" width="600" alt="메이트 매칭 및 채팅">
 
-### Test Case 7 — 메이트 모집글 국가별 필터링
-
-> 여행 국가를 선택하면 해당 국가의 모집 글만 걸러서 보여줌
-
-![메이트 매칭](docs/gifs/mate.gif)
-
-### Test Case 8 — AI 메이트 추천
-
-> 내 여행 성향과 모집 글을 분석해 적합한 메이트를 추천 (모집 종료/본인 글은 제외)
-
-![메이트 매칭](docs/gifs/mate.gif)
-
-### Test Case 9 — 실시간 채팅
-
-> WebSocket(STOMP) 기반 실시간 메시지 송수신
-
-![실시간 채팅](docs/gifs/chat.gif)
-
-### Test Case 10 — AI 챗봇
+### Test Case 7 — AI 챗봇
 
 > 이전 대화 맥락을 포함한 연속 대화
 
-![AI 챗봇](docs/gifs/chatbot.gif)
+<img src="./asset/챗봇.gif" width="600" alt="AI 챗봇">
 
 ---
 
