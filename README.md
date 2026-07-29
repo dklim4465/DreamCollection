@@ -189,23 +189,23 @@ STOMP CONNECT 시점에 `ChannelInterceptor`가 JWT를 검증하고 인증 정�
 
 ![메이트 매칭](docs/gifs/mate.gif)
 
-### Test Case 8 — 실시간 채팅
+### Test Case 8 — AI 메이트 추천
+
+> 내 여행 성향과 모집 글을 분석해 적합한 메이트를 추천 (모집 종료/본인 글은 제외)
+
+![메이트 매칭](docs/gifs/mate.gif)
+
+### Test Case 9 — 실시간 채팅
 
 > WebSocket(STOMP) 기반 실시간 메시지 송수신
 
 ![실시간 채팅](docs/gifs/chat.gif)
 
-### Test Case 9 — AI 챗봇
+### Test Case 10 — AI 챗봇
 
 > 이전 대화 맥락을 포함한 연속 대화
 
 ![AI 챗봇](docs/gifs/chatbot.gif)
-
-### Test Case 10 — 알림 / 신고
-
-> 메이트 수락/거절, 댓글 알림 
-
-![알림](docs/gifs/notification.gif)
 
 ---
 
