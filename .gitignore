@@ -2,6 +2,10 @@
 .env
 .env.local
 
+# IDE settings
+.idea/
+.vscode/
+
 # Build and dependency directories
 build/
 dist/
