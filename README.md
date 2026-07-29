@@ -77,65 +77,6 @@ DreamCollection/
         └── chat/                       # 실시간 채팅
 ```
 
----
-
-## ⚠️ 환경변수 설정 (`.env`)
-
-보안상 `.env`는 git/압축파일에 포함하지 않습니다. `backend/build.gradle`과 같은 위치에 `backend/.env`를 새로 만들고 아래 내용을 채워주세요.
-
-```env
-# MySQL/MariaDB 접속 정보 — 실제 로컬 DB 계정에 맞게
-DB_USERNAME=dreamuser
-DB_PASSWORD=dream1234
-
-# JWT 서명 키 (최소 32자 이상 랜덤 문자열)
-JWT_SECRET=change-this-to-a-long-random-secret-key-at-least-32-chars
-
-# 이메일 인증 발송 (Gmail 예시 — 2단계 인증 켠 뒤 "앱 비밀번호" 발급해서 사용, 일반 로그인 비번 아님)
-MAIL_USERNAME=your-account@gmail.com
-MAIL_PASSWORD=앱비밀번호_공백없이
-
-# 휴대폰 인증 발송 (Solapi)
-SOLAPI_API_KEY=
-SOLAPI_API_SECRET=
-SOLAPI_SENDER=
-
-# 카카오 로그인
-KAKAO_CLIENT_ID=
-KAKAO_CLIENT_SECRET=
-KAKAO_REDIRECT_URI=http://localhost:3000/oauth/callback/kakao
-```
-
-`application.yml`이 이 값들을 `${DB_USERNAME:root}` 형태로 참조합니다. `.env`가 없으면 기본값(`root`/빈 비밀번호 등)으로 떨어져서 DB 연결 자체가 실패하니, **반드시 새로 만들어야** 합니다.
-
-**DB 드라이버 관련 주의**: 로컬 DB가 MariaDB라면 `application.yml`의 `spring.datasource.url`/`driver-class-name`이 `jdbc:mariadb://...` / `org.mariadb.jdbc.Driver`로 되어 있어야 합니다 (MySQL 드라이버로 MariaDB에 접속하면 인증 플러그인 충돌이 날 수 있음).
-
----
-
-## 📦 도메인별 구현 현황
-
-| 패키지 | 담당 DB 테이블 | 상태 |
-| --- | --- | --- |
-| `domain/user` | users, user_oauth_accounts, user_payment_cards, refresh_tokens, login_history | ✅ 회원가입/로그인/카카오 로그인/내정보 조회·수정 |
-| `domain/verification` | phone_verifications, email_verifications, password_reset_tokens | ✅ 이메일/휴대폰 인증 API |
-| `domain/auth` | (user 도메인과 연동) | ✅ 인증 Controller (`/api/auth/me` 포함) |
-| `domain/badge` | badge, user_badge, users.level | ✅ 뱃지 목록 조회, 대표 뱃지 지정/해제 API |
-| `domain/city` | city | ✅ 자동완성/인기 여행지 API |
-| `domain/main` | banner, notice, monthly_destination, main_background | ✅ 배너/공지/이달의 여행지/배경 API |
-| `domain/stats` | (여러 도메인 집계) | ✅ 홈 화면 통계 API |
-| `global/image` | (프록시 전용) | ✅ 외부 이미지(Unsplash) 프록시 |
-| `domain/admin` | (여러 도메인 관리자 기능) | ✅ 관리자 CRUD API |
-| `domain/trip` | trip_requests, recommendations, days, days_item, flights, accommodations, trip_payments 등 | ✅ AI 일정 생성 포함 완료 |
-| `domain/travelog` | travel_log, log_photo, receipt | ✅ 사진 자동 정리, 영수증 OCR 정산 완료 |
-| `domain/board` | board_post, board_image, board_like, board_comment, report | ✅ CRUD, 댓글, 좋아요, 레벨/뱃지 표시 완료 |
-| `domain/mate` | mate_post, mate_request, mate_review, mate_schedule_link | ✅ 신청/수락/거절/취소, 후기, AI 추천 완료 |
-| `domain/chat` | chat_room, chat_room_member, chat_message | ✅ 실시간 채팅(STOMP) 완료 |
-| `domain/social` | block, notification | ✅ 알림, 신고/차단 완료 |
-
-> **게시판/메이트 참고**: `src/common/component/UserBadgeChip.tsx`를 통해 게시글 작성자 정보에 `badgeName`/`badgeIconUrl`을 내려주면 작성자 닉네임 옆에 레벨/뱃지가 표시됩니다.
-
----
-
 ## 🔗 주요 API 엔드포인트
 
 | 메서드 | 경로 | 설명 | 인증 |
@@ -175,7 +116,7 @@ AI 기능(일정 생성, OCR, 추천, 챗봇)은 Gemini/OpenAI/PaddleOCR 등 외
 
 ```
 Client → Spring Boot → FastAPI(AI 서버) → Gemini/OpenAI API
-                ↑                               │
+                ↑                                │
                 └──────── 결과 저장 ◀───────────┘
 ```
 
@@ -208,7 +149,7 @@ STOMP CONNECT 시점에 `ChannelInterceptor`가 JWT를 검증하고 인증 정�
 
 ### Test Case 1 — 회원가입 / 로그인
 
-> 이메일 또는 카카오 소셜 로그인 → JWT 발급 → 새로고침해도 로그인 상태 유지
+> 이메일 또는 카카오 소셜 로그인 → JWT 발급 → 로그인 
 
 ![회원가입/로그인](docs/gifs/auth.gif)
 
@@ -242,17 +183,17 @@ STOMP CONNECT 시점에 `ChannelInterceptor`가 JWT를 검증하고 인증 정�
 
 ![메이트 매칭](docs/gifs/mate.gif)
 
-### Test Case 7 — 실시간 채팅
+### Test Case 7 — 메이트 모집글 국가별 필터링
+
+> 여행 국가를 선택하면 해당 국가의 모집 글만 걸러서 보여줌
+
+![메이트 매칭](docs/gifs/mate.gif)
+
+### Test Case 8 — 실시간 채팅
 
 > WebSocket(STOMP) 기반 실시간 메시지 송수신
 
 ![실시간 채팅](docs/gifs/chat.gif)
-
-### Test Case 8 — 레벨 / 뱃지
-
-> 여행 기록 수 기준 레벨 자동 계산, 대표 뱃지 지정 시 게시글에 노출
-
-![레벨/뱃지](docs/gifs/badge.gif)
 
 ### Test Case 9 — AI 챗봇
 
@@ -262,7 +203,7 @@ STOMP CONNECT 시점에 `ChannelInterceptor`가 JWT를 검증하고 인증 정�
 
 ### Test Case 10 — 알림 / 신고
 
-> 메이트 수락/거절, 후기 리마인드, 댓글 알림 
+> 메이트 수락/거절, 댓글 알림 
 
 ![알림](docs/gifs/notification.gif)
 
