@@ -91,7 +91,10 @@ export default function MateDetailPage() {
 
   const deleteMutation = useMutation({
     mutationFn: () => matePostApi.delete(id),
-    onSuccess: () => navigate("/matching"),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["mate-posts"] });
+      navigate("/matching");
+    },
   });
 
   if (isLoading) return <LoadingSpinner message="모집글을 불러오는 중..." />;

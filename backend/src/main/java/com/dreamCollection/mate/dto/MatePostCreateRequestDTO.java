@@ -1,3 +1,4 @@
+// 파일: backend/src/main/java/com/dreamCollection/mate/dto/MatePostCreateRequestDTO.java
 package com.dreamCollection.mate.dto;
 
 import jakarta.validation.constraints.Future;
@@ -20,6 +21,10 @@ public class MatePostCreateRequestDTO {
     @NotBlank(message = "여행지는 필수입니다.")
     private String destination;
 
+    private String countryCode;
+
+    private String countryName;
+
     @NotNull(message = "시작일은 필수입니다.")
     @Future(message = "시작일은 오늘 이후여야 합니다.")
     private LocalDate startDate;
@@ -37,4 +42,3 @@ public class MatePostCreateRequestDTO {
     @Min(value = 1, message = "모집인원은 1명 이상이어야 합니다.")
     private Integer recruitCount;
 }
-

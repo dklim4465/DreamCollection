@@ -63,12 +63,15 @@ public class MatePost {
     private LocalDateTime createdAt;
 
     @Builder
-    public MatePost(Long userId, Long cityId, String destination, LocalDate startDate, LocalDate endDate,
+    public MatePost(Long userId, Long cityId, String destination, String countryCode, String countryName,
+                    LocalDate startDate, LocalDate endDate,
                     String content, String preferredAge, String preferredGender, String travelStyle,
                     Integer recruitCount) {
         this.userId = userId;
         this.cityId = cityId;
         this.destination = destination;
+        this.countryCode = countryCode;
+        this.countryName = countryName;
         this.startDate = startDate;
         this.endDate = endDate;
         this.content = content;

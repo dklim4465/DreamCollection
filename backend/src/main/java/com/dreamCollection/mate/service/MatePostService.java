@@ -1,5 +1,7 @@
 package com.dreamCollection.mate.service;
 
+import com.dreamCollection.city.entity.City;
+import com.dreamCollection.city.repository.CityRepository;
 import com.dreamCollection.mate.dto.AuthorLevelBadgeInfo;
 import com.dreamCollection.mate.dto.MatePostCreateRequestDTO;
 import com.dreamCollection.mate.dto.MatePostDetailResponseDTO;
@@ -24,6 +26,7 @@ import java.util.List;
 public class MatePostService {
     private final MatePostRepository matePostRepository;
     private final UserRepository userRepository;
+    private final CityRepository cityRepository;
     private final MateAuthorLevelBadgeService mateAuthorLevelBadgeService;
 
     // 목록의 "전체(ALL)" 탭에서 항상 제외해야 하는 숨김 상태들.
@@ -32,10 +35,18 @@ public class MatePostService {
 
     @Transactional
     public MatePostDetailResponseDTO createPost(Long userId, MatePostCreateRequestDTO requestDTO){
+        // 프론트가 destination을 자유 텍스트로 받기 때문에 cityId가 없다.
+        // destination 텍스트에 city.name_ko가 포함되어 있으면 그 도시의 국가 정보를 자동으로 채운다.
+        // (예: "호치민" → city 테이블의 "호치민" row → country_code=VN)
+        // 여러 도시가 매칭되면 첫 번째 결과를 사용하고, 매칭이 없으면 country는 null로 남는다.
+        City city = findCityFromDestination(requestDTO.getDestination());
+
         MatePost post = MatePost.builder()
                 .userId(userId)
-                .cityId(requestDTO.getCityId())
+                .cityId(city != null ? city.getId() : null)
                 .destination(requestDTO.getDestination())
+                .countryCode(city != null ? city.getCountryCode() : null)
+                .countryName(city != null ? city.getCountryName() : null)
                 .startDate(requestDTO.getStartDate())
                 .endDate(requestDTO.getEndDate())
                 .content(requestDTO.getContent())
@@ -52,6 +63,14 @@ public class MatePostService {
                 user != null ? user.getNickname() : "알 수 없음",
                 user != null ? user.getProfileImageUrl() : null
         );
+    }
+
+    private City findCityFromDestination(String destination) {
+        if (destination == null || destination.isBlank()) {
+            return null;
+        }
+        List<City> matched = cityRepository.findByNameKoContainingAndActiveTrue(destination.trim());
+        return matched.isEmpty() ? null : matched.get(0);
     }
 
     @Transactional(readOnly = true)
@@ -93,7 +112,12 @@ public class MatePostService {
         MatePost post = findPostOrThrow(matePostId);
         validateOwner(post,userId);
 
+        City city = findCityFromDestination(requestDTO.getDestination());
+
         post.setDestination(requestDTO.getDestination());
+        post.setCityId(city != null ? city.getId() : null);
+        post.setCountryCode(city != null ? city.getCountryCode() : null);
+        post.setCountryName(city != null ? city.getCountryName() : null);
         post.setStartDate(requestDTO.getStartDate());
         post.setEndDate(requestDTO.getEndDate());
         post.setContent(requestDTO.getContent());

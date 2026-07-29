@@ -41,8 +41,14 @@ public class ChatService {
     private final FriendshipRepository friendshipRepository;
     private final UserRepository userRepository;
 
+    /**
+     * matePostId 기준 채팅방을 가져오거나 새로 만든다.
+     * 호출자(userId)뿐 아니라 상대방(targetUserId)도 함께 멤버로 등록해서,
+     * 누가 먼저 "채팅하기"를 누르든 방 생성 즉시 양쪽 다 그 방을 볼 수 있게 한다
+     * (이전엔 호출자만 멤버로 등록돼서, 상대방은 자기도 "채팅하기"를 눌러야만 뒤늦게 보였음).
+     */
     @Transactional
-    public Long getOrCreateRoom(Long matePostId, Long userId) {
+    public Long getOrCreateRoom(Long matePostId, Long userId, Long targetUserId) {
         MatePost post = matePostRepository.findById(matePostId)
                 .orElseThrow(MatePostNotFoundException::new);
 
@@ -56,12 +62,19 @@ public class ChatService {
         ChatRoom room = chatRoomRepository.findByMatePostId(matePostId)
                 .orElseGet(() -> chatRoomRepository.save(ChatRoom.builder().matePostId(matePostId).build()));
 
-        chatRoomMemberRepository.findByRoomIdAndUserId(room.getId(), userId)
-                .orElseGet(() -> chatRoomMemberRepository.save(
-                        ChatRoomMember.builder().roomId(room.getId()).userId(userId).build()
-                ));
+        addMemberIfAbsent(room.getId(), userId);
+        if (targetUserId != null && !targetUserId.equals(userId)) {
+            addMemberIfAbsent(room.getId(), targetUserId);
+        }
 
         return room.getId();
+    }
+
+    private void addMemberIfAbsent(Long roomId, Long userId) {
+        chatRoomMemberRepository.findByRoomIdAndUserId(roomId, userId)
+                .orElseGet(() -> chatRoomMemberRepository.save(
+                        ChatRoomMember.builder().roomId(roomId).userId(userId).build()
+                ));
     }
 
     @Transactional

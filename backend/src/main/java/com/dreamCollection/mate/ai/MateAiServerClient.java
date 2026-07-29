@@ -14,7 +14,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Gemini를 직접 호출하지 않고, 별도로 띄운 ai-server(Flask)의 /v1/generate를 호출하는
+ * Gemini를 직접 호출하지 않고, 별도로 띄운 ai-server(FastAPI)의 /v1/generate를 호출하는
  * mate 도메인 전용 클라이언트. ai-server 위치는 application.properties의
  * ai.server.base-url로 설정한다.
  */

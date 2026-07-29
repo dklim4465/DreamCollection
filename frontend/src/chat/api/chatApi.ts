@@ -6,8 +6,12 @@ export const chatApi = {
   getMyRooms: () => apiClient.get<ApiResponse<ChatRoom[]>>("/chat/rooms"),
   getMessages: (roomId: number) =>
     apiClient.get<ApiResponse<ChatMessage[]>>(`/chat/rooms/${roomId}/messages`),
-  openRoom: (matePostId: number) =>
-    apiClient.post<ApiResponse<number>>(`/chat/mate-posts/${matePostId}/room`),
+  openRoom: (matePostId: number, targetUserId: number) =>
+    apiClient.post<ApiResponse<number>>(
+      `/chat/mate-posts/${matePostId}/room`,
+      null,
+      { params: { targetUserId } },
+    ),
   openDmRoom: (friendUserId: number) =>
     apiClient.post<ApiResponse<number>>(`/chat/dm/${friendUserId}/room`),
   markRead: (roomId: number) =>
