@@ -175,7 +175,7 @@ AI 기능(일정 생성, OCR, 추천, 챗봇)은 Gemini/OpenAI/PaddleOCR 등 외
 
 ```
 Client → Spring Boot → FastAPI(AI 서버) → Gemini/OpenAI API
-                ↑                              │
+                ↑                               │
                 └──────── 결과 저장 ◀───────────┘
 ```
 
