@@ -2,6 +2,12 @@
 
 여행 전(일정 생성·동행 매칭)부터 여행 후(사진·영수증 정리, 커뮤니티 공유)까지, AI 기반 자동 정리 기능과 함께 하나의 서비스에서 관리할 수 있도록 만든 풀스택 팀 프로젝트입니다.
 
+### 🔗 프로젝트 자료
+
+- [📄 풀스택 프로젝트 PDF](./docs/드림컬렉션%20풀스택.pdf)
+- [📄 AI 프로젝트 PDF](./docs/드림컬렉션%20ai.pdf)
+- [▶️ 프로젝트 시연 영상](https://www.youtube.com/watch?v=8HqT9gTCRWs&t=11s)
+
 ---
 
 ## 📌 프로젝트 개요 (Overview)
@@ -20,26 +26,26 @@
 
 ## 🛠️ 주요 기술 스택 (Tech Stack)
 
-| 항목 | 내용 |
-| --- | --- |
-| Backend | Java 21, Spring Boot 3.5 (Web, Data JPA, Validation, Security) |
-| Database | MySQL 8 / MariaDB 10.6+ |
-| Auth | JWT (jjwt) + Refresh Token, 카카오 소셜 로그인 |
-| Realtime | WebSocket (STOMP) |
-| AI Server | FastAPI (Flask → FastAPI 마이그레이션), Gemini API, OpenAI API, PaddleOCR |
-| Frontend | React 18, TypeScript, Vite |
-| Frontend 상태/통신 | TanStack Query, Zustand, React Hook Form |
-| Build/Tool | Gradle, Lombok, Git/GitHub |
+| 항목               | 내용                                                                      |
+| ------------------ | ------------------------------------------------------------------------- |
+| Backend            | Java 21, Spring Boot 3.5 (Web, Data JPA, Validation, Security)            |
+| Database           | MySQL 8 / MariaDB 10.6+                                                   |
+| Auth               | JWT (jjwt) + Refresh Token, 카카오 소셜 로그인                            |
+| Realtime           | WebSocket (STOMP)                                                         |
+| AI Server          | FastAPI (Flask → FastAPI 마이그레이션), Gemini API, OpenAI API, PaddleOCR |
+| Frontend           | React 18, TypeScript, Vite                                                |
+| Frontend 상태/통신 | TanStack Query, Zustand, React Hook Form                                  |
+| Build/Tool         | Gradle, Lombok, Git/GitHub                                                |
 
 ---
 
 ## 👥 팀 소개
 
-| 이름 | 담당 |
-| --- | --- |
-| 임대한 (팀장) | 여행 일정, 여행 기록(travelog) |
-| 이민주 | 게시판, 여행 메이트, 실시간 채팅 |
-| 복영재 | 회원 관리/인증, 메인 페이지, 관리자 |
+| 이름          | 담당                                |
+| ------------- | ----------------------------------- |
+| 임대한 (팀장) | 여행 일정, 여행 기록(travelog)      |
+| 이민주        | 게시판, 여행 메이트, 실시간 채팅    |
+| 복영재        | 회원 관리/인증, 메인 페이지, 관리자 |
 
 ---
 
@@ -79,32 +85,32 @@ DreamCollection/
 
 ## 🔗 주요 API 엔드포인트
 
-| 메서드 | 경로 | 설명 | 인증 |
-| --- | --- | --- | --- |
-| GET | `/api/auth/me`, `/api/users/me` | 내 정보 조회 (새로고침 시 로그인 상태 복구용) | 필요 |
-| PATCH | `/api/users/me` | 프로필 수정 (닉네임/프로필이미지/여행스타일, 값 있는 필드만 반영) | 필요 |
-| GET | `/api/badges/me` | 내 뱃지 목록 (획득/미획득 전부 + 대표 여부) | 필요 |
-| PATCH | `/api/badges/me/representative/{badgeId}` | 대표 뱃지 지정 | 필요 |
-| DELETE | `/api/badges/me/representative` | 대표 뱃지 해제 | 필요 |
-| GET | `/api/stats` | 홈 화면 통계(등록된 여행 일정/유저/여행일지/지원 국가 수) | 공개 |
-| GET | `/api/images/proxy?url=` | 외부 이미지 프록시 (허용 도메인만) | 공개 |
+| 메서드 | 경로                                      | 설명                                                              | 인증 |
+| ------ | ----------------------------------------- | ----------------------------------------------------------------- | ---- |
+| GET    | `/api/auth/me`, `/api/users/me`           | 내 정보 조회 (새로고침 시 로그인 상태 복구용)                     | 필요 |
+| PATCH  | `/api/users/me`                           | 프로필 수정 (닉네임/프로필이미지/여행스타일, 값 있는 필드만 반영) | 필요 |
+| GET    | `/api/badges/me`                          | 내 뱃지 목록 (획득/미획득 전부 + 대표 여부)                       | 필요 |
+| PATCH  | `/api/badges/me/representative/{badgeId}` | 대표 뱃지 지정                                                    | 필요 |
+| DELETE | `/api/badges/me/representative`           | 대표 뱃지 해제                                                    | 필요 |
+| GET    | `/api/stats`                              | 홈 화면 통계(등록된 여행 일정/유저/여행일지/지원 국가 수)         | 공개 |
+| GET    | `/api/images/proxy?url=`                  | 외부 이미지 프록시 (허용 도메인만)                                | 공개 |
 
 ---
 
 ## ⚙️ 주요 기능
 
-| 기능 | 설명 |
-| --- | --- |
-| AI 여행 일정 생성 | 조건 입력 → Gemini API로 관광지·숙소 포함 일정 자동 생성, Place ID 검증 |
-| 여행 사진 자동 정리 | 사진 메타데이터(위치·시간) 분석 후 자동 그룹핑, GPS 없으면 시간 기준으로만 그룹핑 |
-| 영수증 OCR 정산 | PaddleOCR 텍스트 추출 → OpenAI가 날짜/금액 분석 → 여행 경비 자동 정산 |
-| 회원 인증 | JWT + Refresh Token 자동 로그인, 카카오 소셜 로그인 |
-| 게시판 | 글 작성/수정/삭제, 댓글·대댓글, 좋아요, 카테고리 조회, 페이징 |
-| 메이트 매칭 | AI 성향 기반 추천, 신청/수락/거절/취소, 여행 시작일 이후 후기 작성, 후기 리마인드 스케줄러 |
-| 실시간 채팅 | WebSocket(STOMP) 기반, 읽지 않은 메시지 뱃지, 날짜 구분선 |
-| 레벨 · 뱃지 | 여행 기록 수 기반 레벨 자동 계산, 대표 뱃지 지정 |
-| AI 챗봇 | 이전 대화 맥락을 포함한 연속 대화 |
-| 알림 · 신고 | 메이트 수락/거절, 후기 리마인드, 댓글 알림, 신고 처리 |
+| 기능                | 설명                                                                                       |
+| ------------------- | ------------------------------------------------------------------------------------------ |
+| AI 여행 일정 생성   | 조건 입력 → Gemini API로 관광지·숙소 포함 일정 자동 생성, Place ID 검증                    |
+| 여행 사진 자동 정리 | 사진 메타데이터(위치·시간) 분석 후 자동 그룹핑, GPS 없으면 시간 기준으로만 그룹핑          |
+| 영수증 OCR 정산     | PaddleOCR 텍스트 추출 → OpenAI가 날짜/금액 분석 → 여행 경비 자동 정산                      |
+| 회원 인증           | JWT + Refresh Token 자동 로그인, 카카오 소셜 로그인                                        |
+| 게시판              | 글 작성/수정/삭제, 댓글·대댓글, 좋아요, 카테고리 조회, 페이징                              |
+| 메이트 매칭         | AI 성향 기반 추천, 신청/수락/거절/취소, 여행 시작일 이후 후기 작성, 후기 리마인드 스케줄러 |
+| 실시간 채팅         | WebSocket(STOMP) 기반, 읽지 않은 메시지 뱃지, 날짜 구분선                                  |
+| 레벨 · 뱃지         | 여행 기록 수 기반 레벨 자동 계산, 대표 뱃지 지정                                           |
+| AI 챗봇             | 이전 대화 맥락을 포함한 연속 대화                                                          |
+| 알림 · 신고         | 메이트 수락/거절, 후기 리마인드, 댓글 알림, 신고 처리                                      |
 
 ---
 
@@ -130,18 +136,28 @@ STOMP CONNECT 시점에 `ChannelInterceptor`가 JWT를 검증하고 인증 정�
 
 ---
 
+## ☁️ AWS 배포 테스트
+
+Elastic Beanstalk를 중심으로 EC2 애플리케이션 서버와 RDS(MySQL) 데이터베이스를 연결해 AWS 배포 환경을 구성했습니다. IAM으로 서비스 접근 권한을 관리하고 S3를 스토리지로 활용했으며, 보안 그룹을 통해 SSH(22)와 MySQL(3306) 접근 범위를 설정했습니다.
+
+배포 후 Elastic Beanstalk에서 제공하는 도메인으로 접속해 Dream Collection의 메인 화면과 주요 기능이 정상적으로 실행되는 것을 확인했습니다. 이를 통해 로컬 개발 환경에서 동작하던 프론트엔드·백엔드·데이터베이스 구성을 AWS 환경에서도 연동해보았습니다.
+
+<img src="./asset/드컬%20최종.png" width="1000" alt="AWS 배포 구성 및 서비스 실행 화면">
+
+---
+
 ## 🧩 트러블슈팅 (Troubleshooting)
 
-| 문제 | 원인 | 해결 방법 |
-| --- | --- | --- |
-| 실시간 채팅 메시지가 상대방 화면에 안 뜸 | `@SendTo("/sub/rooms/{roomId}")`가 경로 변수를 실제 값으로 치환하지 않아 엉뚱한 주소로 발행됨 | `SimpMessagingTemplate.convertAndSend()`로 실제 경로를 직접 조립해 발행 |
-| STOMP 인증 정보가 세션에 반영 안 됨 | `StompHeaderAccessor.wrap()`이 새 accessor 객체를 만들어 `setUser()` 결과가 원본 메시지에 반영되지 않음 | `MessageHeaderAccessor.getAccessor()`로 원본 accessor를 직접 사용 |
-| 서버 기동 시 `ConflictingBeanDefinitionException` | board/mate 패키지에 동일한 이름의 `@Service` 클래스가 존재 (Spring 빈 이름은 패키지를 구분하지 않음) | `BoardAuthorLevelBadgeService`/`MateAuthorLevelBadgeService`로 클래스명 분리 |
-| 비로그인 사용자의 게시글 작성 요청이 서버까지 도달 (500) | `SecurityConfig`의 `PUBLIC_URLS`에 `/api/board/posts/**`가 모든 HTTP 메서드에 대해 permitAll로 설정됨 | GET만 허용하는 `PUBLIC_GET_URLS`로 분리, POST/PUT/DELETE는 인증 필요 |
-| 머지 이후 다른 유저의 사진이 안 보임 | 이미지 경로가 `/uploads/**`(복수형)만 화이트리스트 등록, 신규 업로드는 `/upload/**`(단수형) 사용 | `/upload/**` 경로를 화이트리스트에 추가 |
-| 메이트 신청을 취소해도 채팅방 접근 가능 | 채팅방 멤버십 여부만 검증하고 신청 취소 여부는 검증하지 않음 | 방장이거나 여전히 유효한 신청 건이 있는지 추가 검증 로직 반영 |
-| AI 일정 생성이 계속 실패/반복 | OpenAI API Key 누락으로 AI 서버가 정상적으로 기동하지 않음 | API Key 환경변수 추가 |
-| GPS 정보 없는 사진에서 오류 발생 | 위치 데이터 없이 지도 표시 로직이 그대로 실행됨 | GPS 없으면 지도 표시는 제외하고 시간 정보만으로 그룹핑 |
+| 문제                                                     | 원인                                                                                                    | 해결 방법                                                                    |
+| -------------------------------------------------------- | ------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------- |
+| 실시간 채팅 메시지가 상대방 화면에 안 뜸                 | `@SendTo("/sub/rooms/{roomId}")`가 경로 변수를 실제 값으로 치환하지 않아 엉뚱한 주소로 발행됨           | `SimpMessagingTemplate.convertAndSend()`로 실제 경로를 직접 조립해 발행      |
+| STOMP 인증 정보가 세션에 반영 안 됨                      | `StompHeaderAccessor.wrap()`이 새 accessor 객체를 만들어 `setUser()` 결과가 원본 메시지에 반영되지 않음 | `MessageHeaderAccessor.getAccessor()`로 원본 accessor를 직접 사용            |
+| 서버 기동 시 `ConflictingBeanDefinitionException`        | board/mate 패키지에 동일한 이름의 `@Service` 클래스가 존재 (Spring 빈 이름은 패키지를 구분하지 않음)    | `BoardAuthorLevelBadgeService`/`MateAuthorLevelBadgeService`로 클래스명 분리 |
+| 비로그인 사용자의 게시글 작성 요청이 서버까지 도달 (500) | `SecurityConfig`의 `PUBLIC_URLS`에 `/api/board/posts/**`가 모든 HTTP 메서드에 대해 permitAll로 설정됨   | GET만 허용하는 `PUBLIC_GET_URLS`로 분리, POST/PUT/DELETE는 인증 필요         |
+| 머지 이후 다른 유저의 사진이 안 보임                     | 이미지 경로가 `/uploads/**`(복수형)만 화이트리스트 등록, 신규 업로드는 `/upload/**`(단수형) 사용        | `/upload/**` 경로를 화이트리스트에 추가                                      |
+| 메이트 신청을 취소해도 채팅방 접근 가능                  | 채팅방 멤버십 여부만 검증하고 신청 취소 여부는 검증하지 않음                                            | 방장이거나 여전히 유효한 신청 건이 있는지 추가 검증 로직 반영                |
+| AI 일정 생성이 계속 실패/반복                            | OpenAI API Key 누락으로 AI 서버가 정상적으로 기동하지 않음                                              | API Key 환경변수 추가                                                        |
+| GPS 정보 없는 사진에서 오류 발생                         | 위치 데이터 없이 지도 표시 로직이 그대로 실행됨                                                         | GPS 없으면 지도 표시는 제외하고 시간 정보만으로 그룹핑                       |
 
 ---
 
@@ -149,7 +165,7 @@ STOMP CONNECT 시점에 `ChannelInterceptor`가 JWT를 검증하고 인증 정�
 
 ### Test Case 1 — 회원가입 / 로그인
 
-> 이메일 또는 카카오 소셜 로그인 → JWT 발급 → 로그인 
+> 이메일 또는 카카오 소셜 로그인 → JWT 발급 → 로그인
 
 <img src="./asset/회원가입.gif" width="600" alt="회원가입/로그인">
 
@@ -188,6 +204,7 @@ STOMP CONNECT 시점에 `ChannelInterceptor`가 JWT를 검증하고 인증 정�
 ## 🚀 실행 방법
 
 ### 백엔드
+
 1. Java 21 설치 (`temurin-21` 권장), MySQL/MariaDB 실행 중이어야 함
 2. 팀에서 공유하는 통합 SQL 스크립트 실행 (테이블 생성 + 시드 데이터, 뱃지/레벨 포함)
 3. `backend/.env` 생성 (DB 계정, JWT Secret, 메일/카카오 등)
@@ -195,11 +212,13 @@ STOMP CONNECT 시점에 `ChannelInterceptor`가 JWT를 검증하고 인증 정�
 5. 콘솔에 `Tomcat started on port(s): 8080` 확인
 
 **재실행 시 자주 겪는 문제**
+
 - `Port XXXX was already in use` → 이전 실행이 안 꺼진 상태. `netstat -ano | findstr :8080` 후 `taskkill /PID <번호> /F`, 또는 IntelliJ Run Configuration에서 "Single instance only" 체크
 - `Unable to load authentication plugin 'auth_gssapi_client'` / `GSS-API authentication exception` → DB 드라이버가 실제 DB(MariaDB/MySQL)와 안 맞음 (위 "DB 드라이버 관련 주의" 참고)
 - 이메일/SMS 인증번호가 안 옴 → `.env`의 `MAIL_PASSWORD`(Gmail 앱 비밀번호, 공백 제거)/`SOLAPI_*` 값 확인
 
 ### AI 서버
+
 ```bash
 cd ai-server
 pip install -r requirements.txt
@@ -207,11 +226,13 @@ uvicorn app:app --reload
 ```
 
 ### 프론트엔드
+
 ```bash
 cd frontend
 npm install
 npm run dev
 ```
+
 `http://localhost:3000`에서 확인 (Vite 프록시로 `/api` → `http://localhost:8080`)
 
 - 이미지가 안 보이면 브라우저 광고차단 확장 프로그램이 외부 이미지(Unsplash)를 막는 경우가 있습니다 → 백엔드의 `/api/images/proxy`를 통해 받아오도록 처리되어 있어 대부분 해결되지만, 그래도 안 보이면 시크릿 모드로 확인해보세요.
